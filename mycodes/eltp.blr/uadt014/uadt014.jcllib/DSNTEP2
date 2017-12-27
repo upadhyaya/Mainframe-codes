@@ -1,0 +1,18 @@
+//UADT002H JOB 'RUN TEP2',CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID,            00010099
+//         MSGLEVEL=(1,1),TIME=1440,REGION=0M                           00020000
+//****************************************************************      00030000
+//*                                                                     00040000
+//*        RUN PROGRAM DSNTEP2 ON DATASBASE                             00050000
+//*                                                                     00060000
+//****************************************************************      00070000
+//*                                                                     00080000
+//RUNTEP2  EXEC PGM=IKJEFT1A,DYNAMNBR=20                                00090000
+//STEPLIB  DD  DSN=DSN810.RUNLIB.LOAD,DISP=SHR                          00100000
+//SYSTSPRT DD  SYSOUT=*                                                 00110000
+//SYSPRINT DD  SYSOUT=*                                                 00120000
+//SYSUDUMP DD  SYSOUT=*                                                 00130000
+//SYSTSIN  DD  *                                                        00140000
+  DSN SYSTEM(DB2A)                                                      00150087
+  RUN  PROGRAM(DSNTEP2)                                                 00160087
+  END                                                                   00170087
+//SYSIN DD DSN=ELTP.BLR.UADT014.SOA(ACEFAS),DISP=SHR                    00190099

@@ -1,0 +1,3 @@
+ AVERAGE: PROCEDURE OPTIONS(MAIN);                                      00010001
+         PUT LIST('THIS IS A SAMPLE PL/1 PROGRAM');                     00020000
+ END AVERAGE;                                                           00030001

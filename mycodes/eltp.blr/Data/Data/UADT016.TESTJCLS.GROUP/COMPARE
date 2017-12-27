@@ -1,0 +1,8 @@
+//UADT016C JOB 'COMPARE',NOTIFY=&SYSUID,REGION=0M                       00010001
+//STEP1 EXEC PGM=IEBCOMPR                                               00020001
+//SYSUT1 DD DSN=UADT016.SORT.INPUT,DISP=SHR                             00030001
+//SYSUT2 DD DSN=UADT016.SORT.OUTPUT,DISP=SHR                            00040001
+//SYSPRINT DD SYSOUT=*                                                  00041002
+//SYSIN DD *                                                            00050001
+  COMPARE TYPORG=PS                                                     00060002
+/*                                                                      00070002

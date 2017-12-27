@@ -1,0 +1,230 @@
+000200 IDENTIFICATION DIVISION.                                         00010000
+000300 PROGRAM-ID. MYPARSER                                             00020000
+000400                                                                  00030000
+000500 DATE-COMPILED.                                                   00040000
+000600 ENVIRONMENT DIVISION.                                            00050000
+000700 CONFIGURATION SECTION.                                           00060000
+000800 SPECIAL-NAMES.                                                   00070000
+000900 DATA DIVISION.                                                   00080000
+001000 WORKING-STORAGE SECTION.                                         00090000
+001100 01 WS-START.                                                     00100000
+001200     03 FILLER PIC X(44)                                          00110000
+001300         VALUE '*** MYPARSER WORKING STORAGE STARTS HERE ***'.    00120000
+001400     03 RESP PIC S9(8) COMP-5 SYNC.                               00130000
+001500     03 RESP2 PIC S9(8) COMP-5 SYNC.                              00140000
+001600     03 I PIC S9(4) COMP-5 SYNC.                                  00150000
+001700     03 J PIC S9(4) COMP-5 SYNC.                                  00160000
+001800     03 K PIC S9(4) COMP-5 SYNC.                                  00170000
+001900     03 L PIC S9(4) COMP-5 SYNC.                                  00180000
+002000     03 WORKAREA PIC X(24).                                       00190000
+002100*********************************************************         00200000
+002200* Data items for use by parser                                    00210000
+002300*********************************************************         00220000
+002400     03 IN-ELEM PIC X(1) VALUE 'N'.                               00230000
+002500     03 IN-REF-REQ PIC X(1) VALUE 'N'.                            00240000
+002600     03 PARSE-ERROR PIC X(1) VALUE 'N'.                           00250000
+002700                                                                  00260000
+002800* The XML document to parse                                       00270000
+002900 01 XML-DOCUMENT PIC X(1024).                                     00280000
+003000                                                                  00290000
+003100 01 USERNAME-XMLTAG-FOUND PIC X VALUE 'N'.                        00300000
+003200                                                                  00310000
+003300******************************************************************00320000
+003400* Externally referenced data areas                                00330000
+003500******************************************************************00340000
+003600 LINKAGE SECTION.                                                 00350000
+003700 01 DFHCOMMAREA.                                                  00360000
+003800     02 DFHCOMMAREA-IN PIC X(1024).                               00370000
+003900     02 CA-RSP REDEFINES DFHCOMMAREA-IN.                          00380000
+004000        05 CA-USER-ID PIC X(8).                                   00390000
+004100        05 CA-PASSWORD PIC X(8).                                  00400000
+004200        05 FILLER PIC X(1008).                                    00410000
+004300                                                                  00420000
+004400******************************************************************00430000
+004500* Main line code begins *                                         00440000
+004600******************************************************************00450000
+004700 PROCEDURE DIVISION.                                              00460000
+004800 MAIN-PROCESSING SECTION.                                         00470000
+004900***************************                                       00480000
+005000* Validate the commarea                                           00490000
+005100***************************                                       00500000
+           DISPLAY 'START MYPARSER'                                     00501001
+005200     PERFORM INIT-AND-VALIDATE.                                   00510000
+005300***********************************************************       00520000
+005400* Received a valid COMMAREA so invoke the XML parser              00530000
+005500* invoke the XML parser passing it the XML message                00540000
+005600* What is the COBOL command used to invoke the XML parser?        00550000
+005700***********************************************************       00560000
+005800     XML PARSE XML-DOCUMENT                                       00570000
+005900         PROCESSING PROCEDURE XML-HANDLER                         00580000
+006000     END-XML.                                                     00590000
+           DISPLAY 'AFTER PARSE XML DOC'                                00591001
+006100                                                                  00600000
+006200*    PERFORM RETURN-SOAP-LAB-RESPONSE.                            00610000
+006200     PERFORM RETURN-RESPONSE.                                     00611000
+           DISPLAY 'AFTER RETURN RESP'                                  00612001
+006300                                                                  00620000
+006400     EXEC CICS RETURN END-EXEC.                                   00630000
+006500 MAIN-PROCESSING-END. EXIT.                                       00640000
+006600                                                                  00650000
+006700***************************************************************** 00660000
+006800* The following section is executed as a callback routine         00670000
+006900* out of the XML PARSE statement above.                           00680000
+007000* What is the name of the register we need to check on the        00690000
+007100* EVALUATE statement?                                             00700000
+007200***************************************************************** 00710000
+007300 XML-HANDLER SECTION.                                             00720000
+           DISPLAY 'XML EVENT ,'XML-EVENT                               00721001
+007400     EVALUATE XML-EVENT                                           00730000
+007500         WHEN 'START-OF-ELEMENT'                                  00740000
+007600******************************************                        00750000
+007700* check if we have an element of interest                         00760000
+007800* i.e. Username and Password                                      00770000
+007900******************************************                        00780000
+008000             IF XML-TEXT = 'wsse:Username'                        00790000
+008100                 MOVE 'Y' TO IN-ELEM USERNAME-XMLTAG-FOUND        00800000
+008200             ELSE                                                 00810000
+008300                if XML-TEXT = 'wsse:Password'                     00820000
+008400                   MOVE 'Y' TO IN-REF-REQ                         00830000
+008500                END-IF                                            00840000
+008600             END-IF                                               00850000
+008700         WHEN 'CONTENT-CHARACTERS'                                00860000
+008800************************************************                  00870000
+008900* If we are in an element we are interested in,                   00880000
+009000* then extract its value                                          00890000
+009100************************************************                  00900000
+009200             IF IN-ELEM = 'Y'                                     00910000
+009300                 PERFORM EXTRACT-USER-ID                          00920000
+009400             ELSE                                                 00930000
+009500               IF IN-REF-REQ = 'Y'                                00940000
+009600                 PERFORM EXTRACT-PASSWORD                         00950000
+009700               END-IF                                             00960000
+009800             END-IF                                               00970000
+009900         WHEN 'END-OF-ELEMENT'                                    00980000
+010000             CONTINUE                                             00990000
+010100         WHEN 'START-OF-DOCUMENT'                                 01000000
+010200             CONTINUE                                             01010000
+010300         WHEN 'END-OF-DOCUMENT'                                   01020000
+010400             CONTINUE                                             01030000
+010500         WHEN 'VERSION-INFORMATION'                               01040000
+010600             CONTINUE                                             01050000
+010700         WHEN 'ENCODING-DECLARATION'                              01060000
+010800             CONTINUE                                             01070000
+010900         WHEN 'STANDALONE-DECLARATION'                            01080000
+011000             CONTINUE                                             01090000
+011100         WHEN 'ATTRIBUTE-NAME'                                    01100000
+011200             CONTINUE                                             01110000
+011300         WHEN 'ATTRIBUTE-CHARACTERS'                              01120000
+011400             CONTINUE                                             01130000
+011500         WHEN 'ATTRIBUTE-CHARACTER'                               01140000
+011600             CONTINUE                                             01150000
+011700         WHEN 'START-OF-CDATA-SECTION'                            01160000
+011800             CONTINUE                                             01170000
+011900         WHEN 'END-OF-CDATA-SECTION'                              01180000
+012000             CONTINUE                                             01190000
+012100         WHEN 'CONTENT-CHARACTER'                                 01200000
+012200             CONTINUE                                             01210000
+012300         WHEN 'PROCESSING-INSTRUCTION-TARGET'                     01220000
+012400             CONTINUE                                             01230000
+012500         WHEN 'PROCESSING-INSTRUCTION-DATA'                       01240000
+012600             CONTINUE                                             01250000
+012700         WHEN 'COMMENT'                                           01260000
+012800             CONTINUE                                             01270000
+012900         WHEN 'EXCEPTION'                                         01280000
+013000***************************************************************** 01290000
+013100* Exception handling paragraph                                    01300000
+013200* XML code 52 means that the code page being used does not match  01310000
+013300* the one specified in the document. This is expected with non    01320000
+013400* EBCDIC data, as it has been translated to EBCDIC since we       01330000
+013500* received it.                                                    01340000
+013600***************************************************************** 01350000
+013700             IF XML-CODE = 52 MOVE ZERO TO XML-CODE               01360000
+013800             ELSE                                                 01370000
+013900***************************************                           01380000
+014000* An exception occurred during parsing                            01390000
+014100***************************************                           01400000
+014200                 MOVE 'Y' TO PARSE-ERROR                          01410000
+014300             END-IF                                               01420000
+014400         WHEN OTHER                                               01430000
+014500             MOVE 'Y' TO PARSE-ERROR                              01440000
+014600     END-EVALUATE.                                                01450000
+014700 XML-HANDLER-END. EXIT.                                           01460000
+014800 XML01-SUBROUTINES SECTION.                                       01470000
+014900****************************************************************  01480000
+015000* The parser returns everything between the <xmltag> and          01490000
+015100* </xmltag> tags, including all whitespace (SP, CR, LF, NL, HT)   01500000
+015200* These are removed before saving the xmltag content.             01510000
+015300****************************************************************  01520000
+015400 EXTRACT-USER-ID.                                                 01530000
+015500     MOVE ZERO TO I J.                                            01540000
+015600     MOVE LENGTH OF XML-TEXT TO L.                                01550000
+015700     IF L > LENGTH OF WORKAREA                                    01560000
+015800     MOVE LENGTH OF WORKAREA TO L.                                01570000
+015900     MOVE XML-TEXT TO WORKAREA(1 : L).                            01580000
+016000     INSPECT WORKAREA(1 : L) CONVERTING X'0D251505' TO SPACES.    01590000
+016100     INSPECT WORKAREA(1 : L) TALLYING I FOR LEADING SPACES.       01600000
+016200     SUBTRACT I FROM L.                                           01610000
+016300     INSPECT WORKAREA(I + 1 : L) TALLYING J FOR ALL SPACES.       01620000
+016400     SUBTRACT J FROM L.                                           01630000
+016500     IF L > LENGTH OF CA-USER-ID                                  01640000
+016600     MOVE LENGTH OF CA-USER-ID TO L.                              01650000
+016700     MOVE WORKAREA(I + 1 : L) TO CA-USER-ID(1 : L).               01660000
+016800     MOVE 'N' to IN-ELEM.                                         01670000
+016900                                                                  01680000
+017000 EXTRACT-PASSWORD.                                                01690000
+017100         MOVE ZERO TO I J.                                        01700000
+017200         MOVE LENGTH OF XML-TEXT TO L.                            01710000
+017300         IF L > LENGTH OF WORKAREA                                01720000
+017400         MOVE LENGTH OF WORKAREA TO L.                            01730000
+017500         MOVE XML-TEXT TO WORKAREA(1 : L).                        01740000
+017600         INSPECT WORKAREA(1 : L) CONVERTING X'0D251505' TO SPACES.01750000
+017700         INSPECT WORKAREA(1 : L) TALLYING I FOR LEADING SPACES.   01760000
+017800         SUBTRACT I FROM L.                                       01770000
+017900         INSPECT WORKAREA(I + 1 : L) TALLYING J FOR ALL SPACES.   01780000
+018000         SUBTRACT J FROM L.                                       01790000
+018100         IF L > LENGTH OF CA-PASSWORD                             01800000
+018200         MOVE LENGTH OF CA-PASSWORD TO L.                         01810000
+018300         MOVE WORKAREA(I + 1 : L) TO CA-PASSWORD(1 : L).          01820000
+018400         MOVE 'N' to IN-REF-REQ.                                  01830000
+018500                                                                  01840000
+018600*******************                                               01850000
+018700* Return to caller                                                01860000
+018800*******************                                               01870000
+018900 RETURN-RESPONSE.                                                 01880000
+019000     IF PARSE-ERROR = 'Y'                                         01890000
+019100**********************************************                    01900000
+019200* Bad news, got an XML parser Exception                           01910000
+019300**********************************************                    01920000
+019400         MOVE 'EXCEPTION' to CA-RSP                               01930000
+019500     ELSE                                                         01940000
+019600       IF USERNAME-XMLTAG-FOUND = 'N'                             01950000
+019700*******************************************************           01960000
+019800* Ignore, it was not for us...                                    01970000
+019900* Bad news, did not find the expected XML TAG                     01980000
+020000*******************************************************           01990000
+020100         MOVE 'NOT FOUND' to CA-RSP                               02000000
+020200       END-IF                                                     02010000
+020300     END-IF.                                                      02020000
+020400                                                                  02030000
+020500**************************************************                02040000
+020600* Initialise and Validate the COMMAREA                            02050000
+020700**************************************************                02060000
+020800 INIT-AND-VALIDATE.                                               02070000
+020900***********************                                           02080000
+021000* Acceptable size ?                                               02090000
+021100***********************                                           02100000
+021200     IF EIBCALEN > 150                                            02110000
+021300     THEN                                                         02120000
+021400***********                                                       02130000
+021500* yes                                                             02140000
+021600***********                                                       02150000
+021700         MOVE DFHCOMMAREA-IN(1:EIBCALEN) to XML-DOCUMENT          02160000
+021800         MOVE SPACES TO CA-USER-ID, CA-PASSWORD                   02170000
+021900     ELSE                                                         02180000
+022000**********                                                        02190000
+022100* no                                                              02200000
+022200**********                                                        02210000
+022300       INITIALIZE DFHCOMMAREA(1:EIBCALEN)                         02220000
+022400       MOVE 'BAD COMMAREA LENGTH !' to DFHCOMMAREA                02230000
+022500       EXEC CICS RETURN END-EXEC                                  02240000
+022600     END-IF.                                                      02250000

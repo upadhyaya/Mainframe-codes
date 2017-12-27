@@ -1,0 +1,699 @@
+                                                                        00001070
+000100 IDENTIFICATION DIVISION.                                         00010000
+                                                                        00011070
+000200 PROGRAM-ID. EX064RP2.                                            00020065
+                                                                        00021070
+000400 AUTHOR.        UTHRA.                                            00022070
+                                                                        00023070
+000500 DATE-WRITTEN.  04/11/08.                                         00024070
+                                                                        00025070
+000600 DATE-COMPILED. 04/11/08.                                         00026070
+                                                                        00027070
+002000****************************************************************  00028070
+      *** PROGRAM NAME: EX064RP2.                                    ***00029070
+      ***                                                            ***00029170
+      *** INTRODUCTION:                                              ***00029270
+      ***                                                            ***00029370
+      ***   THIS IS A COBOL BATCH PROGRAM TO GENERATE A REPORT       ***00029470
+      ***   GIVING STATISTICS ABOUT VARIOUS PROCESSING EVENTS        ***00029570
+      ***   AT THE VSAM CLUSTER LEVEL.ALL THE JOBS/TSO USER THAT     ***00029670
+      ***   ACCESSED A PARTICULAR VSAM CLUSTER ARE GROUPED TOGETHER  ***00029770
+      ***   AND THE DETAILED PROCESSING EVENTS ARE PRESENTED IN THE  ***00029870
+      ***   REPORT FOR EACH COMPONENT OF THAT CLUSTER FOR A          ***00029970
+      ***   PARTICULAR TSO USER/JOBNAME.                             ***00030070
+      ***                                                            ***00031070
+      *** PROGRAM CALLED BY:                                         ***00031670
+      ***     NONE.                                                  ***00031770
+      ***                                                            ***00031870
+      *** PROGRAM CALLS:                                             ***00031970
+      ***     NONE.                                                  ***00032070
+      ***                                                            ***00032170
+      *** FUNCTION:                                                  ***00032270
+      ***                                                            ***00032370
+      ***   THE PROGRAM GENERATES A REPORT GIVING DETAILS (AT THE    ***00032470
+      ***   COMPONENT LEVEL) ABOUT THE VSAM CLUSTER GROUPED BY       ***00032570
+      ***   TSO USER/JOBNAME.                                        ***00032670
+      ***   THE EXTRACT FILE WHICH IS USED AS THE INPUT IS SORTED    ***00032770
+      ***   BASED ON THE VSAM CLUSTER NAME,JOB NAME,DATE AND TIME    ***00032870
+      ***   RECORD WAS MOVED INTO THE SMF BUFFER.                    ***00032970
+      ***   THIS PROGRAM READS THE  RECORD FROM THE EXTRACT FILE     ***00033070
+      ***   AND PROCESSES THE REQUIRED FIELDS FROM IT AND THE        ***00033170
+      ***   RECORDS THAT BELONG TO  A PARTICULAR JOBNAME/TSO USER    ***00033270
+      ***   ARE WRITTEN UNDER THE HEADING OF THAT PARTICULAR JOBNAME ***00033370
+      ***   /TSO USER UNDER THAT PARTICULAR VSAM CLUSTER.            ***00033470
+      ***   THE REPORT GIVES DETAILED PROCESSING INFORMATION FOR     ***00033570
+      ***   EACH COMPONENT OF THE VSAM CLUSTER.THIS GROUPING IS      ***00033670
+      ***   CONTINUED TILL THE END OF THE FILE.                      ***00033770
+      ***   THUS THERE IS INFORMATION GROUPED UNDER TWO CRITERIA :-  ***00033870
+      ***   FIRST CRITERIA IS THAT ALL THE RECORDS CONTAINING THE    ***00033970
+      ***   INFORMATION OF A PARTICULAR VSAM CLUSTER ARE WRITTEN     ***00034070
+      ***   UNDER ONE GROUP AND AGAIN WITHIN THIS GROUP ALL THE      ***00034270
+      ***   RECORDS COMING UNDER THE SAME JOB NAME/TSOUSER ARE       ***00034370
+      ***   WRITTEN AS A GROUP AND UNDER THIS GROUP THE INFORMATION  ***00034470
+      ***   IS PRESENTED FOR EACH COMPONENT OF A PARTICULAR VSAM     ***00034570
+      ***   CLUSTER.                                                 ***00034670
+      ***                                                            ***00034770
+      *** EXTRACTION PROGRAM FOR SMF64 RECORDS : XTRACT64            ***00034870
+      ***                                                            ***00034970
+      *** SMF64 REPORT2 : GIVES DETAILED INFORMATION ABOUT THE USAGE ***00035070
+      *** OF VSAM COMPONENT AT THE VSAM CLUSTER LEVEL AND UNDER THAT ***00035170
+      *** AGAIN AT THE TSO USER/JOBNAME LEVEL.                       ***00035270
+      *** THIS REPORT HAS TWO SECTIONS:-                             ***00035370
+      *** THE FIRST SECTION GIVES ALL THE DETAILS ABOUT VSAM         ***00035470
+      *** COMPONENT USAGE AT THE VSAM CLUSTER LEVEL AND WITHIN THAT  ***00035570
+      *** AGAIN AT THE TSO USER/JOBNAME LEVEL.                       ***00035670
+      *** THIS INCLUDES INFORMATION ABOUT MACRF FIELD                ***00035770
+      *** INDICATORS THAT CONTAIN INFORMATION ABOUT HOW THE FILE WAS ***00035870
+      *** ACCESSED.BUT THIS INFORMATION IS PRESENTED IN THIS SECTION ***00035970
+      *** AS ACRONYMS INSTEAD OF THE COMPLETE DETAILS.               ***00036070
+      *** THE SECOND SECTION OF THE REPORT GIVES THE EXPLANATIONS OF ***00036170
+      *** THE ACRONYMS THAT REPRESENTED THE MACRF FIELD INDICATOR IN ***00036270
+      *** THE FIRST SECTION OF THE REPORT.                           ***00036370
+      ***                                                            ***00036470
+      *** INCLUDE CODE: ADMS.VTUNE.SOURCE.COPYLIB                    ***00036570
+      ***  VTDATE  : THIS CONTAINS THE CODE FOR:-                    ***00036670
+      ***          A. CONVERTING THE DATE FROM JULIAN FORMAT TO      ***00036770
+      ***             GREGORIAN FORMAT.                              ***00036870
+      ***          B. FORMATING THE TIME TO HH:MM:SS.SS.             ***00036970
+      ***          C. OBTAINING CURRENT DATE AND TIME.               ***00037070
+      ***                                                            ***00037170
+      ***  BYTE2BIT: THIS CONTAINS THE CODE FOR CONVERTING A BYTE TO ***00037270
+      ***              BITS.                                         ***00037370
+      ***                                                            ***00037470
+      ***  VT064ABR: THIS CONTAINS THE CODE FOR WRITING THE ACRONYMS ***00037570
+      ***            AND EXPLANATIONS FOR THE MACRF FIELDS AT        ***00037670
+      ***            THE END OF THE REPORT.                          ***00037770
+      ***                                                            ***00037870
+      ***  BIN2DEC : THIS CONTAINS THE CODE FOR CONVERTING A ONE     ***00037970
+      ***            BYTE HEX FIELD TO ITS CORRESPONDING DECIMAL     ***00038070
+      ***            VALUE FOR PRINTING IT IN THE REPORT FILE.       ***00038170
+      ***                                                            ***00038270
+      ***  VT064EXT: THIS CONTAINS ONLY THOSE FIELDS OF SMF64        ***00038370
+      ***            RECORD TYPE THAT ARE REQUIRED FOR THE           ***00038470
+      ***            GENERATION OF SMF64 REPORTS.THE EXTRACT FILE    ***00038570
+      ***            RECORD STRUCTURE WILL EXACTLY HAVE THE SAME     ***00038670
+      ***            STRUCTURE AS THIS COPYBOOK.                     ***00038770
+      ***                                                            ***00038870
+      ***  VTDATEVR: THIS CONTAINS THE VARIABLES THAT ARE USED IN    ***00038970
+      ***            VTDATE COPYBOOK.                                ***00039070
+      ***                                                            ***00039170
+      ***  VT064DS2: THIS CONTAINS THE REPORT HEADER DESCRIPTION.    ***00039271
+      ***                                                            ***00039370
+      ***  VT064HD2: THIS CONTAINS THE DESCRIPTION FOR THE MAIN      ***00039471
+      ***            HEADER.                                         ***00039570
+      ***                                                            ***00039670
+      ***  BY2BIDAT: THIS CONTAINS THE VARIABLES USED IN THE         ***00039970
+      ***            BYTE2BIT COPYBOOK.                              ***00040070
+      ***                                                            ***00040170
+      *** FILES USED:                                                ***00040270
+      ***  SMFDATA: INPUT FILE WHICH IS THE EXTRACT FILE CONTAINING  ***00040370
+      ***           ALL THE REQUIRED FIELDS FROM THE SMF64 RECORD.   ***00040470
+      ***           EXTRACT FILE IS SORTED BASED ON THE VSAM CLUSTER ***00040572
+      ***           NAME,JOBNAME,DATE AND TIME RECORD WAS MOVED TO   ***00040672
+      ***           SMF BUFFER.                                      ***00040772
+      ***                                                            ***00040872
+      ***  SMFOUT : OUTPUT REPORT FILE.                              ***00040972
+      ***                                                            ***00041072
+      *** EXPECTED DISPLAY MESSAGES: NONE                            ***00041172
+      ***                                                            ***00041272
+      *** PROGRAM-FORMAT:                                            ***00041372
+      ***  0000-MAIN-PARA.                                           ***00041472
+      ***       PERFORM 1000-INITIALIZE-PARA.                        ***00041572
+      ***       PERFORM 2000-PROCESS-PARA.                           ***00041672
+      ***       PERFORM 3000-CLOSE-PARA.                             ***00041772
+      ***       STOP-RUN.                                            ***00041872
+      ***  1000-INITIALIZE-PARA.                                     ***00041972
+      ***       OPEN INPUT AND OUTPUT FILES .                        ***00042072
+      ***       PERFORM 1100-READ-SMF.                               ***00042172
+      ***  1100-READ-SMF.                                            ***00042272
+      ***        READ THE INPUT FILE TILL END.                       ***00042372
+      ***  2000-PROCESS-PARA.                                        ***00042472
+      ***        PROCESS THE EXTRACT INPUT FILE RECORD.              ***00042572
+      ***        PERFORM 1100-READ-SMF.                              ***00042672
+      ***  3000-CLOSE-PARA.                                          ***00042772
+      ***       IF THE INPUT EXTRACT FILE IS EMPTY THEN 'NO RECORDS  ***00042872
+      ***       FOUND' WILL BE PRINTED ONTO THE OUTPUT REPORT FILE.  ***00042972
+      ***       ELSE                                                 ***00043072
+      ***       AFTER READING ALL RECORDS (END OF THE FILE)          ***00043172
+      ***       PERFORM 2600-ABBREV-PARA(WHEREIN THE ACRONYMS AND    ***00043272
+      ***       THE EXPLANATIONS OF THE MACRF FIELDS ARE WRITTEN AT  ***00043372
+      ***       THE END OF THE REPORT FILE.                          ***00043472
+      ***       CLOSE THE INPUT AND OUTPUT FILE.                     ***00043572
+      ***                                                            ***00043672
+      *** PROCESSING THE EXTRACT FILE RECORD:-                       ***00043772
+      ***        ALL THE REQUIRED FIELDS FROM THE INPUT EXTRACT FILE ***00043872
+      ***        ARE MOVED TO THE WORKING STORAGE VARIABLES.THESE ARE **00043972
+      ***        CONVERTED TO A SUITABLE FORMAT(IF NECESSARY) FOR    ***00044072
+      ***        WRITING ON TO THE REPORT FILE. ALL THE NECESSARY    ***00044172
+      ***        VSAM CLUSTER NAME AND THE DATE AND TIME OF THE      ***00044272
+      ***        CURRENT RECORD IS COMPARED WITH THE PREVIOUS RECORD ***00044372
+      ***        READ AND WHENEVER THE VSAM CLUSTER NAME CHANGES     ***00044472
+      ***        THE CLUSTER NAME AND THE VOLUME ON WHICH IT RESIDES ***00044572
+      ***        ARE WRITTEN AS A SEPARATE HEADER AND ALL THE        ***00044672
+      ***        DETAILS RELATED TO THIS CLUSTER ARE WRITTEN UNDER   ***00044772
+      ***        THIS VSAM CLUSTER NAME.UNDER THIS,AGAIN WHENEVER    ***00044872
+      ***        THE DATE AND TIME CHANGES, THE JOBNAME/TSO USER     ***00044972
+      ***        DETAILS ARE WRITTEN ONTO THE REPORT FILE AND THE    ***00045072
+      ***        VSAM COMPONENT DETAILS ARE WRITTEN UNDER THIS.      ***00045172
+      ***        ALL THE NECESSARY CALACULATIONS ARE PERFORMED AND   ***00045272
+      ***        FINALLY ALL THE VALUES ARE MOVED TO THE REPORT      ***00045372
+      ***        FIELDS AND WRITTEN TO THE REPORT FILE.THE SAME      ***00045472
+      ***        PROCESS IS CONTINUED TILL THE END OF THE FILE.      ***00045572
+      ***                                                            ***00045772
+      ******************************************************************00046072
+002010 ENVIRONMENT DIVISION.                                            00100000
+002020 INPUT-OUTPUT SECTION.                                            00110000
+002030 FILE-CONTROL.                                                    00120000
+002040     SELECT SMFDATA ASSIGN TO SMFDATA.                            00130000
+002040     SELECT SMFOUT  ASSIGN TO SMFOUT.                             00140000
+002042*                                                                 00150000
+002050 DATA DIVISION.                                                   00160000
+002060 FILE SECTION.                                                    00170000
+002061*                                                                 00180000
+002061*  *=============================================================*00181072
+002061*  *INPUT FILE FOR REPORT GENERATION. THIS FILE CONTAINS ONLY THE 00182072
+002061*  *REQUIRED FIELDS EXTRACTED FROM SMF64 RECORD TYPE SORTED BASED 00183072
+002061*  *ON THE VSAM CLUSTER NAME,JOBNAME,DATE AND TIME RECORD WAS     00183172
+002061*  *MOVED TO THE SMF BUFFER.                                      00183272
+002061*  *=============================================================*00184072
+002070 FD  SMFDATA                                                      00190000
+002071     RECORDING MODE IS F                                          00200064
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00210000
+002081 01  SMF-RECORD                  PIC X(250).                      00220062
+002090*                                                                 00230000
+002061*  *=============================================================*00231072
+002061*  *OUTPUT FILE CONTAINING THE REPORT.                            00232072
+002061*  *=============================================================*00233072
+002070 FD  SMFOUT                                                       00240000
+002071     RECORDING MODE IS F                                          00250000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00260000
+002081 01  SMF-OUTPUT                  PIC X(80).                       00280008
+002090*                                                                 00290000
+002100 WORKING-STORAGE SECTION.                                         00300000
+      *                                                                 00310033
+004200 01 WS-VARIABLES.                                                 00620000
+           05 CNT                   PIC 9(04) VALUE ZEROES.             00631069
+004340     05 WS-SMF64OFF           PIC S9(9) COMP-3.                   00670000
+004350     05 WS-SMF64LEN           PIC S9(8) BINARY.                   00680000
+           05 WS-TEMP08-NUM         PIC 9(08).                          00690000
+           05 WS-ABBR               PIC X(80).                          00691050
+      *                                                                 00700033
+       01 WS-REPHDR.                                                    00730322
+               05  WS-LINE          PIC  X(80) VALUE ALL '-'.           00730533
+               05  WS-FILLER        PIC  X(80) VALUE ALL SPACES.        00730633
+004800         05  WS-PATTERN       PIC  X(80) VALUE ALL '*'.           00730733
+      *                                                                 00730833
+004400 01 WS-FLAGS.                                                     00731000
+004500    05 WS-SMFDATA-FILE-FLAG   PIC X(01).                          00740069
+004600       88 SMFDATA-OVER        VALUE 'Y'.                          00750069
+004700       88 SMFDATA-NOT-OVER    VALUE 'N'.                          00760069
+      *                                                                 00761033
+       01 WS-SMF64CLN-PREV          PIC X(44) VALUE '$$$$$$$$$$'.       00972033
+      *                                                                 00972169
+       01 WS-SMF64RST-PREV          PIC S9(8) BINARY VALUE 99999999.    00973033
+      *                                                                 00973169
+       01 WS-SMF64RSD-PREV          PIC S9(7) PACKED-DECIMAL            00974033
+                                              VALUE 0000000.            00974133
+      *                                                                 00974269
+       01  DEC1                     PIC  9(03) VALUE ZEROES.            00975033
+      *                                                                 00975169
+002061*  *=============================================================*00975272
+002061*  *VARIABLES TO HOLD THE ACRONYMS OF A MACRF FIELD.              00975372
+002061*  *=============================================================*00975472
+       01  WS-MACVAR.                                                   00976038
+               10  IND1             PIC  X(2) VALUE SPACES.             00977069
+               10  IND2             PIC  X(2) VALUE SPACES.             00978069
+               10  IND3             PIC  X(2) VALUE SPACES.             00979069
+               10  IND4             PIC  X(2) VALUE SPACES.             00979169
+               10  IND5             PIC  X(2) VALUE SPACES.             00979269
+               10  IND6             PIC  X(2) VALUE SPACES.             00979369
+               10  IND7             PIC  X(2) VALUE SPACES.             00979469
+               10  IND8             PIC  X(2) VALUE SPACES.             00979569
+      *                                                                 00979669
+       01 WS-MACVARIABLES.                                              00979738
+               05  TEMP             PIC  X(2) VALUE SPACES.             00979869
+               05  IND              PIC  X(23) VALUE SPACES.            00979969
+               05  CNTMAC           PIC  9(01)  VALUE ZEROES.           00980069
+               05  CNTOFF           PIC  9(02)  VALUE ZEROES.           00980169
+               05  CNTOFF1          PIC  9(02)  VALUE ZEROES.           00981069
+      *                                                                 00990033
+005276                                                                  01200000
+      *  *=============================================================*01210172
+      *  *SMF RECORD TYPE 64 LAYOUT OF THE EXTRACTED FILE.              01210272
+      *  *=============================================================*01210372
+005277      COPY VT064EXT.                                              01210466
+      *  *=============================================================*01212072
+      *  *VARIABLES USED IN THE DATE CONVERSION PROGRAM.                01213072
+      *  *=============================================================*01214072
+005277      COPY VTDATEVR.                                              01220067
+      *  *=============================================================*01221072
+      *  *DESCRIPTION FOR REPORT HEADER                                 01222072
+      *  *=============================================================*01223072
+005277      COPY VT064DS2.                                              01240058
+      *  *=============================================================*01240172
+      *  *DESCRIPTION FOR REPORT MAIN HEADER                            01240272
+      *  *=============================================================*01240372
+005277      COPY VT064HD2.                                              01242057
+      *  *=============================================================*01243072
+      *  *VARIABLES TO CONVERT A HEX FIELD OF 1 BYTE TO BITS.           01244072
+      *  *=============================================================*01245072
+005277      COPY BY2BIDAT.                                              01262000
+      *  *=============================================================*01263072
+005521******************************************************************01270000
+005522 PROCEDURE DIVISION.                                              01280000
+005523******************************************************************01290000
+002090*  *=============================================================*01291072
+002090*  *                       MAIN-PARA                             *01292072
+002090*  *=============================================================*01293072
+005524 0000-MAIN.                                                       01300000
+005530     PERFORM 1000-INITIALIZE THRU 1000-INITIALIZE-EXIT.           01310000
+005600     PERFORM 2000-PROCESS THRU 2000-PROCESS-EXIT                  01320000
+                   UNTIL SMFDATA-OVER.                                  01320100
+005700     PERFORM 3000-CLOSE THRU 3000-EXIT.                           01330000
+005900     STOP RUN.                                                    01350000
+006010 0000-EXIT.                                                       01360000
+006020     EXIT.                                                        01370000
+006030*                                                                 01380000
+002090*  *=============================================================*01381072
+006030*  *OPEN THE FILES FOR INPUT AND OUTPUT AND INITIALIZE THE FILE   01382072
+      *  *INDICATOR FLAGS.                                              01383072
+002090*  *=============================================================*01384072
+006040 1000-INITIALIZE.                                                 01390000
+           MOVE ZEROES TO CNT.                                          01391071
+006050     OPEN INPUT SMFDATA.                                          01400000
+           OPEN OUTPUT SMFOUT.                                          01410000
+006051     SET SMFDATA-NOT-OVER TO TRUE.                                01630000
+006052     PERFORM 1100-READ-SMF.                                       01640000
+006060                                                                  01650000
+006070     CONTINUE.                                                    01660000
+006080 1000-INITIALIZE-EXIT.                                            01670000
+006090     EXIT.                                                        01680000
+006091*                                                                 01690000
+002090*  *=============================================================*01691072
+006091*  *READ A RECORD FROM THE INPUT FILE.                            01692072
+002090*  *=============================================================*01693072
+006092 1100-READ-SMF.                                                   01700000
+006093     READ SMFDATA                                                 01710000
+006094     AT END SET SMFDATA-OVER TO TRUE.                             01720000
+006100     CONTINUE.                                                    01780000
+006101 1100-EXIT.                                                       01790000
+006102     EXIT.                                                        01800000
+006103*                                                                 01810000
+002090*  *=============================================================*01811072
+006091*  *MOVE THE FIELDS READ FROM DIFFERENT SECTIONS OF THE INPUT    *01812072
+006091*  *RECORD TO ITS CORRESPONDING COPYBOOK VARIABLES AND THEN      *01813072
+006091*  *PROCESS THEM AS REQUIRED.FINALLY ALL THE VALUES ARE MOVED TO *01814072
+006091*  *THE CORRESPONDING REPORT VARIABLES AND IS WRITTEN ONTO THE   *01815072
+006091*  *OUTPUT REPORT FILE.                                          *01816072
+002090*  *=============================================================*01817072
+006104 2000-PROCESS.                                                    01820000
+006109      ADD +1 TO CNT.                                              01830100
+006105     INITIALIZE SMF64-EXTRACT-FORMAT.                             01840261
+           MOVE SMF-RECORD TO SMF64-EXTRACT-FORMAT.                     01842061
+           MOVE SMF64RINE TO BTS-PASS-BITS                              01842361
+           PERFORM 9500-BYTE2BITS-PARA THRU                             01842400
+                   9500-BYTE2BITS-EXIT.                                 01842500
+      *  *=============================================================*01842672
+      *        TO INCLUDE ONLY RECS WHERE SMF64RIN'S 0TH BIT IS SET     01842872
+      *                 IE COMPONENT CLOSED                             01842972
+      *  *=============================================================*01843072
+           IF BTS-PASS-BYTES(1:1) = 1                                   01843200
+      *  *=============================================================*01843372
+      *  *WRITE THE MAIN HEADER AND THE OTHER HEADER ONLY FOR THE FIRST 01843472
+      *  *TIME.                                                         01843572
+      *  *=============================================================*01843672
+            IF CNT = 0001                                               01843769
+               PERFORM 2100-HEADERV-PARA THRU                           01843800
+                       2100-HEADERV-EXIT                                01843900
+            END-IF                                                      01844000
+              PERFORM 2200-STATS-SECTION THRU                           01848000
+                      2200-STATS-EXIT                                   01849000
+           END-IF.                                                      05060000
+006294     PERFORM 1100-READ-SMF                                        05070000
+006295     CONTINUE.                                                    05080000
+006296 2000-PROCESS-EXIT.                                               05090000
+006102     EXIT.                                                        05091000
+006298*                                                                 05110000
+      *  *=============================================================*05110172
+      *  *WRITING THE MAIN HEADER ONTO THE REPORT FILE.THIS PARA        05110272
+      *  *ALSO GETS THE CURRENT DATE AND TIME TO BE PRINTED ONTO THE    05110372
+      *  *REPORT FILE.                                                  05110472
+      *  *=============================================================*05110572
+       2100-HEADERV-PARA.                                               05111000
+            MOVE SMF64SIDE TO WS-SMF64SYN.                              05112063
+            MOVE '*******  SMF64 REPORT2 *******' TO                    05113004
+                 WS-REPORT-HEADER.                                      05114000
+            PERFORM 9200-GETDATETIME-PARA THRU                          05115000
+                    9200-GETDATETIME-EXIT.                              05116000
+            WRITE SMF-OUTPUT FROM WS-PATTERN.                           05119100
+            WRITE SMF-OUTPUT FROM SMF64-HEADER-DESCRIPTION1.            05119231
+            WRITE SMF-OUTPUT FROM SMF64-HEADER-DESCRIPTION2.            05119331
+            WRITE SMF-OUTPUT FROM WS-PATTERN.                           05119400
+006296 2100-HEADERV-EXIT.                                               05119600
+006102     EXIT.                                                        05119700
+006298*                                                                 06890000
+      *  *=============================================================*06891072
+      *  *MOVING ALL THE REQUIRED FIELDS FROM THE STATISTICS SECTION OF 06892072
+      *  *THE SMF64 EXTRACT FILE TO THE WORKING STORAGE VARIABLES.      06893072
+      *  *=============================================================*06894072
+       2200-STATS-SECTION.                                              06900000
+      *  *=============================================================*06910072
+      *  *CHECKING IF THE VSAM CLUSTER NAME IS SAME AS THE PREVIOUS     06920072
+      *  *RECORD.IF NOT,THEN THE NEW VSAM CLUSTER NAME IS WRITTEN TO    06930072
+      *  *THE REPORT FILE.                                              06930172
+      *  *=============================================================*06930272
+            IF   SMF64CLNE NOT = WS-SMF64CLN-PREV                       06930461
+                 MOVE SMF64CLNE TO WS-SMF64CLN                          06930561
+                 MOVE SMF64VSNE TO WS-SMF64VSN                          06930661
+                 MOVE SMF64CLNE TO WS-SMF64CLN-PREV                     06930761
+                 WRITE SMF-OUTPUT FROM WS-PATTERN                       06930816
+                 WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONA               06930904
+                 WRITE SMF-OUTPUT FROM WS-PATTERN                       06931416
+            END-IF.                                                     06931504
+                 MOVE SMF64CLNE TO WS-SMF64CLN-PREV                     06931661
+      *  *=============================================================*06931772
+      *  *CHECKING IF THE DATE AND TIME IS SAME AS THE PREVIOUS         06931872
+      *  *RECORD.IF NOT,THEN THE NEW JOBNAME/TSO USER IS WRITTEN TO     06931972
+      *  *THE REPORT FILE.                                              06932072
+      *  *=============================================================*06933072
+                 IF SMF64RSDE = WS-SMF64RSD-PREV AND                    06933961
+                    SMF64RSTE = WS-SMF64RST-PREV                        06934061
+                    CONTINUE                                            06934121
+                 ELSE                                                   06934221
+                    MOVE SMF64JBNE TO WS-SMF64JBN                       06934361
+                    WRITE SMF-OUTPUT FROM WS-LINE                       06934547
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONJBN          06934647
+                    WRITE SMF-OUTPUT FROM WS-LINE                       06934747
+                    MOVE SMF64RSDE TO WS-SMF64RSD-PREV                  06934961
+                    MOVE SMF64RSTE TO WS-SMF64RST-PREV                  06935061
+                 END-IF.                                                06935147
+                    MOVE SMF64RSDE TO WS-SMF64RSD-PREV                  06935261
+                    MOVE SMF64RSTE TO WS-SMF64RST-PREV                  06935361
+      *                                                                 06935447
+                    MOVE SMF64DNME TO WS-SMF64DNM                       06935561
+                    MOVE SMF64DTYE TO BTS-PASS-BITS                     06935861
+                    PERFORM 9500-BYTE2BITS-PARA THRU                    06935947
+                            9500-BYTE2BITS-EXIT                         06936047
+      *  *=============================================================*06936172
+      *  *IF THE 0TH BIT OF SMF64DTY FIELD IS SET THEN IT MEANS THAT    06936272
+      *  *THE VSAM COMPONENT PROCESSED IS A DATASET;IF THE 1ST BIT OF   06936372
+      *  *SMF64DTY FIELD IS SET THEN IT MEANS ITS AN INDEX.             06936472
+      *  *=============================================================*06936572
+                    IF BTS-PASS-BYTES(1:1) = 1                          06936647
+                       MOVE 'DATASET' TO WS-SMF64DTY                    06936747
+                    ELSE                                                06936847
+                    IF BTS-PASS-BYTES(2:1) = 1                          06936947
+                       MOVE 'INDEX' TO WS-SMF64DTY                      06937047
+                    END-IF.                                             06937147
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONDNMDTY       06937247
+                    WRITE SMF-OUTPUT FROM WS-FILLER                     06937347
+      *                                                                 06937447
+                    MOVE SMF64DDEE TO WS-TEMP08-NUM                     06937561
+                    MOVE WS-TEMP08-NUM TO WS-SMF64DDE                   06937647
+                    MOVE SMF64BNOE TO BTS-PASS-BITS                     06937761
+                    PERFORM 9500-BYTE2BITS-PARA THRU                    06937847
+                            9500-BYTE2BITS-EXIT                         06937947
+                    MOVE ZEROES TO DEC1                                 06938047
+                    PERFORM 9600-BINTODEC-PARA THRU                     06938147
+                            9600-BINTODEC-EXIT                          06938247
+                    MOVE DEC1 TO WS-TEMP08-NUM                          06938347
+                    MOVE WS-TEMP08-NUM TO WS-SMF64BNO                   06938447
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONDDEBNO       06938547
+      *                                                                 06938647
+                    MOVE SMF64DINE TO WS-TEMP08-NUM                     06938761
+                    MOVE WS-TEMP08-NUM TO WS-SMF64DIN                   06938847
+                    MOVE SMF64BSPE TO WS-TEMP08-NUM                     06938961
+                    MOVE WS-TEMP08-NUM TO WS-SMF64BSP                   06939047
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONDINBSP       06939147
+      *                                                                 06939347
+                    MOVE SMF64DUPE TO WS-TEMP08-NUM                     06939461
+                    MOVE WS-TEMP08-NUM TO WS-SMF64DUP                   06939547
+                    MOVE SMF64BFDE TO WS-TEMP08-NUM                     06939661
+                    MOVE WS-TEMP08-NUM TO WS-SMF64BFD                   06939747
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONDUPBFD       06939939
+      *                                                                 06940136
+                    MOVE SMF64DREE TO WS-TEMP08-NUM                     06940261
+                    MOVE WS-TEMP08-NUM TO WS-SMF64DRE                   06940326
+                    MOVE SMF64BFIE TO WS-TEMP08-NUM                     06940461
+                    MOVE WS-TEMP08-NUM TO WS-SMF64BFI                   06940536
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONDREBFI       06940939
+      *                                                                 06941136
+                    MOVE SMF64DEPE TO WS-TEMP08-NUM                     06941261
+                    MOVE WS-TEMP08-NUM TO WS-SMF64DEP                   06941326
+                    MOVE SMF64NILE TO WS-TEMP08-NUM                     06941461
+                    MOVE WS-TEMP08-NUM TO WS-SMF64NIL                   06941536
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONEXCNIL       06941639
+                    WRITE SMF-OUTPUT FROM WS-FILLER                     06941842
+      *                                                                 06942126
+                    MOVE SMF64NEXE TO WS-TEMP08-NUM                     06942261
+                    MOVE WS-TEMP08-NUM TO WS-SMF64NEX                   06942336
+                    PERFORM 2500-MAC1MOV-PARA                           06942436
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONNEXMC1       06942939
+      *                                                                 06943236
+                    MOVE SMF64NCSE TO WS-TEMP08-NUM                     06943361
+                    MOVE WS-TEMP08-NUM TO WS-SMF64NCS                   06943437
+                    PERFORM 2510-MAC2MOV-PARA                           06943537
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONNCSMC2       06943639
+      *                                                                 06943837
+                    MOVE SMF64NASE TO WS-TEMP08-NUM                     06943961
+                    MOVE WS-TEMP08-NUM TO WS-SMF64NAS                   06944037
+                    PERFORM 2520-MAC3MOV-PARA                           06944141
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONNASMC3       06944239
+      *                                                                 06944437
+                    MOVE SMF64DCSE TO WS-TEMP08-NUM                     06944561
+                    MOVE WS-TEMP08-NUM TO WS-SMF64DCS                   06944637
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONDCS          06944837
+      *                                                                 06945037
+                    MOVE SMF64DASE TO WS-TEMP08-NUM                     06945161
+                    MOVE WS-TEMP08-NUM TO WS-SMF64DAS                   06945237
+                    WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONDAS          06945337
+                    WRITE SMF-OUTPUT FROM WS-LINE                       06945548
+                    WRITE SMF-OUTPUT FROM WS-FILLER.                    06945642
+       2200-STATS-EXIT.                                                 07520007
+             EXIT.                                                      07530007
+      *                                                                 07531051
+      *  *=============================================================*07532072
+      *  * CONVERTING THE 1 BYTE HEX FIELD SMF64MC1 TO BITS SO THAT     07533072
+      *  * EACH BIT OF IT IS CHECKED AND CORRESPONDING ACRONYM VALUE IS 07534072
+      *  * MOVED TO 'IND' VARIABLES IF THAT PARTICULAR BIT IS SET.      07535072
+      *  *=============================================================*07536072
+       2500-MAC1MOV-PARA.                                               07540036
+             MOVE SMF64MC1E TO BTS-PASS-BITS.                           07550061
+             PERFORM 9500-BYTE2BITS-PARA THRU                           07560036
+                     9500-BYTE2BITS-EXIT.                               07570036
+             IF BTS-PASS-BYTES(1:1) = 1                                 07580036
+                MOVE 'RK'  TO IND1                                      07600036
+             END-IF.                                                    07610036
+             IF BTS-PASS-BYTES(2:1) = 1                                 07620036
+                MOVE 'RB' TO IND2                                       07640036
+             END-IF.                                                    07650036
+             IF BTS-PASS-BYTES(3:1) = 1                                 07660036
+                MOVE 'CP' TO IND3                                       07680036
+             END-IF.                                                    07690036
+             IF BTS-PASS-BYTES(4:1) = 1                                 07700036
+                MOVE 'SP' TO IND4                                       07720036
+             END-IF.                                                    07730036
+             IF BTS-PASS-BYTES(5:1) = 1                                 07740036
+                MOVE 'DP' TO IND5                                       07760036
+             END-IF.                                                    07770036
+             IF BTS-PASS-BYTES(6:1) = 1                                 07780036
+                MOVE 'IP' TO IND6                                       07800036
+             END-IF.                                                    07810036
+             IF BTS-PASS-BYTES(7:1) = 1                                 07820036
+                MOVE 'OP' TO IND7                                       07840036
+             END-IF.                                                    07850036
+             IF BTS-PASS-BYTES(8:1) = 1                                 07860036
+                MOVE 'UB' TO IND8                                       07880036
+             END-IF.                                                    07890036
+             PERFORM 2550-MACPERFORM-PARA THRU                          07910036
+                     2550-MACPERFORM-EXIT.                              07920036
+      *  *=============================================================*07920172
+      *   IF NONE OF THE MACRF BITS ARE SET,THEN "ALL FIELD BITS ARE   *07922072
+      *   ZERO" IS WRITTEN TO THE REPORT FIELD.                         07922172
+      *  *=============================================================*07922272
+            IF IND = SPACES                                             07924036
+               MOVE 'ALL FIELD BITS ARE ZERO' TO WS-SMF64MC1            07925036
+            ELSE                                                        07926036
+               MOVE IND TO WS-SMF64MC1                                  07927036
+            END-IF.                                                     07928036
+            MOVE ZEROES TO CNTOFF.                                      07929036
+            MOVE ZEROES TO CNTOFF1.                                     07929136
+            MOVE SPACES TO IND.                                         07929236
+            MOVE SPACES TO TEMP.                                        07929336
+            MOVE SPACES TO WS-MACVAR.                                   07929436
+            MOVE ZEROES TO CNTMAC.                                      07929536
+            CONTINUE.                                                   07929636
+       2500-MAC1MOV-EXIT.                                               07930036
+            EXIT.                                                       07931036
+      *                                                                 07932036
+      *  *=============================================================*07932172
+      *  * CONVERTING THE 1 BYTE HEX FIELD SMF64MC2 TO BITS SO THAT     07932272
+      *  * EACH BIT OF IT IS CHECKED AND CORRESPONDING ACRONYM VALUE IS 07932372
+      *  * MOVED TO 'IND' VARIABLES IF THAT PARTICULAR BIT IS SET.      07932472
+      *  *=============================================================*07932572
+       2510-MAC2MOV-PARA.                                               07933036
+            MOVE SMF64MC2E TO BTS-PASS-BITS.                            07934061
+            PERFORM 9500-BYTE2BITS-PARA THRU                            07935036
+                    9500-BYTE2BITS-EXIT.                                07936036
+            IF BTS-PASS-BYTES(1:1) = 1                                  07937036
+               MOVE 'JO'  TO IND1                                       07939036
+            END-IF.                                                     07939136
+            IF BTS-PASS-BYTES(2:1) = 1                                  07939236
+               MOVE 'CC' TO IND2                                        07939436
+            END-IF.                                                     07939536
+            IF BTS-PASS-BYTES(3:1) = 1                                  07939636
+               MOVE 'RS' TO IND3                                        07939836
+            END-IF.                                                     07939936
+            IF BTS-PASS-BYTES(4:1) = 1                                  07940036
+              MOVE 'SS' TO IND4                                         07942036
+            END-IF.                                                     07943036
+            IF BTS-PASS-BYTES(5:1) = 1                                  07944036
+               MOVE 'VL' TO IND5                                        07946036
+            END-IF.                                                     07947036
+            IF BTS-PASS-BYTES(6:1) = 1                                  07948036
+               MOVE 'EM' TO IND6                                        07949136
+            END-IF.                                                     07949236
+            IF BTS-PASS-BYTES(7:1) = 1                                  07949336
+               MOVE 'SC' TO IND7                                        07949536
+            END-IF.                                                     07949636
+            IF BTS-PASS-BYTES(8:1) = 1                                  07949736
+               MOVE 'AI' TO IND8                                        07949936
+            END-IF.                                                     07950036
+            PERFORM 2550-MACPERFORM-PARA THRU                           07952036
+                    2550-MACPERFORM-EXIT.                               07953036
+            IF IND = SPACES                                             07954036
+               MOVE 'ALL FIELD BITS ARE ZERO' TO WS-SMF64MC2            07955036
+            ELSE                                                        07956036
+               MOVE IND TO WS-SMF64MC2                                  07957036
+            END-IF.                                                     07958036
+            MOVE ZEROES TO CNTOFF.                                      07959036
+            MOVE ZEROES TO CNTOFF1.                                     07959136
+            MOVE ZEROES TO CNTOFF1.                                     07959236
+            MOVE SPACES TO IND.                                         07959336
+            MOVE SPACES TO TEMP.                                        07959436
+            MOVE SPACES TO WS-MACVAR.                                   07959536
+            MOVE ZEROES TO CNTMAC.                                      07959636
+            CONTINUE.                                                   07959736
+       2510-MAC2MOV-EXIT.                                               07959836
+             EXIT.                                                      07959936
+      *                                                                 07960036
+      *  *=============================================================*07961072
+      *  * CONVERTING THE 1 BYTE HEX FIELD SMF64MC3 TO BITS SO THAT     07962072
+      *  * EACH BIT OF IT IS CHECKED AND CORRESPONDING ACRONYM VALUE IS 07963072
+      *  * MOVED TO 'IND' VARIABLES IF THAT PARTICULAR BIT IS SET.      07964072
+      *  *=============================================================*07965072
+       2520-MAC3MOV-PARA.                                               07970036
+            MOVE SMF64MC3E TO BTS-PASS-BITS.                            07980061
+            PERFORM 9500-BYTE2BITS-PARA THRU                            07990036
+                    9500-BYTE2BITS-EXIT.                                08000036
+            IF BTS-PASS-BYTES(1:1) = 1                                  08010036
+               MOVE 'RS'  TO IND1                                       08030036
+            END-IF.                                                     08040036
+            IF BTS-PASS-BYTES(2:1) = 1                                  08050036
+               MOVE 'LS' TO IND2                                        08070036
+            END-IF.                                                     08080036
+            IF BTS-PASS-BYTES(3:1) = 1                                  08090036
+               MOVE 'GS' TO IND3                                        08110036
+            END-IF.                                                     08120036
+            IF BTS-PASS-BYTES(4:1) = 1                                  08130036
+               MOVE 'IC' TO IND4                                        08150036
+            END-IF.                                                     08160036
+            IF BTS-PASS-BYTES(5:1) = 1                                  08170036
+               MOVE 'DW' TO IND5                                        08190036
+            END-IF.                                                     08200036
+            IF BTS-PASS-BYTES(6:1) = 1                                  08210036
+               MOVE 'SI' TO IND6                                        08230036
+            END-IF.                                                     08240036
+            IF BTS-PASS-BYTES(7:1) = 1                                  08250036
+               MOVE 'CR' TO IND7                                        08270036
+            END-IF.                                                     08280036
+            IF BTS-PASS-BYTES(8:1) = 1                                  08290036
+               MOVE 'VS' TO IND8                                        08310036
+            END-IF.                                                     08320036
+            PERFORM 2550-MACPERFORM-PARA THRU                           08340036
+                    2550-MACPERFORM-EXIT.                               08350036
+            IF IND = SPACES                                             08360036
+               MOVE 'ALL FIELD BITS ARE ZERO' TO WS-SMF64MC3            08370036
+            ELSE                                                        08380036
+               MOVE IND TO WS-SMF64MC3                                  08390036
+            END-IF.                                                     08400036
+            MOVE ZEROES TO CNTOFF.                                      08410036
+            MOVE ZEROES TO CNTOFF1.                                     08420036
+            MOVE SPACES TO IND.                                         08430036
+            MOVE SPACES TO TEMP.                                        08440036
+            MOVE SPACES TO WS-MACVAR.                                   08450036
+            MOVE ZEROES TO CNTMAC.                                      08460036
+            CONTINUE.                                                   08470036
+       2520-MAC3MOV-EXIT.                                               08480036
+            EXIT.                                                       08490036
+      *                                                                 08491072
+      *  *=============================================================*08492072
+      *  * CONCATENATING ALL THE ACRONYMS MOVED TO 'IND' VARIABLES TO   08493072
+      *  * BE PRINTED ONTO THE REPORT AS A SINGLE FIELD VALUE           08494072
+      *  * (FOR MACRF-FIELD1,MACRF-FIELD2,MACRF-FIELD3 IN THE REPORT)   08495072
+      *  *=============================================================*08496072
+       2550-MACPERFORM-PARA.                                            08500036
+            MOVE ZERO TO CNTMAC.                                        08510036
+            MOVE ZERO TO CNTOFF.                                        08520036
+            MOVE ZERO TO CNTOFF1.                                       08530036
+            PERFORM 8 TIMES                                             08540036
+                ADD 1 TO CNTMAC                                         08550036
+                IF CNTMAC = 1 AND IND1 NOT EQUAL TO SPACES              08570036
+                   MOVE IND1 TO IND                                     08580036
+                ELSE                                                    08610036
+                   COMPUTE CNTOFF = CNTOFF + 2                          08620036
+                   COMPUTE CNTOFF1 = CNTOFF + 1                         08630036
+                   MOVE WS-MACVAR(CNTOFF1:2) TO TEMP                    08660036
+                   IF TEMP NOT = SPACE                                  08680036
+                      IF IND NOT = SPACES                               08710036
+                         STRING IND DELIMITED BY SPACE                  08720036
+                                ',' DELIMITED BY SIZE                   08730036
+                                TEMP DELIMITED BY SIZE                  08740036
+                                INTO IND                                08750036
+                      ELSE                                              08760036
+                        MOVE TEMP TO IND                                08770036
+                     END-IF                                             08780036
+                  END-IF                                                08800036
+               END-IF                                                   08810036
+           END-PERFORM.                                                 08820036
+       2550-MACPERFORM-EXIT.                                            08830036
+           EXIT.                                                        08840036
+      *                                                                 08850072
+      *  *=============================================================*08860072
+      *  * IF THE EXTRACT INPUT FILE IS EMPTY,THEN 'NO RECORDS FOUND'   08870072
+      *  * WILL BE WRITTEN ONTO THE OUTPUT REPORT FILE                  08880072
+      *  * ELSE ACRONYMS AND THEIR EXPLANATIONS ARE WRITTEN ONTO THE    08890072
+      *  * REPORT FILE AT THE END OF THE REPORT.                        08900072
+      *  * BOTH THE INPUT AND OUTPUT FILES ARE CLOSED.                  08910072
+      *  *=============================================================*08920072
+006300 3000-CLOSE.                                                      11650000
+           IF CNT = 0000                                                11651071
+              MOVE 'NO RECORDS FOUND' TO SMF-OUTPUT                     11652071
+              WRITE SMF-OUTPUT                                          11653071
+           ELSE                                                         11654071
+              PERFORM 2600-ABBREV-PARA THRU 2600-ABBREV-EXIT            11655071
+           END-IF.                                                      11656071
+006400     CLOSE SMFDATA.                                               11660000
+           CLOSE SMFOUT.                                                11670000
+006800     CONTINUE.                                                    11690000
+006900 3000-EXIT.                                                       11700000
+007000     EXIT.                                                        11710000
+007100*                                                                 11720000
+002090*  *=============================================================*11721072
+007100*  *DATE CONVERSION PROGRAM.                                      11722072
+002090*  *=============================================================*11723072
+          COPY VTDATE.                                                  11730072
+002090*  *=============================================================*11731072
+007100*  *CONVERSION FROM BYTE TO BITS(02-->00000010)                   11732072
+002090*  *=============================================================*11733072
+          COPY BYTE2BIT.                                                11740072
+002090*  *=============================================================*11741072
+      *  *CONVERT A ONE BYTE HEX FIELD TO ITS CORRESPONDING DECIMAL     11742072
+      *  *VALUE TO BE PRINTED ONTO THE REPORT FILE.                     11743072
+002090*  *=============================================================*11744072
+          COPY BIN2DEC.                                                 11750072
+002090*  *=============================================================*11751072
+      *  *ACRONYMS AND EXPLANATIONS FOR THE MACRF FIELDS TO BE WRITTEN  11752072
+      *  *AT THE END OF THE REPORT.                                     11753072
+002090*  *=============================================================*11754072
+         COPY VT064ABR.                                                 11760072

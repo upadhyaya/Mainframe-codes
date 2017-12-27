@@ -1,0 +1,16 @@
+//UADT016L JOB NOTIFY=&SYSUID,REGION=0M                                 00010081
+/*JOBPARM  LINES=999999                                                 00011047
+//*                                                                     00020000
+//STEP1    EXEC PGM=SOAREP3                                             00030079
+//STEPLIB  DD DSN=UADT016.BASE.LOADLIB,DISP=SHR                         00040027
+//VSAMIN   DD DSN=ELTP.BLR.SAMP.BASE,DISP=SHR,                          00050079
+//            AMP=('BUFSP=20480')                                       00050181
+//*VSAMIN1  DD DSN=ELTP.BLR.OMA.AIX.PATH,DISP=SHR                       00051028
+//*2       DD DSN='UADT014.XML.OUTPUT1',DISP=SHR                        00060021
+//*3       DD DSN='UADT014.XML.OUTPUT2',DISP=SHR                        00061021
+//SYSPRINT DD SYSOUT=*                                                  00070000
+//SYSTSPRT DD SYSOUT=*                                                  00080000
+//SYSUDUMP DD SYSOUT=*                                                  00090000
+//SYSOUT   DD SYSOUT=*                                                  00100000
+//                                                                      00110068
+//*           BUFNO=09                                                  00110179

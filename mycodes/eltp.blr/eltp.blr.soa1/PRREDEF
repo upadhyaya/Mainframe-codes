@@ -1,0 +1,495 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. PRREDEF.                                             00020001
+000300 AUTHOR. SOATEAM.                                                 00030000
+000400 DATE-WRITTEN. 05/04/07.                                          00040000
+000500 DATE-COMPILED. 15/04/07.                                         00050000
+000600*                                                                 00060000
+000700*MODULE       : PRODUCT MODULE.                                   00070000
+000800*TITLE        : NA                                                00080000
+000900*MAPS USED    : MPRDCT1 MAP.                                      00090000
+001000*                                                                 00100000
+001100*FUNCTIONALITY: THIS PROGRAM PERFORMS INSERTION OF ALL THE FIELDS 00110000
+001200*                INTO THE DATABASE AND RETRIEVES THE SAME USING   00120000
+001300*                SELECT AND PERFORMS UPDATION AND DELETION ALSO.  00130000
+001400*                                                                 00140000
+001500*LOGIC        : EMBEDDED SQL'S HAVE BEEN USED FOR FETCHING RECORDS00150000
+001600*                FROM THE DATABASE, INSERTING RECORDS INTO THE    00160000
+001700*                DATABASE AND DELETION OF RECORDS FROM THE        00170000
+001800*                DATABASE.                                        00180000
+001900*                                                                 00190000
+002000*PROGRAM FUNCTION KEYS USED: PF1,PF2,PF3,PF4,PF5,PF6,PF12         00200000
+002100* MESSAGES     : 1. 'PRODUCT ALREADY EXISTS'                      00210000
+002200*                2. 'NO DATA IS ENTERED - PLEASE ENTER THE DATA'  00220000
+002300******************************************************************00230000
+002400 DATA DIVISION.                                                   00240000
+002500 WORKING-STORAGE SECTION.                                         00250000
+002800*COPY DFHAID.                                                     00280000
+002900*COPY DFHBMSCA.                                                   00290000
+003000*COPY MPRDCT1.                                                    00300000
+003001      EXEC SQL INCLUDE SQLCA END-EXEC.                            00300100
+003002      EXEC SQL INCLUDE PRODN END-EXEC.                            00300200
+003010*                                                                 00301000
+003020   05 WS-COMMAREA PIC 9.                                          00302000
+003100*                                                                 00310000
+004600 01 WS-TXT1  PIC X(80) VALUE 'SESSION COMPLETED'.                 00460000
+004700 01 WS-TXT2  PIC X(80) VALUE 'DIRECT ENTRY TO M104 IS RESTRICTED'.00470000
+004800*                                                                 00480000
+004810*01 UNTPRC-REDEFS.                                                00481000
+004820*  05 WS-UNTPRCS           PIC 9(10)V99.                          00482000
+004830*  05 RE-UNTPRCS REDEFINES WS-UNTPRCS PIC X(12).                  00483000
+004840*                                                                 00484000
+004850 01 UNTPRC-REDEF.                                                 00485000
+004860   05 WS-UNTPRCI           PIC X(12).                             00486001
+004870   05 RE-UNTPRCI REDEFINES WS-UNTPRCI PIC 9(10)V99.               00487000
+004871   05 WS-UNTPRCS           PIC 9(10)V99.                          00487100
+004872   05 RE-UNTPRCS REDEFINES WS-UNTPRCS PIC X(12).                  00487201
+004880*                                                                 00488000
+004900 01 WS-STATUS-FIELDS.                                             00490000
+005000    05 STATUS-OF-RECEIVE PIC X   VALUE SPACE.                     00500000
+005100       88 GOOD-RECEIVE           VALUE 'G'.                       00510000
+005200       88 MAPFAIL-ON-RECEIVE     VALUE 'F'.                       00520000
+005300*                                                                 00530000
+005400 LINKAGE SECTION.                                                 00540000
+005500 01 DFHCOMMAREA.                                                  00550000
+005510    COPY PRODCPY1.                                                00551001
+005610*                                                                 00561000
+005700******************************************************************00570000
+005800 PROCEDURE DIVISION USING DFHCOMMAREA.                            00580000
+005900******************************************************************00590000
+005920 1000-MAINLINE-PARA.                                              00592000
+005930        MOVE 0 TO LS-CURSOR-POS.                                  00593000
+005940        DISPLAY 'MAINLINE' .                                      00594000
+005996        PERFORM 2000-PROCESSING-PARA.                             00599600
+006000     EXEC CICS RETURN                                             00600000
+006004     END-EXEC.                                                    00600400
+006005                                                                  00600500
+006010******************************************************************00601000
+006011 2000-PROCESSING-PARA.                                            00601100
+006012        DISPLAY 'PROCESSING PARA'.                                00601200
+006013        EVALUATE TRUE                                             00601300
+006014           WHEN LS-OPT = 'INSERT'                                 00601400
+006015               PERFORM 3000-INSERTION-PARA THRU 3000-EXIT         00601500
+006016           WHEN LS-OPT = 'SELECT'                                 00601600
+006017               PERFORM 4000-SELECTION-PARA THRU 4000-EXIT         00601700
+006018           WHEN LS-OPT = 'UPDATE'                                 00601800
+006019               PERFORM 5000-UPDATION-PARA THRU 5000-EXIT          00601900
+006020           WHEN LS-OPT = 'DELETE'                                 00602000
+006021               PERFORM 6200-DELETION-PARA THRU 6200-EXIT          00602100
+006022           WHEN LS-OPT = 'ERROR'                                  00602200
+006023               PERFORM 9000-ERROR-SESSION-PARA THRU 9000-EXIT     00602300
+006024           WHEN OTHER                                             00602400
+006025               PERFORM 9000-ERROR-SESSION-PARA THRU 9000-EXIT     00602500
+006026        END-EVALUATE.                                             00602600
+006027                                                                  00602700
+006028 2000-EXIT.                                                       00602800
+006029     EXIT.                                                        00602900
+006030******************************************************************00603000
+006040 3000-INSERTION-PARA.                                             00604000
+006100     IF LS-PRODID = 0                                             00610000
+006200       MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG     00620000
+006210       MOVE 1 TO LS-CURSOR-POS                                    00621000
+006300        EXEC CICS RETURN                                          00630000
+006400        END-EXEC                                                  00640000
+006600     ELSE IF LS-PRODID IS NOT NUMERIC                             00660000
+006700        MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'        00670000
+006800              TO LS-MSG                                           00680000
+006810        MOVE 1 TO LS-CURSOR-POS                                   00681000
+006900           EXEC CICS RETURN                                       00690000
+007000           END-EXEC                                               00700000
+007100          END-IF                                                  00710000
+007200     END-IF.                                                      00720000
+007300                                                                  00730000
+007400     MOVE LS-PRODID TO PROD-ID.                                   00740000
+007500     EXEC SQL                                                     00750000
+007600          SELECT PROD_ID                                          00760000
+007700          INTO :PROD-ID                                           00770000
+007800          FROM ADMT.T_PR_PRODUCT                                  00780000
+007900          WHERE PROD_ID = :PROD-ID                                00790000
+008000     END-EXEC.                                                    00800000
+008100*                                                                 00810000
+008200        EVALUATE SQLCODE                                          00820000
+008300            WHEN +100                                             00830000
+008400               PERFORM 9100-VALIDATION-PARA THRU 9100-EXIT        00840000
+008500               MOVE LS-PRODNM   TO PROD-NAME                      00850000
+008600               MOVE LS-SUPID    TO PROD-SUP-ID                    00860000
+008700               MOVE LS-CATID    TO PROD-CAT-ID                    00870000
+008800               MOVE LS-CATNM    TO PROD-CAT-NAME                  00880000
+008900               MOVE LS-UNIPRC   TO WS-UNTPRCI                     00890000
+008910               MOVE RE-UNTPRCI  TO PROD-UNIT-PRICE                00891000
+009000               MOVE LS-UNISTK   TO PROD-UNIT-STOCK                00900000
+009100               MOVE LS-UNIORD   TO PROD-UNIT-ORDER                00910000
+009200               EXEC SQL INSERT INTO                               00920000
+009300                       ADMT.T_PR_PRODUCT VALUES(:PROD-ID,         00930000
+009400                                                :PROD-NAME,       00940000
+009500                                                :PROD-SUP-ID,     00950000
+009600                                                :PROD-CAT-ID,     00960000
+009700                                                :PROD-CAT-NAME,   00970000
+009800                                                :PROD-UNIT-PRICE, 00980000
+009900                                                :PROD-UNIT-STOCK, 00990000
+009901                                                :PROD-UNIT-ORDER, 00990100
+009902                                                DEFAULT,          00990200
+009903                                                DEFAULT,          00990302
+009904                                                DEFAULT)          00990402
+010100               END-EXEC                                           01010000
+010200*                                                                 01020000
+010300                   EVALUATE SQLCODE                               01030000
+010400                      WHEN 0                                      01040000
+010500                         MOVE 'SUCCESSFUL INSERTION - PRESS PF12 T01050000
+010600-                             'O CLEAR THE SCREEN' TO LS-MSG      01060000
+010610                         MOVE 9 TO LS-CURSOR-POS                  01061000
+010700                         EXEC CICS RETURN                         01070000
+010800                         END-EXEC                                 01080000
+010900                       WHEN OTHER                                 01090000
+011000                         MOVE 'INSERTION UNSUCCESSFUL' TO LS-MSG  01100000
+011010                         MOVE 1 TO LS-CURSOR-POS                  01101000
+011100                         EXEC CICS RETURN                         01110000
+011200                         END-EXEC                                 01120000
+011300                   END-EVALUATE                                   01130000
+011400*                                                                 01140000
+011500            WHEN 0                                                01150000
+011600               MOVE 'PRODUCT ALREADY EXISTS' TO LS-MSG            01160000
+011610               MOVE 1 TO LS-CURSOR-POS                            01161000
+011700               EXEC CICS RETURN                                   01170000
+011800               END-EXEC                                           01180000
+011900        END-EVALUATE.                                             01190000
+012000*                                                                 01200000
+012100 3000-EXIT.                                                       01210000
+012200     EXIT.                                                        01220000
+012300******************************************************************01230000
+012400 4000-SELECTION-PARA.                                             01240000
+012410        DISPLAY 'SELECTION PARA'.                                 01241000
+012500     IF LS-PRODID = 0                                             01250000
+012600        MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG    01260000
+012610        MOVE 1 TO LS-CURSOR-POS                                   01261000
+012700        EXEC CICS RETURN                                          01270000
+012800        END-EXEC                                                  01280000
+012900                                                                  01290000
+013000     ELSE IF LS-PRODID IS NOT NUMERIC                             01300000
+013100        MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'        01310000
+013200              TO LS-MSG                                           01320000
+013210        MOVE 1 TO LS-CURSOR-POS                                   01321000
+013300        EXEC CICS RETURN                                          01330000
+013400        END-EXEC.                                                 01340000
+013500*                                                                 01350000
+013700            MOVE LS-PRODID TO PROD-ID.                            01370000
+013710            DISPLAY PROD-ID.                                      01371000
+013800            EXEC SQL                                              01380000
+013900              SELECT PROD_ID,PROD_NAME,PROD_SUP_ID,PROD_CAT_ID,   01390000
+014000                    PROD_CAT_NAME,PROD_UNIT_PRICE,PROD_UNIT_STOCK,01400000
+014100                    PROD_UNIT_ORDER                               01410000
+014200              INTO  :PROD-ID,                                     01420000
+014300                    :PROD-NAME,                                   01430000
+014400                    :PROD-SUP-ID,                                 01440000
+014500                    :PROD-CAT-ID,                                 01450000
+014600                    :PROD-CAT-NAME,                               01460000
+014700                    :PROD-UNIT-PRICE,                             01470000
+014800                    :PROD-UNIT-STOCK,                             01480000
+014900                    :PROD-UNIT-ORDER                              01490000
+015000               FROM ADMT.T_PR_PRODUCT                             01500000
+015100               WHERE PROD_ID= :PROD-ID                            01510000
+015200            END-EXEC.                                             01520000
+015300*                                                                 01530000
+015310            DISPLAY SQLCODE.                                      01531000
+015400            EVALUATE SQLCODE                                      01540000
+015500                 WHEN 0                                           01550000
+015600                    MOVE PROD-ID         TO LS-PRODID             01560000
+015700                    MOVE PROD-NAME       TO LS-PRODNM             01570000
+015800                    MOVE PROD-SUP-ID     TO LS-SUPID              01580000
+015900                    MOVE PROD-CAT-ID     TO LS-CATID              01590000
+016000                    MOVE PROD-CAT-NAME   TO LS-CATNM              01600000
+016100                    MOVE PROD-UNIT-PRICE TO WS-UNTPRCS            01610000
+016101                    MOVE RE-UNTPRCS TO LS-UNIPRC                  01610100
+016110                    DISPLAY 'PRODPRICE' , PROD-UNIT-PRICE         01611000
+016120                    DISPLAY 'UNITPRICE' , LS-UNIPRC               01612000
+016200                    MOVE PROD-UNIT-STOCK TO LS-UNISTK             01620000
+016300                    MOVE PROD-UNIT-ORDER TO LS-UNIORD             01630000
+016400*                                                                 01640000
+016410                    DISPLAY 'SUCCESSFULL'                         01641000
+016500                    MOVE 'RECORDS SUCCESSFULLY RETRIEVED - PRESS P01650000
+016600-                        'F12 TO CLEAR THE SCREEN' TO LS-MSG      01660000
+016610                    MOVE 9 TO LS-CURSOR-POS                       01661000
+016620                    DISPLAY 'ABEND'                               01662000
+016700                    EXEC CICS RETURN                              01670000
+016800                    END-EXEC                                      01680000
+016900                 WHEN OTHER                                       01690000
+017000*                   MOVE SPACES TO LS-PRODID,LS-PRODNM,LS-SUPID,  01700000
+017010*                   LS-CATID,LS-CATNM,LS-UNIPRC,LS-UNISTK,        01701000
+017020*                   LS-UNIORD                                     01702000
+017100                    MOVE PROD-ID TO LS-PRODID                     01710000
+017200                    MOVE 'NEW PRODUCT, CAN PERFORM INSERTION ONLY'01720000
+017300                         TO LS-MSG                                01730000
+017310                    MOVE 1 TO LS-CURSOR-POS                       01731000
+017400                    EXEC CICS RETURN                              01740000
+017500                    END-EXEC                                      01750000
+017600            END-EVALUATE.                                         01760000
+017700*                                                                 01770000
+018200 4000-EXIT.                                                       01820000
+018300     EXIT.                                                        01830000
+018400******************************************************************01840000
+018500 5000-UPDATION-PARA.                                              01850000
+018600     IF LS-PRODID = 0                                             01860000
+018700        MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG    01870000
+018710        MOVE 1 TO LS-CURSOR-POS                                   01871000
+018800        EXEC CICS RETURN                                          01880000
+018900        END-EXEC                                                  01890000
+019000     ELSE IF LS-PRODID IS NOT NUMERIC                             01900000
+019100        MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'        01910000
+019200             TO LS-MSG                                            01920000
+019210        MOVE 1 TO LS-CURSOR-POS                                   01921000
+019300        EXEC CICS RETURN                                          01930000
+019400        END-EXEC.                                                 01940000
+019700*                                                                 01970000
+019800     MOVE LS-PRODID TO PROD-ID.                                   01980000
+019900     EXEC SQL                                                     01990000
+020000          SELECT PROD_ID                                          02000000
+020100          INTO :PROD-ID                                           02010000
+020200          FROM ADMT.T_PR_PRODUCT                                  02020000
+020300          WHERE PROD_ID = :PROD-ID                                02030000
+020400     END-EXEC.                                                    02040000
+020500*                                                                 02050000
+020600        EVALUATE SQLCODE                                          02060000
+020610           WHEN +100                                              02061000
+020611              MOVE PROD-ID TO LS-PRODID                           02061100
+020612              MOVE 'NEW PRODUCT, CAN PERFORM INSERTION ONLY'      02061200
+020613                   TO LS-MSG                                      02061300
+020614              MOVE 1 TO LS-CURSOR-POS                             02061400
+020615              EXEC CICS RETURN                                    02061500
+020616              END-EXEC                                            02061600
+020700           WHEN 0                                                 02070000
+020800              PERFORM 9100-VALIDATION-PARA THRU 9100-EXIT         02080000
+020900*                                                                 02090000
+021000              MOVE LS-PRODID   TO PROD-ID                         02100000
+021100              MOVE LS-PRODNM   TO PROD-NAME                       02110000
+021200              MOVE LS-SUPID    TO PROD-SUP-ID                     02120000
+021300              MOVE LS-CATID    TO PROD-CAT-ID                     02130000
+021400              MOVE LS-CATNM    TO PROD-CAT-NAME                   02140000
+021500*             MOVE LS-UNIPRC   TO PROD-UNIT-PRICE                 02150000
+021510              MOVE LS-UNIPRC   TO WS-UNTPRCI                      02151000
+021520              MOVE RE-UNTPRCI  TO PROD-UNIT-PRICE                 02152000
+021600              MOVE LS-UNISTK   TO PROD-UNIT-STOCK                 02160000
+021700              MOVE LS-UNIORD   TO PROD-UNIT-ORDER                 02170000
+021800              EXEC SQL                                            02180000
+021900                UPDATE ADMT.T_PR_PRODUCT                          02190000
+022000                SET PROD_ID         = :PROD-ID,                   02200000
+022100                    PROD_NAME       = :PROD-NAME,                 02210000
+022200                    PROD_SUP_ID     = :PROD-SUP-ID,               02220000
+022300                    PROD_CAT_ID     = :PROD-CAT-ID,               02230000
+022400                    PROD_CAT_NAME   = :PROD-CAT-NAME,             02240000
+022500                    PROD_UNIT_PRICE = :PROD-UNIT-PRICE,           02250000
+022600                    PROD_UNIT_STOCK = :PROD-UNIT-STOCK,           02260000
+022700                    PROD_UNIT_ORDER = :PROD-UNIT-ORDER            02270000
+022800                 WHERE PROD_ID      = :PROD-ID                    02280000
+022900              END-EXEC                                            02290000
+023000*                                                                 02300000
+023100                  EVALUATE SQLCODE                                02310000
+023200                     WHEN 0                                       02320000
+023300                        MOVE 'SUCCESSFULLY UPDATED - PRESS PF12 TO02330000
+023400-                            ' CLEAR THE SCREEN' TO LS-MSG        02340000
+023410                        MOVE 9 TO LS-CURSOR-POS                   02341000
+023500                        EXEC CICS RETURN                          02350000
+023600                        END-EXEC                                  02360000
+023700                     WHEN OTHER                                   02370000
+023800                        MOVE 'UPDATION UNSUCCESSFUL' TO LS-MSG    02380000
+023810                        MOVE 1 TO LS-CURSOR-POS                   02381000
+023900                        EXEC CICS RETURN                          02390000
+024000                        END-EXEC                                  02400000
+024100                  END-EVALUATE                                    02410000
+024200*                                                                 02420000
+024300*          WHEN OTHER                                             02430000
+024400*             MOVE LOW-VALUES TO PRDMAPO                          02440000
+024410*             MOVE SPACES TO LS-PRODID,LS-PRODNM,LS-SUPID,        02441000
+024430*             LS-CATID,LS-CATNM,LS-UNIPRC,LS-UNISTK,              02443000
+024440*             LS-UNIORD                                           02444000
+025000        END-EVALUATE.                                             02500000
+025100*                                                                 02510000
+025200 5000-EXIT.                                                       02520000
+025300     EXIT.                                                        02530000
+025400******************************************************************02540000
+033100 6200-DELETION-PARA.                                              03310000
+033101     IF LS-PRODID = 0                                             03310100
+033102       MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG     03310200
+033103       MOVE 1 TO LS-CURSOR-POS                                    03310300
+033104        EXEC CICS RETURN                                          03310400
+033105        END-EXEC                                                  03310500
+033106     ELSE IF LS-PRODID IS NOT NUMERIC                             03310600
+033107        MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'        03310700
+033108              TO LS-MSG                                           03310800
+033109        MOVE 1 TO LS-CURSOR-POS                                   03310900
+033110           EXEC CICS RETURN                                       03311000
+033111           END-EXEC                                               03311100
+033112          END-IF                                                  03311200
+033113     END-IF.                                                      03311300
+033114                                                                  03311400
+033115     MOVE LS-PRODID TO PROD-ID.                                   03311500
+033121          EXEC SQL                                                03312100
+033122               SELECT PROD_ID                                     03312200
+033123               INTO :PROD-ID                                      03312300
+033124               FROM ADMT.T_PR_PRODUCT                             03312400
+033125               WHERE PROD_ID = :PROD-ID                           03312500
+033126          END-EXEC.                                               03312600
+033127                                                                  03312700
+033128             EVALUATE SQLCODE                                     03312800
+033129                WHEN +100                                         03312900
+033130                   MOVE PROD-ID TO LS-PRODID                      03313000
+033131                   MOVE 'NEW PRODUCT, CAN PERFORM INSERTION ONLY' 03313100
+033132                        TO LS-MSG                                 03313200
+033133                   MOVE 1 TO LS-CURSOR-POS                        03313300
+033134                   EXEC CICS RETURN                               03313400
+033135                   END-EXEC                                       03313500
+033140                WHEN 0                                            03314000
+033200                   EXEC SQL                                       03320000
+033300                       DELETE FROM ADMT.T_PR_PRODUCT              03330000
+033400                       WHERE PROD_ID = :PROD-ID                   03340000
+033500                   END-EXEC                                       03350000
+033600*                                                                 03360000
+033700                   EVALUATE SQLCODE                               03370000
+033800                      WHEN 0                                      03380000
+033900                         MOVE 'SUCCESSFULLY DELETED' TO LS-MSG    03390000
+033910                         MOVE 9 TO LS-CURSOR-POS                  03391000
+034000                         EXEC CICS RETURN                         03400000
+034100                         END-EXEC                                 03410000
+034200                      WHEN OTHER                                  03420000
+034300                         MOVE 'DELETION NOT SUCCESSFULL' TO LS-MSG03430000
+034310                         MOVE 1 TO LS-CURSOR-POS                  03431000
+034400                               EXEC CICS RETURN                   03440000
+034500                               END-EXEC                           03450000
+034600                         END-EVALUATE                             03460000
+034610           END-EVALUATE.                                          03461000
+034700*                                                                 03470000
+034800 6200-EXIT.                                                       03480000
+034900     EXIT.                                                        03490000
+035000******************************************************************03500000
+036200 9000-ERROR-SESSION-PARA.                                         03620000
+036300     MOVE 'INVALID KEY PRESSED - PLZ TRY AGAIN' TO LS-MSG.        03630000
+036310     MOVE 1 TO LS-CURSOR-POS                                      03631000
+036400     EXEC CICS RETURN                                             03640000
+036500     END-EXEC.                                                    03650000
+036600*                                                                 03660000
+036700 9000-EXIT.                                                       03670000
+036800     EXIT.                                                        03680000
+036900******************************************************************03690000
+037000 9100-VALIDATION-PARA.                                            03700000
+037100     IF LS-PRODID = 0                                             03710000
+037200          MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  03720000
+037210          MOVE 1 TO LS-CURSOR-POS                                 03721000
+037300          EXEC CICS RETURN                                        03730000
+037400          END-EXEC                                                03740000
+037500     ELSE IF LS-PRODID IS NOT NUMERIC                             03750000
+037600          MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'      03760000
+037700               TO LS-MSG                                          03770000
+037710          MOVE 1 TO LS-CURSOR-POS                                 03771000
+037800          EXEC CICS RETURN                                        03780000
+037900          END-EXEC                                                03790000
+038000          END-IF                                                  03800000
+038100     END-IF.                                                      03810000
+038200*                                                                 03820000
+038300     IF LS-PRODNM = SPACES                                        03830000
+038400          MOVE 'PROD NAME NOT ENTERED - PLZ ENTER IT' TO LS-MSG   03840000
+038401          MOVE 2 TO LS-CURSOR-POS                                 03840100
+038500          EXEC CICS RETURN                                        03850000
+038600          END-EXEC                                                03860000
+038700     ELSE IF LS-PRODNM IS NOT ALPHABETIC                          03870000
+038800          MOVE 'PROD NAME ENTERED IS INCORRECT - ENTER CORRECTLY' 03880000
+038900               TO LS-MSG                                          03890000
+038910          MOVE 2 TO LS-CURSOR-POS                                 03891000
+039000          EXEC CICS RETURN                                        03900000
+039100          END-EXEC                                                03910000
+039200          END-IF                                                  03920000
+039300     END-IF.                                                      03930000
+039400*                                                                 03940000
+039500     IF LS-SUPID = 0                                              03950000
+039600          MOVE 'SUPPLIER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG 03960000
+039610          MOVE 3 TO LS-CURSOR-POS                                 03961000
+039700          EXEC CICS RETURN                                        03970000
+039800          END-EXEC                                                03980000
+039900     ELSE IF LS-SUPID IS NOT NUMERIC                              03990000
+040000          MOVE 'SUPPLIER ID SHOULD BE NUMERIC - PLZ ENTER ALL 5 DI04000000
+040100-              'GITS' TO LS-MSG                                   04010000
+040110          MOVE 3 TO LS-CURSOR-POS                                 04011000
+040200          EXEC CICS RETURN                                        04020000
+040300          END-EXEC                                                04030000
+040400          END-IF                                                  04040000
+040500     END-IF.                                                      04050000
+040600*                                                                 04060000
+040700     IF LS-CATID = 0                                              04070000
+040800          MOVE 'CATEGORY ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG 04080000
+040810          MOVE 4 TO LS-CURSOR-POS                                 04081000
+040900          EXEC CICS RETURN                                        04090000
+041000          END-EXEC                                                04100000
+041100     ELSE IF LS-CATID IS NOT NUMERIC                              04110000
+041200          MOVE 'CATEGORY ID SHOULD BE NUMERIC - PLZ ENTER ALL 5 DI04120000
+041300-              'GITS' TO LS-MSG                                   04130000
+041310          MOVE 4 TO LS-CURSOR-POS                                 04131000
+041400          EXEC CICS RETURN                                        04140000
+041500          END-EXEC                                                04150000
+041600          END-IF                                                  04160000
+041700     END-IF.                                                      04170000
+041800*                                                                 04180000
+041900     IF LS-CATNM = SPACES                                         04190000
+042000          MOVE 'CATEGORY NAME NOT ENTERED - PLZ ENTER IT'         04200000
+042010             TO LS-MSG                                            04201000
+042020          MOVE 5 TO LS-CURSOR-POS                                 04202000
+042100          EXEC CICS RETURN                                        04210000
+042200          END-EXEC                                                04220000
+042300     ELSE IF LS-CATNM IS NOT ALPHABETIC                           04230000
+042400          MOVE 'CATEGORY NAME ENTERED IS INCORRECT - ENTER CORRECT04240000
+042500-              'LY' TO LS-MSG                                     04250000
+042510          MOVE 5 TO LS-CURSOR-POS                                 04251000
+042600          EXEC CICS RETURN                                        04260000
+042700          END-EXEC                                                04270000
+042800          END-IF                                                  04280000
+042900     END-IF.                                                      04290000
+043000*                                                                 04300000
+043100     IF LS-UNIPRC = ZEROES                                        04310000
+043110          MOVE 'UNIT PRICE NOT ENTERED - PLZ ENTER IT' TO LS-MSG  04311000
+043120          MOVE 6 TO LS-CURSOR-POS                                 04312000
+043200          EXEC CICS RETURN                                        04320000
+043300          END-EXEC                                                04330000
+043500     ELSE IF LS-UNIPRC IS NOT NUMERIC                             04350000
+043600          MOVE 'UNIT PRICE SHOULD BE NUMERIC - PLZ ENTER IT'      04360000
+043700               TO LS-MSG                                          04370000
+043710          MOVE 6 TO LS-CURSOR-POS                                 04371000
+043800          EXEC CICS RETURN                                        04380000
+043900          END-EXEC                                                04390000
+044000          END-IF                                                  04400000
+044100     END-IF.                                                      04410000
+044200*                                                                 04420000
+044300     IF LS-UNISTK = 0                                             04430000
+044400          MOVE 'UNIT STOCK NOT ENTERED - PLZ ENTER IT' TO LS-MSG  04440000
+044410          MOVE 7 TO LS-CURSOR-POS                                 04441000
+044500          EXEC CICS RETURN                                        04450000
+044600          END-EXEC                                                04460000
+044700     ELSE IF LS-UNISTK IS NOT NUMERIC                             04470000
+044800          MOVE 'UNIT STOCK SHOULD BE NUMERIC' TO LS-MSG           04480000
+044810          MOVE 7 TO LS-CURSOR-POS                                 04481000
+044900          EXEC CICS RETURN                                        04490000
+045000          END-EXEC                                                04500000
+045100          END-IF                                                  04510000
+045200     END-IF.                                                      04520000
+045300*                                                                 04530000
+045400     IF LS-UNIORD = 0                                             04540000
+045500          MOVE 'UNIT ORDER NOT ENTERED - PLZ ENTER IT' TO LS-MSG  04550000
+045510          MOVE 8 TO LS-CURSOR-POS                                 04551000
+045600          EXEC CICS RETURN                                        04560000
+045700          END-EXEC                                                04570000
+045800     ELSE IF LS-UNIORD IS NOT NUMERIC                             04580000
+045900          MOVE 'UNIT ORDER SHOULD BE NUMERIC' TO LS-MSG           04590000
+045910          MOVE 8 TO LS-CURSOR-POS                                 04591000
+046000          EXEC CICS RETURN                                        04600000
+046100          END-EXEC                                                04610000
+046200*                                                                 04620000
+046300          ELSE IF LS-UNIORD > LS-UNISTK                           04630000
+046400           MOVE 'UNITS IN ORDER SHOULD BE LESS THAN OR EQUAL TO UN04640000
+046500-               'ITS IN STOCK' TO LS-MSG                          04650000
+046510           MOVE 8 TO LS-CURSOR-POS                                04651000
+046600           EXEC CICS RETURN                                       04660000
+046700           END-EXEC                                               04670000
+046800*                                                                 04680000
+046900               END-IF                                             04690000
+047000*                                                                 04700000
+047100          END-IF                                                  04710000
+047200*                                                                 04720000
+047300     END-IF.                                                      04730000
+047400*                                                                 04740000
+047500 9100-EXIT.                                                       04750000
+047600     EXIT.                                                        04760000

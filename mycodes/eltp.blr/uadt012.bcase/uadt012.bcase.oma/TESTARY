@@ -1,0 +1,18 @@
+000020 IDENTIFICATION DIVISION.                                         00002033
+000030 PROGRAM-ID. CRPGM1.                                              00003099
+000050 ENVIRONMENT DIVISION.                                            00005033
+000059 DATA DIVISION.                                                   00005933
+000082 WORKING-STORAGE SECTION.                                         00008233
+001100*                                                                 00110033
+       COPY DFHBMSCA.                                                   00111099
+001200 LINKAGE SECTION.                                                 00120033
+001300 01 DFHCOMMAREA.                                                  00130033
+001400    COPY CMECOPY.                                                 00140099
+001600*                                                                 00160033
+001700 PROCEDURE DIVISION.                                              00170033
+      *                                                                 00171099
+001800 0000-MAIN-PARA.                                                  00180033
+             MOVE 10 TO LS-ID1(1)                                       00190099
+             MOVE 30 TO LS-ID1(2)                                       00200099
+             MOVE 40 TO LS-ID1(3)                                       00210099
+             EXEC CICS RETURN END-EXEC.                                 00220099

@@ -1,0 +1,134 @@
+       01  EMPLMPI.
+           02  FILLER PIC X(12).
+           02  EMDATEL    COMP  PIC  S9(4).
+           02  EMDATEF    PICTURE X.
+           02  FILLER REDEFINES EMDATEF.
+             03 EMDATEA    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  EMDATEI  PIC X(10).
+           02  EMTIMEL    COMP  PIC  S9(4).
+           02  EMTIMEF    PICTURE X.
+           02  FILLER REDEFINES EMTIMEF.
+             03 EMTIMEA    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  EMTIMEI  PIC X(10).
+           02  EMPIDL    COMP  PIC  S9(4).
+           02  EMPIDF    PICTURE X.
+           02  FILLER REDEFINES EMPIDF.
+             03 EMPIDA    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  EMPIDI  PIC 9(10).
+           02  EMPNML    COMP  PIC  S9(4).
+           02  EMPNMF    PICTURE X.
+           02  FILLER REDEFINES EMPNMF.
+             03 EMPNMA    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  EMPNMI  PIC X(40).
+           02  ROW1L    COMP  PIC  S9(4).
+           02  ROW1F    PICTURE X.
+           02  FILLER REDEFINES ROW1F.
+             03 ROW1A    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  ROW1I  PIC X(77).
+           02  ROW2L    COMP  PIC  S9(4).
+           02  ROW2F    PICTURE X.
+           02  FILLER REDEFINES ROW2F.
+             03 ROW2A    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  ROW2I  PIC X(77).
+           02  ROW3L    COMP  PIC  S9(4).
+           02  ROW3F    PICTURE X.
+           02  FILLER REDEFINES ROW3F.
+             03 ROW3A    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  ROW3I  PIC X(77).
+           02  ROW4L    COMP  PIC  S9(4).
+           02  ROW4F    PICTURE X.
+           02  FILLER REDEFINES ROW4F.
+             03 ROW4A    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  ROW4I  PIC X(77).
+           02  ROW5L    COMP  PIC  S9(4).
+           02  ROW5F    PICTURE X.
+           02  FILLER REDEFINES ROW5F.
+             03 ROW5A    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  ROW5I  PIC X(77).
+           02  ROW6L    COMP  PIC  S9(4).
+           02  ROW6F    PICTURE X.
+           02  FILLER REDEFINES ROW6F.
+             03 ROW6A    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  ROW6I  PIC X(77).
+           02  ROW7L    COMP  PIC  S9(4).
+           02  ROW7F    PICTURE X.
+           02  FILLER REDEFINES ROW7F.
+             03 ROW7A    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  ROW7I  PIC X(77).
+           02  ROW8L    COMP  PIC  S9(4).
+           02  ROW8F    PICTURE X.
+           02  FILLER REDEFINES ROW8F.
+             03 ROW8A    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  ROW8I  PIC X(77).
+           02  EMMSGL    COMP  PIC  S9(4).
+           02  EMMSGF    PICTURE X.
+           02  FILLER REDEFINES EMMSGF.
+             03 EMMSGA    PICTURE X.
+           02  FILLER   PICTURE X(2).
+           02  EMMSGI  PIC X(65).
+       01  EMPLMPO REDEFINES EMPLMPI.
+           02  FILLER PIC X(12).
+           02  FILLER PICTURE X(3).
+           02  EMDATEC    PICTURE X.
+           02  EMDATEH    PICTURE X.
+           02  EMDATEO PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  EMTIMEC    PICTURE X.
+           02  EMTIMEH    PICTURE X.
+           02  EMTIMEO PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  EMPIDC    PICTURE X.
+           02  EMPIDH    PICTURE X.
+           02  EMPIDO PIC 9(10).
+           02  FILLER PICTURE X(3).
+           02  EMPNMC    PICTURE X.
+           02  EMPNMH    PICTURE X.
+           02  EMPNMO PIC X(40).
+           02  FILLER PICTURE X(3).
+           02  ROW1C    PICTURE X.
+           02  ROW1H    PICTURE X.
+           02  ROW1O PIC X(77).
+           02  FILLER PICTURE X(3).
+           02  ROW2C    PICTURE X.
+           02  ROW2H    PICTURE X.
+           02  ROW2O PIC X(77).
+           02  FILLER PICTURE X(3).
+           02  ROW3C    PICTURE X.
+           02  ROW3H    PICTURE X.
+           02  ROW3O PIC X(77).
+           02  FILLER PICTURE X(3).
+           02  ROW4C    PICTURE X.
+           02  ROW4H    PICTURE X.
+           02  ROW4O PIC X(77).
+           02  FILLER PICTURE X(3).
+           02  ROW5C    PICTURE X.
+           02  ROW5H    PICTURE X.
+           02  ROW5O PIC X(77).
+           02  FILLER PICTURE X(3).
+           02  ROW6C    PICTURE X.
+           02  ROW6H    PICTURE X.
+           02  ROW6O PIC X(77).
+           02  FILLER PICTURE X(3).
+           02  ROW7C    PICTURE X.
+           02  ROW7H    PICTURE X.
+           02  ROW7O PIC X(77).
+           02  FILLER PICTURE X(3).
+           02  ROW8C    PICTURE X.
+           02  ROW8H    PICTURE X.
+           02  ROW8O PIC X(77).
+           02  FILLER PICTURE X(3).
+           02  EMMSGC    PICTURE X.
+           02  EMMSGH    PICTURE X.
+           02  EMMSGO PIC X(65).

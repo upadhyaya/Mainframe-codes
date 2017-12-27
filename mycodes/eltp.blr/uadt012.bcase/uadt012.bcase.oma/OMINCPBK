@@ -1,0 +1,3 @@
+           05    LS-TOKEN               PIC X(1).                       00010002
+           05    LS-REP-DATE            PIC X(10).                      00011002
+           05    LS-MSG                 PIC X(80).                      00020001

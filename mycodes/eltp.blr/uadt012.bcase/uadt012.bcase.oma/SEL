@@ -1,0 +1,7 @@
+SET CURRENT SQLID='ADMSGP';                                             00001000
+SELECT * FROM T_CU_CUSTOMER;                                            00010000
+SELECT * FROM T_EM_EMPLOYEE;                                            00020000
+SELECT * FROM T_PR_PRODUCT;                                             00030000
+SELECT * FROM T_SU_SUPPLIER;                                            00040000
+SELECT * FROM T_OR_ORDER;                                               00050000
+SELECT * FROM T_OL_ORDER_LN_ITEM;                                       00060000

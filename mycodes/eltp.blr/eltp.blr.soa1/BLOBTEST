@@ -1,0 +1,125 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. ORDRHND.                                             00020000
+000400 AUTHOR. SOA TEAM.                                                00040000
+000410 DATE-WRITTEN. 26/09/08.                                          00041000
+000420 DATE-COMPILED. 26/09/08.                                         00042000
+000717******************************************************************00071700
+000718 DATA DIVISION.                                                   00071800
+000719 WORKING-STORAGE SECTION.                                         00071900
+001007*                                                                 00100700
+001008     EXEC SQL INCLUDE ATTACH END-EXEC.                            00100800
+001009     EXEC SQL INCLUDE PHINFO END-EXEC.                            00100900
+001010     EXEC SQL INCLUDE SQLCA  END-EXEC.                            00101000
+001013 01 RES1            PIC S9(4) COMP.                               00101300
+001014 01 RES22            PIC S9(4) COMP.                              00101400
+001015 01 RE1              PIC S9(4) COMP.                              00101500
+001016*                                                                 00101600
+001017 01 WS-FLAGDB PIC X VALUE 'N'.                                    00101700
+001018 01 WS-FLAGVM PIC X VALUE 'N'.                                    00101800
+001019*                                                                 00101900
+001020 01 WS-QUOT     PIC 9(4) VALUE 0.                                 00102000
+001021 01 WS-REM      PIC 9(4) VALUE 0.                                 00102100
+001022*                                                                 00102200
+001023 01 WK-DATE.                                                      00102300
+001024    05 WK-D-DD PIC 99.                                            00102400
+001025    05 FILLER  PIC X.                                             00102500
+001026    05 WK-D-MM PIC 99.                                            00102600
+001027    05 FILLER  PIC X.                                             00102700
+001028    05 WK-D-YY PIC 99.                                            00102800
+001029 01 WK-TIME.                                                      00102900
+001030    05 WK-T-HH PIC 99.                                            00103000
+001031    05 FILLER  PIC X.                                             00103100
+001032    05 WK-T-MM PIC 99.                                            00103200
+001033    05 FILLER  PIC X.                                             00103300
+001034    05 WK-T-SS PIC 99.                                            00103400
+001035 01 DT PIC S9(15) COMP-3.                                         00103500
+001036*                                                                 00103600
+001037 01 WS-SCR-DATE.                                                  00103700
+001038    05 WS-MONTH PIC 9(2).                                         00103800
+001039    05 SLASH1   PIC X(1) VALUE '/'.                               00103900
+001040    05 WS-DATE  PIC 9(2).                                         00104000
+001041    05 SLASH2   PIC X(1) VALUE '/'.                               00104100
+001042    05 WS-YEAR  PIC 9(4).                                         00104200
+001043*                                                                 00104300
+001044 01 WS-YEAR1  PIC 9(4) VALUE 0.                                   00104400
+001057*                                                                 00105700
+001058 01 WS-ORDID   PIC 9(10).                                         00105800
+001059 01 WS-CUSTID  PIC 9(10).                                         00105900
+001060 01 WS-CUST-ID   PIC S9(10)V USAGE COMP-3.                        00106000
+001061*                                                                 00106100
+001062 01 EMAIL-ID1.                                                    00106200
+001063    05 MAIL-BODY1 PIC X(4) VALUE SPACES.                          00106300
+001064    05 FILLER PIC X VALUE '@'.                                    00106400
+001065    05 EMAILEND1 PIC X(9) VALUE 'GMAIL.COM'.                      00106500
+001066*                                                                 00106600
+001067 01 EMAIL-ID2.                                                    00106700
+001068    05 MAIL-BODY2 PIC X(4) VALUE SPACES.                          00106800
+001069    05 FILLER PIC X VALUE '@'.                                    00106900
+001070    05 EMAILEND2 PIC X(9) VALUE 'YAHOO.COM'.                      00107000
+001071*                                                                 00107100
+001072 01 EMAIL-ID3.                                                    00107200
+001073    05 MAIL-BODY3 PIC X(4) VALUE SPACES.                          00107300
+001074    05 FILLER PIC X VALUE '@'.                                    00107400
+001075    05 EMAILEND3 PIC X(14) VALUE 'REDIFFMAIL.COM'.                00107500
+001076*                                                                 00107600
+001077 01 J PIC 9(1) VALUE 1.                                           00107700
+001078 77 RAND-INT PIC 9(10).                                           00107800
+001079 LINKAGE SECTION.                                                 00107900
+001080 01 DFHCOMMAREA.                                                  00108000
+001081      COPY ORDCPY.                                                00108100
+001152******************************************************************00115200
+001153 PROCEDURE DIVISION USING DFHCOMMAREA.                            00115300
+001154******************************************************************00115400
+001157 1000-MAINLINE-PARA.                                              00115700
+001158     DISPLAY 'MAINLINE-PARA'.                                     00115800
+001159     IF EIBCALEN = 0                                              00115900
+001167         MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG                 00116700
+001168         EXEC CICS RETURN                                         00116800
+001169         END-EXEC                                                 00116900
+001170     ELSE                                                         00117000
+001171         PERFORM 2000-PROCESSING-PARA                             00117100
+001172*                                                                 00117200
+001180         EXEC CICS RETURN                                         00118000
+001301         END-EXEC                                                 00130100
+001302     END-IF.                                                      00130200
+001303******************************************************************00130300
+001340 2000-PROCESSING-PARA.                                            00134000
+001341     DISPLAY 'PROCESS-PARA'.                                      00134100
+001344*                                                                 00134400
+001346        IF LS-OPT = 'TEST'                                        00134600
+001348           PERFORM 3000-SELECT-PARATHRU 3000-EXIT                 00134800
+001353           EXEC CICS RETURN END-EXEC                              00135300
+001416        ELSE IF LS-OPT = SPACES                                   00141600
+001417            MOVE 'WRONG SELECTION' TO LS-MSG                      00141700
+001418            MOVE 0 TO LS-ORD-ID                                   00141800
+001419            EXEC CICS RETURN END-EXEC                             00141900
+001420             END-IF                                               00142000
+001421        END-IF.                                                   00142100
+001422*                                                                 00142200
+001423 3000-SELECT-PARA.                                                00142300
+001424      DISPLAY ' INSIDE 2100-PARA'.                                00142400
+001425      EXEC SQL                                                    00142500
+001426         SELECT MEMBER_ID,ATTACH_FILENAME,                        00142600
+001427               UPLOAD_ATTACH                                      00142700
+001429         INTO :MEMBER-ID,:ATTACH-FILENAME,                        00142900
+001430              :UPLOAD-ATTACH                                      00143000
+001438         FROM ADMT.UPLOAD_ATTACHMENTS U, ADMT.T_PH_PHINFO P       00143800
+001439         WHERE U.MEMBER_ID = P.PH_MEMBER_ID                       00143900
+001440      END-EXEC                                                    00144000
+001441*                                                                 00144100
+001442            DISPLAY 'SQLCODE', SQLCODE                            00144200
+001443            EVALUATE SQLCODE                                      00144300
+001444               WHEN 0                                             00144400
+001445                   DISPLAY 'MEMBER ID', MEMBER-ID                 00144500
+001446                   DISPLAY 'ATTACH-FILENAME', ATTACH-FILENAME     00144600
+001447                   DISPLAY 'UPLOAD-ATTACH', UPLOAD-ATTACH         00144700
+001455*                                                                 00145500
+001456                   MOVE 'SUCCESSFUL RETRIEVAL' TO LS-MSG          00145600
+001457                   MOVE 0 TO LS-ORD-ID                            00145700
+001458              EXEC CICS RETURN END-EXEC                           00145800
+001465            WHEN +100                                             00146500
+001466              EXEC CICS RETURN END-EXEC                           00146600
+001467      END-EVALUATE.                                               00146700
+001468*                                                                 00146800
+001470 3000-EXIT.                                                       00147000
+001471     EXIT.                                                        00147100

@@ -1,0 +1,102 @@
+       01 WS-SMF110-VARIABLES.                                          00000100
+004350    05 WS-COUNT              PIC 9(08) VALUE ZEROES.              00001000
+004350    05 WS-TRANSACTION        PIC X(04) VALUE SPACES.              00002000
+004350    05 WS-PREV-TRAN          PIC X(04) VALUE SPACES.              00003000
+004350    05 SMF110-PREV-APPLID    PIC X(08) VALUE SPACES.              00003100
+002090*                                                                 00004000
+       01 WS-HEADER1            PIC X(30) VALUE                         00004100
+                                'PERFORMANCE SUMMARY'.                  00004201
+002090*                                                                 00004500
+004400 01 WS-FLAGS.                                                     00005000
+004500     05 WS-SMFDATA-FILE-FLAG  PIC X(01).                          00006000
+004600        88 SMFDATA-OVER       VALUE 'Y'.                          00007000
+004700        88 SMFDATA-NOT-OVER   VALUE 'N'.                          00008000
+002090*                                                                 00009000
+       01 SMF110-TIMESTAMP PIC X(8).                                    00009100
+002090*                                                                 00009200
+002090*                                                                 00011401
+004200 01 WS-VARIABLES.                                                 00011501
+004350     05 WS-TRAN-COUNT         PIC 9(08) VALUE ZEROES.             00012000
+004350     05 WS-ABEND-COUNT        PIC 9(08) VALUE ZEROES.             00013009
+      *                                                                 00060000
+           05 WS-TOT-RESP           PIC 9(08)V999999 VALUE ZEROES.      00061001
+           05 WS-AVG-RESP           PIC 9(12)V999999 VALUE ZEROES.      00062008
+           05 WS-MAX1-RESP          PIC 9(08)V999999 VALUE ZEROES.      00063002
+           05 WS-MAX2-RESP          PIC 9(08)V999999 VALUE ZEROES.      00064002
+      *                                                                 00070001
+           05 WS-TIME-ARRAY1.                                           00273301
+004350        10 WS-STR-TIME1          PIC X(08).                       00275001
+004350        10 WS-NUM-TIME1 REDEFINES WS-STR-TIME1.                   00276001
+                 15 WS-NUM-TIME1A PIC 9(08) COMP.                       00277001
+                 15 WS-NUM-TIME1B PIC 9(08) COMP.                       00278001
+004350        10 WS-TOT-TIME1          PIC 9(08)V999999 VALUE ZEROES.   00279001
+004350        10 WS-AVG-TIME1          PIC 9(08)V999999 VALUE ZEROES.   00279101
+004350        10 WS-MAX1-TIME1         PIC 9(08)V999999 VALUE ZEROES.   00279201
+004350        10 WS-MAX2-TIME1         PIC 9(08)V999999 VALUE ZEROES.   00279301
+002090*                                                                 00280000
+           05 WS-TIME-ARRAY2 OCCURS 04 TIMES INDEXED BY CWT.            00281001
+004350        10 WS-STR-TIME2          PIC X(08).                       00281101
+004350        10 WS-NUM-TIME2 REDEFINES WS-STR-TIME2.                   00281201
+                 15 WS-NUM-TIME2A PIC 9(08) COMP.                       00281301
+                 15 WS-NUM-TIME2B PIC 9(08) COMP.                       00281401
+004350        10 WS-TOT-TIME2          PIC 9(08)V999999 VALUE ZEROES.   00281501
+004350        10 WS-AVG-TIME2          PIC 9(08)V999999 VALUE ZEROES.   00281601
+002090*                                                                 00281701
+           05 WS-TIME-ARRAY3 OCCURS 14 TIMES INDEXED BY EWT.            00281801
+004350        10 WS-STR-TIME3          PIC X(08).                       00281901
+004350        10 WS-NUM-TIME3 REDEFINES WS-STR-TIME3.                   00282001
+                 15 WS-NUM-TIME3A PIC 9(08) COMP.                       00282101
+                 15 WS-NUM-TIME3B PIC 9(08) COMP.                       00282201
+004350        10 WS-TOT-TIME3          PIC 9(08)V999999 VALUE ZEROES.   00282301
+004350        10 WS-AVG-TIME3          PIC 9(08)V999999 VALUE ZEROES.   00282401
+002090*                                                                 00282701
+           05 WS-TOTAL-IOWAIT          PIC 9(08)V999999 VALUE ZEROES.   00282802
+           05 WS-AVG-IOWAIT            PIC 9(08)V999999 VALUE ZEROES.   00282903
+002090*                                                                 00283003
+           05 WS-TIME-ARRAY4 OCCURS 24 TIMES INDEXED BY FWT.            00283103
+004350        10 WS-STR-TIME4          PIC X(08).                       00283203
+004350        10 WS-NUM-TIME4 REDEFINES WS-STR-TIME4.                   00283303
+                 15 WS-NUM-TIME4A PIC 9(08) COMP.                       00283403
+                 15 WS-NUM-TIME4B PIC 9(08) COMP.                       00283503
+004350        10 WS-TOT-TIME4          PIC 9(08)V999999 VALUE ZEROES.   00284001
+004350        10 WS-AVG-TIME4          PIC 9(08)V999999 VALUE ZEROES.   00285001
+002090*                                                                 00286001
+           05 WS-TOTAL-OTHERWAIT       PIC 9(08)V999999 VALUE ZEROES.   00286102
+           05 WS-AVG-OTHERWAIT         PIC 9(08)V999999 VALUE ZEROES.   00286203
+002090*                                                                 00286302
+           05 WS-TIME-ARRAY5 OCCURS 03 TIMES INDEXED BY GWT.            00287001
+004350        10 WS-CALLS-IP            PIC 9(08) VALUE ZEROES.         00288011
+004350        10 WS-CALLS-AVG           PIC 9(08)V999999 VALUE ZEROES.  00288107
+004350        10 WS-CALLS-TOT           PIC 9(13) VALUE ZEROES.         00289010
+004350        10 WS-CALLS-MAX1          PIC 9(13) VALUE ZEROES.         00290010
+004350        10 WS-CALLS-MAX2          PIC 9(13) VALUE ZEROES.         00300010
+002090*                                                                 00330001
+004200 01 WS-FINAL-VARIABLES.                                           00340001
+      *                                                                 00360001
+          05 WS-FINAL-TRAN-COUNT    PIC 9(16) VALUE ZEROES.             00360113
+          05 WS-FINAL-ABEND-COUNT   PIC 9(16) VALUE ZEROES.             00360214
+          05 WS-FINAL-TOT-RESP      PIC 9(12)V999999 VALUE ZEROES.      00360312
+          05 WS-FINAL-AVG-RESP      PIC 9(12)V999999 VALUE ZEROES.      00360412
+          05 WS-FINAL-MAX-RESP      PIC 9(12)V999999 VALUE ZEROES.      00360512
+          05 WS-FINAL-TOT-CPU       PIC 9(12)V999999 VALUE ZEROES.      00360612
+          05 WS-FINAL-AVG-CPU       PIC 9(12)V999999 VALUE ZEROES.      00360712
+          05 WS-FINAL-MAX-CPU       PIC 9(12)V999999 VALUE ZEROES.      00360812
+          05 WS-FINAL-ARRAY1 OCCURS 04 TIMES INDEXED BY IWT.            00361012
+             10 WS-FINAL-TOT-TIME2     PIC 9(12)V999999 VALUE ZEROES.   00370015
+             10 WS-FINAL-AVG-TIME2     PIC 9(12)V999999 VALUE ZEROES.   00380015
+             10 WS-FINAL-MAX-TIME2     PIC 9(12)V999999 VALUE ZEROES.   00390015
+          05 WS-FINAL-TOT-IOWAIT    PIC 9(12)V999999 VALUE ZEROES.      00391012
+          05 WS-FINAL-AVG-IOWAIT    PIC 9(12)V999999 VALUE ZEROES.      00392012
+          05 WS-FINAL-MAX-IOWAIT    PIC 9(12)V999999 VALUE ZEROES.      00392112
+          05 WS-FINAL-TOT-OTHERWAIT PIC 9(12)V999999 VALUE ZEROES.      00393012
+          05 WS-FINAL-AVG-OTHERWAIT PIC 9(12)V999999 VALUE ZEROES.      00394012
+          05 WS-FINAL-MAX-OTHERWAIT PIC 9(12)V999999 VALUE ZEROES.      00395012
+          05 WS-FINAL-TOT-DB2       PIC 9(12) VALUE ZEROES.             00410012
+          05 WS-FINAL-AVG-DB2       PIC 9(12)V999999 VALUE ZEROES.      00420012
+          05 WS-FINAL-MAX-DB2       PIC 9(12) VALUE ZEROES.             00430012
+          05 WS-FINAL-TOT-IMS       PIC 9(12) VALUE ZEROES.             00440012
+          05 WS-FINAL-AVG-IMS       PIC 9(12)V999999 VALUE ZEROES.      00450012
+          05 WS-FINAL-MAX-IMS       PIC 9(12) VALUE ZEROES.             00460012
+          05 WS-FINAL-TOT-FILE      PIC 9(12) VALUE ZEROES.             00470012
+          05 WS-FINAL-AVG-FILE      PIC 9(12)V999999 VALUE ZEROES.      00480012
+          05 WS-FINAL-MAX-FILE      PIC 9(12) VALUE ZEROES.             00490012

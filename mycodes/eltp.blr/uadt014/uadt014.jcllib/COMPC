@@ -1,0 +1,8 @@
+//UADT014C JOB 'C COMPILE',NOTIFY=&SYSUID,REGION=0M                     00010004
+//PROCLIB JCLLIB ORDER=UADT014.PROCLIB                                  00011003
+//STEP1 EXEC PROC=DFHYXTDL,                                             00020000
+//           INLIB='UADT014.SOURCE',                                    00030003
+//           MEM=CPROG                                                  00040000
+//LKED.SYSIN DD *                                                       00050000
+  NAME CPROG(R)                                                         00060000
+/*                                                                      00070000

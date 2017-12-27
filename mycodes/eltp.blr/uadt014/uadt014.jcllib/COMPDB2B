@@ -1,0 +1,16 @@
+//UADT014F JOB 'SATYAM',CLASS=C,MSGCLASS=X,NOTIFY=&SYSUID               00010064
+//*  TYPRUN=SCAN                                                        00011011
+//*  COBOL + DB2                                                        00020004
+//PROC  JCLLIB ORDER='UADT014.PROCLIB'                                  00021062
+//COMPPROC EXEC COBDB2P,MEM=LOBINS,       <==> MEM NAME (PGM/DBRM/LOA   00030063
+//     INLIB='ELTP.BLR.IMSSOA'                                          00031063
+//*                                                                     00040003
+//BINDPLAN.SYSTSIN DD *                                                 00050003
+     DSN SYSTEM(DB2A)                                                   00060005
+     BIND PACKAGE(ADMTCOL1) MEM(LOBINS)  -                              00070063
+     LIBRARY ('ADMS.BASE.DBRMLIB')     -                                00080029
+     OWNER(GADMT) QUALIFIER(ADMT)      -                                00081029
+     RELEASE(COMMIT) ISOLATION(CS)     -                                00090029
+     VALIDATE(BIND)                    -                                00100029
+     ACTION(REPLACE)                                                    00110046
+/*                                                                      00130003

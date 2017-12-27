@@ -1,0 +1,8 @@
+000010       05 LS-CONFIRM   PIC X(01).                                 00001003
+000030       05 LS-OPT       PIC X(04).                                 00003002
+000040       05 LS-PROD-ID   PIC 9(10).                                 00004002
+000151       05 LS-ORD-DATE  PIC X(10).                                 00015101
+000152       05 LS-REQ-DATE  PIC X(10).                                 00015201
+000160       05 LS-QUANTITY  PIC 9(5).                                  00016001
+000170       05 LS-TOKEN     PIC X(1).                                  00017004
+000500       05 LS-MSG       PIC X(80).                                 00050001

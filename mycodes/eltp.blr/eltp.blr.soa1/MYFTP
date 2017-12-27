@@ -1,0 +1,15 @@
+//UADT012M JOB NOTIFY=&SYSUID,REGION=0M                                 00010000
+//FTP                EXEC PGM=FTP,REGION=2048K                          00370001
+//SYSPRINT           DD  SYSOUT=*                                       00390001
+//INPUT              DD  *                                              00400001
+172.19.119.61                                                           00410003
+uadt012                                                                 00420001
+newmf54                                                                 00430001
+cd /adms/wsdir                                                          00440001
+ls NATCPY*                                                              00450001
+FILEtype=SEQ                                                            00451001
+locsite trks LRECL=131 UNIT=3390 VOL=ASATAH BU=20 COND=CATLG            00460001
+lcd 'UBET515.RETAIL.PS'                                                 00470001
+MGET *.txt;                                                             00480001
+quit                                                                    00490001
+/*                                                                      00500001

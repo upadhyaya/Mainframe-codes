@@ -1,0 +1,600 @@
+000010 PROCESS XREF                                                     00001090
+000020 IDENTIFICATION DIVISION.                                         00002091
+000030 PROGRAM-ID. CICSREAD.                                            00003091
+000040 AUTHOR. SOA RETAIL TEAM.                                         00004091
+000050 DATE-WRITTEN. 20/10/08.                                          00005091
+000060 DATE-COMPILED. 20/10/08.                                         00006091
+000070*MODULE       : JAVA DB2 VSAM BATCH MODULE.                       00007091
+000080*TITLE        : NA                                                00008091
+000090*                                                                 00009091
+000100******************************************************************00010091
+000200 DATA DIVISION.                                                   00020091
+000300 WORKING-STORAGE SECTION.                                         00030091
+000400 COPY DFHAID.                                                     00040091
+000500 COPY VALIDDT.                                                    00050091
+000600 COPY OUTVAR.                                                     00060091
+000700 01 WS-COMMAREA.                                                  00070091
+000710    05 WS-CUST-ID   PIC 9(10).                                    00071091
+000720    05 WS-FMDT      PIC X(10).                                    00072091
+000730    05 WS-TODT      PIC X(10).                                    00073091
+000740    05 WS-MSG1      PIC X(65).                                    00074091
+000750    05 WS-MSG2      PIC X(65).                                    00075091
+000760    05 WS-CURSOR    PIC 9(01).                                    00076091
+000770    05 WS-OPTION    PIC X(10).                                    00077091
+000780*                                                                 00078091
+000790 01 WS-HYPHEN1  PIC X(1) VALUE '-'.                               00079091
+000800 01 WS-HYPHEN2  PIC X(1) VALUE '-'.                               00080091
+000900*                                                                 00090091
+001000 01 WS-QUOT     PIC 9(4) VALUE 0.                                 00100091
+001100 01 WS-REM      PIC 9(4) VALUE 0.                                 00110091
+001200*                                                                 00120091
+001300 01 WS-MESSAGES.                                                  00130091
+001400    05 JOB1  PIC X(4).                                            00140091
+001500    05 UID1  PIC X(7).                                            00150091
+001600    05 CARD  PIC X(2).                                            00160091
+001700    05 MSGM1 PIC X(67).                                           00170091
+001800*                                                                 00180091
+001900 01 WS-PARM-DATA.                                                 00190091
+002000    05 VAR-1 PIC X(15) VALUE '        PARMS('''.                  00200091
+002100    05 VAR-2 PIC X(30).                                           00210091
+002200    05 VAR-3 PIC X(03) VALUE ''')-'.                              00220091
+002300 01 WS-PARM-STRNG.                                                00230091
+002400    05 STRNG PIC X(30).                                           00240091
+002500 01 WS-STRNG REDEFINES WS-PARM-STRNG.                             00250091
+002600    05 ID-CUST  PIC X(10).                                        00260091
+002700    05 FROMDATE PIC X(10).                                        00270091
+002800    05 TODATE   PIC X(10).                                        00280091
+002900*                                                                 00290091
+002920 01  OPUT.                                                        00292091
+002930    05 WS-VAL1                              PIC X(4)              00293091
+002940                           VALUE 'OPUT'.                          00294091
+002950    05 WS-VAL2                              PIC X VALUE SPACE.    00295091
+002960    05 WS-VAL3                              PIC X VALUE QUOTE.    00296091
+002970    05 WS-VAL4                              PIC X(17)             00297091
+002980            VALUE 'UBET515.RETAIL.PS'.                            00298093
+002990    05 WS-VAL5                              PIC X VALUE QUOTE.    00299091
+002991    05 WS-VAL6                              PIC X VALUE SPACE.    00299191
+002992    05 WS-VAL7                              PIC X VALUE QUOTE.    00299291
+002993    05 WS-VAL8                              PIC X(33)             00299391
+002994             VALUE '/adms/SOA_POC/Reports/Reprtl2.txt'.           00299493
+002995    05 WS-VAL9                              PIC X VALUE QUOTE.    00299591
+002996    05 WS-VAL10                             PIC X VALUE SPACE.    00299691
+002997    05 WS-VAL11                             PIC X(4)              00299791
+002998                  VALUE 'TEXT'.                                   00299891
+003000 01 UID PIC X(7).                                                 00300091
+003100*                                                                 00310091
+003200 01  RESP1            PIC 9(8) BINARY.                            00320091
+003300 01  RESP2            PIC 9(8) BINARY.                            00330091
+003400 01  TOKEN            PIC X(8).                                   00340091
+003500 01  OUTLEN           PIC S9(8) BINARY VALUE +80.                 00350091
+003600*                                                                 00360091
+003700 01 WS-JOBCARD.                                                   00370091
+003800    05 JCARD1 PIC X(2).                                           00380091
+003900    05 UIDJ   PIC X(7).                                           00390091
+003910    05 CARD1  PIC X(1).                                           00391091
+003920    05 JCARD2 PIC X(70).                                          00392091
+003930*                                                                 00393091
+003940 LINKAGE SECTION.                                                 00394091
+003950 01 DFHCOMMAREA.                                                  00395091
+003960   COPY LKCOPY.                                                   00396091
+003970*                                                                 00397091
+003980***************************************************************** 00398091
+003990 PROCEDURE DIVISION USING DFHCOMMAREA.                            00399091
+004000***************************************************************** 00400091
+004010 COPY VALDATE.                                                    00401091
+004020*                                                                 00402091
+004030 1000-MAINLINE-PARA.                                              00403091
+004040     IF EIBCALEN = 0                                              00404091
+004050        INITIALIZE WS-COMMAREA                                    00405091
+004051*       MOVE  0           TO WS-CURSOR                            00405191
+004052*       MOVE  0000082777  TO WS-CUST-ID                           00405291
+004053*       MOVE 'REPORT'     TO WS-OPTION                            00405391
+004054*       MOVE '2002-10-10' TO WS-FMDT                              00405491
+004055*       MOVE '2008-10-10' TO WS-TODT                              00405591
+004056*       EXEC CICS RETURN                                          00405691
+004057*            TRANSID('MN01')                                      00405791
+004058*            COMMAREA(WS-COMMAREA)                                00405891
+004059*            LENGTH(LENGTH OF WS-COMMAREA)                        00405991
+004060*       END-EXEC                                                  00406091
+004070     ELSE                                                         00407091
+004071        PERFORM 2000-PROCESSING-PARA THRU 2000-EXIT               00407191
+004072     END-IF.                                                      00407291
+004073      EXEC CICS RETURN                                            00407391
+004074      END-EXEC.                                                   00407491
+004075******************************************************************00407591
+004076 2000-PROCESSING-PARA.                                            00407691
+004077      EVALUATE TRUE                                               00407791
+004078        WHEN LK-OPTION = 'REPORT'                                 00407891
+004079          PERFORM 3000-VALIDATE-ID-PARA   THRU 3000-EXIT          00407991
+004080          PERFORM 3500-VALIDATE-DATE-PARA THRU 3500-EXIT          00408091
+004090          PERFORM 4000-CICSINTRDR-PARA    THRU 4000-EXIT          00409091
+004100        WHEN OTHER                                                00410091
+004110          PERFORM 7000-ERROR-PARA THRU 7000-EXIT                  00411091
+004120     END-EVALUATE.                                                00412091
+004130*                                                                 00413091
+004140 2000-EXIT.                                                       00414091
+004150     EXIT.                                                        00415091
+004160******************************************************************00416091
+004170 3000-VALIDATE-ID-PARA.                                           00417091
+004180     IF LK-CUST-ID = 0     AND  LK-FMDT = SPACES                  00418091
+004190                  AND LK-FMDT = SPACES                            00419091
+004200        MOVE 'DETAILS NOT ENTERED FOR THE REPORT GENERATION - PLEA00420091
+004300-            'SE TRY AGAIN' TO LK-MSG1                            00430091
+004400        MOVE 1 TO LK-CURSOR                                       00440091
+004500        MOVE SPACES TO LK-MSG2                                    00450091
+004600        EXEC CICS RETURN                                          00460091
+004700        END-EXEC                                                  00470091
+004710     END-IF.                                                      00471091
+004720*                                                                 00472091
+004730     IF LK-CUST-ID = 0                                            00473091
+004731            MOVE 'CUSTOMER ID SHOULD NOT BE LEFT EMPTY - PLZ ENTER00473191
+004732-                'IT'             TO LK-MSG1                      00473291
+004733            MOVE 0000000000 TO LK-CUST-ID                         00473391
+004734            MOVE SPACES TO LK-MSG2                                00473491
+004735            MOVE 1 TO LK-CURSOR                                   00473591
+004736            EXEC CICS RETURN                                      00473691
+004737            END-EXEC                                              00473791
+004738     ELSE IF LK-CUST-ID IS NOT NUMERIC                            00473891
+004739             MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'  00473991
+004740                  TO LK-MSG1                                      00474091
+004741            MOVE SPACES TO LK-MSG2                                00474191
+004742            MOVE 1 TO LK-CURSOR                                   00474291
+004743            EXEC CICS RETURN                                      00474391
+004744            END-EXEC                                              00474491
+004745     ELSE IF LK-FMDT = SPACES                                     00474591
+004746             MOVE 'SPACES ARE NOT ALLOWED IN FROM DATE - PLZ ENTER00474691
+004747-                 ' IT' TO LK-MSG1                                00474791
+004748            MOVE '0001-01-01' TO LK-FMDT                          00474891
+004749            MOVE SPACES TO LK-MSG2                                00474991
+004750            MOVE 2 TO LK-CURSOR                                   00475091
+004760            EXEC CICS RETURN                                      00476091
+004770            END-EXEC                                              00477091
+004780     ELSE IF LK-TODT = SPACES                                     00478091
+004781           MOVE 'SPACES ARE NOT ALLOWED IN TO DATE - PLZ ENTER IT'00478191
+004782                        TO LK-MSG1                                00478291
+004783            MOVE '9999-12-31' TO LK-TODT                          00478391
+004784            MOVE SPACES TO LK-MSG2                                00478491
+004785            MOVE 3 TO LK-CURSOR                                   00478591
+004786            EXEC CICS RETURN                                      00478691
+004787            END-EXEC                                              00478791
+004788     ELSE                                                         00478891
+004789           PERFORM 5000-VALIDATE-FROMDATE-PARA THRU 5000-EXIT     00478991
+004790           PERFORM 6000-VALIDATE-TODATE-PARA THRU 6000-EXIT       00479091
+004791     END-IF.                                                      00479191
+004792                                                                  00479291
+004793 3000-EXIT.                                                       00479391
+004794     EXIT.                                                        00479491
+004795******************************************************************00479591
+004796 3500-VALIDATE-DATE-PARA.                                         00479691
+004797     IF LK-FMDT(1:4) > LK-TODT(1:4)                               00479791
+004798        MOVE 'FROMDATE GREATER THAN TODATE - ENTER THE CORRECT RAN00479891
+004799-            'GE' TO LK-MSG1                                      00479991
+004800        MOVE 2 TO LK-CURSOR                                       00480091
+004810        MOVE SPACES TO LK-MSG2                                    00481091
+004820        EXEC CICS RETURN                                          00482091
+004821        END-EXEC                                                  00482191
+004822     END-IF.                                                      00482291
+004823*                                                                 00482391
+004824     IF LK-FMDT(1:4) = LK-TODT(1:4)                               00482491
+004825        IF LK-FMDT(6:2) > LK-TODT(6:2)                            00482591
+004826           MOVE 'FROMDATE MONTH GREATER THAN TODATE MONTH - TRY AG00482691
+004827-            'AIN' TO LK-MSG1                                     00482791
+004828           MOVE 2 TO LK-CURSOR                                    00482891
+004829           MOVE SPACES TO LK-MSG2                                 00482991
+004830           EXEC CICS RETURN                                       00483091
+004831           END-EXEC                                               00483191
+004832        ELSE IF LK-FMDT(6:2) = LK-TODT(6:2)                       00483291
+004833                IF LK-FMDT(9:2) > LK-TODT(9:2)                    00483391
+004834                   MOVE 'FROMDATE DAY GREATER THAN TODATE DAY - TR00483491
+004835-                       'Y AGAIN' TO LK-MSG1                      00483591
+004836                   MOVE 2 TO LK-CURSOR                            00483691
+004837                   MOVE SPACES TO LK-MSG2                         00483791
+004838                   EXEC CICS RETURN                               00483891
+004839                   END-EXEC                                       00483991
+004840                END-IF                                            00484091
+004841             END-IF                                               00484191
+004842        END-IF                                                    00484291
+004843     END-IF.                                                      00484391
+004844*                                                                 00484491
+004845 3500-EXIT.                                                       00484591
+004846     EXIT.                                                        00484691
+004847******************************************************************00484791
+004848 4000-CICSINTRDR-PARA.                                            00484891
+004849     EXEC CICS ASSIGN USERID(UID) END-EXEC.                       00484991
+004850     MOVE UID TO UIDJ.                                            00485091
+004860     MOVE 'I' TO CARD1.                                           00486091
+004870     MOVE '//' TO JCARD1.                                         00487091
+004880     MOVE ' JOB NOTIFY=&SYSUID,REGION=0M,MSGLEVEL=(1,1)'          00488091
+004890                              TO JCARD2.                          00489091
+004900     MOVE WS-JOBCARD TO LINE1.                                    00490091
+005000     MOVE '/*JOBPARM LINES=9999' TO LINE2.                        00500091
+005100     MOVE '//STEP1    EXEC PGM=IKJEFT01,DYNAMNBR=30' TO LINE3.    00510091
+005200     MOVE '//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR' TO LINE4.  00520091
+005300     MOVE '//OUTREP  DD DSN=UBET515.RETAIL.PS,DISP=SHR' TO LINE5. 00530091
+005400     MOVE '//F2      DD DSN=ELTP.BLR.OMA.AIX.PATH,DISP=SHR'       00540091
+005500                                                   TO LINE6.      00550091
+005600     MOVE '//SYSPRINT DD SYSOUT=*' TO LINE7.                      00560091
+005700     MOVE '//SYSTSPRT DD SYSOUT=*' TO LINE8.                      00570091
+005800     MOVE '//SYSUDUMP DD SYSOUT=*' TO LINE9.                      00580091
+005900     MOVE '//SYSOUT   DD SYSOUT=*' TO LINE10.                     00590091
+006000     MOVE '//SYSTSIN  DD *' TO LINE11.                            00600091
+006100     MOVE '    DSN SYSTEM(DB2A)' TO LINE12.                       00610091
+006200     MOVE '        RUN PROGRAM(BACKUP) PLAN(ADMTPLN1) -'          00620091
+006300                                     TO LINE13.                   00630091
+006400     MOVE LK-CUST-ID TO ID-CUST.                                  00640091
+006500     MOVE LK-FMDT    TO FROMDATE.                                 00650091
+006600     MOVE LK-TODT    TO TODATE.                                   00660091
+006700     MOVE STRNG TO VAR-2.                                         00670091
+006800     MOVE  WS-PARM-DATA TO LINE14.                                00680091
+006900     MOVE "        LIBRARY('UBET515.RETAIL.LOADLIB')" TO LINE15.  00690091
+007000     MOVE '    END' TO LINE16.                                    00700091
+007100     MOVE '/*' TO LINE17                                          00710091
+007200     MOVE '//OPUT     EXEC PGM=IKJEFT01,REGION=4096K,DYNAMNBR=50' 00720091
+007210              TO LINE18.                                          00721091
+007220     MOVE '//SYSTSPRT   DD SYSOUT=*' TO LINE19.                   00722091
+007230     MOVE '//SYSTSIN    DD *' TO LINE20.                          00723091
+007240     MOVE OPUT TO LINE21.                                         00724091
+007250     MOVE '/*' TO LINE22.                                         00725091
+007260     MOVE '//' TO LINE23.                                         00726091
+007300*                                                                 00730091
+007400          EXEC CICS SPOOLOPEN OUTPUT                              00740091
+007500                    NODE ('N1')                                   00750091
+007510                    USERID ('INTRDR')                             00751091
+007520                    RESP(RESP1) RESP2(RESP2)                      00752091
+007530                    TOKEN(TOKEN)                                  00753091
+007540          END-EXEC                                                00754091
+007550*                                                                 00755091
+007560          EXEC CICS SPOOLWRITE                                    00756091
+007570                    FROM(LINE1)                                   00757091
+007571                    RESP(RESP1) RESP2(RESP2)                      00757191
+007572                    FLENGTH(OUTLEN)                               00757291
+007573                    TOKEN(TOKEN)                                  00757391
+007574          END-EXEC                                                00757491
+007575          EXEC CICS SPOOLWRITE                                    00757591
+007576                    FROM(LINE2)                                   00757691
+007577                    RESP(RESP1) RESP2(RESP2)                      00757791
+007578                    FLENGTH(OUTLEN)                               00757891
+007579                    TOKEN(TOKEN)                                  00757991
+007580          END-EXEC                                                00758091
+007581          EXEC CICS SPOOLWRITE                                    00758191
+007582                    FROM(LINE3)                                   00758291
+007583                    RESP(RESP1) RESP2(RESP2)                      00758391
+007584                    FLENGTH(OUTLEN)                               00758491
+007585                    TOKEN(TOKEN)                                  00758591
+007586          END-EXEC                                                00758691
+007587          EXEC CICS SPOOLWRITE                                    00758791
+007588                    FROM(LINE4)                                   00758891
+007589                    RESP(RESP1) RESP2(RESP2)                      00758991
+007590                    FLENGTH(OUTLEN)                               00759091
+007591                    TOKEN(TOKEN)                                  00759191
+007592          END-EXEC                                                00759291
+007593          EXEC CICS SPOOLWRITE                                    00759391
+007594                    FROM(LINE5)                                   00759491
+007595                    RESP(RESP1) RESP2(RESP2)                      00759591
+007596                    FLENGTH(OUTLEN)                               00759691
+007597                    TOKEN(TOKEN)                                  00759791
+007598          END-EXEC                                                00759891
+007599          EXEC CICS SPOOLWRITE                                    00759991
+007600                    FROM(LINE6)                                   00760091
+007601                    RESP(RESP1) RESP2(RESP2)                      00760191
+007602                    FLENGTH(OUTLEN)                               00760291
+007603                    TOKEN(TOKEN)                                  00760391
+007604          END-EXEC                                                00760491
+007605          EXEC CICS SPOOLWRITE                                    00760591
+007606                    FROM(LINE7)                                   00760691
+007607                    RESP(RESP1) RESP2(RESP2)                      00760791
+007608                    FLENGTH(OUTLEN)                               00760891
+007609                    TOKEN(TOKEN)                                  00760991
+007610          END-EXEC                                                00761091
+007611          EXEC CICS SPOOLWRITE                                    00761191
+007612                    FROM(LINE8)                                   00761291
+007613                    RESP(RESP1) RESP2(RESP2)                      00761391
+007614                    FLENGTH(OUTLEN)                               00761491
+007615                    TOKEN(TOKEN)                                  00761591
+007616          END-EXEC                                                00761691
+007617          EXEC CICS SPOOLWRITE                                    00761791
+007618                    FROM(LINE9)                                   00761891
+007619                    RESP(RESP1) RESP2(RESP2)                      00761991
+007620                    FLENGTH(OUTLEN)                               00762091
+007621                    TOKEN(TOKEN)                                  00762191
+007622          END-EXEC                                                00762291
+007623          EXEC CICS SPOOLWRITE                                    00762391
+007624                    FROM(LINE10)                                  00762491
+007625                    RESP(RESP1) RESP2(RESP2)                      00762591
+007626                    FLENGTH(OUTLEN)                               00762691
+007627                    TOKEN(TOKEN)                                  00762791
+007628          END-EXEC                                                00762891
+007629          EXEC CICS SPOOLWRITE                                    00762991
+007630                    FROM(LINE11)                                  00763091
+007631                    RESP(RESP1) RESP2(RESP2)                      00763191
+007632                    FLENGTH(OUTLEN)                               00763291
+007633                    TOKEN(TOKEN)                                  00763391
+007634          END-EXEC                                                00763491
+007635          EXEC CICS SPOOLWRITE                                    00763591
+007636                    FROM(LINE12)                                  00763691
+007637                    RESP(RESP1) RESP2(RESP2)                      00763791
+007638                    FLENGTH(OUTLEN)                               00763891
+007639                    TOKEN(TOKEN)                                  00763991
+007640          END-EXEC                                                00764091
+007641          EXEC CICS SPOOLWRITE                                    00764191
+007642                    FROM(LINE13)                                  00764291
+007643                    RESP(RESP1) RESP2(RESP2)                      00764391
+007644                    FLENGTH(OUTLEN)                               00764491
+007645                    TOKEN(TOKEN)                                  00764591
+007646          END-EXEC                                                00764691
+007647          EXEC CICS SPOOLWRITE                                    00764791
+007648                    FROM(LINE14)                                  00764891
+007649                    RESP(RESP1) RESP2(RESP2)                      00764991
+007650                    FLENGTH(OUTLEN)                               00765091
+007651                    TOKEN(TOKEN)                                  00765191
+007652          END-EXEC                                                00765291
+007653          EXEC CICS SPOOLWRITE                                    00765391
+007654                    FROM(LINE15)                                  00765491
+007655                    RESP(RESP1) RESP2(RESP2)                      00765591
+007656                    FLENGTH(OUTLEN)                               00765691
+007657                    TOKEN(TOKEN)                                  00765791
+007658          END-EXEC                                                00765891
+007659          EXEC CICS SPOOLWRITE                                    00765991
+007660                    FROM(LINE16)                                  00766091
+007661                    RESP(RESP1) RESP2(RESP2)                      00766191
+007662                    FLENGTH(OUTLEN)                               00766291
+007663                    TOKEN(TOKEN)                                  00766391
+007664          END-EXEC                                                00766491
+007665          EXEC CICS SPOOLWRITE                                    00766591
+007666                    FROM(LINE17)                                  00766691
+007667                    RESP(RESP1) RESP2(RESP2)                      00766791
+007668                    FLENGTH(OUTLEN)                               00766891
+007669                    TOKEN(TOKEN)                                  00766991
+007670          END-EXEC                                                00767091
+007671          EXEC CICS SPOOLWRITE                                    00767191
+007672                    FROM(LINE18)                                  00767291
+007673                    RESP(RESP1) RESP2(RESP2)                      00767391
+007674                    FLENGTH(OUTLEN)                               00767491
+007675                    TOKEN(TOKEN)                                  00767591
+007676          END-EXEC                                                00767691
+007677*                                                                 00767791
+007678          EXEC CICS SPOOLWRITE                                    00767891
+007679                    FROM(LINE19)                                  00767991
+007680                    RESP(RESP1) RESP2(RESP2)                      00768091
+007681                    FLENGTH(OUTLEN)                               00768191
+007682                    TOKEN(TOKEN)                                  00768291
+007683          END-EXEC                                                00768391
+007684          EXEC CICS SPOOLWRITE                                    00768491
+007685                    FROM(LINE20)                                  00768591
+007686                    RESP(RESP1) RESP2(RESP2)                      00768691
+007687                    FLENGTH(OUTLEN)                               00768791
+007688                    TOKEN(TOKEN)                                  00768891
+007689          END-EXEC                                                00768991
+007690          EXEC CICS SPOOLWRITE                                    00769091
+007691                    FROM(LINE21)                                  00769191
+007692                    RESP(RESP1) RESP2(RESP2)                      00769291
+007693                    FLENGTH(OUTLEN)                               00769391
+007694                    TOKEN(TOKEN)                                  00769491
+007695          END-EXEC                                                00769591
+007696          EXEC CICS SPOOLWRITE                                    00769691
+007697                    FROM(LINE22)                                  00769791
+007698                    RESP(RESP1) RESP2(RESP2)                      00769891
+007699                    FLENGTH(OUTLEN)                               00769991
+007700                    TOKEN(TOKEN)                                  00770091
+007701          END-EXEC                                                00770191
+007702          EXEC CICS SPOOLWRITE                                    00770291
+007703                    FROM(LINE23)                                  00770391
+007704                    RESP(RESP1) RESP2(RESP2)                      00770491
+007705                    FLENGTH(OUTLEN)                               00770591
+007706                    TOKEN(TOKEN)                                  00770691
+007707          END-EXEC                                                00770791
+007720*                                                                 00772091
+007721          EXEC CICS SPOOLCLOSE                                    00772191
+007722                    TOKEN(TOKEN)                                  00772291
+007723                    RESP(RESP1) RESP2(RESP2)                      00772391
+007724          END-EXEC.                                               00772491
+007725*                                                                 00772591
+007726     MOVE 'JOB' TO JOB1.                                          00772691
+007727     MOVE UID TO UID1.                                            00772791
+007730     MOVE 'Q' TO CARD.                                            00773091
+007740     MOVE 'JOB HAS BEEN SUBMITTED SUCCESSFULLY FOR THE REPORT GENE00774091
+007750-         'RATION' TO MSGM1.                                      00775091
+007760     MOVE MSGM1 TO LK-MSG1.                                       00776091
+007761     MOVE 'VIEW THE REPORT IN UBET515.RETAIL.PS' TO LK-MSG2.      00776191
+007762     PERFORM 9501-VALIDATE-PARA THRU 9501-EXIT.                   00776291
+007763     MOVE 1 TO LK-CURSOR.                                         00776391
+007764     EXEC CICS RETURN                                             00776491
+007765     END-EXEC.                                                    00776591
+007766 4000-EXIT.                                                       00776691
+007767     EXIT.                                                        00776791
+007768******************************************************************00776891
+007769 5000-VALIDATE-FROMDATE-PARA.                                     00776991
+007770     MOVE LK-FMDT      TO INPUTDATELA                             00777091
+007771     MOVE LK-FMDT(1:4) TO YEARLA                                  00777191
+007772     MOVE LK-FMDT(5:1) TO WS-HYPHEN1                              00777291
+007773     MOVE LK-FMDT(6:2) TO MONTHLA                                 00777391
+007774     MOVE LK-FMDT(8:1) TO WS-HYPHEN2                              00777491
+007775     MOVE LK-FMDT(9:2) TO DAYLA                                   00777591
+007776     DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM           00777691
+007777*                                                                 00777791
+007778     IF MONTHLA = 02 AND WS-HYPHEN1 = '-' AND DAYLA = 29          00777891
+007779        AND WS-HYPHEN2 = '-' AND WS-REM NOT = 0                   00777991
+007780        MOVE 'FROM-DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENTE00778091
+007781-            'R CORRECT FORMAT' TO LK-MSG1                        00778191
+007782        MOVE 2 TO LK-CURSOR                                       00778291
+007783        MOVE SPACES TO LK-MSG2                                    00778391
+007784        EXEC CICS RETURN                                          00778491
+007785        END-EXEC                                                  00778591
+007786     ELSE                                                         00778691
+007787        PERFORM 9400-BEGIN-PARA THRU 9400-EXIT                    00778791
+007788*                                                                 00778891
+007789        EVALUATE TRUE                                             00778991
+007790          WHEN   DATENOTNUMERIC                                   00779091
+007791            MOVE 'FROM-DATE FORMAT IS INVALID - PLEASE ENTER IT IN00779191
+007792-                ' YYYY-MM-DD FORMAT' TO LK-MSG1                  00779291
+007793            MOVE 2 TO LK-CURSOR                                   00779391
+007794            MOVE SPACES TO LK-MSG2                                00779491
+007795            EXEC CICS RETURN                                      00779591
+007796            END-EXEC                                              00779691
+007797        WHEN   MONTHCONTAINSZEROS                                 00779791
+007798            MOVE 'MONTH ENTERED FOR FROM-DATE IS INVALID - PLEASE 00779891
+007799-               'ENTER IT' TO LK-MSG1                             00779991
+007800            MOVE 2 TO LK-CURSOR                                   00780091
+007810            MOVE SPACES TO LK-MSG2                                00781091
+007811            EXEC CICS RETURN                                      00781191
+007812            END-EXEC                                              00781291
+007813        WHEN   MONTHGREATERTHAN12                                 00781391
+007814            MOVE 'MONTH ENTERED FOR FROM-DATE IS INVALID - PLEASE 00781491
+007815-               'ENTER IT' TO LK-MSG1                             00781591
+007816            MOVE 2 TO LK-CURSOR                                   00781691
+007817            MOVE SPACES TO LK-MSG2                                00781791
+007818            EXEC CICS RETURN                                      00781891
+007819            END-EXEC                                              00781991
+007820       WHEN   DAYCONTAINSZEROS                                    00782091
+007821            MOVE 'FROM-DATE ENTERED IS INVALID - PLEASE ENTER IT' 00782191
+007822                 TO LK-MSG1                                       00782291
+007823            MOVE SPACES TO LK-MSG2                                00782391
+007824            MOVE 2 TO LK-CURSOR                                   00782491
+007825            EXEC CICS RETURN                                      00782591
+007826            END-EXEC                                              00782691
+007827        WHEN   DAYTOOGREATFORMONTH                                00782791
+007828            MOVE 'FROM-DATE FOR PARTICULAR MONTH IS INVALID - PLZ 00782891
+007829-                'ENTER CORRECT FORMAT' TO LK-MSG1                00782991
+007830            MOVE SPACES TO LK-MSG2                                00783091
+007831            MOVE 2 TO LK-CURSOR                                   00783191
+007832            EXEC CICS RETURN                                      00783291
+007833            END-EXEC                                              00783391
+007834       WHEN   YEARCONTAINSZEROS                                   00783491
+007835            MOVE 'YEAR ENTERED FOR FROM-DATE IS INVALID - PLEASE E00783591
+007836-               'NTER IT' TO LK-MSG1                              00783691
+007837            MOVE SPACES TO LK-MSG2                                00783791
+007838            MOVE 2 TO LK-CURSOR                                   00783891
+007839            EXEC CICS RETURN                                      00783991
+007840            END-EXEC                                              00784091
+007850       END-EVALUATE                                               00785091
+007851*                                                                 00785191
+007852       EVALUATE TRUE                                              00785291
+007853             WHEN WS-HYPHEN1 NOT = '-'                            00785391
+007854                MOVE 'DATE SEPERATOR FOR FROM-DATE IS INVALID, USE00785491
+007855-                    ' ONLY - AS A SEPERATOR'  TO LK-MSG1         00785591
+007856                MOVE SPACES TO LK-MSG2                            00785691
+007857                MOVE 2 TO LK-CURSOR                               00785791
+007858                EXEC CICS RETURN                                  00785891
+007859                END-EXEC                                          00785991
+007860              WHEN WS-HYPHEN2 NOT = '-'                           00786091
+007861                MOVE 'DATE SEPERATOR FOR FROM-DATE IS INVALID, USE00786191
+007862-                    ' ONLY - AS A SEPERATOR'  TO LK-MSG1         00786291
+007863                MOVE SPACES TO LK-MSG2                            00786391
+007864                MOVE 2 TO LK-CURSOR                               00786491
+007865                EXEC CICS RETURN                                  00786591
+007866                END-EXEC                                          00786691
+007867          END-EVALUATE                                            00786791
+007868*                                                                 00786891
+007869     END-IF.                                                      00786991
+007870*                                                                 00787091
+007871 5000-EXIT.                                                       00787191
+007872     EXIT.                                                        00787291
+007873******************************************************************00787391
+007874 6000-VALIDATE-TODATE-PARA.                                       00787491
+007875     MOVE LK-TODT      TO INPUTDATELA                             00787591
+007876     MOVE LK-TODT(1:4) TO YEARLA                                  00787691
+007877     MOVE LK-TODT(5:1) TO WS-HYPHEN1                              00787791
+007878     MOVE LK-TODT(6:2) TO MONTHLA                                 00787891
+007879     MOVE LK-TODT(8:1) TO WS-HYPHEN2                              00787991
+007880     MOVE LK-TODT(9:2) TO DAYLA                                   00788091
+007881     DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM           00788191
+007882*                                                                 00788291
+007883     IF MONTHLA = 02 AND WS-HYPHEN1 = '-' AND DAYLA = 29          00788391
+007884        AND WS-HYPHEN2 = '-' AND WS-REM NOT = 0                   00788491
+007885        MOVE 'TO-DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENTER 00788591
+007886-            'CORRECT FORMAT' TO LK-MSG1                          00788691
+007887        MOVE SPACES TO LK-MSG2                                    00788791
+007888        MOVE 3 TO LK-CURSOR                                       00788891
+007889        EXEC CICS RETURN                                          00788991
+007890        END-EXEC                                                  00789091
+007891     ELSE                                                         00789191
+007892        PERFORM 9400-BEGIN-PARA THRU 9400-EXIT                    00789291
+007893*                                                                 00789391
+007894        EVALUATE TRUE                                             00789491
+007895          WHEN DATENOTNUMERIC                                     00789591
+007896            MOVE 'TO-DATE FORMAT IS INVALID - PLEASE ENTER IT IN Y00789691
+007897-                'YYY-MM-DD FORMAT' TO LK-MSG1                    00789791
+007898            MOVE SPACES TO LK-MSG2                                00789891
+007899            MOVE 3 TO LK-CURSOR                                   00789991
+007900            EXEC CICS RETURN                                      00790091
+007910            END-EXEC                                              00791091
+007911          WHEN MONTHCONTAINSZEROS                                 00791191
+007912            MOVE 'MONTH ENTERED FOR TO-DATE IS INVALID - PLEASE EN00791291
+007913-                'TER IT' TO LK-MSG1                              00791391
+007914             MOVE SPACES TO LK-MSG2                               00791491
+007915             MOVE 3 TO LK-CURSOR                                  00791591
+007916             EXEC CICS RETURN                                     00791691
+007917             END-EXEC                                             00791791
+007918          WHEN MONTHGREATERTHAN12                                 00791891
+007919            MOVE 'MONTH ENTERED FOR TO-DATE IS INVALID - PLEASE EN00791991
+007920-                'TER IT' TO LK-MSG1                              00792091
+007921            MOVE SPACES TO LK-MSG2                                00792191
+007922            MOVE 3 TO LK-CURSOR                                   00792291
+007923            EXEC CICS RETURN                                      00792391
+007924            END-EXEC                                              00792491
+007925          WHEN DAYCONTAINSZEROS                                   00792591
+007926            MOVE 'TO-DATE ENTERED IS INVALID - PLEASE ENTER IT'   00792691
+007927                 TO LK-MSG1                                       00792791
+007928            MOVE SPACES TO LK-MSG2                                00792891
+007929            MOVE 3 TO LK-CURSOR                                   00792991
+007930            EXEC CICS RETURN                                      00793091
+007931            END-EXEC                                              00793191
+007932          WHEN DAYTOOGREATFORMONTH                                00793291
+007933            MOVE 'TO-DATE FOR PARTICULAR MONTH IS INVALID - PLZ EN00793391
+007934-                'TER CORRECT FORMAT' TO LK-MSG1                  00793491
+007935            MOVE SPACES TO LK-MSG2                                00793591
+007936            MOVE 3 TO LK-CURSOR                                   00793691
+007937            EXEC CICS RETURN                                      00793791
+007938            END-EXEC                                              00793891
+007939          WHEN YEARCONTAINSZEROS                                  00793991
+007940             MOVE 'YEAR ENTERED FOR TO-DATE IS INVALID - PLEASE EN00794091
+007941-                 'TER IT' TO LK-MSG1                             00794191
+007942             MOVE SPACES TO LK-MSG2                               00794291
+007943             MOVE 3 TO LK-CURSOR                                  00794391
+007944             EXEC CICS RETURN                                     00794491
+007945             END-EXEC                                             00794591
+007946          END-EVALUATE                                            00794691
+007947*                                                                 00794791
+007948          EVALUATE TRUE                                           00794891
+007949              WHEN WS-HYPHEN1 NOT = '-'                           00794991
+007950                MOVE 'DATE SEPERATOR FOR TO-DATE IS INVALID, USE O00795091
+007960-                    'NLY - AS A SEPERATOR'  TO LK-MSG1           00796091
+007961                MOVE SPACES TO LK-MSG2                            00796191
+007962                MOVE 3 TO LK-CURSOR                               00796291
+007963                EXEC CICS RETURN                                  00796391
+007964                END-EXEC                                          00796491
+007965              WHEN WS-HYPHEN2 NOT = '-'                           00796591
+007966                MOVE 'DATE SEPERATOR FOR TO-DATE IS INVALID, USE O00796691
+007967-                    'NLY - AS A SEPERATOR'  TO LK-MSG1           00796791
+007968                MOVE SPACES TO LK-MSG2                            00796891
+007969                MOVE 3 TO LK-CURSOR                               00796991
+007970                EXEC CICS RETURN                                  00797091
+007971                END-EXEC                                          00797191
+007972          END-EVALUATE                                            00797291
+007973*                                                                 00797391
+007974     END-IF.                                                      00797491
+007975*                                                                 00797591
+007976 6000-EXIT.                                                       00797691
+007977     EXIT.                                                        00797791
+007978******************************************************************00797891
+007979 7000-ERROR-PARA.                                                 00797991
+007980      MOVE 'INVALID KEY PRESSED - PLZ TRY AGAIN' TO LK-MSG1.      00798091
+007981      MOVE SPACES TO LK-MSG2.                                     00798191
+007982      MOVE 1 TO LK-CURSOR.                                        00798291
+007983      EXEC CICS RETURN                                            00798391
+007984      END-EXEC.                                                   00798491
+007985*                                                                 00798591
+007986 7000-EXIT.                                                       00798691
+007987     EXIT.                                                        00798791
+007988******************************************************************00798891
+007989 9501-VALIDATE-PARA.                                              00798991
+007990     IF LK-FMDT = '0001-01-01'                                    00799091
+008000        MOVE LOW-VALUES TO LK-FMDT                                00800091
+008100     END-IF.                                                      00810091
+008200*                                                                 00820091
+008300     IF LK-TODT = '9999-12-31'                                    00830091
+008400        MOVE LOW-VALUES TO LK-TODT                                00840091
+008500     END-IF.                                                      00850091
+008600                                                                  00860091
+008700 9501-EXIT.                                                       00870091
+008800     EXIT.                                                        00880091

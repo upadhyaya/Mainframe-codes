@@ -1,0 +1,14 @@
+//UADT016F JOB 'CREATE TEST DATA',NOTIFY=&SYSUID,REGION=0M              00010000
+//STEP1 EXEC PGM=IEBDG                                                  00020000
+//SYSPRINT DD SYSOUT=*                                                  00030000
+//OUT DD DISP=(NEW,CATLG),DSN=UADT016.TEST.DATA,                        00040000
+//       UNIT=SYSDA,SPACE=(TRK,1),                                      00050000
+//       DCB=(RECFM=FB,LRECL=80,BLKSIZE=800)                            00060000
+//SYSIN DD *                                                            00070000
+  DSD OUTPUT=(OUT)                                                      00080002
+  FD NAME=FIELD1,LENGTH=30,STARTLOC=1,FORMAT=AL,ACTION=RP               00090002
+  FD NAME=FIELD2,LENGTH=10,STARTLOC=31,PICTURE=10,'TEST DATA '          00100002
+  FD NAME=FIELD3,LENGTH=10,STARTLOC=41,FORMAT=RA                        00110002
+  CREATE QUANTITY=1000,NAME=(FIELD1,FIELD2,FIELD3)                      00120002
+  END                                                                   00130002
+/*                                                                      00140000

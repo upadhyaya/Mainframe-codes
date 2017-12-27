@@ -1,0 +1,85 @@
+SET CURRENT SQLID='ADMSGP';                                             00010001
+--CREATE UNIQUE INDEX                                                   00041009
+--       I_CU_001P ON T_CU_CUSTOMER(CUS_ID ASC)                         00042009
+--       USING STOGROUP ADMSSTG                                         00043009
+--             PRIQTY 7200                                              00043109
+--             SECQTY 7200                                              00043209
+--       ERASE NO                                                       00043309
+--       DEFINE YES                                                     00044009
+--       FREEPAGE 10                                                    00044209
+--       PCTFREE 10                                                     00044309
+--     BUFFERPOOL BP0                                                   00045009
+--     DEFER NO                                                         00046009
+--     COPY NO                                                          00047009
+--     PIECESIZE 2G;                                                    00048009
+--                                                                      00048103
+CREATE UNIQUE INDEX                                                     00049003
+       I_EM_001P ON T_EM_EMPLOYEE(EMP_ID ASC)                           00050004
+       USING STOGROUP ADMSSTG                                           00060004
+             PRIQTY 720                                                 00070005
+             SECQTY 720                                                 00071005
+       ERASE NO                                                         00072007
+       DEFINE YES                                                       00080003
+       FREEPAGE 10                                                      00100003
+       PCTFREE 10                                                       00110003
+       BUFFERPOOL BP0                                                   00120003
+       DEFER NO                                                         00130003
+       COPY NO                                                          00140003
+       PIECESIZE 2G;                                                    00150003
+--                                                                      00160003
+CREATE UNIQUE INDEX                                                     00170003
+       I_PR_001P ON T_PR_PRODUCT(PROD_ID ASC)                           00180004
+       USING STOGROUP ADMSSTG                                           00190004
+             PRIQTY 720                                                 00200005
+             SECQTY 720                                                 00201005
+       ERASE NO                                                         00202007
+       DEFINE YES                                                       00210003
+       FREEPAGE 10                                                      00230003
+       PCTFREE 10                                                       00240003
+       BUFFERPOOL BP0                                                   00250003
+       DEFER NO                                                         00260003
+       COPY NO                                                          00270003
+       PIECESIZE 2G;                                                    00280003
+--                                                                      00290003
+CREATE UNIQUE INDEX                                                     00300003
+       I_SU_001P ON T_SU_SUPPLIER(SUP_ID ASC)                           00310008
+       USING STOGROUP ADMSSTG                                           00320004
+             PRIQTY 720                                                 00330005
+             SECQTY 720                                                 00331005
+       ERASE NO                                                         00332007
+       DEFINE YES                                                       00340003
+       FREEPAGE 10                                                      00360003
+       PCTFREE 10                                                       00370003
+       BUFFERPOOL BP0                                                   00380003
+       DEFER NO                                                         00390003
+       COPY NO                                                          00400003
+       PIECESIZE 2G;                                                    00410003
+--                                                                      00420003
+CREATE UNIQUE INDEX                                                     00430003
+       I_OR_001P ON T_OR_ORDER(ORDER_ID ASC)                            00440004
+       USING STOGROUP ADMSSTG                                           00450004
+             PRIQTY 14400                                               00451005
+             SECQTY 14400                                               00460005
+       ERASE NO                                                         00461007
+       DEFINE YES                                                       00470003
+       FREEPAGE 10                                                      00490003
+       PCTFREE 10                                                       00500003
+       BUFFERPOOL BP0                                                   00510003
+       DEFER NO                                                         00520003
+       COPY NO                                                          00530003
+       PIECESIZE 2G;                                                    00540003
+--                                                                      00550003
+CREATE UNIQUE INDEX                                                     00560003
+       I_OL_001P ON T_OL_ORDER_LN_ITEM(ORDER_ID ASC,PROD_ID ASC)        00570004
+       USING STOGROUP ADMSSTG                                           00580004
+             PRIQTY 72000                                               00581005
+             SECQTY 72000                                               00590005
+       ERASE NO                                                         00591007
+       DEFINE YES                                                       00600003
+       FREEPAGE 10                                                      00620003
+       PCTFREE 10                                                       00630003
+       BUFFERPOOL BP0                                                   00640003
+       DEFER NO                                                         00650003
+       COPY NO                                                          00660003
+       PIECESIZE 2G;                                                    00670003
+--                                                                      00680003

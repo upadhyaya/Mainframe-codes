@@ -1,0 +1,266 @@
+       IDENTIFICATION DIVISION.                                         00010000
+       PROGRAM-ID. OMINP2CL.                                            00020001
+       AUTHOR. SOA RETAIL TEAM.                                         00030000
+       DATE-WRITTEN. 04/12/08.                                          00040001
+       DATE-COMPILED. 04/12/08.                                         00050001
+      *MODULE       : PROGRAM TO CALL THE OMINPGM2 BATCH MODULE.        00052001
+      *TITLE        : NA                                                00053000
+      *                                                                 00054000
+      ******************************************************************00056000
+       DATA DIVISION.                                                   00057000
+       WORKING-STORAGE SECTION.                                         00058000
+       COPY DFHAID.                                                     00059000
+       COPY OUTVAR.                                                     00060003
+       01 WS-COMMAREA.                                                  00074100
+          05 WS-PROD-ID   PIC 9(10).                                    00075001
+          05 WS-MSG1      PIC X(80).                                    00078002
+      *                                                                 00079000
+       01 WS-MESSAGES.                                                  00260000
+          05 JOB1  PIC X(4).                                            00270000
+          05 UID1  PIC X(7).                                            00280000
+          05 CARD  PIC X(2).                                            00290000
+          05 MSGM1 PIC X(80).                                           00300002
+      *                                                                 00310000
+       01 WS-PARM-DATA.                                                 00311000
+          05 VAR-1 PIC X(15) VALUE '        PARMS('''.                  00312000
+          05 VAR-2 PIC X(10).                                           00313001
+          05 VAR-3 PIC X(03) VALUE ''')-'.                              00314000
+       01 WS-PARM-STRNG.                                                00315000
+          05 STRNG PIC X(10).                                           00316001
+       01 WS-STRNG REDEFINES WS-PARM-STRNG.                             00317000
+          05 ID-PROD  PIC X(10).                                        00318001
+      *                                                                 00319200
+       01 UID PIC X(7).                                                 00320000
+      *                                                                 00330000
+       01  RESP1            PIC 9(8) BINARY.                            00340000
+       01  RESP2            PIC 9(8) BINARY.                            00350000
+       01  TOKEN            PIC X(8).                                   00360000
+       01  OUTLEN           PIC S9(8) BINARY VALUE +80.                 00370000
+      *                                                                 00380000
+       01 WS-JOBCARD.                                                   00390000
+          05 JCARD1 PIC X(2).                                           00391000
+          05 UIDJ   PIC X(7).                                           00392000
+          05 CARD1  PIC X(1).                                           00393000
+          05 JCARD2 PIC X(70).                                          00394000
+      *                                                                 00402800
+       01 WS-TEMP PIC X(10).                                            00402900
+      *                                                                 00403100
+       LINKAGE SECTION.                                                 00403300
+       01 DFHCOMMAREA.                                                  00403400
+           COPY OMINP2CP.                                               00403901
+      ***************************************************************** 00404500
+       PROCEDURE DIVISION.                                              00404600
+      ***************************************************************** 00404700
+      *                                                                 00404900
+       1000-MAINLINE-PARA.                                              00405000
+           IF EIBCALEN = 0                                              00405100
+              MOVE  LS-PROD-ID  TO WS-PROD-ID                           00405301
+              DISPLAY 'MOVED TO WS'                                     00406000
+              EXEC CICS RETURN END-EXEC                                 00406104
+           ELSE                                                         00406600
+              PERFORM 2000-PROCESSING-PARA THRU 2000-EXIT               00407400
+           END-IF.                                                      00407500
+            EXEC CICS RETURN                                            00407600
+            END-EXEC.                                                   00408000
+      ******************************************************************00409900
+       2000-PROCESSING-PARA.                                            00410000
+            EVALUATE TRUE                                               00410500
+              WHEN LS-OPT = 'REPORT'                                    00410601
+                PERFORM 3000-VALIDATE-ID-PARA   THRU 3000-EXIT          00410700
+                PERFORM 4000-CICSINTRDR-PARA    THRU 4000-EXIT          00411000
+              WHEN OTHER                                                00412000
+                PERFORM 5000-ERROR-PARA THRU 5000-EXIT                  00413001
+           END-EVALUATE.                                                00414000
+      *                                                                 00420000
+       2000-EXIT.                                                       00450000
+           EXIT.                                                        00460000
+      ******************************************************************00470000
+       3000-VALIDATE-ID-PARA.                                           00471000
+           IF LS-PROD-ID = 0                                            00471101
+              MOVE 'PLEASE ENTER A VALID PRODUCT ID' TO LS-MSG1         00471301
+              EXEC CICS RETURN                                          00471700
+              END-EXEC                                                  00471800
+           END-IF.                                                      00471900
+      *                                                                 00472000
+           IF LS-PROD-ID IS NOT NUMERIC                                 00474601
+                   MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'   00474701
+                        TO LS-MSG1                                      00474801
+                  EXEC CICS RETURN                                      00475100
+                  END-EXEC                                              00475200
+           END-IF.                                                      00479101
+      *                                                                 00479501
+       3000-EXIT.                                                       00480800
+           EXIT.                                                        00480900
+      ******************************************************************00481000
+       4000-CICSINTRDR-PARA.                                            00485000
+           EXEC CICS ASSIGN USERID(UID) END-EXEC.                       00490000
+           MOVE UID TO UIDJ.                                            00510000
+           MOVE 'I' TO CARD1.                                           00520000
+           MOVE '//' TO JCARD1.                                         00530000
+           MOVE ' JOB NOTIFY=&SYSUID,REGION=0M,MSGLEVEL=(1,1)'          00540000
+                                    TO JCARD2.                          00541000
+           MOVE WS-JOBCARD TO LINE1.                                    00550000
+           MOVE '/*JOBPARM LINES=9999' TO LINE2.                        00560000
+           MOVE '//STEP1    EXEC PGM=IKJEFT01,DYNAMNBR=30' TO LINE3.    00571000
+                                                                        00580000
+           MOVE '//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR' TO LINE4.  00590000
+           MOVE '//VSAMIN  DD DSN=ELTP.BLR.OMA,DISP=SHR' TO LINE5.      00600001
+           MOVE '//VSAMIN1 DD DSN=ELTP.BLR.OMA.AIX.PATH,DISP=SHR'       00610001
+                                                         TO LINE6.      00611000
+           MOVE '//SYSPRINT DD SYSOUT=*' TO LINE7.                      00620000
+           MOVE '//SYSTSPRT DD SYSOUT=*' TO LINE8.                      00621000
+           MOVE '//SYSUDUMP DD SYSOUT=*' TO LINE9.                      00623000
+           MOVE '//SYSOUT   DD SYSOUT=*' TO LINE10.                     00625000
+           MOVE '//SYSTSIN  DD *' TO LINE11.                            00630000
+           MOVE '    DSN SYSTEM(DB2A)' TO LINE12.                       00650000
+           MOVE '        RUN PROGRAM(OMINPGM2) PLAN(ADMTPLN1) -'        00660001
+                                           TO LINE13.                   00670000
+           MOVE LS-PROD-ID TO ID-PROD.                                  00671001
+           MOVE STRNG TO VAR-2.                                         00674000
+           MOVE  WS-PARM-DATA TO LINE14.                                00680000
+           MOVE "        LIBRARY('UADT012.BLR.LOAD')" TO LINE15.        00700005
+           MOVE '    END' TO LINE16.                                    00720000
+           MOVE '/*' TO LINE17                                          00740000
+           MOVE '//*'  TO LINE18.                                       00751000
+                                                                        00755100
+                EXEC CICS SPOOLOPEN OUTPUT                              00755200
+                          NODE ('N1')                                   00755300
+                          USERID ('INTRDR')                             00756000
+                          RESP(RESP1) RESP2(RESP2)                      00757000
+                          TOKEN(TOKEN)                                  00757100
+                END-EXEC                                                00757200
+      *                                                                 00757300
+                EXEC CICS SPOOLWRITE                                    00757400
+                          FROM(LINE1)                                   00757500
+                          RESP(RESP1) RESP2(RESP2)                      00757600
+                          FLENGTH(OUTLEN)                               00757700
+                          TOKEN(TOKEN)                                  00757800
+                END-EXEC                                                00757900
+                EXEC CICS SPOOLWRITE                                    00758000
+                          FROM(LINE2)                                   00758100
+                          RESP(RESP1) RESP2(RESP2)                      00758200
+                          FLENGTH(OUTLEN)                               00758300
+                          TOKEN(TOKEN)                                  00758400
+                END-EXEC                                                00758500
+                EXEC CICS SPOOLWRITE                                    00758600
+                          FROM(LINE3)                                   00758700
+                          RESP(RESP1) RESP2(RESP2)                      00758800
+                          FLENGTH(OUTLEN)                               00758900
+                          TOKEN(TOKEN)                                  00759000
+                END-EXEC                                                00759100
+                EXEC CICS SPOOLWRITE                                    00759200
+                          FROM(LINE4)                                   00759300
+                          RESP(RESP1) RESP2(RESP2)                      00759400
+                          FLENGTH(OUTLEN)                               00759500
+                          TOKEN(TOKEN)                                  00759600
+                END-EXEC                                                00759700
+                EXEC CICS SPOOLWRITE                                    00759800
+                          FROM(LINE5)                                   00759900
+                          RESP(RESP1) RESP2(RESP2)                      00760000
+                          FLENGTH(OUTLEN)                               00760100
+                          TOKEN(TOKEN)                                  00760200
+                END-EXEC                                                00760300
+                EXEC CICS SPOOLWRITE                                    00760400
+                          FROM(LINE6)                                   00760500
+                          RESP(RESP1) RESP2(RESP2)                      00760600
+                          FLENGTH(OUTLEN)                               00760700
+                          TOKEN(TOKEN)                                  00760800
+                END-EXEC                                                00760900
+                EXEC CICS SPOOLWRITE                                    00761000
+                          FROM(LINE7)                                   00761100
+                          RESP(RESP1) RESP2(RESP2)                      00761200
+                          FLENGTH(OUTLEN)                               00761300
+                          TOKEN(TOKEN)                                  00761400
+                END-EXEC                                                00761500
+                EXEC CICS SPOOLWRITE                                    00761600
+                          FROM(LINE8)                                   00761700
+                          RESP(RESP1) RESP2(RESP2)                      00761800
+                          FLENGTH(OUTLEN)                               00761900
+                          TOKEN(TOKEN)                                  00762000
+                END-EXEC                                                00762100
+                EXEC CICS SPOOLWRITE                                    00762200
+                          FROM(LINE9)                                   00762300
+                          RESP(RESP1) RESP2(RESP2)                      00762400
+                          FLENGTH(OUTLEN)                               00762500
+                          TOKEN(TOKEN)                                  00762600
+                END-EXEC                                                00762700
+                EXEC CICS SPOOLWRITE                                    00762800
+                          FROM(LINE10)                                  00762900
+                          RESP(RESP1) RESP2(RESP2)                      00763000
+                          FLENGTH(OUTLEN)                               00763100
+                          TOKEN(TOKEN)                                  00763200
+                END-EXEC                                                00763300
+                EXEC CICS SPOOLWRITE                                    00763400
+                          FROM(LINE11)                                  00763500
+                          RESP(RESP1) RESP2(RESP2)                      00763600
+                          FLENGTH(OUTLEN)                               00763700
+                          TOKEN(TOKEN)                                  00763800
+                END-EXEC                                                00763900
+                EXEC CICS SPOOLWRITE                                    00764000
+                          FROM(LINE12)                                  00764100
+                          RESP(RESP1) RESP2(RESP2)                      00764200
+                          FLENGTH(OUTLEN)                               00764300
+                          TOKEN(TOKEN)                                  00764400
+                END-EXEC                                                00764500
+                EXEC CICS SPOOLWRITE                                    00764600
+                          FROM(LINE13)                                  00764700
+                          RESP(RESP1) RESP2(RESP2)                      00764800
+                          FLENGTH(OUTLEN)                               00764900
+                          TOKEN(TOKEN)                                  00765000
+                END-EXEC                                                00765100
+                EXEC CICS SPOOLWRITE                                    00765200
+                          FROM(LINE14)                                  00765300
+                          RESP(RESP1) RESP2(RESP2)                      00765400
+                          FLENGTH(OUTLEN)                               00765500
+                          TOKEN(TOKEN)                                  00765600
+                END-EXEC                                                00765700
+                EXEC CICS SPOOLWRITE                                    00765800
+                          FROM(LINE15)                                  00765900
+                          RESP(RESP1) RESP2(RESP2)                      00766000
+                          FLENGTH(OUTLEN)                               00766100
+                          TOKEN(TOKEN)                                  00766200
+                END-EXEC                                                00766300
+                EXEC CICS SPOOLWRITE                                    00766400
+                          FROM(LINE16)                                  00766500
+                          RESP(RESP1) RESP2(RESP2)                      00766600
+                          FLENGTH(OUTLEN)                               00766700
+                          TOKEN(TOKEN)                                  00766800
+                END-EXEC                                                00766900
+                EXEC CICS SPOOLWRITE                                    00767000
+                          FROM(LINE17)                                  00767100
+                          RESP(RESP1) RESP2(RESP2)                      00767200
+                          FLENGTH(OUTLEN)                               00767300
+                          TOKEN(TOKEN)                                  00767400
+                END-EXEC                                                00767500
+                EXEC CICS SPOOLWRITE                                    00767600
+                          FROM(LINE18)                                  00767700
+                          RESP(RESP1) RESP2(RESP2)                      00767800
+                          FLENGTH(OUTLEN)                               00767900
+                          TOKEN(TOKEN)                                  00768000
+                END-EXEC                                                00769000
+      *                                                                 00770000
+                EXEC CICS SPOOLCLOSE                                    00775300
+                          TOKEN(TOKEN)                                  00775400
+                          RESP(RESP1) RESP2(RESP2)                      00775500
+                END-EXEC.                                               00775600
+      *                                                                 00775700
+           MOVE 'JOB' TO JOB1.                                          00775800
+           MOVE UID TO UID1.                                            00775900
+           MOVE 'Q' TO CARD.                                            00776000
+           MOVE 'ON HOLD ORDERS FOR THE CURRENT PRODUCT ID HAVE BEEN PRO00776106
+      -         'CESSED' TO MSGM1.                                      00776206
+           MOVE MSGM1 TO LS-MSG1.                                       00776301
+           EXEC CICS RETURN                                             00777000
+           END-EXEC.                                                    00777100
+      *                                                                 00777201
+       4000-EXIT.                                                       00777300
+           EXIT.                                                        00777400
+      ******************************************************************00777500
+       5000-ERROR-PARA.                                                 00798401
+            MOVE 'INVALID KEY PRESSED - PLZ TRY AGAIN' TO LS-MSG1.      00798501
+            EXEC CICS RETURN                                            00798800
+            END-EXEC.                                                   00798900
+      *                                                                 00799000
+       5000-EXIT.                                                       00799101
+           EXIT.                                                        00799200
+      ******************************************************************00799300

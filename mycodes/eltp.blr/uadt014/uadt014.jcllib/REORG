@@ -1,0 +1,41 @@
+//UADT014D JOB (ACCOUNTING INFO),'DB2 UTILITY',
+//*       RESTART=STEPNAME, <== FOR RESTART REMOVE * AND ENTER STEP NAME
+//         REGION=XXXXK,NOTIFY=UADT014,
+//         MSGCLASS=X,
+//         CLASS=9
+//*
+//*
+//**********************************************************************
+//*
+//* DB2 ADMIN GENERATED JOB - RUN REORG UTILITY (TABLESPACES)
+//*
+//***********************************************************ADB2USO****
+//*
+//**********************************************************************
+//* STEP REORG1: REORG TABLESPACE ADMTDB.ADMTTS1
+//**********************************************************************
+//REORG1 EXEC DSNUPROC,SYSTEM=DB2A,
+//             LIB='DSN810.SDSNLOAD',
+//             UID=''
+//DSNUPROC.SYSPUNCH DD DSN=UADT014.DB2A.CNTL.ADMTDB.ADMTTS1,
+//             DISP=(MOD,CATLG),
+//             SPACE=(TRK,(5,5),RLSE),
+//             UNIT=SYSDA
+//DSNUPROC.SYSREC DD DSN=UADT014.DB2A.UNLD.ADMTDB.ADMTTS1,
+//             DISP=(MOD,CATLG),
+//             SPACE=(TRK,(391,39),RLSE),
+//             UNIT=SYSDA
+//DSNUPROC.SYSUT1 DD DSN=UADT014.SYSUT1,
+//             DISP=(MOD,DELETE,CATLG),
+//             SPACE=(TRK,(130,65),RLSE),
+//             UNIT=SYSDA
+//DSNUPROC.SORTOUT DD DSN=UADT014.SORTOUT,
+//             DISP=(MOD,DELETE,CATLG),
+//             SPACE=(TRK,(130,65),RLSE),
+//             UNIT=SYSDA
+//DSNUPROC.SYSIN DD *
+REORG TABLESPACE ADMTDB.ADMTTS1
+  LOG NO
+  SORTDATA
+  SORTDEVT SYSDA
+  SORTNUM 4

@@ -1,0 +1,37 @@
+//UADT014D JOB  ,'SMF DATA UNLOAD',CLASS=E,                             00010025
+//             MSGLEVEL=(1,1),NOTIFY=&SYSUID                            00020000
+//SMFDUMP  EXEC PGM=IFASMFDP                                            00030000
+//SYSPRINT DD  SYSOUT=A                                                 00040000
+//OUTDD    DD  DSN=&&OUTD1,                                             00060020
+//             DISP=(NEW,PASS),                                         00061020
+//             LRECL=32760,BLKSIZE=4096,                                00061121
+//             RECFM=V,                                                 00061207
+//             SPACE=(CYL,(10,100),RLSE)                                00061414
+//SMFDATA  DD  DISP=SHR,DSN=SYS1.MAN1                                   00070013
+//SMFDAT1  DD  DISP=SHR,DSN=SYS1.MAN2                                   00080013
+//SMFDAT2  DD  DISP=SHR,DSN=SYS1.MAN3                                   00090013
+//SYSIN    DD  *                                                        00101013
+     INDD(SMFDATA,OPTIONS(DUMP))                                        00102013
+     INDD(SMFDAT1,OPTIONS(DUMP))                                        00103013
+     INDD(SMFDAT2,OPTIONS(DUMP))                                        00104013
+     OUTDD(OUTDD,TYPE(30))                                              00105017
+/*                                                                      00108120
+//*  DATE(2008311,2008311)                                              00108231
+//*  START(0900)                                                        00108331
+//*  END(1800)                                                          00108431
+//* ONLY FOR A WEEK                                                     00108520
+//SORT1 EXEC PGM=SORT                                                   00109018
+//SORTLIB DD DSN=SYS1.SORTLIB,DISP=SHR                                  00110018
+//SYSOUT DD SYSOUT=*                                                    00140018
+//SORTIN DD DSN=&&OUTD1,DISP=SHR                                        00150020
+//SORTOUT  DD  DSN=ELTP.BLR.UADT014.SMF30,                              00160031
+//             DISP=(NEW,CATLG),                                        00170018
+//             SPACE=(CYL,(10,100),RLSE)                                00200018
+//SORTWK01 DD UNIT=SYSDA,SPACE=(CYL,(4,2))                              00210018
+//SYSIN DD *                                                            00220018
+     SORT FIELDS=(215,8,CH,A)                                           00230023
+     INCLUDE COND=(177,4,BI,EQ,X'0005',AND,                             00240031
+                    19,4,CH,EQ,C'JES2',AND,                             00241027
+                   215,4,CH,EQ,C'UADT')                                 00250030
+     OPTION VLSHRT                                                      00260018
+/*                                                                      00270020

@@ -1,0 +1,22 @@
+//UADT012W JOB (999,POK),'CICS LS2WS TOOL',MSGCLASS=A,                  JOB05749
+//    CLASS=A,NOTIFY=&SYSUID,TIME=1440,REGION=0M
+//*
+// JCLLIB ORDER='UADT012.BCASE.OMA'
+//*
+// SET QT=''''
+//LS2WS EXEC DFHLS2WS,
+//    JAVADIR='',
+//    USSDIR='cicsts31',
+//    PATHPREF=''
+//INPUT.SYSUT1 DD *
+PDSLIB=//UADT012.BCASE.OMA
+PGMNAME=CRPGM1
+LANG=COBOL
+PGMINT=COMMAREA
+LOGFILE=/adms/custwrld/CardAppln2.log
+WSBIND=/adms/custwrld/wsdir/CardAppln2.wsbind
+WSDL=/adms/custwrld/wsdir/CardAppln2.wsdl
+URI=/soatest/CardAppln2
+REQMEM=CCCOPY
+RESPMEM=CCCOPY
+*/

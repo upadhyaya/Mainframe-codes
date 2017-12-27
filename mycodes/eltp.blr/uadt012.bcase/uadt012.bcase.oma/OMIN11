@@ -1,0 +1,103 @@
+000100 IDENTIFICATION DIVISION.                                         00002000
+000200 PROGRAM-ID. OMINPGM1.                                            00003000
+000300*                                                                 00004000
+000400 ENVIRONMENT DIVISION.                                            00005000
+000500*                                                                 00006000
+000600 DATA DIVISION.                                                   00007000
+000700*                                                                 00009200
+000800 WORKING-STORAGE SECTION.                                         00010000
+       01 RES1             PIC S9(8) COMP.                              00011000
+       01 RES22            PIC S9(8) COMP.                              00011100
+       01 WS-LENGTH PIC 9(2).                                           00011200
+       01 WS-SLASH1    PIC X(1) VALUE '-'.                              00011300
+       01 WS-SLASH2    PIC X(1) VALUE '-'.                              00011400
+       01 WS-QUOT     PIC 9(4)     VALUE 0.                             00011500
+       01 WS-REM      PIC 9(4)     VALUE 0.                             00011600
+       01 WS-RBA      PIC 9(10)    VALUE 1110110 COMP-3.                00011700
+       01    WS-DATE          PIC X(10).                                00011800
+       01 TOKEN            PIC S9(8).                                   00011901
+      *                                                                 00012000
+       01 WK-DATE.                                                      00012100
+          05 WK-D-DD PIC 99.                                            00012200
+          05 FILLER  PIC X.                                             00012300
+          05 WK-D-MM PIC 99.                                            00012400
+          05 FILLER  PIC X.                                             00012500
+          05 WK-D-YY PIC 99.                                            00012600
+       01 WK-TIME.                                                      00012700
+          05 WK-T-HH PIC 99.                                            00012800
+          05 FILLER  PIC X.                                             00012900
+          05 WK-T-MM PIC 99.                                            00013000
+          05 FILLER  PIC X.                                             00013100
+          05 WK-T-SS PIC 99.                                            00013200
+       01 DT PIC S9(15) COMP-3.                                         00013300
+      *                                                                 00013400
+       01 OMTRANS-VARS.                                                 00013500
+                05    WS-ORDER-ID            PIC 9(10).                 00013600
+                05    WS-CUSTOMER-ID         PIC 9(10).                 00013700
+                05    WS-EMPLOYEE-ID         PIC 9(10).                 00013800
+                05    WS-PROD-ID             PIC 9(10).                 00013900
+                05    WS-UNIT-PRICE          PIC 9(10)V99.              00014000
+                05    WS-QUANTITY            PIC 9(05).                 00014100
+                05    WS-ORDER-DATE          PIC X(10).                 00014200
+                05    WS-REQUIRED-DATE       PIC X(10).                 00014300
+                05    WS-SHIPMENT-DATE       PIC X(10).                 00014400
+                05    WS-CARRIER-COST        PIC 9(10)V99.              00014500
+                05    WS-TOTAL-COST          PIC 9(16)V99.              00014600
+                05    WS-TOKEN               PIC X(1).                  00015000
+001810*                                                                 00170000
+001820 LINKAGE SECTION.                                                 00180000
+001830 01 DFHCOMMAREA.                                                  00181000
+            COPY OMINCPBK.                                              00182000
+      *     COPY OMDLC2.                                                00183025
+001870*                                                                 00184000
+001900 PROCEDURE DIVISION.                                              00185000
+002000 0000-MAIN-PARA.                                                  00186000
+             IF EIBCALEN = 0                                            00221100
+                 MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG               00221200
+                 EXEC CICS RETURN                                       00221300
+                 END-EXEC                                               00221400
+             ELSE                                                       00221547
+                  MOVE 44  TO WS-ORDER-ID                               00221652
+                  PERFORM 3000-REWRITE-PARA                             00221752
+             END-IF.                                                    00221800
+       3000-REWRITE-PARA.                                               00263208
+                  EXEC CICS                                             00264508
+                     READ FILE ('OMTRANS1')                             00264608
+                     UPDATE TOKEN(TOKEN)                                00264708
+                     INTO (OMTRANS-VARS)                                00264808
+                     RIDFLD(WS-ORDER-ID)                                00264908
+                     RESP(RES1)                                         00265008
+                     RESP2(RES22)                                       00265108
+                  END-EXEC.                                             00265208
+                  DISPLAY WS-ORDER-ID                                   00265336
+      *           EVALUATE RES22                                        00265437
+      *           WHEN 0                                                00265737
+      *             DISPLAY WS-ORDER-ID                                 00265837
+      *           WHEN 80                                               00266037
+      *             MOVE 'NO ORDERS FOUND' TO LS-MSG                    00266137
+      *             EXEC CICS RETURN END-EXEC                           00266237
+      *           WHEN OTHER                                            00266337
+      *             MOVE 'ERROR ENCOUNTERED' TO LS-MSG                  00266437
+      *             EXEC CICS RETURN END-EXEC                           00266537
+      *           END-EVALUATE.                                         00266637
+                  MOVE 'I' TO WS-TOKEN                                  00266754
+      *           DISPLAY 'READ UPDATE RES22 ' RES22                    00266837
+                  EXEC CICS                                             00266937
+                     REWRITE FILE ('OMTRANS1')                          00267053
+                     TOKEN(TOKEN)                                       00267112
+                     FROM (OMTRANS-VARS)                                00267252
+                     RESP(RES1)                                         00267312
+                     RESP2(RES22)                                       00267412
+                  END-EXEC.                                             00267512
+                  DISPLAY 'RES22WRITE' RES22                            00267635
+                  EVALUATE RES22                                        00267724
+                  WHEN 0                                                00268024
+                    DISPLAY WS-ORDER-ID                                 00268224
+                  WHEN 80                                               00268324
+                    MOVE 'NO ORDERS FOUND' TO LS-MSG                    00268424
+                  WHEN OTHER                                            00268850
+                    MOVE 'ERROR ENCOUNTERED' TO LS-MSG                  00268950
+                    EXEC CICS RETURN END-EXEC                           00269050
+                  END-EVALUATE.                                         00269150
+                  DISPLAY 'RES22WRITE' RES22                            00269250
+                  DISPLAY WS-ORDER-ID.                                  00269350

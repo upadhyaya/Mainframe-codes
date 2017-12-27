@@ -1,0 +1,861 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. OMCART.                                              00020001
+000400 AUTHOR. DON.                                                     00040043
+000410 DATE-WRITTEN. 27/11/08.                                          00041043
+000420 DATE-COMPILED. 27/11/08.                                         00042043
+000717******************************************************************00071700
+000718 DATA DIVISION.                                                   00071800
+000719 WORKING-STORAGE SECTION.                                         00071900
+000726      EXEC SQL INCLUDE ORDR1  END-EXEC.                           00072699
+000727      EXEC SQL INCLUDE EMPLOY END-EXEC.                           00072700
+000728      EXEC SQL INCLUDE PRODN  END-EXEC.                           00072801
+000729      EXEC SQL INCLUDE STATS   END-EXEC.                          00072999
+000729      EXEC SQL INCLUDE STATS1  END-EXEC.                          00073099
+000729      EXEC SQL INCLUDE DLDTL  END-EXEC.                           00073199
+000730      EXEC SQL INCLUDE CARTDCL  END-EXEC.                         00073299
+000740      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00074000
+001007*                                                                 00100700
+001016 01 WK-DATE.                                                      00101600
+001017    05 WK-D-DD PIC 99.                                            00101700
+001018    05 FILLER  PIC X.                                             00101800
+001019    05 WK-D-MM PIC 99.                                            00101900
+001020    05 FILLER  PIC X.                                             00102000
+001021    05 WK-D-YY PIC 99.                                            00102100
+001022 01 WK-TIME.                                                      00102200
+001023    05 WK-T-HH PIC 99.                                            00102300
+001024    05 FILLER  PIC X.                                             00102400
+001025    05 WK-T-MM PIC 99.                                            00102500
+001026    05 FILLER  PIC X.                                             00102600
+001027    05 WK-T-SS PIC 99.                                            00102700
+001028 01 DT PIC S9(15) COMP-3.                                         00102800
+001029*                                                                 00102900
+001030 01 WS-SCR-DATE.                                                  00103000
+001031    05 WS-YEAR  PIC 9(4).                                         00103100
+001033    05 SLASH1   PIC X(1) VALUE '-'.                               00103300
+001034    05 WS-DATE  PIC 9(2).                                         00103400
+001035    05 SLASH2   PIC X(1) VALUE '-'.                               00103500
+001036    05 WS-MONTH PIC 9(2).                                         00103600
+001038*                                                                 00103800
+       01 WS1-UNTPRC            PIC 9(12)V99.                           00103999
+       01 WS1-CARCOS            PIC 9(12)V99.                           00104099
+       01 WS1-TOTCOS            PIC 9(16)V99.                           00104199
+      *                                                                 00104299
+001039 01 WS-YEAR1  PIC 9(4) VALUE 0.                                   00104300
+001039 01 CTR       PIC 9(2) VALUE 0.                                   00104499
+001040*                                                                 00104599
+001041 01 WS-QUOT1    PIC 9(4)     VALUE 0.                             00104699
+001042 01 WS-REM1     PIC 9(4)     VALUE 0.                             00104799
+001043*                                                                 00104899
+001044 01 WS-ORDID    PIC 9(10) VALUE 0.                                00104999
+001045 01 WS-ORDID1   PIC 9(10) VALUE 0.                                00105099
+001047 01 WS-FLAGDB   PIC X VALUE 'N'.                                  00105100
+001048 01 WS-FLAGVM   PIC X VALUE 'N'.                                  00105200
+001049*                                                                 00106000
+001083 01 WS-QUANT   PIC S9(5) COMP VALUE 0.                            00108300
+001084*                                                                 00108400
+001085 01 WS-COMMAREA  PIC X(9).                                        00108500
+001086*                                                                 00108600
+       01 WS-UNIT-PRICE-DCL    PIC X(12).                               00109499
+       01 WS-UNIT-PRICE-CAL REDEFINES WS-UNIT-PRICE-DCL PIC 9(12).      00109599
+       01 WS-UNIT-PRICE-CAL1 PIC 9(12).                                 00109699
+       01 WS-CART-QNTY-CAL PIC 9(05).                                   00109799
+001090*                                                                 00109899
+       01 WS-TOTAL-COST PIC 9(15)V99 VALUE ZEROES.                      00110099
+       01 WS-TOTAL-COST-DEF REDEFINES WS-TOTAL-COST PIC X(18).          00110199
+       01 WS-TOTAL-COST-SCR.                                            00110299
+          05 WS-TOTAL-NUM PIC ZZZZZZZZZZ99999.                          00110399
+          05 WS-TOTAL-PNT PIC X(1).                                     00110499
+          05 WS-TOTAL-DEC PIC 9(2).                                     00110599
+      *                                                                 00110699
+       01 WS1-TOTCOS1.                                                  00110799
+         05 WS-TOTCOS-ALP         PIC X(18).                            00110899
+         05 WS-TOTCOS REDEFINES WS-TOTCOS-ALP PIC 9(18).                00110999
+      *                                                                 00111099
+       01 WS-UNIT-PRICE-SUM           PIC 9(16) VALUE ZEROES.           00111199
+      *                                                                 00111299
+001091 01 CARCOS-REDEF.                                                 00111799
+001092   05 WS-CARCOS            PIC 9(10)V99.                          00111899
+001093   05 RE-CARCOS REDEFINES WS-CARCOS PIC X(12).                    00111999
+001094*                                                                 00112099
+001099 01 WS-UNT-PRC            PIC 9(12) VALUE 0.                      00112199
+001099 01 WS-CAR-COST           PIC 9(12) VALUE 0.                      00112299
+001102*                                                                 00112599
+001103 77 RAND-INT PIC 9(10).                                           00112699
+      *                                                                 00112799
+       01 WS-END-PARA PIC X VALUE 'N'.                                  00112899
+       01 WS-CART-ID  PIC 9(5) VALUE 99999.                             00112999
+      *                                                                 00113099
+       01 WS-LIN-INVN.                                                  00113199
+000010       05 WS-OPT       PIC X(04).                                 00113299
+000030       05 WS-ORD-ID    PIC 9(10).                                 00113399
+000031       05 WS-CUST-ID   PIC 9(10).                                 00113499
+000032       05 WS-EMP-ID    PIC 9(10).                                 00113599
+000033       05 WS-PROD-ID   PIC 9(10).                                 00113699
+000034       05 WS-UNIT-PRC  PIC X(12).                                 00113799
+000035       05 WS-QUANTITY  PIC 9(05).                                 00113899
+000036       05 WS-ORD-DATE  PIC X(10).                                 00113999
+000037       05 WS-REQ-DATE  PIC X(10).                                 00114099
+000038       05 WS-SHP-DATE  PIC X(10).                                 00114199
+000039       05 WS-CARR-COST PIC X(12).                                 00114299
+000040       05 WS-TOT-COST  PIC X(18).                                 00114399
+000041       05 WS-TOKEN     PIC X(01).                                 00114499
+000042       05 WS-SCM       PIC X(03).                                 00114599
+000043       05 WS-CONFIRM   PIC X(01).                                 00114699
+000500       05 WS-MSG       PIC X(80).                                 00114799
+      *                                                                 00114899
+       01 Q-NAME1     PIC X(8) VALUE 'QCART1'.                          00114999
+       01 Q-NAME2     PIC X(8) VALUE 'QCART2'.                          00115099
+       01 CHOICE1     PIC S9(4) COMP VALUE 1.                           00115199
+       01 RE1         PIC S9(4) COMP.                                   00115299
+       01 RE2         PIC S9(4) COMP.                                   00115399
+      *                                                                 00115499
+       01 P           PIC 9(01) VALUE ZEROES.                           00115599
+       01 WS-FLAG     PIC X(01) VALUE 'N'.                              00115699
+      *                                                                 00115799
+       01 CARTQ1.                                                       00115899
+          05 Q1-CART-ID  PIC 9(05).                                     00115999
+          05 Q8-CART-ID  PIC 9(05).                                     00116099
+      *                                                                 00116199
+       01 CARTQ2.                                                       00116299
+          05 Q-CUST-ID  PIC 9(10).                                      00116399
+      *                                                                 00116499
+       01 CARTARRAY1.                                                   00116599
+          05 CARTARR-WSN OCCURS 8 TIMES INDEXED BY J.                   00116699
+             06 WSN-CART-ID     PIC 9(05).                              00116799
+             06 WSN-CUST-ID     PIC 9(10).                              00116899
+             06 WSN-PROD-ID     PIC 9(10).                              00116999
+             06 WSN-UNIT-PR     PIC X(12).                              00117099
+             06 WSN-QNTY        PIC 9(5).                               00117199
+             06 WSN-ORD-DATE    PIC X(10).                              00117299
+             06 WSN-CARR-COST   PIC X(18).                              00117399
+      *                                                                 00117499
+001149******************************************************************00117599
+            EXEC SQL                                                    00117699
+                 DECLARE B11 SCROLL                                     00117799
+                 CURSOR FOR                                             00117899
+                 SELECT CART_CART_ID, CART_CUST_ID,                     00117999
+                        CART_PROD_ID, CART_UNIT_PR, CART_QNTY,          00118099
+                        CART_ORD_DATE, CART_CARR_COST                   00118199
+                   FROM ADMT.T_CUST_CART                                00118299
+                  WHERE CART_CUST_ID = :CART-CUST-ID                    00118399
+                    AND CART_CART_ID > :CART-CART-ID                    00118499
+                  ORDER BY CART_CART_ID ASC                             00118599
+            END-EXEC.                                                   00118699
+001149******************************************************************00118799
+            EXEC SQL                                                    00118899
+                 DECLARE C11 SCROLL                                     00118999
+                 CURSOR FOR                                             00119099
+                 SELECT CART_CART_ID, CART_CUST_ID,                     00119199
+                        CART_PROD_ID, CART_UNIT_PR, CART_QNTY,          00119299
+                        CART_ORD_DATE, CART_CARR_COST                   00119399
+                   FROM ADMT.T_CUST_CART                                00119499
+                  WHERE CART_CUST_ID = :CART-CUST-ID                    00119599
+                    AND CART_CART_ID > :CART-CART-ID                    00119699
+                  ORDER BY CART_CART_ID ASC                             00119799
+            END-EXEC.                                                   00119899
+001149******************************************************************00119999
+            EXEC SQL                                                    00120099
+                 DECLARE C12 SCROLL                                     00120199
+                 CURSOR FOR                                             00120299
+                 SELECT CART_CART_ID, CART_CUST_ID,                     00120399
+                        CART_PROD_ID, CART_UNIT_PR, CART_QNTY,          00120499
+                        CART_ORD_DATE, CART_CARR_COST                   00120599
+                   FROM ADMT.T_CUST_CART                                00120699
+                  WHERE CART_CUST_ID = :CART-CUST-ID                    00120799
+                    AND CART_CART_ID >= :CART-CART-ID                   00120899
+                  ORDER BY CART_CART_ID ASC                             00120999
+            END-EXEC.                                                   00121099
+001149******************************************************************00121199
+            EXEC SQL                                                    00121299
+                 DECLARE D11 SCROLL                                     00121399
+                 CURSOR FOR                                             00121499
+                 SELECT CART_CART_ID, CART_CUST_ID,                     00121599
+                        CART_PROD_ID, CART_UNIT_PR, CART_QNTY,          00121699
+                        CART_ORD_DATE, CART_CARR_COST                   00121799
+                   FROM ADMT.T_CUST_CART                                00121899
+                  WHERE CART_CUST_ID = :CART-CUST-ID                    00121999
+                    AND CART_CART_ID < :CART-CART-ID                    00122099
+                  ORDER BY CART_CART_ID DESC                            00122199
+            END-EXEC.                                                   00122299
+001149******************************************************************00122399
+            EXEC SQL                                                    00122499
+                 DECLARE E11 SCROLL                                     00122599
+                 CURSOR FOR                                             00122699
+                 SELECT CART_CART_ID, CART_CUST_ID,                     00122799
+                        CART_PROD_ID, CART_UNIT_PR, CART_QNTY,          00122899
+                        CART_STATUS                                     00122999
+                   FROM ADMT.T_CUST_CART                                00123099
+                  WHERE CART_CUST_ID = :CART-CUST-ID                    00123199
+                    AND  CART_STATUS = :CART-STATUS                     00123299
+                  ORDER BY CART_CART_ID ASC                             00123399
+            END-EXEC.                                                   00123499
+001149******************************************************************00123599
+001105 LINKAGE SECTION.                                                 00123699
+001106 01 DFHCOMMAREA.                                                  00123799
+001110      COPY CARTCPY.                                               00123899
+001149******************************************************************00123999
+001150 PROCEDURE DIVISION USING DFHCOMMAREA.                            00124099
+001151******************************************************************00124199
+001161 1000-MAINLINE-PARA.                                              00124299
+001162     DISPLAY 'START 1000'.                                        00124399
+001163     IF EIBCALEN = 0                                              00124499
+001164         MOVE SPACES TO LS-OPT, LS-ORD-DATE,                      00124599
+001166                        LS-UNIT-PRC, LS-CARR-COST                 00124699
+001168         MOVE 0      TO LS-CUST-ID,                               00124799
+001169                        LS-PROD-ID, LS-QUANTITY                   00124899
+001170         MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG                 00124999
+001171         EXEC CICS RETURN                                         00125099
+001172         END-EXEC                                                 00125199
+001173     ELSE                                                         00125299
+001174         DISPLAY 'IN ELSE 1000'                                   00125399
+001184         PERFORM 2000-PROCESSING-PARA                             00125499
+001185*                                                                 00126099
+001190         EXEC CICS RETURN                                         00130050
+001301         END-EXEC                                                 00130100
+001302     END-IF.                                                      00130200
+001303******************************************************************00130300
+001340 2000-PROCESSING-PARA.                                            00134000
+001341      DISPLAY 'START 2000'.                                       00134100
+001345      EVALUATE TRUE                                               00134500
+               WHEN LS-OPT = 'INSERT'                                   00134607
+                   PERFORM 3500-INSERTION-PARA THRU 3500-EXIT           00134707
+               WHEN LS-OPT = 'UPDATE'                                   00134823
+                   PERFORM 4500-UPDATE-PARA THRU 4500-EXIT              00134930
+               WHEN LS-OPT = 'DELETE'                                   00135024
+                   PERFORM 5500-DELETE-PARA THRU 5500-EXIT              00135131
+               WHEN LS-OPT = 'BILL'                                     00135264
+                   PERFORM 8500-BILL-PARA                               00135364
+               WHEN LS-OPT = 'BUY'                                      00135464
+                   PERFORM 5200-SELECT-ORD-ID-PARA                      00135799
+                   ADD 1 TO ORD-ID GIVING ORD-ID                        00135899
+                   PERFORM 7500-BUY-PARA                                00135964
+001423*                                                                 00142300
+001423*                                                                 00146843
+001424         WHEN OTHER                                               00146943
+001425                MOVE SPACES TO LS-OPT, LS-ORD-DATE,               00147045
+001427                               LS-UNIT-PRC, LS-CARR-COST          00147245
+001429                MOVE 0      TO LS-CUST-ID,                        00147446
+001430                               LS-PROD-ID, LS-QUANTITY            00147543
+001431                EXEC CICS RETURN END-EXEC                         00147843
+001432      END-EVALUATE.                                               00147943
+001433*                                                                 00148043
+001434 2000-EXIT.                                                       00148143
+001435     EXIT.                                                        00148243
+001436******************************************************************00148343
+       2100-MESSAGE-PARA.                                               00148443
+           MOVE SPACES TO LS-OPT.                                       00148543
+           MOVE 0 TO LS-CUST-ID.                                        00148643
+           MOVE 'PERFORM SPECIFIC OPERATION BEFORE PAGE UP AND DOWN OPER00148943
+      -         'ATION' TO LS-MSG.                                      00149043
+           EXEC CICS RETURN                                             00149143
+           END-EXEC.                                                    00149243
+      *                                                                 00149343
+       2100-EXIT.                                                       00149443
+           EXIT.                                                        00149543
+      ***************************************************************** 00149643
+       3500-INSERTION-PARA.                                             00149743
+           DISPLAY ' INSERTION PARA'.                                   00149899
+           MOVE SPACES TO LS-TOT-COST.                                  00149999
+           MOVE SPACES TO LS-MSG.                                       00150099
+           MOVE ZEROES TO LS-CART-ID.                                   00150199
+      *    SET K TO 1.                                                  00150299
+      *    PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8.          00150399
+001437     IF LENGTH OF LS-CUST-ID = 0                                  00150499
+001438        MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   00150599
+001087        EXEC CICS RETURN                                          00150699
+001088        END-EXEC                                                  00150799
+001441*                                                                 00150899
+001442     ELSE IF LS-CUST-ID IS NOT NUMERIC                            00150999
+001443        MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'       00151099
+001444              TO LS-MSG                                           00151199
+001087        EXEC CICS RETURN                                          00151299
+001088        END-EXEC                                                  00151399
+001447          END-IF                                                  00151499
+001448     END-IF.                                                      00151599
+001449*                                                                 00151699
+001450     MOVE LS-CUST-ID TO CART-CUST-ID.                             00151799
+001460     PERFORM 9100-VALIDATION-PARA THRU 9100-EXIT.                 00152048
+           PERFORM 9200-AUTOGEN-PARA THRU 9200-EXIT.                    00152148
+                         MOVE LS-CUST-ID      TO CART-CUST-ID           00152219
+                         MOVE LS-PROD-ID      TO CART-PROD-ID           00152319
+                         MOVE LS-UNIT-PRC     TO CART-UNIT-PR           00152419
+                         MOVE LS-QUANTITY     TO CART-QNTY              00152519
+                         MOVE LS-ORD-DATE     TO CART-ORD-DATE          00152619
+                         MOVE '000000000100'  TO CART-CARR-COST         00152723
+                         MOVE 'O'             TO CART-STATUS.           00152848
+                 EXEC SQL INSERT INTO                                   00153082
+                   ADMT.T_CUST_CART VALUES(:CART-CART-ID, :CART-CUST-ID,00153182
+                                 :CART-PROD-ID,:CART-UNIT-PR,           00153282
+                                 :CART-QNTY,:CART-ORD-DATE,             00153382
+                                 :CART-CARR-COST, :CART-STATUS)         00153482
+                 END-EXEC.                                              00153582
+                 DISPLAY 'SQLCODE INSERTION: ' SQLCODE.                 00153699
+001493           EVALUATE SQLCODE                                       00153782
+001494              WHEN 0                                              00153882
+                       MOVE CART-CART-ID   TO LS-CART-ID                00153982
+                       MOVE CART-CUST-ID   TO LS-CUST-ID                00154082
+                       MOVE CART-PROD-ID   TO LS-PROD-ID                00154182
+                       MOVE CART-UNIT-PR   TO LS-UNIT-PRC               00154282
+                       MOVE CART-QNTY      TO LS-QUANTITY               00154382
+                       MOVE CART-ORD-DATE  TO LS-ORD-DATE               00154482
+                       MOVE CART-CARR-COST TO LS-CARR-COST              00154582
+001496                 MOVE 'PRODUCT ADDED TO CART SUCCESSFULLY'        00154699
+                            TO LS-MSG                                   00154799
+001087                 EXEC CICS RETURN                                 00154853
+001088                 END-EXEC                                         00154953
+001515              WHEN OTHER                                          00155053
+001516                 MOVE 'PRODUCT ADDITON TO CART FAILED'            00155199
+001518                         TO LS-MSG                                00155253
+001087                 EXEC CICS RETURN                                 00155353
+001088                 END-EXEC                                         00155453
+001523           END-EVALUATE.                                          00155553
+001524*                                                                 00155653
+      *                                                                 00155753
+       3500-EXIT.                                                       00155853
+           EXIT.                                                        00155953
+001436******************************************************************00156053
+039800 4500-UPDATE-PARA.                                                00156153
+           MOVE SPACES TO LS-TOT-COST.                                  00156299
+           MOVE SPACES TO LS-MSG.                                       00156399
+      *    MOVE ZEROS TO  LS-PROD-ID.                                   00156499
+      *    SET K TO 1.                                                  00156599
+      *    PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8.          00156699
+039810     IF LS-CART-ID = 0 OR LS-CART-ID = SPACES                     00156799
+039820         MOVE 'CART ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG      00156899
+039830         EXEC CICS RETURN END-EXEC                                00156999
+039840     ELSE IF LS-CART-ID IS NOT NUMERIC                            00157099
+039850         MOVE 'CART ID SHOULD BE NUMERIC' TO LS-MSG               00157199
+039870         EXEC CICS RETURN END-EXEC                                00157299
+039880          END-IF                                                  00157399
+039890     END-IF.                                                      00157499
+039810     IF LS-CUST-ID = 0 OR LS-CUST-ID = SPACES                     00157599
+039820         MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  00157699
+039830         EXEC CICS RETURN END-EXEC                                00157799
+039840     ELSE IF LS-CUST-ID IS NOT NUMERIC                            00157899
+039850         MOVE 'CUSTOMER ID SHOULD BE NUMERIC' TO LS-MSG           00157999
+039870         EXEC CICS RETURN END-EXEC                                00158099
+039880          END-IF                                                  00158199
+039890     END-IF.                                                      00158299
+039891*                                                                 00158399
+002300     IF LS-QUANTITY = ZEROS                                       00158499
+002400          MOVE 'QUANTITY ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG 00158599
+001087        EXEC CICS RETURN                                          00158699
+001088        END-EXEC                                                  00158799
+002610     ELSE IF LS-QUANTITY IS NOT NUMERIC                           00158899
+002700          MOVE 'QUANTITY SHOULD BE NUMERIC - PLZ ENTER IT'        00158999
+002800               TO LS-MSG                                          00159099
+001087        EXEC CICS RETURN                                          00159199
+001088        END-EXEC                                                  00159299
+003010          END-IF                                                  00159399
+003020     END-IF.                                                      00159499
+      *                                                                 00159599
+039900     MOVE LS-CUST-ID  TO CART-CUST-ID.                            00159699
+039900     MOVE LS-CART-ID  TO CART-CART-ID.                            00159799
+039900     MOVE LS-QUANTITY TO CART-QNTY.                               00159899
+039910*                                                                 00159999
+040000     EXEC SQL                                                     00160099
+040010         SELECT CART_CUST_ID                                      00160199
+040011            INTO :CART-CUST-ID                                    00160299
+040020            FROM ADMT.T_CUST_CART                                 00160399
+040040         WHERE CART_CUST_ID = :CART-CUST-ID                       00160499
+                  AND CART_CART_ID = :CART-CART-ID                      00160599
+040050     END-EXEC.                                                    00160699
+040060*                                                                 00160799
+040070     EVALUATE SQLCODE                                             00160899
+040080        WHEN 0                                                    00160999
+040100*         PERFORM 9100-VALIDATION-PARA THRU 9100-EXIT             00161099
+                   MOVE LS-CUST-ID      TO CART-CUST-ID                 00161854
+                   MOVE LS-QUANTITY     TO CART-QNTY                    00161954
+                   MOVE '000000000100'  TO CART-CARR-COST               00162054
+041900             EXEC SQL                                             00162154
+042000                  UPDATE ADMT.T_CUST_CART                         00162254
+042400                  SET CART_CUST_ID   = :CART-CUST-ID,             00162399
+042400                      CART_QNTY      = :CART-QNTY                 00162499
+042650                  WHERE CART_CUST_ID = :CART-CUST-ID              00162699
+                           AND CART_CART_ID = :CART-CART-ID             00162799
+042660             END-EXEC                                             00162899
+              DISPLAY ' SQLCODE: ' SQLCODE                              00162999
+042700             EVALUATE SQLCODE                                     00163099
+042800               WHEN 0                                             00163199
+                        MOVE CART-CART-ID   TO LS-CART-ID               00163299
+                        MOVE CART-CUST-ID   TO LS-CUST-ID               00163399
+      **                MOVE CART-PROD-ID   TO LS-PROD-ID               00163499
+      *                 MOVE CART-UNIT-PR   TO LS-UNIT-PRC              00163599
+      *                 MOVE CART-QNTY      TO LS-QUANTITY              00163699
+      *                 MOVE CART-ORD-DATE  TO LS-ORD-DATE              00163799
+      *                 MOVE CART-CARR-COST TO LS-CARR-COST             00163899
+042900                  MOVE 'CART PRODUCT MODIFIED SUCCESSFULLY'       00163999
+042900                                             TO LS-MSG            00164099
+043000                  EXEC CICS RETURN END-EXEC                       00164199
+043100               WHEN OTHER                                         00164299
+043200                  MOVE 'UPDATION NOT SUCCESSFUL' TO LS-MSG        00164399
+043300                  EXEC CICS RETURN END-EXEC                       00164499
+043400             END-EVALUATE                                         00164599
+044210*                                                                 00164699
+044220        WHEN 100                                                  00164799
+044221           MOVE CART-CUST-ID TO LS-CUST-ID                        00164899
+044222           MOVE 'CUSTOMER ID DOES NOT EXIST' TO LS-MSG            00164999
+044223           EXEC CICS RETURN END-EXEC                              00165099
+              WHEN OTHER                                                00165199
+                 MOVE 'PROBLEM IN SELECTION' TO LS-MSG                  00165299
+                 EXEC CICS RETURN END-EXEC                              00165399
+044230     END-EVALUATE.                                                00165499
+044300*                                                                 00165599
+044400 4500-EXIT.                                                       00165699
+044500     EXIT.                                                        00165799
+044510****************************************************************  00165899
+044600 5500-DELETE-PARA.                                                00165999
+      *    SET K TO 1.                                                  00166099
+      *    PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8.          00166199
+044700     IF LS-CUST-ID = 0 OR LS-CUST-ID = ZEROES                     00166299
+044800         MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  00166399
+044900         EXEC CICS RETURN END-EXEC                                00166499
+045000     ELSE IF LS-CUST-ID IS NOT NUMERIC                            00166599
+045100         MOVE 'CUSTOMER ID SHOULD BE NUMERIC' TO LS-MSG           00166699
+045200         EXEC CICS RETURN END-EXEC                                00166799
+045300          END-IF                                                  00166899
+045400     END-IF.                                                      00166999
+044700     IF LS-CART-ID = 0 OR LS-CART-ID = ZEROES                     00167099
+044800         MOVE 'CART ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG      00167199
+044900         EXEC CICS RETURN END-EXEC                                00167299
+045000     ELSE IF LS-CART-ID IS NOT NUMERIC                            00167399
+045100         MOVE 'CART ID SHOULD BE NUMERIC' TO LS-MSG               00167499
+045200         EXEC CICS RETURN END-EXEC                                00167599
+045300          END-IF                                                  00167699
+045400     END-IF.                                                      00167799
+045500*                                                                 00167899
+045600     MOVE LS-CUST-ID TO CART-CUST-ID.                             00167999
+045600     MOVE LS-CART-ID TO CART-CART-ID.                             00168099
+045700*                                                                 00168199
+045800     EXEC SQL                                                     00168299
+045900         SELECT CART_CUST_ID                                      00168399
+046000         INTO :CART-CUST-ID                                       00168499
+046100         FROM ADMT.T_CUST_CART                                    00168599
+046200         WHERE CART_CUST_ID = :CART-CUST-ID                       00168699
+                     AND CART_CART_ID = :CART-CART-ID                   00168799
+046300     END-EXEC.                                                    00168899
+046400*                                                                 00168999
+046500     EVALUATE SQLCODE                                             00169099
+046600        WHEN 0                                                    00169199
+046700           EXEC SQL DELETE FROM ADMT.T_CUST_CART                  00169299
+046800           WHERE CART_CUST_ID = :CART-CUST-ID                     00169399
+                     AND CART_CART_ID = :CART-CART-ID                   00169499
+046900           END-EXEC                                               00169599
+047000           EVALUATE SQLCODE                                       00169699
+047100              WHEN 0                                              00169799
+045600                  MOVE CART-CART-ID TO LS-CART-ID                 00169899
+047200                  MOVE 'PRODUCT REMOVED FROM CART SUCCESSFULLY'   00169999
+047200                                              TO LS-MSG           00170099
+047300                  EXEC CICS RETURN                                00170199
+047400                  END-EXEC                                        00170299
+047500              WHEN OTHER                                          00170399
+047600                  MOVE 'PRODUCT REMOVAL FROM CART FAILED'         00170499
+047600                                                  TO LS-MSG       00170599
+047700                  EXEC CICS RETURN                                00170699
+047800                  END-EXEC                                        00170799
+047900           END-EVALUATE                                           00170899
+048000*                                                                 00170999
+048100        WHEN 100                                                  00171099
+048110           MOVE 'CUSTOMER ID DOES NOT EXIST' TO LS-MSG            00171199
+048120           EXEC CICS RETURN                                       00171299
+048130           END-EXEC                                               00171399
+048100        WHEN OTHER                                                00171499
+048110           MOVE 'DELETION FAILED' TO LS-MSG                       00171599
+048120           EXEC CICS RETURN                                       00171699
+048130           END-EXEC                                               00171799
+048200     END-EVALUATE.                                                00171899
+048300*                                                                 00171999
+048400 5500-EXIT.                                                       00172099
+048500     EXIT.                                                        00172199
+      ****************************************************************  00172299
+044600 6500-DELETE-PARA.                                                00172399
+      *    SET K TO 1.                                                  00172499
+      *    PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8.          00172599
+045700*                                                                 00172761
+046700           EXEC SQL DELETE FROM ADMT.T_CUST_CART                  00173861
+046800           WHERE CART_CUST_ID = :CART-CUST-ID                     00173961
+                     AND CART_CART_ID = :CART-CART-ID                   00174061
+046900           END-EXEC                                               00174161
+                 DISPLAY SQLCODE                                        00174262
+047000           EVALUATE SQLCODE                                       00174361
+047100              WHEN 0                                              00174461
+045600                  MOVE CART-CART-ID TO LS-CART-ID                 00174561
+047200                  MOVE 'SUCCESSFULLY DELETED' TO LS-MSG           00174661
+047500              WHEN OTHER                                          00174861
+047600                  MOVE 'DELETION NOT SUCCESSFULL' TO LS-MSG       00174961
+047900           END-EVALUATE.                                          00175262
+048000*                                                                 00175361
+048400 6500-EXIT.                                                       00176461
+048500     EXIT.                                                        00176561
+044510****************************************************************  00176661
+       7500-BUY-PARA.                                                   00176761
+           DISPLAY 'BUY STARTING'.                                      00176899
+           MOVE LS-CUST-ID TO CART-CUST-ID.                             00177261
+045800     EXEC SQL                                                     00177362
+045900         SELECT CART_CART_ID, CART_CUST_ID, CART_PROD_ID,         00177462
+                     CART_UNIT_PR, CART_QNTY, CART_ORD_DATE,            00177562
+                     CART_CARR_COST                                     00177662
+046000         INTO :CART-CART-ID,                                      00177762
+                    :CART-CUST-ID,                                      00177862
+                    :CART-PROD-ID,                                      00177962
+                    :CART-UNIT-PR,                                      00178062
+                    :CART-QNTY,                                         00178162
+                    :CART-ORD-DATE,                                     00178262
+                    :CART-CARR-COST                                     00178362
+046100         FROM ADMT.T_CUST_CART                                    00178462
+046200         WHERE CART_CUST_ID = :CART-CUST-ID                       00178562
+                     AND CART_CART_ID > 0                               00178662
+                 ORDER BY CART_ORD_DATE ASC                             00178762
+046300     END-EXEC.                                                    00178862
+           DISPLAY 'SQLCODE SELECT BUY' SQLCODE.                        00178999
+040070     EVALUATE SQLCODE                                             00179062
+040080       WHEN 0                                                     00179162
+                CONTINUE                                                00179262
+040080       WHEN -811                                                  00179362
+                CONTINUE                                                00180061
+             WHEN 100                                                   00180956
+               MOVE 'YOUR PAYMENT IS SUCCESSFUL AND YOUR ORDERS WILL BE 00181099
+      -             'PROCESSED.. THANK YOU ' TO LS-MSG                  00181199
+               DISPLAY 'BUY DONE'                                       00181399
+               EXEC CICS RETURN END-EXEC                                00181450
+             WHEN OTHER                                                 00181556
+               MOVE 'PROBLEM IN SELECTION' TO LS-MSG                    00181650
+               EXEC CICS RETURN END-EXEC                                00181750
+           END-EVALUATE.                                                00181850
+      *                                                                 00182050
+                  MOVE CART-PROD-ID TO PROD-ID OF DCLT-PR-PRODUCT       00186899
+                  PERFORM 4400-FETCH-UNIT-PRC-PARA                      00186999
+                  PERFORM 5100-COSTCALC-PARA                            00187099
+                  DISPLAY 'AFTER COSTCALC'                              00187199
+                  PERFORM 5300-SELECT-ORD-ITEM-ID-PARA                  00187299
+                  DISPLAY 'AFTER ORD-ITEM-ID'                           00187599
+                  ADD 1 TO ORD-ITEM-ID GIVING ORD-ITEM-ID               00187699
+      *                                                                 00187799
+                   DISPLAY 'AFTER ORD-ITEM-ID'                          00187999
+                   EXEC CICS ASKTIME ABSTIME(DT) END-EXEC.              00188099
+                   EXEC CICS FORMATTIME                                 00188199
+                       ABSTIME(DT)                                      00188299
+                       MMDDYY(WK-DATE)                                  00188399
+                       DATESEP                                          00188499
+                       TIME(WK-TIME)                                    00188599
+                       TIMESEP                                          00188699
+                   END-EXEC.                                            00188799
+                   MOVE   WK-DATE(1:2) TO WS-ORD-DATE(6:2)              00188899
+                   MOVE   WK-DATE(4:2) TO WS-ORD-DATE(9:2)              00188999
+                   MOVE   WK-DATE(7:2) TO WS-ORD-DATE(3:2)              00189099
+                   MOVE   '20'         TO WS-ORD-DATE(1:2)              00189199
+                   MOVE   '-'          TO WS-ORD-DATE(5:1)              00189299
+                   MOVE   '-'          TO WS-ORD-DATE(8:1)              00189399
+                   MOVE CART-CUST-ID    TO ORD-CUST-ID                  00189499
+                   MOVE CART-PROD-ID    TO ORD-PROD-ID                  00189599
+                   MOVE 0               TO ORD-EMP-ID                   00189699
+                   MOVE 0               TO ORD-DLR-ID                   00189799
+                   MOVE 'O'             TO ORD-STATUS-ID                00189899
+                   MOVE 'O'             TO ORD-STATUS-TEMP              00189999
+                   MOVE 'D'             TO ORD-TYPE                     00190099
+                   MOVE CART-QNTY       TO ORD-QUANT                    00190199
+                   MOVE WS-ORD-DATE     TO ORD-DATE                     00190399
+                   MOVE WS-ORD-DATE     TO ORD-REQ-DT                   00190499
+                   MOVE WS-ORD-DATE     TO ORD-SHIP-DT                  00190599
+                   MOVE 100             TO ORD-CARR-COST                00190699
+                   MOVE WS1-TOTCOS      TO ORD-TOTAL-COST               00190799
+               EXEC SQL INSERT INTO ADMT.T_OR_ORDER1 VALUES             00190899
+               (     :ORD-ID,:ORD-ITEM-ID,:ORD-CUST-ID,:ORD-EMP-ID,     00190999
+                     :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,:ORD-REQ-DT,     00191099
+                     :ORD-SHIP-DT,:ORD-CARR-COST,:ORD-TOTAL-COST,       00191199
+                     :ORD-DLR-ID,:ORD-STATUS-ID,:ORD-STATUS-TEMP,       00191299
+                     :ORD-FEEDBACK,:ORD-TYPE                            00191399
+               )                                                        00191499
+               END-EXEC                                                 00191599
+                   PERFORM 7000-STATUS-UPDATE-PARA                      00192099
+                   PERFORM 6500-DELETE-PARA THRU 6500-EXIT.             00192999
+                   DISPLAY SQLCODE.                                     00193099
+                   PERFORM 7500-BUY-PARA.                               00193199
+                   DISPLAY 'BUY LOOP'.                                  00193299
+       7500-EXIT.                                                       00193599
+           EXIT.                                                        00194099
+044510****************************************************************  00200099
+       4400-FETCH-UNIT-PRC-PARA.                                        00201099
+           DISPLAY 'START 4400'.                                        00202099
+           EXEC SQL                                                     00205099
+               SELECT PROD_UNIT_PRICE                                   00206099
+               INTO :PROD-UNIT-PRICE                                    00207099
+               FROM ADMT.T_PR_PRODUCT                                   00208099
+               WHERE PROD_ID = :DCLT-PR-PRODUCT.PROD-ID                 00209099
+           END-EXEC.                                                    00209199
+           EVALUATE SQLCODE                                             00209299
+               WHEN 0                                                   00209399
+                  CONTINUE                                              00209499
+               WHEN 100                                                 00209599
+                  MOVE 'PRODUCT NOT FOUND IN INVENTORY' TO LS-MSG       00209699
+                  EXEC CICS RETURN END-EXEC                             00209799
+               WHEN OTHER                                               00209899
+                  MOVE 'ERROR WHILE RETRIEVEING UNIT PRICE OF PRODUCT'  00209999
+                  TO LS-MSG                                             00210099
+                  EXEC CICS RETURN END-EXEC                             00210199
+           END-EVALUATE                                                 00210299
+           MOVE PROD-UNIT-PRICE TO WS1-UNTPRC.                          00210399
+044510****************************************************************  00210499
+       5100-COSTCALC-PARA.                                              00211099
+           DISPLAY 'START 5100'.                                        00213099
+           MOVE 100 TO WS1-CARCOS.                                      00215099
+           MOVE 0 TO WS1-TOTCOS.                                        00217099
+           DISPLAY WS1-TOTCOS                                           00217199
+           DISPLAY CART-QNTY                                            00217299
+           DISPLAY WS1-UNTPRC                                           00217399
+           COMPUTE WS1-TOTCOS = (CART-QNTY * WS1-UNTPRC) + 100.         00218099
+           DISPLAY WS1-TOTCOS.                                          00218199
+      *                                                                 00219099
+044510****************************************************************  00220099
+       5200-SELECT-ORD-ID-PARA.                                         00221099
+            EXEC SQL                                                    00222099
+                SELECT ORD_ID                                           00223099
+                INTO :ORD-ID                                            00224099
+                FROM ADMT.T_OR_ORDER1                                   00225099
+                ORDER BY ORD_ID DESC FETCH FIRST 1 ROWS ONLY            00226099
+            END-EXEC.                                                   00227099
+           EVALUATE SQLCODE                                             00228099
+               WHEN 0                                                   00229099
+                  CONTINUE                                              00229199
+               WHEN 100                                                 00229299
+                  MOVE 1 TO ORD-ID                                      00229399
+               WHEN OTHER                                               00229599
+                  MOVE 'ERROR WHILE ASSIGNING ORDER-ID TO THE ORDER'    00229699
+                  TO LS-MSG                                             00229799
+                  EXEC CICS RETURN END-EXEC                             00229899
+           END-EVALUATE.                                                00229999
+044510****************************************************************  00230099
+       5300-SELECT-ORD-ITEM-ID-PARA.                                    00240099
+            EXEC SQL                                                    00250099
+                SELECT ORD_ITEM_ID                                      00260099
+                INTO :ORD-ITEM-ID                                       00270099
+                FROM ADMT.T_OR_ORDER1                                   00280099
+                ORDER BY ORD_ITEM_ID DESC FETCH FIRST 1 ROWS ONLY       00290099
+            END-EXEC.                                                   00300099
+           EVALUATE SQLCODE                                             00301099
+               WHEN 0                                                   00302099
+                  CONTINUE                                              00303099
+               WHEN 100                                                 00304099
+                  MOVE 1 TO ORD-ITEM-ID                                 00305099
+               WHEN OTHER                                               00306099
+                  MOVE 'ERROR WHILE RETRIEVING ORDER-ITEM-ID'           00307099
+                  TO LS-MSG                                             00308099
+                  EXEC CICS RETURN END-EXEC                             00309099
+           END-EVALUATE.                                                00309199
+044510****************************************************************  00310099
+       7000-STATUS-UPDATE-PARA.                                         00311099
+             EXEC SQL                                                   00312099
+               SELECT PROD_UNIT_ORDER                                   00313099
+               INTO :PROD-UNIT-ORDER                                    00314099
+               FROM ADMT.T_PR_PRODUCT                                   00315099
+               WHERE PROD_ID = :DCLT-PR-PRODUCT.PROD-ID                 00316099
+             END-EXEC                                                   00317099
+      *                                                                 00318099
+             EVALUATE SQLCODE                                           00319099
+              WHEN 0                                                    00319199
+                COMPUTE PROD-UNIT-ORDER = PROD-UNIT-ORDER +             00319299
+                                          LS-QUANTITY                   00319399
+                EXEC SQL                                                00319499
+                  UPDATE ADMT.T_PR_PRODUCT                              00319599
+                  SET PROD_UNIT_ORDER = :PROD-UNIT-ORDER                00319699
+                  WHERE PROD_ID = :DCLT-PR-PRODUCT.PROD-ID              00319799
+044510          END-EXEC                                                00320099
+                PERFORM 7100-INSERT-PARA                                00330099
+               WHEN 100                                                 00340099
+                  MOVE 'INVALID PRODUCT ID' TO LS-MSG                   00350099
+                  EXEC CICS RETURN END-EXEC                             00350199
+               WHEN OTHER                                               00351099
+                  MOVE 'ERROR WHILE RETRIEVING UNITS IN ORDER' TO       00352099
+                  LS-MSG                                                00353099
+                  EXEC CICS RETURN END-EXEC                             00354099
+              END-EVALUATE.                                             00360099
+       7100-INSERT-PARA.                                                00380099
+            MOVE ORD-ID TO ST-ORD-ID.                                   00460099
+            MOVE 0         TO ST-DLR-ID.                                00470099
+            MOVE 0       TO ST-PROD-ID.                                 00480099
+            MOVE 0         TO ST-PROD-QNT.                              00490099
+            MOVE 'O' TO ST-STATUS-ID.                                   00500099
+            MOVE SPACES     TO ST-FEEDBACK.                             00510099
+            MOVE ORD-CUST-ID TO ST-CUST-ID.                             00520099
+            EXEC SQL INSERT INTO                                        00530099
+                 ADMT.T_ST_STATUS  VALUES(:ST-ORD-ID,                   00540099
+                                         :ST-DLR-ID,:ST-PROD-ID,        00550099
+                                         :ST-PROD-QNT,:ST-STATUS-ID,    00560099
+                                         :ST-FEEDBACK,:ST-CUST-ID)      00570099
+            END-EXEC.                                                   00580099
+      *                                                                 00580199
+            MOVE ORD-ID TO ST1-ORD-ID.                                  00580299
+            MOVE 0         TO ST1-DLR-ID.                               00580399
+            MOVE PROD-ID OF DCLT-PR-PRODUCT TO ST1-PROD-ID.             00580499
+            MOVE CART-QNTY TO ST1-PROD-QNT.                             00580599
+            MOVE 'O' TO ST1-STATUS-ID.                                  00580699
+            MOVE SPACES     TO ST1-FEEDBACK.                            00580799
+            MOVE ORD-CUST-ID TO ST1-CUST-ID.                            00580899
+            EXEC SQL INSERT INTO                                        00580999
+                 ADMT.T_ST_STATUS1 VALUES(:ST1-ORD-ID,                  00581099
+                                         :ST1-DLR-ID,:ST1-PROD-ID,      00581199
+                                         :ST1-PROD-QNT,:ST1-STATUS-ID,  00581299
+                                         :ST1-FEEDBACK,:ST1-CUST-ID)    00581399
+            END-EXEC.                                                   00581499
+            DISPLAY 'STATUS UPDATE SQLCODE,'SQLCODE                     00582099
+            EVALUATE SQLCODE                                            00590099
+                WHEN 0                                                  00600099
+                   CONTINUE                                             00610099
+                WHEN OTHER                                              00640099
+                   MOVE 'ERROR WHILE PROCESSING THE ORDER' TO LS-MSG    00650099
+                   EXEC CICS RETURN END-EXEC                            00670099
+            END-EVALUATE.                                               00680099
+002200 9100-VALIDATION-PARA.                                            03500019
+002300     IF LS-CUST-ID = ZEROS                                        03510019
+002400          MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG 03520019
+001087        EXEC CICS RETURN                                          03540019
+001088        END-EXEC                                                  03550019
+002610     ELSE IF LS-CUST-ID IS NOT NUMERIC                            03560019
+002700          MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'     03570019
+002800               TO LS-MSG                                          03580019
+001087        EXEC CICS RETURN                                          03600019
+001088        END-EXEC                                                  03610019
+003010          END-IF                                                  03620019
+003020     END-IF.                                                      03630019
+      *                                                                 03630119
+002300     IF LS-PROD-ID = ZEROS                                        03631019
+002400          MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  03632019
+001087        EXEC CICS RETURN                                          03634019
+001088        END-EXEC                                                  03635019
+002610     ELSE IF LS-PROD-ID IS NOT NUMERIC                            03636019
+002700          MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'      03637019
+002800               TO LS-MSG                                          03638019
+001087        EXEC CICS RETURN                                          03639119
+001088        END-EXEC                                                  03639219
+003010          END-IF                                                  03639319
+003020     END-IF.                                                      03639419
+003030*                                                                 03640019
+002300     IF LS-UNIT-PRC = LOW-VALUES                                  03641019
+002400          MOVE 'UNIT PRICE NOT ENTERED - PLZ ENTER IT' TO LS-MSG  03642019
+001087        EXEC CICS RETURN                                          03644019
+001088        END-EXEC                                                  03645019
+002610     ELSE IF LENGTH OF LS-UNIT-PRC = 0                            03646019
+002700          MOVE 'UNIT PRICE NOT ENTERED - PLZ ENTER IT'            03647019
+002800               TO LS-MSG                                          03648019
+001087        EXEC CICS RETURN                                          03649119
+001088        END-EXEC                                                  03649219
+003010          END-IF                                                  03649319
+003020     END-IF.                                                      03649419
+006620*                                                                 06370019
+002300     IF LS-QUANTITY = ZEROS                                       06370123
+002400          MOVE 'QUANTITY ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG 06370223
+001087        EXEC CICS RETURN                                          06370323
+001088        END-EXEC                                                  06370423
+002610     ELSE IF LS-QUANTITY IS NOT NUMERIC                           06370523
+002700          MOVE 'QUANTITY SHOULD BE NUMERIC - PLZ ENTER IT'        06370623
+002800               TO LS-MSG                                          06370723
+001087        EXEC CICS RETURN                                          06370823
+001088        END-EXEC                                                  06370923
+003010          END-IF                                                  06371023
+003020     END-IF.                                                      06371123
+      *                                                                 06371223
+032668     EXEC CICS ASKTIME ABSTIME(DT) END-EXEC.                      06372423
+032669     EXEC CICS FORMATTIME                                         06372523
+032670         ABSTIME(DT)                                              06373023
+032671         MMDDYY(WK-DATE)                                          06374023
+032672         DATESEP                                                  06375023
+032673         TIME(WK-TIME)                                            06376023
+032674         TIMESEP                                                  06377023
+032675     END-EXEC.                                                    06378023
+032676*                                                                 06379023
+032677     MOVE WK-D-YY TO WS-YEAR1.                                    06379123
+032678     ADD 2000 TO WS-YEAR1.                                        06379223
+032679     MOVE WS-YEAR1 TO WS-YEAR.                                    06379323
+032680     MOVE WK-D-MM TO WS-MONTH.                                    06379423
+032681     MOVE WK-D-DD TO WS-DATE.                                     06379523
+032682     MOVE WS-SCR-DATE TO LS-ORD-DATE.                             06379623
+032685*                                                                 06379723
+007100 9100-EXIT.                                                       06380019
+007200     EXIT.                                                        06390019
+032685*                                                                 06400027
+       9200-AUTOGEN-PARA.                                               06400127
+           EXEC SQL                                                     06400227
+            SELECT CART_CART_ID                                         06400327
+            INTO :CART-CART-ID                                          06400427
+            FROM ADMT.T_CUST_CART                                       06400527
+            ORDER BY CART_CART_ID DESC                                  06400627
+            FETCH FIRST 1 ROWS ONLY                                     06400727
+           END-EXEC.                                                    06400827
+           DISPLAY 'SQLCODE AUTOGEN:' SQLCODE.                          06400999
+           EVALUATE SQLCODE                                             06401027
+              WHEN 0                                                    06401127
+                ADD 1 TO CART-CART-ID                                   06401227
+                CONTINUE                                                06401327
+              WHEN 100                                                  06401499
+                MOVE 1 TO CART-CART-ID                                  06401599
+              WHEN OTHER                                                06401627
+                MOVE 'ERROR DURING SELECT' TO LS-MSG                    06401727
+                EXEC CICS RETURN                                        06401827
+                END-EXEC                                                06401927
+           END-EVALUATE.                                                06402027
+032685*                                                                 06403027
+007100 9200-EXIT.                                                       06410027
+007200     EXIT.                                                        06420027
+032685****************************************************************  06421043
+045200******************************************************************10100199
+       8500-BILL-PARA.                                                  10101099
+           MOVE LS-CUST-ID TO CART-CUST-ID.                             10102099
+           MOVE 'O'        TO CART-STATUS.                              10103099
+           EXEC SQL OPEN E11 END-EXEC.                                  10104099
+           DISPLAY 'AFTER E11 OPEN SQLCODE,'SQLCODE                     10104199
+      *                                                                 10105099
+           MOVE ZEROES TO WS-UNIT-PRICE-SUM.                            10105199
+           MOVE ZEROES TO WS-UNIT-PRICE-CAL.                            10105299
+           PERFORM 8501-BILL-PARA UNTIL SQLCODE IS NOT EQUAL TO 0.      10106099
+           EXEC CICS RETURN END-EXEC.                                   10107099
+      *                                                                 10108099
+       8501-BILL-PARA.                                                  10109099
+035300     EXEC SQL FETCH NEXT                                          10109199
+035400         FROM E11                                                 10109299
+035500         INTO :CART-CART-ID, :CART-CUST-ID,                       10109399
+035600              :CART-PROD-ID, :CART-UNIT-PR, :CART-QNTY            10109499
+           END-EXEC.                                                    10109599
+           DISPLAY 'SQLCODE' SQLCODE.                                   10109699
+           EVALUATE SQLCODE                                             10109799
+              WHEN 0                                                    10109899
+                   MOVE CART-UNIT-PR TO WS-UNIT-PRICE-DCL               10109999
+                   MOVE ZEROES TO CTR                                   10110099
+                   INSPECT WS-UNIT-PRICE-DCL TALLYING CTR FOR CHARACTERS10110199
+                   BEFORE X'40'                                         10110299
+                   MOVE WS-UNIT-PRICE-DCL(1:CTR) TO WS-UNIT-PRICE-CAL1  10110399
+                   MOVE CART-QNTY    TO WS-CART-QNTY-CAL                10110599
+                   DISPLAY 'WS-UNIT-PRICE-SUM:' WS-UNIT-PRICE-SUM       10110799
+                   DISPLAY 'WS-CART-QNTY-CAL' WS-CART-QNTY-CAL          10110899
+                   DISPLAY 'WS-UNIT-PRICE-CAL1' WS-UNIT-PRICE-CAL1      10110999
+                   COMPUTE WS-UNIT-PRICE-SUM = (WS-CART-QNTY-CAL *      10111599
+                                                WS-UNIT-PRICE-CAL1) +   10111699
+                                                WS-UNIT-PRICE-SUM       10112099
+                   DISPLAY 'SQLCODE0'                                   10118099
+                   DISPLAY 'WS-UNIT-PRICE-SUM:' WS-UNIT-PRICE-SUM       10119099
+                   DISPLAY 'WS-CART-QNTY-CAL' WS-CART-QNTY-CAL          10119199
+                   DISPLAY 'WS-UNIT-PRICE-CAL1' WS-UNIT-PRICE-CAL1      10119299
+                   CONTINUE                                             10119499
+              WHEN +100                                                 10119599
+                   COMPUTE WS-TOTAL-COST = (0.1 * WS-UNIT-PRICE-SUM) +  10119699
+                                            WS-UNIT-PRICE-SUM           10119799
+                   DISPLAY "TOTAL-COST:" WS-TOTAL-COST                  10119899
+                   DISPLAY 'WS-UNIT-PRICE-SUM:' WS-UNIT-PRICE-SUM       10119999
+                   DISPLAY "TOTAL-COST:" WS-TOTAL-COST                  10120199
+      *                                                                 10120299
+                   MOVE WS-TOTAL-COST-DEF(1:15) TO WS-TOTAL-NUM         10120399
+                   MOVE '.'                     TO WS-TOTAL-PNT         10120499
+                   MOVE WS-TOTAL-COST-DEF(16:2) TO WS-TOTAL-DEC         10120599
+                   MOVE WS-TOTAL-COST-SCR TO LS-TOT-COST                10120699
+                   DISPLAY "TOTAL-COST:" LS-TOT-COST                    10120799
+      *                                                                 10120899
+                   DISPLAY 'SQLCODE100'                                 10120999
+      *            DISPLAY 'WS-TOTCOS' WS-TOTCOS                        10121099
+      *            DISPLAY 'WS-CAR-COST' WS-CAR-COST                    10121199
+                   EXEC CICS RETURN END-EXEC                            10121299
+              WHEN OTHER                                                10121399
+                 EXEC CICS RETURN END-EXEC                              10121499
+           END-EVALUATE.                                                10122099
+040100 9300-EXIT-PARA.                                                  10125099
+040200     EXEC CICS RETURN                                             10126099
+040300     END-EXEC.                                                    10127099
+040400******************************************************************10128099

@@ -1,0 +1,16 @@
+          05 LKT-MSG          PIC X(65).                                00030020
+          05 LKT-OPT          PIC X(4).                                 00070120
+          05 LKT-FLAG         PIC X(4).                                 00070220
+          05 LKT-CNT          PIC 9(05).                                00070320
+          05 LKT-COUNT        PIC 9(05).                                00070420
+       02    ORDLISTGROUP.                                              00071024
+        03    LKT-OUTPUT-REC-ARRAY  OCCURS 15 TIMES INDEXED BY K.       00072020
+          05 OUT-PROD-ID         PIC 9(10).                             00090001
+          05 OUT-PROD-NAME       PIC X(40).                             00110010
+          05 OUT-PROD-CAT-ID     PIC X(05).                             00150001
+          05 OUT-PROD-CAT-NAME   PIC X(40).                             00170010
+          05 OUT-PROD-UNIT-PRICE PIC X(12).                             00190009
+          05 OUT-PROD-UNIT-STOCK PIC 9(05).                             00210001
+          05 OUT-PROD-UNIT-ORDER PIC 9(05).                             00230001
+          05 OUT-PROD-ADD-DATE   PIC X(10).                             00250001
+          05 OUT-PROD-TIMESTAMP  PIC X(26).                             00260001

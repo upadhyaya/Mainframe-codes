@@ -1,0 +1,433 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. VT030RP2.                                            00020001
+000400*AUTHOR. RADHIKA.                                                 00030000
+000500*DATE-WRITTEN. 03/11/08.                                          00040005
+000600*DATE-COMPILED. 03/11/08.                                         00050005
+000700*MODULE       : REPORT GENERATION MODULE-JOB RELATED              00060000
+000800*TITLE        : NA                                                00070000
+000900*MAPS USED    : NA.                                               00080000
+002000****************************************************************  00090000
+002010 ENVIRONMENT DIVISION.                                            00100000
+002020 INPUT-OUTPUT SECTION.                                            00110000
+002030 FILE-CONTROL.                                                    00120000
+002040     SELECT SMFDATA ASSIGN TO SMFDATA.                            00130000
+002040     SELECT SMFOUT  ASSIGN TO SMFOUT.                             00140000
+002042*                                                                 00150000
+002050 DATA DIVISION.                                                   00160000
+002060 FILE SECTION.                                                    00170000
+002061*                                                                 00180000
+002070 FD  SMFDATA                                                      00190000
+002071     RECORDING MODE IS S                                          00200000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00210000
+002081 01  SMF-RECORD                  PIC X(32756).                    00220000
+002090*                                                                 00230000
+002070 FD  SMFOUT                                                       00240000
+002071     RECORDING MODE IS F                                          00250000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00260000
+002081 01  SMF-OUTPUT                  PIC X(100).                      00270050
+002090*                                                                 00280000
+002100 WORKING-STORAGE SECTION.                                         00290000
+002090*                                                                 00300000
+004200 01 WS-VARIABLES.                                                 00310000
+004310     05 WS-COUNT              PIC S9(9) VALUE ZEROES.             00320000
+004320     05 WS-COUNT-DISP REDEFINES WS-COUNT.                         00330000
+004330        10 WS-COUNT-X         PIC X(09).                          00340000
+004340     05 WS-SMF30OFF           PIC S9(9) COMP-3.                   00350000
+004350     05 WS-SMF30LEN           PIC S9(9) COMP-3.                   00360000
+004350     05 WS-TEMP10-STR         PIC X(10).                          00370000
+004350     05 WS-TEMP10-NUM REDEFINES WS-TEMP10-STR PIC 9(10).          00380000
+004350     05 WS-TEMP16-STR         PIC X(16).                          00390046
+004350     05 WS-TEMP16-NUM REDEFINES WS-TEMP16-STR PIC 9(16).          00400000
+002090*                                                                 00411052
+004400 01 WS-FLAGS.                                                     00420000
+004500     05 WS-SMFDATA-FILE-FLAG  PIC X(01).                          00430000
+004600        88 SMFDATA-OVER       VALUE 'Y'.                          00440000
+004700        88 SMFDATA-NOT-OVER   VALUE 'N'.                          00450000
+002090*                                                                 00460000
+       01 WS-HEADER         PIC X(30) VALUE                             00461050
+                            '*****   SMF30 REPORT2   ******'.           00462051
+       01 WS-SMF30-PATTERN1         PIC X(100) VALUE ALL '*'.           00470050
+       01 WS-SMF30-PATTERN2         PIC X(100) VALUE ALL '-'.           00471050
+002090*                                                                 00480000
+       01 WS-COUNTER  PIC 9(1) VALUE ZERO.                              00481050
+      *                                                                 00484050
+       01 SMF30CPU-NEW              PIC 9(12).                          00490046
+       01 SMF30ELP-NEW              PIC 9(12).                          00500046
+       01 WS-SMF30JNM-PREV          PIC X(08)  VALUE SPACES.            00501046
+       01 WS-SMF30JNM-PREV1         PIC X(08)  VALUE SPACES.            00502065
+002090*                                                                 00510000
+       01 WRITEDD-FLAG              PIC X VALUE 'N'.                    00510167
+002090*                                                                 00511065
+       01 IND1                      PIC 9(3)   VALUE 1.                 00520046
+       01 INDE                      PIC 9(3)   VALUE 1.                 00521046
+       01 IND2                      PIC 9(5)   VALUE 1.                 00530046
+      *                                                                 00550030
+       01 ARRAY-SMF30STM.                                               00560038
+          05 SMF30STM-ARRAY  OCCURS 255 TIMES.                          00570046
+             10 SMF30STM-ARR PIC X(8).                                  00580030
+      *                                                                 00600030
+       01 ARRAY-SMF30EON.                                               00601038
+          05 SMF30EON-ARRAY  OCCURS 255 TIMES.                          00602046
+             10 SMF30EON-ARR PIC 9(3).                                  00604038
+      *                                                                 00605037
+       01 ARRAY-SMF30DDN.                                               00610038
+          05 SMF30DDN-ARRAY  OCCURS 65025 TIMES.                        00620046
+             10 SMF30DDN-ARR PIC X(8).                                  00630030
+             10 SMF30BLK-ARR PIC 9(8).                                  00631030
+             10 SMF30BSZ-ARR PIC 9(4).                                  00632030
+      *                                                                 00633030
+004400 01 WS-NEW-REPORT-STEPLINE1.                                      00640005
+                10  WS-SMF30STN-NEW      PIC ZZZ9.                      00650016
+                10  FILLER               PIC X(8) VALUE ' '.            00660019
+                10  WS-SMF30STM-NEW      PIC X(08).                     00670016
+                10  FILLER               PIC X(2) VALUE ' '.            00680019
+                10  WS-SMF30PGM-NEW      PIC X(08).                     00690005
+                10  FILLER               PIC X(1) VALUE ' '.            00700005
+                10  WS-SMF30SIT-NEW      PIC X(11).                     00701023
+                10  FILLER               PIC X(1) VALUE ' '.            00702023
+                10  WS-SMF30ELP-NEW      PIC 9(12).                     00710000
+                10  FILLER               PIC X(1) VALUE ' '.            00720000
+                10  WS-SMF30CPU-NEW      PIC 9(11).                     00730000
+                10  FILLER               PIC X(1) VALUE ' '.            00740000
+                10  WS-SMF30TEP-NEW      PIC ZZZZZZ99.                  00750017
+                10  FILLER               PIC X(3) VALUE ' '.            00760019
+                10  WS-SMF30RGN-NEW      PIC ZZZZZZ99.                  00770017
+                10  FILLER               PIC X(1) VALUE ' '.            00780000
+                10  WS-SMF30SCC-NEW      PIC ZZ99.                      00790000
+                10  FILLER               PIC X(7) VALUE ' '.            00800017
+002090*                                                                 00810000
+004400 01 WS-NEW-REPORT-STEPLINE2.                                      00811030
+                10  WS-SMF30STM1-NEW     PIC X(8).                      00811130
+                10  FILLER               PIC X(1) VALUE ' '.            00811226
+                10  WS-SMF30DDN-NEW      PIC X(8).                      00811330
+                10  FILLER               PIC X(1) VALUE ' '.            00811430
+                10  FILLER               PIC X(8) VALUE ' '.            00811547
+                10  WS-SMF30BLK-NEW      PIC ZZZZZZ99.                  00811630
+                10  FILLER               PIC X(1) VALUE ' '.            00811747
+                10  FILLER               PIC X(12) VALUE ' '.           00811847
+                10  WS-SMF30BSZ-NEW      PIC ZZ99.                      00811930
+                10  FILLER               PIC X(1) VALUE ' '.            00812047
+002090*                                                                 00813030
+      * SMF RECORD TYPE 30 LAYOUT                                       00820000
+005277      COPY VT030DAT.                                              00830000
+      * SMF RECORD TYPE 30 LAYOUT                                       00840000
+005277      COPY VT030CPY.                                              00850000
+      * 01 SMF30-DESCRIPTION - DESCRIPTION FOR REPORT HEADER            00860000
+005277      COPY VT030DS2.                                              00870005
+      * 01 SMF30-DESCRIPTION - DESCRIPTION FOR REPORT MAIN HEADER.      00871049
+005277      COPY VT030HD1.                                              00872049
+      * 01 SMF30-VARIABLES - REPORT VARIABLES                           00880000
+005277      COPY VT030VR2.                                              00890003
+005521******************************************************************00900000
+005522 PROCEDURE DIVISION.                                              00910000
+005523******************************************************************00920000
+005524 0000-MAIN-PARA.                                                  00930000
+005530     PERFORM 1000-INITIALIZE-PARA THRU  1000-INITIALIZE-EXIT.     00940000
+005600     PERFORM 2000-PROCESS-PARA    THRU  2000-PROCESS-EXIT         00950000
+                                        UNTIL SMFDATA-OVER.             00960000
+005700     PERFORM 3000-CLOSE-PARA      THRU  3000-CLOSE-EXIT.          00970000
+006030*                                                                 00980000
+006010 0000-MAIN-EXIT.                                                  00990000
+005900     STOP RUN.                                                    01000000
+006030*                                                                 01010000
+006040 1000-INITIALIZE-PARA.                                            01020000
+006050     OPEN INPUT  SMFDATA.                                         01030000
+           OPEN OUTPUT SMFOUT.                                          01040000
+006051     SET   SMFDATA-NOT-OVER TO TRUE                               01090000
+006052     PERFORM 1100-READ-SMF.                                       01100000
+006070     CONTINUE.                                                    01110000
+006091*                                                                 01120000
+006080 1000-INITIALIZE-EXIT.                                            01130000
+006090     EXIT.                                                        01140000
+006091*                                                                 01150000
+006092 1100-READ-SMF.                                                   01160000
+006093     READ SMFDATA                                                 01170000
+006094     AT END SET SMFDATA-OVER TO TRUE.                             01180000
+006100     CONTINUE.                                                    01190000
+006103*                                                                 01200000
+006101 1100-EXIT.                                                       01210000
+006102     EXIT.                                                        01220000
+006103*                                                                 01230000
+006104 2000-PROCESS-PARA.                                               01240000
+006109     ADD +1 TO WS-COUNT                                           01250000
+006105     INITIALIZE SMF30-VARIABLES.                                  01260000
+006106     MOVE SMF-RECORD ( 1 :394 ) TO SMF30-RECORD-FORMAT.           01270000
+           IF SMF30TYP = 4                                              01271015
+           PERFORM 2101-MOVE-HEADER                                     01280015
+           IF WS-COUNTER = 0                                            01281050
+              MOVE 1 TO WS-COUNTER                                      01282050
+              PERFORM 2100-WRITEHEADER-PARA                             01283050
+           END-IF                                                       01284050
+      *    I-O-ACTIVITY-SECTION                                         01290000
+               IF SMF30UON > 0                                          01300000
+                   MOVE SMF30ULN TO WS-SMF30LEN                         01310000
+                   COMPUTE WS-SMF30OFF = SMF30UOF + 1 - 4               01320000
+                   MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)             01330000
+                     TO I-O-ACTIVITY-SECTION-GROUP                      01340000
+                   PERFORM 2102-MOVE-IO-ACTIVITY-SECTION                01350000
+               END-IF                                                   01360000
+      *    COMPLETION-SECTION-GROUP                                     01370000
+               IF SMF30TON > 0                                          01380000
+                   MOVE SMF30TLN TO WS-SMF30LEN                         01390000
+                   COMPUTE WS-SMF30OFF = SMF30TOF + 1 - 4               01400000
+                   MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)             01410000
+                     TO COMPLETION-SECTION-GROUP                        01420000
+                   PERFORM 2103-MOVE-COMPLETION-SECTION                 01430000
+               END-IF                                                   01440000
+      *    PROCESSOR-SECTION-GROUP                                      01450000
+               IF SMF30CON > 0                                          01460000
+                   MOVE SMF30CLN TO WS-SMF30LEN                         01470000
+                   COMPUTE WS-SMF30OFF = SMF30COF + 1 - 4               01480000
+                   MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)             01490000
+                     TO PROCESSOR-SECTION-GROUP                         01500000
+                   PERFORM 2104-MOVE-PROCESSOR-SECTION                  01510000
+               END-IF                                                   01520000
+      *    EXCP-AREA-IN-RECORD-GROUP                                    01530002
+               IF SMF30EON > 0                                          01540002
+                   PERFORM 5300-WRITE-TO-REPORT-PARA                    01540167
+                   PERFORM 4200-ARRAYEPROCESS-PARA                      01541044
+                   MOVE SMF30ELN TO WS-SMF30LEN                         01570030
+                   COMPUTE WS-SMF30OFF = SMF30EOF + 1 - 4               01580030
+                   MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)             01590030
+                     TO EXCP-AREA-IN-RECORD-GROUP                       01600030
+                   PERFORM 2105-MOVE-EXCP-SECTION                       01601030
+                   PERFORM 2106-COMPUTEMOVE-PARA UNTIL SMF30EON = 1     01602030
+               END-IF                                                   01604030
+      *    STORAGE-SECTION-GROUP                                        01610000
+               IF SMF30RON > 0                                          01620000
+                   MOVE SMF30RLN TO WS-SMF30LEN                         01630000
+                   COMPUTE WS-SMF30OFF = SMF30ROF + 1 - 4               01640000
+                   MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)             01650000
+                     TO STORAGE-SECTION-GROUP                           01660000
+                   PERFORM 2106-MOVE-STORAGE-SECTION                    01670002
+               END-IF                                                   01680000
+           PERFORM 5100-MOVE-TO-OUTPUT-PARA                             01690044
+           PERFORM 5200-WRITE-TO-REPORT-PARA                            01690144
+           END-IF                                                       01707020
+006294     PERFORM 1100-READ-SMF                                        01710000
+006295     CONTINUE.                                                    01720000
+006298*                                                                 01730000
+006296 2000-PROCESS-EXIT.                                               01740000
+006297     EXIT.                                                        01750000
+006298*                                                                 01760000
+       2100-WRITEHEADER-PARA.                                           01762050
+           PERFORM 9200-GETDATETIME-PARA                                01763050
+           MOVE  WS-HEADER TO WS-REPORT-HEADER                          01764050
+           WRITE SMF-OUTPUT FROM WS-SMF30-PATTERN1.                     01765050
+           WRITE SMF-OUTPUT FROM SMF30-HEADER-DESCRIPTION1.             01766050
+           WRITE SMF-OUTPUT FROM SMF30-HEADER-DESCRIPTION2.             01767050
+      *                                                                 01769350
+       2100-WRITEHEADER-EXIT.                                           01769450
+           EXIT.                                                        01769550
+      *                                                                 01769650
+006104 2101-MOVE-HEADER.                                                01770000
+           MOVE SMF30TME TO WS-TEMP10-NUM                               01780000
+           MOVE WS-TEMP10-STR TO WS-SMF30TME                            01790000
+           MOVE SMF30JBN TO WS-SMF30JBN                                 01800000
+           MOVE SMF30PGM TO WS-SMF30PGM                                 01810002
+           MOVE SMF30STM TO WS-SMF30STM                                 01820002
+           MOVE SMF30JNM TO WS-SMF30JNM                                 01830000
+           IF WS-SMF30JNM-PREV1 IS NOT EQUAL TO SPACES                  01832065
+             AND WS-SMF30JNM-PREV1 IS NOT EQUAL TO WS-SMF30JNM          01832165
+              MOVE 'Y' TO WRITEDD-FLAG                                  01833065
+           END-IF.                                                      01834065
+           MOVE WS-SMF30JNM TO WS-SMF30JNM-PREV1                        01835065
+           MOVE SMF30STN TO WS-TEMP10-NUM                               01840002
+           MOVE WS-TEMP10-STR TO WS-SMF30STN                            01850002
+           MOVE SMF30SIT TO WS-TEMP10-NUM                               01860000
+           MOVE WS-TEMP10-STR TO WS-SMF30SIT                            01870000
+           MOVE SMF30STD TO WS-TEMP10-NUM                               01880000
+           MOVE WS-TEMP10-STR TO WS-SMF30STD                            01890000
+           MOVE SMF30SYN TO WS-SMF30SYN                                 01891050
+           MOVE SMF30SYP TO WS-SMF30SYP                                 01892050
+006295     CONTINUE.                                                    01900000
+006296 2101-EXIT.                                                       01910000
+006297     EXIT.                                                        01920000
+006298*                                                                 01930000
+006296 2102-MOVE-IO-ACTIVITY-SECTION.                                   01940000
+           MOVE SMF30TEP TO WS-TEMP10-NUM                               01950000
+           MOVE WS-TEMP10-STR TO WS-SMF30TEP                            01960000
+           CONTINUE.                                                    01970000
+006300 2102-EXIT.                                                       01980000
+006297     EXIT.                                                        01990000
+006298*                                                                 02000000
+       2103-MOVE-COMPLETION-SECTION.                                    02010000
+            MOVE SMF30SCC TO WS-TEMP10-NUM                              02020000
+            MOVE WS-TEMP10-STR TO WS-SMF30SCC                           02030000
+           CONTINUE.                                                    02040000
+       2103-EXIT.                                                       02050000
+           EXIT.                                                        02060000
+      *                                                                 02070000
+       2104-MOVE-PROCESSOR-SECTION.                                     02080000
+           MOVE SMF30CPT TO WS-TEMP10-NUM                               02090000
+           MOVE WS-TEMP10-STR TO WS-SMF30CPT                            02100000
+           MOVE SMF30CPS TO WS-TEMP10-NUM                               02110000
+           MOVE WS-TEMP10-STR TO WS-SMF30CPS                            02120000
+           MOVE SMF30ICU TO WS-TEMP10-NUM                               02130000
+           MOVE WS-TEMP10-STR TO WS-SMF30ICU                            02140000
+           MOVE SMF30ISB TO WS-TEMP10-NUM                               02150000
+           MOVE WS-TEMP10-STR TO WS-SMF30ISB                            02160000
+           MOVE SMF30IIP TO WS-TEMP10-NUM                               02170000
+           MOVE WS-TEMP10-STR TO WS-SMF30IIP                            02180000
+           MOVE SMF30RCT TO WS-TEMP10-NUM                               02190000
+           MOVE WS-TEMP10-STR TO WS-SMF30RCT                            02200000
+           MOVE SMF30HPT TO WS-TEMP10-NUM                               02210000
+           MOVE WS-TEMP10-STR TO WS-SMF30HPT                            02220000
+           CONTINUE.                                                    02230000
+006300 2104-EXIT.                                                       02240000
+006297     EXIT.                                                        02250000
+006298*                                                                 02260000
+       2105-MOVE-EXCP-SECTION.                                          02270002
+           MOVE SMF30DDN TO WS-SMF30DDN                                 02280002
+           MOVE SMF30BLK TO WS-TEMP10-NUM                               02290002
+           MOVE WS-TEMP10-STR TO WS-SMF30BLK                            02300002
+           MOVE SMF30BSZ TO WS-TEMP10-NUM                               02310002
+           MOVE WS-TEMP10-STR TO WS-SMF30BSZ.                           02320004
+           PERFORM 4300-ARRAY2PROCESS-PARA.                             02321045
+006298*                                                                 02330002
+006300 2105-EXIT.                                                       02340002
+006297     EXIT.                                                        02350002
+006298*                                                                 02360002
+       2106-COMPUTEMOVE-PARA.                                           02361030
+           COMPUTE WS-SMF30OFF = WS-SMF30OFF + WS-SMF30LEN              02362030
+           MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)                     02363030
+             TO EXCP-AREA-IN-RECORD-GROUP                               02364030
+           PERFORM 2105-MOVE-EXCP-SECTION                               02365030
+           COMPUTE SMF30EON = SMF30EON - 1.                             02366030
+      *                                                                 02367030
+       2106-MOVE-STORAGE-SECTION.                                       02370002
+           MOVE SMF30RGN TO WS-TEMP10-NUM                               02380000
+           MOVE WS-TEMP10-STR TO WS-SMF30RGN                            02390000
+           CONTINUE.                                                    02400000
+006298*                                                                 02410002
+006300 2106-EXIT.                                                       02420002
+006297     EXIT.                                                        02430000
+006298*                                                                 02440000
+006300 3000-CLOSE-PARA.                                                 02441044
+           WRITE SMF-OUTPUT FROM WS-SMF30-PATTERN2.                     02441148
+           WRITE SMF-OUTPUT FROM SMF30-DD-DESCRIPTION1                  02442044
+           WRITE SMF-OUTPUT FROM WS-SMF30-PATTERN2.                     02443048
+           PERFORM 4400-PROCESSDD-PARA                                  02446045
+           WRITE SMF-OUTPUT FROM WS-SMF30-PATTERN1.                     02447044
+006400     CLOSE SMFDATA.                                               02448044
+           CLOSE SMFOUT.                                                02449044
+006800     CONTINUE.                                                    02449144
+007100*                                                                 02449244
+006900 3000-CLOSE-EXIT.                                                 02449344
+007000     EXIT.                                                        02449444
+007100*                                                                 02449544
+       4100-ARRAY1PROCESS-PARA.                                         02901044
+           MOVE WS-SMF30STM-NEW TO SMF30STM-ARR(IND1).                  02902039
+           ADD  1 TO IND1.                                              02904030
+           MOVE '$$$$$$$$'  TO SMF30STM-ARR(IND1).                      02904135
+           SUBTRACT 1 FROM IND1.                                        02904235
+           ADD  1 TO IND1.                                              02904435
+      *                                                                 02906030
+       4200-ARRAYEPROCESS-PARA.                                         02906144
+           MOVE SMF30EON TO SMF30EON-ARR(INDE).                         02906338
+           ADD  1 TO INDE.                                              02906537
+      *                                                                 02906937
+       4300-ARRAY2PROCESS-PARA.                                         02907044
+           MOVE WS-SMF30DDN TO SMF30DDN-ARR(IND2).                      02908030
+           MOVE WS-SMF30BLK TO SMF30BLK-ARR(IND2).                      02909030
+           MOVE WS-SMF30BSZ TO SMF30BSZ-ARR(IND2).                      02909130
+           ADD  1 TO IND2.                                              02909230
+      *                                                                 02909330
+       4400-PROCESSDD-PARA.                                             02909444
+           MOVE 1 TO IND1                                               02909530
+           MOVE 1 TO INDE                                               02909637
+           MOVE 1 TO IND2.                                              02909737
+           PERFORM 4500-WRITEPARA-DD                                    02909944
+                   UNTIL SMF30STM-ARR(IND1) = '$$$$$$$$'.               02910044
+      *                                                                 02910137
+       4500-WRITEPARA-DD.                                               02910244
+           MOVE SMF30STM-ARR(IND1) TO WS-SMF30STM1-NEW                  02910537
+           PERFORM 4600-WRITEPARA-DD1 UNTIL SMF30EON-ARR(INDE) = 0.     02910855
+           ADD 1 TO IND1.                                               02910955
+           ADD 1 TO INDE.                                               02911055
+      *                                                                 02911155
+       4600-WRITEPARA-DD1.                                              02911255
+           MOVE SMF30DDN-ARR(IND2) TO WS-SMF30DDN-NEW                   02911837
+           MOVE SMF30BLK-ARR(IND2) TO WS-SMF30BLK-NEW                   02911937
+           MOVE SMF30BSZ-ARR(IND2) TO WS-SMF30BSZ-NEW                   02912037
+           WRITE SMF-OUTPUT FROM WS-NEW-REPORT-STEPLINE2.               02912337
+           ADD 1 TO IND2.                                               02912437
+           SUBTRACT 1 FROM SMF30EON-ARR(IND1).                          02912538
+           MOVE SPACES TO WS-SMF30STM1-NEW.                             02912640
+      *                                                                 02912737
+       5100-MOVE-TO-OUTPUT-PARA.                                        02912844
+           MOVE WS-SMF30JBN TO WS-SMF30JBN-NEW.                         02912944
+           MOVE WS-SMF30JNM TO WS-SMF30JNM-NEW.                         02913044
+      *                                                                 02913144
+           MOVE SMF30STD TO WS-JULIAN-N                                 02913244
+           PERFORM 9000-JULIAN2GREGORIAN-PARA THRU                      02913344
+                   9000-JULIAN2GREGORIAN-EXIT                           02913444
+           MOVE WS-GREGORIAN TO WS-SMF30STD-NEW.                        02913544
+      *                                                                 02913644
+           MOVE SMF30SIT TO SMF30TIME-1.                                02913744
+           PERFORM 9100-FORMATTIME-PARA THRU                            02913844
+                   9100-FORMATTIME-EXIT                                 02913944
+           MOVE WS-TIME-DISPLAY TO WS-SMF30SIT-NEW                      02914044
+      *                                                                 02914144
+           MOVE WS-SMF30STN TO WS-SMF30STN-NEW.                         02914244
+           MOVE WS-SMF30STM TO WS-SMF30STM-NEW.                         02914344
+           MOVE WS-SMF30PGM TO WS-SMF30PGM-NEW.                         02914444
+      *                                                                 02914544
+           COMPUTE SMF30CPU-NEW = SMF30CPT + SMF30CPS +                 02914644
+                                  SMF30HPT + SMF30ICU +                 02914744
+                                  SMF30IIP + SMF30ISB +                 02914844
+                                  SMF30RCT.                             02914944
+           MOVE SMF30CPU-NEW TO SMF30TIME-1.                            02915044
+           PERFORM 9100-FORMATTIME-PARA THRU                            02915144
+                   9100-FORMATTIME-EXIT                                 02915244
+           MOVE WS-TIME-DISPLAY TO WS-SMF30CPU-NEW                      02915344
+      *                                                                 02915444
+           COMPUTE SMF30ELP-NEW = SMF30TME - SMF30SIT.                  02915544
+           MOVE SMF30ELP-NEW TO SMF30TIME-1.                            02915644
+           PERFORM 9100-FORMATTIME-PARA THRU                            02915744
+                   9100-FORMATTIME-EXIT                                 02915844
+           MOVE WS-TIME-DISPLAY TO WS-SMF30ELP-NEW                      02915944
+      *                                                                 02916044
+           MOVE WS-SMF30RGN TO WS-SMF30RGN-NEW.                         02916144
+           MOVE WS-SMF30TEP TO WS-SMF30TEP-NEW.                         02916244
+           MOVE WS-SMF30SCC TO WS-SMF30SCC-NEW.                         02916344
+006298*                                                                 02916444
+           MOVE WS-SMF30DDN TO WS-SMF30DDN-NEW.                         02916544
+           MOVE WS-SMF30BLK TO WS-SMF30BLK-NEW.                         02916644
+           MOVE WS-SMF30BSZ TO WS-SMF30BSZ-NEW.                         02916744
+006298*                                                                 02916844
+       5200-WRITE-TO-REPORT-PARA.                                       02916944
+            IF WS-SMF30JNM-PREV IS NOT EQUAL TO WS-SMF30JNM-NEW         02917037
+              WRITE SMF-OUTPUT FROM WS-SMF30-PATTERN1                   02918337
+              WRITE SMF-OUTPUT FROM SMF30-JOB-DESCRIPTION1              02918437
+              WRITE SMF-OUTPUT FROM SMF30-JOB-DESCRIPTION2              02918537
+              WRITE SMF-OUTPUT FROM SMF30-JOB-DESCRIPTION3              02918637
+              WRITE SMF-OUTPUT FROM WS-SMF30-PATTERN2                   02918743
+              WRITE SMF-OUTPUT FROM SMF30-STEP-DESCRIPTION1             02918837
+              WRITE SMF-OUTPUT FROM SMF30-UNIT-DESCRIPTION              02918937
+              WRITE SMF-OUTPUT FROM WS-SMF30-PATTERN2                   02919047
+              WRITE SMF-OUTPUT FROM WS-NEW-REPORT-STEPLINE1             02919137
+              PERFORM 4100-ARRAY1PROCESS-PARA                           02919244
+            ELSE                                                        02919437
+              WRITE SMF-OUTPUT FROM WS-NEW-REPORT-STEPLINE1             02919537
+              PERFORM 4100-ARRAY1PROCESS-PARA                           02919644
+            END-IF.                                                     02920062
+            MOVE WS-SMF30JNM-NEW TO WS-SMF30JNM-PREV.                   02920164
+006298*                                                                 02920237
+       5300-WRITE-TO-REPORT-PARA.                                       02920367
+            IF WRITEDD-FLAG = 'Y'                                       02920465
+                WRITE      SMF-OUTPUT FROM WS-SMF30-PATTERN2            02920761
+                WRITE      SMF-OUTPUT FROM SMF30-DD-DESCRIPTION1        02920861
+                WRITE      SMF-OUTPUT FROM WS-SMF30-PATTERN2            02920961
+                PERFORM    4400-PROCESSDD-PARA                          02921061
+                INITIALIZE ARRAY-SMF30STM                               02921161
+                INITIALIZE ARRAY-SMF30EON                               02921261
+                INITIALIZE ARRAY-SMF30DDN                               02921361
+                MOVE 1 TO IND1                                          02921461
+                MOVE 1 TO IND2                                          02921561
+                MOVE 1 TO INDE                                          02921661
+                MOVE 'N' TO WRITEDD-FLAG                                02921766
+            END-IF.                                                     02921961
+006298*                                                                 02922261
+       COPY VT030CVD.                                                   02923037
+006298*                                                                 02930000

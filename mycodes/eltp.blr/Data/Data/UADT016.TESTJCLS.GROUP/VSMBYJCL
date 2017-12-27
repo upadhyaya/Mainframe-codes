@@ -1,0 +1,12 @@
+//UADT016J JOB 'CREATE VSAM WITHOUT IDCAMS',NOTIFY=&SYSUID,REGION=0M    00010000
+//STEP1 EXEC PGM=IEFBR14                                                00020000
+//DD1 DD DSN=ELTP.BLR.TEST.BASE,                                        00030003
+//           DISP=(NEW,CATLG,DELETE),                                   00040003
+//           UNIT=SYSDA,                                                00050002
+//           SPACE=(80,(4,6)),                                          00051002
+//           AVGREC=K,                                                  00052002
+//           RECORG=KS,                                                 00060002
+//           KEYLEN=05,                                                 00090002
+//           KEYOFF=0,                                                  00100002
+//           LRECL=80                                                   00101002
+//                                                                      00110002

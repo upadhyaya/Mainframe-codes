@@ -1,0 +1,752 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. INVNTRY.                                             00020001
+000400 AUTHOR. SOA TEAM.                                                00040000
+000410 DATE-WRITTEN. 26/09/08.                                          00041000
+000420 DATE-COMPILED. 26/09/08.                                         00042000
+000717******************************************************************00071700
+000718 DATA DIVISION.                                                   00071800
+000719 WORKING-STORAGE SECTION.                                         00071900
+000726      EXEC SQL INCLUDE ORDR1  END-EXEC.                           00072662
+000727      EXEC SQL INCLUDE EMPLOY END-EXEC.                           00072713
+000728      EXEC SQL INCLUDE PROD2  END-EXEC.                           00072858
+000729*     EXEC SQL INCLUDE STAT1  END-EXEC.                           00072962
+000730*     EXEC SQL INCLUDE DEALER END-EXEC.                           00073062
+000740      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00074047
+001007*                                                                 00100700
+001009 01 CHOICE1 PIC S9(4) COMP VALUE 1.                               00100900
+001010 01 RE1     PIC S9(4) COMP.                                       00101015
+001011 01 RE      PIC S9(4) COMP.                                       00101116
+001012*                                                                 00101216
+001013 01 RES1    PIC S9(4) COMP.                                       00101312
+001014 01 RES22   PIC S9(4) COMP.                                       00101412
+001015*                                                                 00101512
+001016 01 WK-DATE.                                                      00101612
+001017    05 WK-D-DD PIC 99.                                            00101712
+001018    05 FILLER  PIC X.                                             00101812
+001019    05 WK-D-MM PIC 99.                                            00101912
+001020    05 FILLER  PIC X.                                             00102012
+001021    05 WK-D-YY PIC 99.                                            00102112
+001022 01 WK-TIME.                                                      00102212
+001023    05 WK-T-HH PIC 99.                                            00102312
+001024    05 FILLER  PIC X.                                             00102412
+001025    05 WK-T-MM PIC 99.                                            00102512
+001026    05 FILLER  PIC X.                                             00102612
+001027    05 WK-T-SS PIC 99.                                            00102712
+001028 01 DT PIC S9(15) COMP-3.                                         00102812
+001029*                                                                 00102912
+001030 01 WS-SCR-DATE.                                                  00103012
+001031    05 WS-YEAR  PIC 9(4).                                         00103112
+001033    05 SLASH1   PIC X(1) VALUE '-'.                               00103312
+001034    05 WS-DATE  PIC 9(2).                                         00103423
+001035    05 SLASH2   PIC X(1) VALUE '-'.                               00103512
+001036    05 WS-MONTH PIC 9(2).                                         00103623
+001038*                                                                 00103812
+001039 01 WS-YEAR1  PIC 9(4) VALUE 0.                                   00103912
+001040*                                                                 00104012
+001041 01 WS-QUOT1    PIC 9(4)     VALUE 0.                             00104112
+001042 01 WS-REM1     PIC 9(4)     VALUE 0.                             00104212
+001043*                                                                 00104312
+001044 01 WS-ORDID    PIC 9(10) VALUE 0.                                00104412
+001045 01 WS-ORDID1   PIC 9(10) VALUE 0.                                00104512
+001046 01 WS-ITEM-ID  PIC 9(10) VALUE 0.                                00104663
+001049*                                                                 00104953
+001050 01 ORDERQ.                                                       00105053
+001051    05 Q-ORD-ID    PIC 9(10).                                     00105153
+001052    05 Q-CUST-ID   PIC 9(10).                                     00105253
+001053    05 Q-EMP-ID    PIC 9(10).                                     00105353
+001054    05 Q-PROD-ID   PIC 9(10).                                     00105453
+001055    05 Q-UNIT-PRC  PIC X(12).                                     00105553
+001056    05 Q-N-UNTPRC  PIC 9(10)V99.                                  00105653
+001057    05 Q-QUANTITY  PIC 9(05).                                     00105753
+001058    05 Q-ORD-DATE  PIC X(10).                                     00105853
+001059    05 Q-REQ-DATE  PIC X(10).                                     00105953
+001060    05 Q-SHP-DATE  PIC X(10).                                     00106053
+001061    05 Q-CARR-COST PIC X(12).                                     00106153
+001062    05 Q-N-CARCOS  PIC 9(10)V99.                                  00106253
+001063    05 Q-TOT-COST  PIC X(18).                                     00106353
+001064    05 Q-N-TOTCOS  PIC 9(16)V99.                                  00106453
+001065    05 Q-TOKEN     PIC X(01).                                     00106553
+001066    05 Q-SCM       PIC X(03).                                     00106653
+001067    05 Q-FULL      PIC X(04).                                     00106753
+001068*                                                                 00106853
+001069 01 ORDR-REC.                                                     00106953
+001070    05 ORDR-ID    PIC 9(10).                                      00107053
+001071    05 CUSTR-ID   PIC 9(10).                                      00107153
+001072    05 EMPL-ID    PIC 9(10).                                      00107253
+001073    05 PRODT-ID   PIC 9(10).                                      00107353
+001074    05 UNIT-PRC  PIC 9(10)V99.                                    00107453
+001075    05 QUANTITY  PIC 9(05).                                       00107553
+001076    05 ORDR-DATE  PIC X(10).                                      00107653
+001077    05 REQ-DATE  PIC X(10).                                       00107753
+001078    05 SHP-DATE  PIC X(10).                                       00107853
+001079    05 CARR-COST PIC 9(10)V99.                                    00107953
+001080    05 TOT-COST  PIC 9(16)V99.                                    00108053
+001081    05 TOKEN     PIC X(1).                                        00108153
+001082*                                                                 00108253
+001083 01 WS-QUANT   PIC S9(5) COMP VALUE 0.                            00108353
+001084*                                                                 00108453
+001085 01 WS-COMMAREA  PIC X(9).                                        00108553
+001086*                                                                 00108653
+001087 01 UNTPRC-REDEF.                                                 00108753
+001088   05 WS-UNTPRC            PIC 9(10)V99.                          00108853
+001089   05 RE-UNTPRC REDEFINES WS-UNTPRC PIC X(12).                    00108953
+001090*                                                                 00109053
+001091 01 CARCOS-REDEF.                                                 00109153
+001092   05 WS-CARCOS            PIC 9(10)V99.                          00109253
+001093   05 RE-CARCOS REDEFINES WS-CARCOS PIC X(12).                    00109353
+001094*                                                                 00109453
+001095 01 TOTCOS-REDEF.                                                 00109553
+001096   05 WS-TOTCOS            PIC 9(16)V99.                          00109653
+001097   05 RE-TOTCOS REDEFINES WS-TOTCOS PIC X(18).                    00109753
+001098*                                                                 00109853
+001099 01 WS1-UNTPRC            PIC 9(12)V99.                           00109953
+001100 01 WS1-CARCOS            PIC 9(12)V99.                           00110053
+001101 01 WS1-TOTCOS            PIC 9(16)V99.                           00110153
+001102*                                                                 00110253
+001103 77 RAND-INT PIC 9(10).                                           00110353
+001104*                                                                 00110453
+001105 LINKAGE SECTION.                                                 00110553
+001106 01 DFHCOMMAREA.                                                  00110653
+001110      COPY ORDRCPY.                                               00111020
+001149******************************************************************00114900
+001150 PROCEDURE DIVISION USING DFHCOMMAREA.                            00115000
+001151******************************************************************00115100
+001152         DISPLAY 'PRC DIV'.                                       00115259
+001153*        MOVE SPACES TO LS-OPT, LS-CONFIRM, LS-ORD-DATE,          00115332
+001154*                       LS-REQ-DATE, LS-SHP-DATE, LS-TOKEN,       00115432
+001155*                       LS-SCM, LS-UNIT-PRC, LS-CARR-COST,        00115532
+001156*                       LS-TOT-COST.                              00115632
+001157*        MOVE 0      TO LS-ORD-ID, LS-CUST-ID, LS-EMP-ID,         00115732
+001158*                       LS-PROD-ID, LS-QUANTITY.                  00115832
+001159*        MOVE 'END PGM' TO LS-MSG.                                00115932
+001160*        EXEC CICS RETURN                                         00116032
+001161*        END-EXEC.                                                00116132
+001162 1000-MAINLINE-PARA.                                              00116200
+001163     DISPLAY 'START 1000'.                                        00116329
+001164     IF EIBCALEN = 0                                              00116400
+001165         MOVE SPACES TO LS-OPT, LS-CONFIRM, LS-ORD-DATE,          00116518
+001166                        LS-REQ-DATE, LS-SHP-DATE, LS-TOKEN,       00116618
+001167                        LS-SCM, LS-UNIT-PRC, LS-CARR-COST,        00116718
+001168                        LS-TOT-COST                               00116818
+001169         MOVE 0      TO LS-ORD-ID, LS-CUST-ID, LS-EMP-ID,         00116918
+001170                        LS-PROD-ID, LS-QUANTITY                   00117018
+001171         MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG                 00117100
+001172         EXEC CICS RETURN                                         00117200
+001173         END-EXEC                                                 00117300
+001174     ELSE                                                         00117400
+001175         DISPLAY 'IN ELSE 1000'                                   00117529
+001184         PERFORM 2000-PROCESSING-PARA                             00118400
+001185*                                                                 00118500
+001190         EXEC CICS RETURN                                         00119000
+001301         END-EXEC                                                 00130100
+001302     END-IF.                                                      00130200
+001303******************************************************************00130300
+001340 2000-PROCESSING-PARA.                                            00134000
+001341      DISPLAY 'START 2000'.                                       00134128
+001345      EVALUATE TRUE                                               00134500
+001346         WHEN LS-OPT = 'STOC'                                     00134602
+001356             PERFORM 3000-STOCK-CHECK-PARA THRU 3000-EXIT         00135602
+001358             EXEC CICS RETURN END-EXEC                            00135804
+001359         WHEN LS-OPT = 'CONF'                                     00135902
+001360             EVALUATE TRUE                                        00136000
+001361                WHEN LS-CONFIRM = 'Y'                             00136100
+001362                     EXEC CICS READQ TS                           00136200
+001363                          QUEUE('Q-NAME')                         00136300
+001364                          INTO(ORDERQ)                            00136415
+001365                          ITEM(CHOICE1)                           00136500
+001366                     END-EXEC                                     00136600
+001367                     IF Q-FULL = 'FULL'                           00136742
+001368                       MOVE Q-ORD-ID     TO LS-ORD-ID             00136842
+001369                       MOVE Q-CUST-ID    TO LS-CUST-ID            00136942
+001370                       MOVE Q-EMP-ID     TO LS-EMP-ID             00137042
+001371                       MOVE Q-PROD-ID    TO LS-PROD-ID            00137142
+001372                       MOVE Q-UNIT-PRC   TO LS-UNIT-PRC           00137242
+001373                       MOVE Q-N-UNTPRC   TO WS1-UNTPRC            00137342
+001374                       MOVE Q-QUANTITY   TO LS-QUANTITY           00137442
+001375                       MOVE Q-ORD-DATE   TO LS-ORD-DATE           00137542
+001376                       MOVE Q-REQ-DATE   TO LS-REQ-DATE           00137642
+001377                       MOVE Q-SHP-DATE   TO LS-SHP-DATE           00137742
+001378                       MOVE Q-CARR-COST  TO LS-CARR-COST          00137842
+001379                       MOVE Q-N-CARCOS   TO WS1-CARCOS            00137942
+001380                       MOVE Q-TOT-COST   TO LS-TOT-COST           00138042
+001381                       MOVE Q-N-TOTCOS   TO WS1-TOTCOS            00138142
+001382                       MOVE Q-TOKEN      TO LS-TOKEN              00138242
+001383                       MOVE Q-SCM        TO LS-SCM                00138342
+001384*                                                                 00138442
+001385                       MOVE SPACES TO LS-CONFIRM                  00138542
+001386                       PERFORM 7000-FILE-PROCESS-PARA             00138642
+001387                               THRU 7000-EXIT                     00138742
+001388                       EXEC CICS RETURN END-EXEC                  00138842
+001389                     ELSE                                         00138942
+001390                       MOVE SPACES TO LS-CONFIRM                  00139042
+001391                       MOVE 'PLEASE PERFORM SPECIFIC OPERATION BEF00139142
+001392-                           'ORE CONFIRMATION' TO LS-MSG          00139242
+001393                       EXEC CICS RETURN END-EXEC                  00139342
+001394                     END-IF                                       00139442
+001395                 WHEN LS-CONFIRM = 'N'                            00139527
+001396                     EXEC CICS READQ TS                           00139642
+001397                          QUEUE('Q-NAME')                         00139742
+001398                          INTO(ORDERQ)                            00139842
+001399                          ITEM(CHOICE1)                           00139942
+001400                     END-EXEC                                     00140042
+001401                     IF Q-FULL = 'FULL'                           00140142
+001402                       MOVE SPACES TO LS-CONFIRM                  00140242
+001410                       MOVE 'THANK YOU FOR USING THE SYSTEM'      00141060
+001411                             TO LS-MSG                            00141160
+001412                       EXEC CICS RETURN END-EXEC                  00141242
+001413                     ELSE                                         00141342
+001414                       MOVE SPACES TO LS-CONFIRM                  00141442
+001415                       MOVE 'PLEASE PERFORM SPECIFIC OPERATION BEF00141542
+001416-                           'ORE CONFIRMATION' TO LS-MSG          00141642
+001417                       EXEC CICS RETURN END-EXEC                  00141742
+001418                     END-IF                                       00141842
+001419                 WHEN OTHER                                       00141904
+001420                     MOVE SPACES TO LS-CONFIRM                    00142004
+001421                     MOVE 'INVALID OPTION - ENTER Y/N' TO LS-MSG  00142104
+001422                     EXEC CICS RETURN END-EXEC                    00142204
+001423             END-EVALUATE                                         00142304
+001424*                                                                 00142404
+001425         WHEN OTHER                                               00142500
+001426                MOVE SPACES TO LS-OPT, LS-CONFIRM, LS-ORD-DATE,   00142604
+001427                               LS-REQ-DATE, LS-SHP-DATE, LS-TOKEN,00142718
+001428                               LS-SCM, LS-UNIT-PRC, LS-CARR-COST, 00142818
+001429                               LS-TOT-COST                        00142918
+001430                MOVE 0      TO LS-ORD-ID, LS-CUST-ID, LS-EMP-ID,  00143018
+001431                               LS-PROD-ID, LS-QUANTITY            00143118
+001432                EXEC CICS RETURN END-EXEC                         00143200
+001433      END-EVALUATE.                                               00143300
+001434*                                                                 00143400
+001435 2000-EXIT.                                                       00143500
+001436     EXIT.                                                        00143600
+001437******************************************************************00143700
+001438 3000-STOCK-CHECK-PARA.                                           00143800
+001439     DISPLAY 'START 3000'.                                        00143928
+001444     PERFORM 4000-FETCH-ORD-ID-PARA THRU 4000-EXIT.               00144462
+001446     PERFORM 4200-VALIDATION-PARA THRU 4200-EXIT.                 00144605
+001447*    PERFORM 4300-FETCH-EMP-ID-PARA THRU 4300-EXIT                00144771
+001448     PERFORM 4400-FETCH-UNIT-PRC-PARA THRU 4400-EXIT.             00144807
+001449     PERFORM 5000-VALIDATE-DATE-PARA THRU 5000-EXIT.              00144904
+001450     PERFORM 5100-COSTCALC-PARA THRU 5100-EXIT.                   00145009
+001451*                                                                 00145109
+001452     DISPLAY 'PROD-ID*********', PROD-ID.                         00145255
+001453     EXEC SQL                                                     00145310
+001454        SELECT PROD_UNIT_STOCK                                    00145410
+001455        INTO :PROD-UNIT-STOCK                                     00145510
+001456        FROM ADMT.T_PR_PRODUCT                                    00145610
+001457        WHERE PROD_ID = :PROD-ID                                  00145710
+001458     END-EXEC.                                                    00145810
+001459*                                                                 00145910
+001460     EVALUATE SQLCODE                                             00146010
+001461       WHEN 0                                                     00146110
+001462         SUBTRACT LS-QUANTITY FROM PROD-UNIT-STOCK GIVING WS-QUANT00146210
+001463         DISPLAY 'WS-QUANT', WS-QUANT                             00146310
+001464         DISPLAY 'LS-QUANT', LS-QUANTITY                          00146455
+001465         DISPLAY 'PROD-UNT', PROD-UNIT-STOCK                      00146555
+001466*                                                                 00146655
+001467         EVALUATE TRUE                                            00146755
+001468          WHEN LS-TOKEN = 'I' AND WS-QUANT >= 0                   00146855
+001469            MOVE 'I' TO LS-TOKEN                                  00146955
+001470            MOVE SPACES TO LS-SCM                                 00147055
+001471            MOVE SPACES TO LS-CONFIRM                             00147155
+001472            DISPLAY 'LS-TOKEN =   I AND WS-QUANT >= 0'            00147256
+001473            MOVE 'THANK YOU FOR USING THE SYSTEM. YOUR ORDER WILL 00147355
+001474-                'BE PROCESSED. DO YOU WANT TO PROCEED?' TO LS-MSG00147455
+001475            PERFORM 6000-WRITEQ-PARA THRU 6000-EXIT               00147555
+001476          WHEN LS-TOKEN = 'I' AND WS-QUANT < 0                    00147655
+001477            MOVE 'D' TO LS-TOKEN                                  00147755
+001478            MOVE 'SCM' TO LS-SCM                                  00147855
+001479            DISPLAY 'LS-TOKEN =  I  AND WS-QUANT < 0'             00147956
+001480            MOVE 'INSUFFICIENT STOCK - ORDER WILL BE DELAYED. DO Y00148055
+001481-                'OU WANT TO PROCEED?' TO LS-MSG                  00148155
+001482            PERFORM 6000-WRITEQ-PARA THRU 6000-EXIT               00148255
+001483          WHEN LS-TOKEN = 'D' AND WS-QUANT >= 0                   00148355
+001484            MOVE 'D' TO LS-TOKEN                                  00148455
+001485            MOVE SPACES TO LS-SCM                                 00148555
+001486            MOVE SPACES TO LS-CONFIRM                             00148655
+001487            DISPLAY 'LS-TOKEN =  I  AND WS-QUANT < 0'             00148756
+001488            MOVE 'THANK YOU FOR USING THE SYSTEM. YOUR ORDER WILL 00148855
+001489-                'BE PROCESSED. DO YOU WANT TO PROCEED?' TO LS-MSG00148955
+001490            PERFORM 6000-WRITEQ-PARA THRU 6000-EXIT               00149055
+001491          WHEN LS-TOKEN = 'D' AND WS-QUANT < 0                    00149155
+001492            MOVE 'D' TO LS-TOKEN                                  00149255
+001493            MOVE 'SCM' TO LS-SCM                                  00149355
+001494            MOVE SPACES TO LS-CONFIRM                             00149455
+001495            MOVE 'THANK YOU FOR USING THE SYSTEM. YOUR ORDER WILL 00149555
+001496-                'BE PROCESSED. DO YOU WANT TO PROCEED?' TO LS-MSG00149655
+001497            PERFORM 6000-WRITEQ-PARA THRU 6000-EXIT               00149755
+001498          WHEN OTHER                                              00149855
+001499            EXEC CICS RETURN END-EXEC                             00149955
+001500         END-EVALUATE                                             00150055
+001501*                                                                 00150155
+001502       WHEN OTHER                                                 00150255
+001503         MOVE 'STOC' TO LS-OPT                                    00150355
+001504         MOVE SPACES TO LS-CONFIRM                                00150455
+001505         MOVE 0      TO LS-PROD-ID                                00150555
+001506         MOVE SPACES TO LS-ORD-DATE                               00150655
+001507         MOVE SPACES TO LS-SHP-DATE                               00150755
+001508         MOVE SPACES TO LS-REQ-DATE                               00150855
+001509         MOVE SPACES TO LS-UNIT-PRC                               00150955
+001510         MOVE SPACES TO LS-CARR-COST                              00151055
+001511         MOVE SPACES TO LS-TOT-COST                               00151155
+001512         MOVE 0      TO LS-QUANTITY                               00151255
+001513         MOVE SPACES TO LS-TOKEN                                  00151355
+001514         MOVE 'PRODUCT DOES NOT EXISTS' TO LS-MSG                 00151460
+001515         EXEC CICS RETURN                                         00151555
+001516         END-EXEC                                                 00151655
+001517     END-EVALUATE.                                                00151755
+001520*                                                                 00152010
+001522 3000-EXIT.                                                       00152210
+001523     EXIT.                                                        00152310
+001524***************************************************************** 00152410
+001525*4000-FETCH-ORD-ID-PARA.                                          00152562
+001527*     COMPUTE RAND-INT = 1000000000 * FUNCTION RANDOM.            00152762
+001528*     MOVE RAND-INT TO ORD-ID.                                    00152862
+001529*     EXEC SQL                                                    00152962
+001530*         SELECT ORD_ID,ORD_EMP_ID                                00153062
+001531*         INTO :ORD-ID,:ORD-EMP-ID                                00153162
+001532*         FROM ADMT.T_OR_ORDER                                    00153262
+001533*         WHERE ORD_ID = :ORD-ID                                  00153362
+001536*     END-EXEC.                                                   00153662
+001540*     EVALUATE SQLCODE                                            00154062
+001600*        WHEN 100                                                 00160062
+001700*            MOVE 'Y' TO WS-FLAGDB                                00170062
+001710*            MOVE ORD-ID TO ORDR-ID                               00171062
+001720*            EXEC CICS                                            00172062
+001730*                READ FILE('OMTRANS1')                            00173062
+001740*                INTO(ORDR-REC)                                   00174062
+001741*                RIDFLD(ORDR-ID)                                  00174162
+001750*                RESP(RES1)                                       00175062
+001760*                RESP2(RES22)                                     00176062
+001770*            END-EXEC                                             00177062
+001771*            IF RES22 = 80                                        00177162
+001772*               MOVE ORDR-ID TO LS-ORD-ID                         00177262
+001773*               MOVE EMPL-ID TO WS-EMPID1                         00177353
+001774*               MOVE 'Y' TO WS-FLAGVM                             00177462
+001775*            ELSE IF RES22 = 0                                    00177562
+001777*               MOVE 'N' TO WS-FLAGVM                             00177762
+001778*               ADD 1 TO RAND-INT                                 00177862
+001779*                 END-IF                                          00177962
+001780*            END-IF                                               00178062
+001781*        WHEN 0                                                   00178162
+001782*            MOVE 'N' TO WS-FLAGDB                                00178262
+001783*            ADD 1 TO RAND-INT                                    00178362
+001784*     END-EVALUATE.                                               00178462
+001785*                                                                 00178553
+001803*                                                                 00180336
+001814*4000-EXIT.                                                       00181462
+001815*    EXIT.                                                        00181562
+001816***************************************************************** 00181636
+001817 4000-FETCH-ORD-ID-PARA.                                          00181762
+001818*                                                                 00181862
+001819      EXEC SQL                                                    00181962
+001820          SELECT ORD_ID                                           00182072
+001830          INTO :ORD-ID                                            00183072
+001831          FROM ADMT.T_OR_ORDER1                                   00183162
+001832          ORDER BY ORD_ID DESC FETCH FIRST 1 ROWS ONLY            00183262
+001833      END-EXEC.                                                   00183362
+001834                                                                  00183462
+001835      MOVE ORD-ID TO LS-ORD-ID.                                   00183562
+001837      COMPUTE LS-ORD-ID = LS-ORD-ID + 1.                          00183762
+001839*                                                                 00183962
+001840 4000-EXIT.                                                       00184062
+001841     EXIT.                                                        00184162
+001842**************************************************************    00184262
+001843 4200-VALIDATION-PARA.                                            00184362
+001844     DISPLAY 'START 4200'.                                        00184462
+001845     IF LS-CUST-ID = 0                                            00184562
+001846        MOVE 'STOC' TO LS-OPT                                     00184662
+001847        MOVE SPACES TO LS-ORD-DATE                                00184762
+001848        MOVE SPACES TO LS-SHP-DATE                                00184862
+001849        MOVE SPACES TO LS-REQ-DATE                                00184962
+001850        MOVE SPACES TO LS-UNIT-PRC                                00185062
+001851        MOVE SPACES TO LS-CARR-COST                               00185162
+001852        MOVE SPACES TO LS-TOT-COST                                00185262
+001853        MOVE 0      TO LS-CUST-ID                                 00185362
+001854        MOVE SPACES TO LS-TOKEN                                   00185462
+001855        MOVE SPACES TO LS-SCM                                     00185562
+001856        MOVE 'ENTER A VALID CUSTOMER ID' TO LS-MSG                00185662
+001857        EXEC CICS RETURN                                          00185762
+001858        END-EXEC                                                  00185862
+001859*                                                                 00185962
+001860     ELSE IF LS-CUST-ID IS NOT NUMERIC                            00186004
+001861        MOVE 'STOC' TO LS-OPT                                     00186110
+001862        MOVE SPACES TO LS-ORD-DATE                                00186210
+001863        MOVE SPACES TO LS-SHP-DATE                                00186318
+001864        MOVE SPACES TO LS-REQ-DATE                                00186418
+001865        MOVE SPACES TO LS-UNIT-PRC                                00186518
+001866        MOVE SPACES TO LS-CARR-COST                               00186618
+001867        MOVE SPACES TO LS-TOT-COST                                00186718
+001868        MOVE 0      TO LS-CUST-ID                                 00186818
+001869        MOVE SPACES TO LS-TOKEN                                   00186918
+001870        MOVE SPACES TO LS-SCM                                     00187018
+001872        MOVE 'ENTER A VALID CUSTOMER ID'                          00187260
+001880             TO LS-MSG                                            00188004
+001890        EXEC CICS RETURN                                          00189004
+001891        END-EXEC                                                  00189104
+001892          END-IF                                                  00189204
+001893     END-IF.                                                      00189304
+001894*                                                                 00189404
+001900     IF LS-PROD-ID = 0                                            00190000
+001910        MOVE 'STOC' TO LS-OPT                                     00191004
+001911        MOVE SPACES TO LS-ORD-DATE                                00191110
+001912        MOVE SPACES TO LS-SHP-DATE                                00191218
+001913        MOVE SPACES TO LS-REQ-DATE                                00191318
+001914        MOVE SPACES TO LS-UNIT-PRC                                00191418
+001915        MOVE SPACES TO LS-CARR-COST                               00191518
+001916        MOVE SPACES TO LS-TOT-COST                                00191618
+001917        MOVE 0      TO LS-PROD-ID                                 00191718
+001918        MOVE SPACES TO LS-TOKEN                                   00191818
+001919        MOVE SPACES TO LS-SCM                                     00191918
+002000        MOVE 'ENTER A VALID PRODUCT ID' TO LS-MSG                 00200060
+002100        EXEC CICS RETURN                                          00210000
+002200        END-EXEC                                                  00220000
+002300*                                                                 00230011
+002400     ELSE IF LS-PROD-ID IS NOT NUMERIC                            00240000
+002410        MOVE 'STOC' TO LS-OPT                                     00241004
+002420        MOVE SPACES TO LS-ORD-DATE                                00242010
+002430        MOVE SPACES TO LS-SHP-DATE                                00243018
+002470        MOVE SPACES TO LS-REQ-DATE                                00247018
+002471        MOVE SPACES TO LS-UNIT-PRC                                00247118
+002472        MOVE SPACES TO LS-CARR-COST                               00247218
+002473        MOVE SPACES TO LS-TOT-COST                                00247318
+002480        MOVE 0      TO LS-PROD-ID                                 00248010
+002490        MOVE SPACES TO LS-TOKEN                                   00249010
+002491        MOVE SPACES TO LS-SCM                                     00249110
+002500        MOVE 'ENTER A VALID PRODUCT ID'                           00250060
+002600               TO LS-MSG                                          00260000
+002700        EXEC CICS RETURN                                          00270000
+002800        END-EXEC                                                  00280000
+002900          END-IF                                                  00290000
+003000     END-IF.                                                      00300000
+003100*                                                                 00310000
+003110     IF LS-QUANTITY = 0                                           00311004
+003120          MOVE 'STOC' TO LS-OPT                                   00312004
+003130          MOVE SPACES TO LS-ORD-DATE                              00313010
+003140          MOVE SPACES TO LS-SHP-DATE                              00314018
+003150          MOVE SPACES TO LS-REQ-DATE                              00315018
+003151          MOVE SPACES TO LS-UNIT-PRC                              00315118
+003152          MOVE SPACES TO LS-CARR-COST                             00315218
+003153          MOVE SPACES TO LS-TOT-COST                              00315318
+003154          MOVE 0      TO LS-QUANTITY                              00315418
+003155          MOVE SPACES TO LS-TOKEN                                 00315518
+003156          MOVE SPACES TO LS-SCM                                   00315618
+003160          MOVE 'ENTER A VALID QUANTITY' TO LS-MSG                 00316060
+003170          EXEC CICS RETURN                                        00317004
+003180          END-EXEC                                                00318004
+003190     ELSE IF LS-QUANTITY IS NOT NUMERIC                           00319004
+003191          MOVE 'STOC' TO LS-OPT                                   00319104
+003192          MOVE SPACES TO LS-ORD-DATE                              00319210
+003193          MOVE SPACES TO LS-SHP-DATE                              00319318
+003194          MOVE SPACES TO LS-REQ-DATE                              00319418
+003195          MOVE SPACES TO LS-UNIT-PRC                              00319518
+003196          MOVE SPACES TO LS-CARR-COST                             00319618
+003197          MOVE SPACES TO LS-TOT-COST                              00319718
+003198          MOVE 0      TO LS-QUANTITY                              00319818
+003199          MOVE SPACES TO LS-TOKEN                                 00319918
+003200          MOVE SPACES TO LS-SCM                                   00320018
+003201          MOVE 'ENTER A VALID QUANTITY'                           00320160
+003202               TO LS-MSG                                          00320218
+003203          EXEC CICS RETURN                                        00320318
+003204          END-EXEC                                                00320418
+003205          END-IF                                                  00320518
+003206     END-IF.                                                      00320618
+003207*                                                                 00320718
+003208     IF LS-TOKEN = 0 OR LS-TOKEN = SPACES                         00320818
+003209          MOVE 'STOC' TO LS-OPT                                   00320918
+003210          MOVE SPACES TO LS-ORD-DATE                              00321018
+003211          MOVE SPACES TO LS-SHP-DATE                              00321118
+003212          MOVE SPACES TO LS-REQ-DATE                              00321218
+003213          MOVE SPACES TO LS-UNIT-PRC                              00321318
+003214          MOVE SPACES TO LS-CARR-COST                             00321418
+003215          MOVE SPACES TO LS-TOT-COST                              00321518
+003216          MOVE SPACES TO LS-TOKEN                                 00321618
+003217          MOVE SPACES TO LS-SCM                                   00321718
+003218          MOVE 'ENTER A VALID TOKEN' TO LS-MSG                    00321860
+003219          EXEC CICS RETURN                                        00321918
+003220          END-EXEC                                                00322018
+003221     ELSE IF LS-TOKEN NOT = 'D' AND 'I'                           00322118
+003222          MOVE 'STOC' TO LS-OPT                                   00322218
+003223          MOVE SPACES TO LS-ORD-DATE                              00322318
+003224          MOVE SPACES TO LS-SHP-DATE                              00322418
+003225          MOVE SPACES TO LS-REQ-DATE                              00322518
+003226          MOVE SPACES TO LS-UNIT-PRC                              00322618
+003227          MOVE SPACES TO LS-CARR-COST                             00322718
+003228          MOVE SPACES TO LS-TOT-COST                              00322818
+003229          MOVE SPACES TO LS-TOKEN                                 00322918
+003230          MOVE SPACES TO LS-SCM                                   00323018
+003231          MOVE 'ENTER A VALID TOKEN' TO LS-MSG                    00323160
+003232          EXEC CICS RETURN                                        00323218
+003233          END-EXEC                                                00323318
+003234          END-IF                                                  00323418
+003235*                                                                 00323518
+003236     END-IF.                                                      00323618
+003240*                                                                 00324018
+003250     DISPLAY 'END   4200'.                                        00325028
+032400 4200-EXIT.                                                       03240008
+032500     EXIT.                                                        03250000
+032600******************************************************************03260002
+032601 4300-FETCH-EMP-ID-PARA.                                          03260107
+032609*    MOVE 0 TO ORDR-ID.                                           03260962
+032610*    EXEC CICS                                                    03261062
+032611*         STARTBR FILE('OMTRANS1')                                03261162
+032612*         RIDFLD(ORDR-ID)                                         03261262
+032613*         GTEQ                                                    03261362
+032614*         RESP(RES1)                                              03261462
+032615*         RESP2(RES22)                                            03261562
+032616*    END-EXEC.                                                    03261662
+032617*                                                                 03261753
+032621*    PERFORM 4301-READNEXT-PARA THRU 4301-EXIT UNTIL RES22 = 90.  03262162
+032623*    MOVE EMPL-ID TO EMP-ID.                                      03262362
+032624*                                                                 03262453
+032625*    EXEC CICS ENDBR                                              03262562
+032626*         FILE('OMTRANS1')                                        03262662
+032627*         RESP(RES1)                                              03262762
+032628*         RESP2(RES22)                                            03262862
+032629*    END-EXEC.                                                    03262962
+032630*                                                                 03263053
+032631*    DISPLAY 'START 4300'.                                        03263162
+032632*    MOVE EMPL-ID TO EMP-ID.                                      03263253
+032633*                                                                 03263353
+032634*    MOVE ORD-EMP-ID TO EMP-ID.                                   03263471
+032635*                                                                 03263562
+032642*    EXEC SQL                                                     03264271
+032643*        SELECT EMP_ID                                            03264371
+032644*        INTO :EMP-ID                                             03264471
+032645*        FROM ADMT.T_EM_EMPLOYEE                                  03264571
+032646*        WHERE EMP_ID != :EMP-ID                                  03264671
+032647*        ORDER BY EMP_ID DESC FETCH FIRST 1 ROWS ONLY             03264771
+032648*    END-EXEC.                                                    03264871
+032649*                                                                 03264962
+032650     MOVE 0 TO LS-EMP-ID.                                         03265071
+032651*                                                                 03265162
+032652*    DISPLAY 'ENDRT 4300'.                                        03265271
+032653*                                                                 03265362
+032654 4300-EXIT.                                                       03265462
+032655     EXIT.                                                        03265562
+032656******************************************************************03265662
+032657*4301-READNEXT-PARA.                                              03265762
+032658*                                                                 03265862
+032659*     EXEC CICS                                                   03265962
+032660*        READNEXT FILE('OMTRANS1')                                03266062
+032661*        INTO(ORDR-REC)                                           03266162
+032662*        RIDFLD(ORDR-ID)                                          03266262
+032663*        RESP(RES1)                                               03266362
+032664*        RESP2(RES22)                                             03266462
+032665*     END-EXEC.                                                   03266562
+032666*                                                                 03266662
+032667*4301-EXIT.                                                       03266762
+032668*MM  EXIT.                                                        03266862
+032669******************************************************************03266962
+032670 4400-FETCH-UNIT-PRC-PARA.                                        03267062
+032671     DISPLAY 'START 4400'.                                        03267162
+032672     MOVE LS-PROD-ID TO PROD-ID.                                  03267262
+032673*                                                                 03267362
+032674     EXEC SQL                                                     03267462
+032675         SELECT PROD_UNIT_PRICE                                   03267562
+032676         INTO :PROD-UNIT-PRICE                                    03267662
+032677         FROM ADMT.T_PR_PRODUCT                                   03267762
+032678         WHERE PROD_ID =: PROD-ID                                 03267862
+032679     END-EXEC.                                                    03267962
+032680*                                                                 03268062
+032681     MOVE PROD-UNIT-PRICE TO WS1-UNTPRC.                          03268162
+032682*                                                                 03268262
+032683     MOVE PROD-UNIT-PRICE TO WS-UNTPRC.                           03268362
+032684     MOVE RE-UNTPRC TO LS-UNIT-PRC.                               03268462
+032685*                                                                 03268562
+032686     DISPLAY 'END   4400'.                                        03268662
+032687*                                                                 03268762
+032688 4400-EXIT.                                                       03268862
+032689     EXIT.                                                        03268962
+032690******************************************************************03269062
+032691 5000-VALIDATE-DATE-PARA.                                         03269162
+032692     DISPLAY 'START 5000'.                                        03269262
+032693     EXEC CICS ASKTIME ABSTIME(DT) END-EXEC.                      03269362
+032694     EXEC CICS FORMATTIME                                         03269462
+032695         ABSTIME(DT)                                              03269562
+032696         MMDDYY(WK-DATE)                                          03269662
+032697         DATESEP                                                  03269762
+032698         TIME(WK-TIME)                                            03269862
+032699         TIMESEP                                                  03269962
+032700     END-EXEC.                                                    03270062
+032701*                                                                 03270162
+032702     MOVE WK-D-YY TO WS-YEAR1.                                    03270262
+032703     ADD 2000 TO WS-YEAR1.                                        03270362
+032704     MOVE WS-YEAR1 TO WS-YEAR.                                    03270462
+032705     MOVE WK-D-MM TO WS-MONTH.                                    03270562
+032706     MOVE WK-D-DD TO WS-DATE.                                     03270662
+032707     MOVE WS-SCR-DATE TO LS-ORD-DATE.                             03270762
+032708     MOVE WS-SCR-DATE TO LS-REQ-DATE.                             03270862
+032709     MOVE WS-SCR-DATE TO LS-SHP-DATE.                             03270962
+032710*                                                                 03271062
+032711     DISPLAY 'END   5000'.                                        03271162
+032712 5000-EXIT.                                                       03271262
+032713     EXIT.                                                        03271362
+032714***********************************************************       03271462
+032715 5100-COSTCALC-PARA.                                              03271562
+032716*                                                                 03271662
+032717     DISPLAY 'START 5100'.                                        03271762
+032718     MOVE 100 TO LS-CARR-COST.                                    03271862
+032719     MOVE 100 TO WS1-CARCOS.                                      03271962
+032720*    MOVE LS-TOT-COST TO WS-TOTCOS.                               03272062
+032721*    MOVE RE-TOTCOS TO WS1-TOTCOS.                                03272162
+032722     COMPUTE WS1-TOTCOS = (LS-QUANTITY * WS1-UNTPRC) + 100        03272262
+032723*                                                                 03272362
+032724     MOVE WS1-TOTCOS TO WS-TOTCOS.                                03272462
+032725     MOVE RE-TOTCOS TO LS-TOT-COST.                               03272562
+032726*                                                                 03272662
+032727     MOVE WS1-CARCOS TO WS-CARCOS.                                03272762
+032728     MOVE RE-CARCOS TO LS-CARR-COST.                              03272862
+032729*                                                                 03272962
+032730 5100-EXIT.                                                       03273024
+032731     EXIT.                                                        03273124
+032732******************************************************************03273224
+032733 6000-WRITEQ-PARA.                                                03273324
+032734     DISPLAY 'START 6000'.                                        03273428
+032735        MOVE LS-ORD-ID    TO Q-ORD-ID.                            03273524
+032736        MOVE LS-CUST-ID   TO Q-CUST-ID.                           03273624
+032737        MOVE LS-EMP-ID    TO Q-EMP-ID.                            03273724
+032738        MOVE LS-PROD-ID   TO Q-PROD-ID.                           03273824
+032739        MOVE RE-UNTPRC   TO Q-UNIT-PRC.                           03273924
+032740        MOVE WS1-UNTPRC  TO Q-N-UNTPRC.                           03274024
+032741        MOVE LS-QUANTITY  TO Q-QUANTITY.                          03274124
+032742        MOVE LS-ORD-DATE  TO Q-ORD-DATE.                          03274224
+032743        MOVE LS-REQ-DATE  TO Q-REQ-DATE.                          03274324
+032744        MOVE LS-SHP-DATE  TO Q-SHP-DATE.                          03274424
+032745        MOVE RE-CARCOS  TO Q-CARR-COST.                           03274524
+032746        MOVE WS1-CARCOS   TO Q-N-CARCOS.                          03274624
+032747        MOVE RE-TOTCOS   TO Q-TOT-COST.                           03274724
+032748        MOVE WS1-TOTCOS   TO Q-N-TOTCOS.                          03274824
+032749        MOVE LS-TOKEN     TO Q-TOKEN.                             03274924
+032750        MOVE LS-SCM       TO Q-SCM.                               03275024
+032751        MOVE 'FULL'       TO Q-FULL.                              03275142
+032752*                                                                 03275227
+032753      EXEC CICS WRITEQ TS                                         03275327
+032754               QUEUE('Q-NAME')                                    03275427
+032755               FROM(ORDERQ)                                       03275527
+032756               ITEM(CHOICE1)                                      03275627
+032757               REWRITE                                            03275727
+032758               MAIN                                               03275827
+032759               RESP(RE)                                           03275927
+032760      END-EXEC.                                                   03276027
+032761      IF RE = DFHRESP(NORMAL) CONTINUE                            03276127
+032762      ELSE                                                        03276227
+032763      EXEC CICS WRITEQ TS                                         03276327
+032764               QUEUE('Q-NAME')                                    03276427
+032765               FROM(ORDERQ)                                       03276527
+032766               ITEM(CHOICE1)                                      03276627
+032767*              REWRITE                                            03276727
+032768               MAIN                                               03276827
+032769               RESP(RE)                                           03276927
+032770      END-EXEC                                                    03277027
+032771      END-IF.                                                     03277127
+032772*                                                                 03277227
+032773     DISPLAY 'END   6000'.                                        03277328
+032774 6000-EXIT.                                                       03277427
+032775     EXIT.                                                        03277527
+032776******************************************************************03277627
+032777 7000-FILE-PROCESS-PARA.                                          03277727
+032780*    MOVE LS-ORD-ID    TO ORDR-ID.                                03278062
+032800*    MOVE LS-CUST-ID   TO CUSTR-ID.                               03280062
+032900*    MOVE LS-EMP-ID    TO EMPL-ID.                                03290062
+033000*    MOVE LS-PROD-ID   TO PRODT-ID.                               03300062
+033100*    MOVE WS1-UNTPRC   TO UNIT-PRC.                               03310062
+033200*    MOVE LS-QUANTITY  TO QUANTITY.                               03320062
+033300*    MOVE LS-ORD-DATE  TO ORDR-DATE.                              03330062
+033400*    MOVE LS-REQ-DATE  TO REQ-DATE.                               03340062
+033500*    MOVE LS-SHP-DATE  TO SHP-DATE.                               03350062
+033600*    MOVE WS1-CARCOS   TO CARR-COST.                              03360062
+033700*    MOVE WS1-TOTCOS   TO TOT-COST.                               03370062
+033800*    MOVE LS-TOKEN     TO TOKEN.                                  03380062
+033900*                                                                 03390002
+033910*    EXEC CICS                                                    03391062
+033920*           WRITE FILE ('OMTRANS1')                               03392062
+033930*           FROM (ORDR-REC)                                       03393062
+033940*           RIDFLD(ORDR-ID)                                       03394062
+033960*           RESP(RES1)                                            03396062
+033961*           RESP2(RES22)                                          03396162
+033970*     END-EXEC.                                                   03397062
+033980*     DISPLAY 'RESP2', RES22.                                     03398062
+033990*     IF RES22 NOT = 0                                            03399062
+033991*           MOVE 'SORRY FOR THE INTERUPTION - PLEASE TRY AGAIN'   03399162
+033992*                 TO LS-MSG                                       03399262
+033996*     ELSE                                                        03399662
+033997            MOVE LS-PROD-ID TO PROD-ID.                           03399762
+033998            EXEC SQL                                              03399862
+033999              SELECT PROD_UNIT_ORDER                              03399943
+034000              INTO :PROD-UNIT-ORDER                               03400043
+034001              FROM ADMT.T_PR_PRODUCT                              03400143
+034002              WHERE PROD_ID = :PROD-ID                            03400243
+034003            END-EXEC.                                             03400364
+034004*                                                                 03400443
+034005            EVALUATE SQLCODE                                      03400543
+034006             WHEN 0                                               03400643
+034007               COMPUTE PROD-UNIT-ORDER = PROD-UNIT-ORDER +        03400743
+034008                                         LS-QUANTITY              03400843
+034010               EXEC SQL                                           03401043
+034011                 UPDATE ADMT.T_PR_PRODUCT                         03401143
+034012                 SET PROD_UNIT_ORDER = :PROD-UNIT-ORDER           03401243
+034013                 WHERE PROD_ID = :PROD-ID                         03401343
+034014               END-EXEC                                           03401443
+034015               MOVE 'YOUR ORDER IS UNDER PROCESS - THANK YOU FOR U03401560
+034016-                   'SING THE SYSTEM'                             03401660
+034017                       TO LS-MSG                                  03401760
+034018*                                                                 03401846
+034019               PERFORM 7100-INSERT-PARA THRU 7100-EXIT            03401946
+034025*                                                                 03402546
+034026             WHEN 100                                             03402646
+034027              MOVE 'SORRY FOR THE INTERRUPTION - PLEASE TRY AGAIN'03402762
+034028                    TO LS-MSG                                     03402862
+034029            END-EVALUATE.                                         03402964
+034031*                                                                 03403146
+034040 7000-EXIT.                                                       03404046
+034100     EXIT.                                                        03410002
+034110******************************************************************03411046
+034120 7100-INSERT-PARA.                                                03412046
+034121       EXEC SQL                                                   03412172
+034122           SELECT ORD_ITEM_ID                                     03412272
+034123           INTO :ORD-ITEM-ID                                      03412372
+034124           FROM ADMT.T_OR_ORDER1                                  03412472
+034125           ORDER BY ORD_ITEM_ID DESC FETCH FIRST 1 ROWS ONLY      03412572
+034126       END-EXEC.                                                  03412672
+034127*                                                                 03412746
+034129      MOVE ORD-ITEM-ID TO WS-ITEM-ID.                             03412972
+034130      COMPUTE WS-ITEM-ID = WS-ITEM-ID + 1.                        03413072
+034131*                                                                 03413172
+034132      MOVE LS-ORD-ID   TO ORD-ID.                                 03413272
+034133      MOVE WS-ITEM-ID  TO ORD-ITEM-ID.                            03413372
+034134      MOVE LS-CUST-ID  TO ORD-CUST-ID.                            03413472
+034135      MOVE LS-EMP-ID   TO ORD-EMP-ID.                             03413572
+034136      MOVE LS-PROD-ID  TO ORD-PROD-ID.                            03413672
+034137      MOVE LS-QUANTITY TO ORD-QUANT.                              03413772
+034138      MOVE LS-ORD-DATE TO ORD-DATE.                               03413872
+034139      MOVE LS-REQ-DATE TO ORD-REQ-DT.                             03413972
+034140      MOVE LS-SHP-DATE TO ORD-SHIP-DT.                            03414072
+034141      MOVE WS1-CARCOS  TO ORD-CARR-COST.                          03414172
+034142      MOVE WS1-TOTCOS  TO ORD-TOTAL-COST.                         03414272
+034143      MOVE 0           TO ORD-DLR-ID.                             03414373
+034144      MOVE 'O'         TO ORD-STATUS-ID.                          03414472
+034145      MOVE 'O'         TO ORD-STATUS-TEMP.                        03414572
+034146      MOVE SPACES      TO ORD-FEEDBACK.                           03414672
+034147      MOVE LS-TOKEN    TO ORD-TYPE.                               03414772
+034148*                                                                 03414863
+034200      EXEC SQL INSERT INTO                                        03420046
+034300          ADMT.T_OR_ORDER1 VALUES(:ORD-ID,                        03430063
+034310                                  :ORD-ITEM-ID,                   03431063
+034400                          :ORD-CUST-ID,                           03440063
+034500                          :ORD-EMP-ID,                            03450063
+034510                          :ORD-PROD-ID,                           03451063
+034600                          :ORD-QUANT,                             03460063
+034610                          :ORD-DATE,                              03461063
+034620                          :ORD-REQ-DT,                            03462063
+034630                          :ORD-SHIP-DT,                           03463063
+034640                          :ORD-CARR-COST,                         03464063
+034641                          :ORD-TOTAL-COST,                        03464169
+034642                          :ORD-DLR-ID,                            03464269
+034643                          :ORD-STATUS-ID,                         03464369
+034644                          :ORD-STATUS-TEMP,                       03464469
+034645                          :ORD-FEEDBACK,                          03464569
+034646                          :ORD-TYPE)                              03464669
+034660      END-EXEC.                                                   03466065
+034700*                                                                 03470047
+034800 7100-EXIT.                                                       03480047
+034900     EXIT.                                                        03490047

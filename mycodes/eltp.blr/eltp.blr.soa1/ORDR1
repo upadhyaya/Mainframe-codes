@@ -1,0 +1,72 @@
+      ******************************************************************
+      * DCLGEN TABLE(ADMT.T_OR_ORDER1)                                 *
+      *        LIBRARY(ELTP.BLR.SOA1(ORDR1))                           *
+      *        ACTION(REPLACE)                                         *
+      *        LANGUAGE(COBOL)                                         *
+      *        QUOTE                                                   *
+      *        LABEL(YES)                                              *
+      *        INDVAR(YES)                                             *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE ADMT.T_OR_ORDER1 TABLE
+           ( ORD_ID                         DECIMAL(10, 0) NOT NULL,
+             ORD_ITEM_ID                    DECIMAL(10, 0) NOT NULL,
+             ORD_CUST_ID                    DECIMAL(10, 0) NOT NULL,
+             ORD_EMP_ID                     DECIMAL(10, 0) NOT NULL,
+             ORD_PROD_ID                    DECIMAL(10, 0) NOT NULL,
+             ORD_QUANT                      DECIMAL(5, 0) NOT NULL,
+             ORD_DATE                       DATE NOT NULL,
+             ORD_REQ_DT                     DATE NOT NULL,
+             ORD_SHIP_DT                    DATE NOT NULL,
+             ORD_CARR_COST                  DECIMAL(12, 2) NOT NULL,
+             ORD_TOTAL_COST                 DECIMAL(18, 2) NOT NULL,
+             ORD_DLR_ID                     DECIMAL(10, 0) NOT NULL,
+             ORD_STATUS_ID                  CHAR(1),
+             ORD_STATUS_TEMP                CHAR(1),
+             ORD_FEEDBACK                   CHAR(200),
+             ORD_TYPE                       CHAR(1)
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ADMT.T_OR_ORDER1                   *
+      ******************************************************************
+       01  DCLT-OR-ORDER1.
+      *    *************************************************************
+           10 ORD-ID               PIC S9(10)V USAGE COMP-3.
+      *    *************************************************************
+           10 ORD-ITEM-ID          PIC S9(10)V USAGE COMP-3.
+      *    *************************************************************
+           10 ORD-CUST-ID          PIC S9(10)V USAGE COMP-3.
+      *    *************************************************************
+           10 ORD-EMP-ID           PIC S9(10)V USAGE COMP-3.
+      *    *************************************************************
+           10 ORD-PROD-ID          PIC S9(10)V USAGE COMP-3.
+      *    *************************************************************
+           10 ORD-QUANT            PIC S9(5)V USAGE COMP-3.
+      *    *************************************************************
+           10 ORD-DATE             PIC X(10).
+      *    *************************************************************
+           10 ORD-REQ-DT           PIC X(10).
+      *    *************************************************************
+           10 ORD-SHIP-DT          PIC X(10).
+      *    *************************************************************
+           10 ORD-CARR-COST        PIC S9(10)V9(2) USAGE COMP-3.
+      *    *************************************************************
+           10 ORD-TOTAL-COST       PIC S9(16)V9(2) USAGE COMP-3.
+      *    *************************************************************
+           10 ORD-DLR-ID           PIC S9(10)V USAGE COMP-3.
+      *    *************************************************************
+           10 ORD-STATUS-ID        PIC X(1).
+      *    *************************************************************
+           10 ORD-STATUS-TEMP      PIC X(1).
+      *    *************************************************************
+           10 ORD-FEEDBACK         PIC X(200).
+      *    *************************************************************
+           10 ORD-TYPE             PIC X(1).
+      ******************************************************************
+      * INDICATOR VARIABLE STRUCTURE                                   *
+      ******************************************************************
+       01  IT-OR-ORDER1.
+           10 INDSTRUC           PIC S9(4) USAGE COMP OCCURS 16 TIMES.
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 16      *
+      ******************************************************************

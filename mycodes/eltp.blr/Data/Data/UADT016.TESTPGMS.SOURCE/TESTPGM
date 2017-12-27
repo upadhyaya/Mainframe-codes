@@ -1,0 +1,66 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. TESTPGM.                                             00020000
+000300 ENVIRONMENT DIVISION.                                            00030000
+000400 DATA DIVISION.                                                   00040000
+000500 WORKING-STORAGE SECTION.                                         00050000
+000600 01     WS-VAR1   PIC 9(10) VALUE 0123456789.                     00060001
+000700 01     WS-VAR2   PIC 9(3)V99.                                    00070000
+       01     WS-VAR3   PIC X(10) VALUE 'HI HOW ARE'.                   00071003
+       01     WS-VAR4   PIC X(02).                                      00072003
+       01     WS-VAR5   PIC X(03).                                      00073003
+       01     WS-VAR6   PIC X(03).                                      00074003
+       01     WS-VAR7   PIC X(10) VALUE '8181888881'.                   00075009
+       01     TALL-1    PIC 9(02) VALUE 0.                              00076008
+       01     INIT-VAR.                                                 00077014
+              05  IVAR0  PIC 9(01) VALUE 1.                             00077115
+              05  IVAR1  PIC A(02) VALUE 'A'.                           00078015
+              05  IVAR2  PIC X(03) VALUE '***'.                         00079016
+              05  IVAR3  PIC 9(02) VALUE 12.                            00079115
+              05  IVAR31 PIC X(01).                                     00079215
+              05  IVAR4  PIC 9(01).                                     00079315
+       01     MOV-CORRSP1.                                              00079417
+              05  CORR1  PIC 9(01) VALUE 1.                             00079517
+              05  CORR2  PIC A(02) VALUE 'SA'.                          00079617
+              05  PTR    USAGE POINTER.                                 00079717
+              05  ARR1   PIC X(02) OCCURS 3 TIMES.                      00079820
+              05  CORR3  PIC 9(02) VALUE 12.                            00079917
+              05  IDX    USAGE INDEX.                                   00080017
+       01     MOV-CORRSP2.                                              00080117
+              05  CORR11 PIC 9(01).                                     00080217
+              05  CORR21 PIC A(02).                                     00080317
+              05  PTR1   USAGE POINTER.                                 00080417
+              05  ARR2   PIC X(02) OCCURS 3 TIMES.                      00080520
+              05  CORR31 PIC 9(02).                                     00080619
+              05  IDX1   USAGE INDEX.                                   00080719
+000800 PROCEDURE DIVISION.                                              00081017
+000900 0000-MAIN-PARA.                                                  00090000
+001000                 MOVE WS-VAR1 TO WS-VAR2.                         00100000
+001100                 DISPLAY 'WS-VAR1:' WS-VAR1.                      00110001
+001200                 DISPLAY 'WS-VAR2:' WS-VAR2.                      00120001
+                       UNSTRING WS-VAR3 DELIMITED BY SPACE              00121002
+                       INTO WS-VAR4 WS-VAR5 WS-VAR6.                    00122003
+001100                 DISPLAY 'WS-VAR3:' WS-VAR3.                      00123002
+001100                 DISPLAY 'WS-VAR4:' WS-VAR4.                      00123102
+001200                 DISPLAY 'WS-VAR5:' WS-VAR5.                      00124002
+001200                 DISPLAY 'WS-VAR6:' WS-VAR6.                      00125002
+                       INSPECT WS-VAR7 TALLYING TALL-1 FOR ALL '8'.     00126004
+001200                 DISPLAY 'WS-VAR7:' WS-VAR7.                      00127004
+001200                 DISPLAY 'TALL-1:' TALL-1.                        00128004
+                       MOVE ZEROES TO TALL-1.                           00128108
+                       INSPECT WS-VAR7 TALLYING TALL-1 FOR CHARACTERS   00129008
+                       BEFORE INITIAL '1'                               00129111
+001200                 DISPLAY 'WS-VAR7:' WS-VAR7.                      00129208
+001200                 DISPLAY 'TALL-1:' TALL-1.                        00129308
+001200                 DISPLAY 'BEFORE VAR7:' WS-VAR7.                  00129412
+                       INSPECT WS-VAR7 REPLACING ALL '8' BY '7'         00140012
+                       AFTER INITIAL '1'                                00150013
+001200                 DISPLAY 'WS-VAR7:' WS-VAR7.                      00160012
+                       DISPLAY 'B4INIT-VAR' INIT-VAR.                   00170014
+                       INITIALIZE INIT-VAR.                             00171014
+                       DISPLAY 'INIT-VAR' INIT-VAR.                     00172014
+                       DISPLAY 'MOV-CORRSP1' MOV-CORRSP1.               00173017
+                       DISPLAY 'B4MOV-CORRSP2' MOV-CORRSP2.             00173117
+                       MOVE CORRESPONDING MOV-CORRSP1 TO                00174018
+Q                           MOV-CORRSP2.                                00175017
+                       DISPLAY 'MOV-CORRSP2' MOV-CORRSP2.               00176017
+001300                 STOP RUN.                                        00180012

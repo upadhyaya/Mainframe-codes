@@ -1,0 +1,9 @@
+//UADT016T JOB 'COPY UTILITY',NOTIFY=&SYSUID,REGION=0M                  00010004
+//STEP1    EXEC PGM=IEBGENER                                            00020000
+//SYSIN    DD   DUMMY                                                   00021001
+//SYSUT1   DD   DSN=UADT016.XML.INPUT,DISP=SHR                          00030001
+//SYSPRINT DD   SYSOUT=*                                                00040000
+//SYSUT2 DD DSN=UADT016.SAMPJCL.OUTPUT3,DISP=(NEW,CATLG),               00050002
+//             DCB=(RECFM=FB,LRECL=80,BLKSIZE=800),                     00051001
+//             SPACE=(TRK,(1,1))                                        00060003
+//                                                                      00090000

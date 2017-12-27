@@ -1,0 +1,263 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. DLRCAL.                                              00020000
+000400 AUTHOR. TEAMSOA.                                                 00030000
+000410 DATE-WRITTEN. 18/12/08.                                          00040000
+000420 DATE-COMPILED. 18/12/08.                                         00050000
+000421*                                                                 00060000
+000717******************************************************************00070000
+000718 DATA DIVISION.                                                   00080000
+000719 WORKING-STORAGE SECTION.                                         00090000
+       COPY DFHBMSCA.                                                   00090107
+       COPY DFHAID.                                                     00090207
+       COPY MDEALR.                                                     00091003
+000729*                                                                 00092012
+000730 01 WK-DATE.                                                      00093012
+000731    05 WK-D-DD PIC 99.                                            00094012
+000732    05 FILLER  PIC X.                                             00095012
+000733    05 WK-D-MM PIC 99.                                            00096012
+000734    05 FILLER  PIC X.                                             00097012
+000740    05 WK-D-YY PIC 99.                                            00098012
+000900 01 WK-TIME.                                                      00099012
+001001    05 WK-T-HH PIC 99.                                            00099112
+001002    05 FILLER  PIC X.                                             00099212
+001003    05 WK-T-MM PIC 99.                                            00099312
+001004    05 FILLER  PIC X.                                             00099412
+001005    05 WK-T-SS PIC 99.                                            00099512
+001006 01 DT PIC S9(15) COMP-3.                                         00099612
+000726*                                                                 00100000
+       01 WSCOMMAREA PIC X(1) VALUE 'X'.                                00100125
+000726*                                                                 00100225
+       01 WS-NAME  PIC X(40) VALUE SPACES.                              00100339
+      *                                                                 00100439
+       01 WS-TXT1  PIC X(80) VALUE 'SESSION COMPLETED'.                 00101009
+       01 WS-TXT2  PIC X(80) VALUE 'DIRECT ENTRY TO A002 IS RESTRICTED'.00102009
+001007*                                                                 00104009
+001008 01 WS-STATUS-FIELDS.                                             00105009
+001009    05 STATUS-OF-RECEIVE PIC X   VALUE SPACE.                     00106009
+001010      88 GOOD-RECEIVE            VALUE 'G'.                       00107009
+001011      88 MAPFAIL-ON-RECEIVE      VALUE 'F'.                       00108009
+001012*                                                                 00109009
+001048******************************************************************00110000
+001039 LINKAGE SECTION.                                                 00120000
+001040 01 DFHCOMMAREA.                                                  00130000
+          COPY DLRCPY.                                                  00140001
+      *                                                                 00150001
+001048******************************************************************00160000
+001089 PROCEDURE DIVISION USING DFHCOMMAREA.                            00170004
+001090******************************************************************00180000
+001303 1000-MAINLINE-PARA.                                              00181009
+001304     IF EIBCALEN = 0                                              00182009
+001323        PERFORM 1100-INITIAL-ENTRY-PARA THRU 1100-EXIT            00182248
+001321*                                                                 00189309
+001322     ELSE                                                         00189423
+001343*    PERFORM 1300-GET-DATE-AND-TIME-PARA THRU 1300-EXIT           00189568
+001324        PERFORM 2000-PROCESSING-PARA                              00189609
+001325     END-IF.                                                      00189709
+001326*                                                                 00189809
+001327     EXEC CICS RETURN                                             00189909
+001328         TRANSID ('M100')                                         00190009
+               COMMAREA(WSCOMMAREA)                                     00190125
+               LENGTH(01)                                               00190225
+001331     END-EXEC.                                                    00190409
+001332******************************************************************00190509
+001333 1100-INITIAL-ENTRY-PARA.                                         00190609
+001334     MOVE LOW-VALUES TO DLRMAPO.                                  00190709
+001335     MOVE -1 TO DLRID1L.                                          00190809
+001337     PERFORM 1200-SEND-MAP-AND-DATA-PARA THRU 1200-EXIT.          00190909
+001338*                                                                 00191009
+001339 1100-EXIT.                                                       00191109
+001340     EXIT.                                                        00191209
+001341***************************************************************** 00191309
+001342 1200-SEND-MAP-AND-DATA-PARA.                                     00191409
+001343     PERFORM 1300-GET-DATE-AND-TIME-PARA THRU 1300-EXIT.          00191568
+001344     MOVE WK-DATE TO DATE1O.                                      00191609
+001345     MOVE WK-TIME TO TIME1O.                                      00191709
+001346*                                                                 00191809
+001347     EXEC CICS SEND                                               00191909
+001348          MAP('DLRMAP')                                           00192009
+001349          MAPSET('MDEALR')                                        00192109
+001350          FROM(DLRMAPO)                                           00192209
+001351          ERASE                                                   00192309
+001352          CURSOR                                                  00192409
+001353     END-EXEC.                                                    00192509
+001326*                                                                 00192647
+001355 1200-EXIT.                                                       00193309
+001356     EXIT.                                                        00193409
+001357***************************************************************** 00193509
+001358 1300-GET-DATE-AND-TIME-PARA.                                     00193609
+001359     EXEC CICS ASKTIME ABSTIME(DT) END-EXEC.                      00193709
+001360     EXEC CICS FORMATTIME                                         00193809
+001361               ABSTIME(DT)                                        00193909
+001362               MMDDYY(WK-DATE)                                    00194009
+001363               DATESEP                                            00194109
+001364               TIME(WK-TIME)                                      00194209
+001365               TIMESEP                                            00194309
+001366     END-EXEC.                                                    00194409
+001367*                                                                 00194509
+001368 1300-EXIT.                                                       00194609
+001369     EXIT.                                                        00194709
+001370***************************************************************** 00194809
+001371 2000-PROCESSING-PARA.                                            00194909
+001334     MOVE LOW-VALUES TO DLRMAPI.                                  00195070
+001372     PERFORM 2200-RECEIVE-MAP-PARA THRU 2200-EXIT.                00195109
+001373*                                                                 00195209
+               EVALUATE EIBAID                                          00195409
+                  WHEN DFHPF1                                           00195509
+                     MOVE 'INSERT' TO LS-OPT                            00195626
+                     DISPLAY 'LS-OPT' LS-OPT                            00195726
+                     PERFORM 3000-PROCESS-PARA THRU 3000-EXIT           00195819
+                     CONTINUE                                           00195909
+                  WHEN DFHPF2                                           00196009
+                     MOVE 'SELECT' TO LS-OPT                            00196109
+                     MOVE DLRID1I  TO LS-DLRID                          00196244
+                     PERFORM 3000-PROCESS-PARA THRU 3000-EXIT           00196949
+                     CONTINUE                                           00197009
+                  WHEN DFHPF3                                           00197109
+                     MOVE 'UPDATE' TO LS-OPT                            00197209
+                     PERFORM 3000-PROCESS-PARA THRU 3000-EXIT           00197326
+                     CONTINUE                                           00197409
+                  WHEN DFHPF4                                           00197519
+                     MOVE 'DELETE' TO LS-OPT                            00197609
+                     PERFORM 3000-PROCESS-PARA THRU 3000-EXIT           00197726
+                     CONTINUE                                           00197809
+001385            WHEN DFHPF5                                           00197909
+001386                PERFORM 7000-EXIT-PARA THRU 7000-EXIT             00198009
+001387            WHEN DFHPF6                                           00198109
+001388                PERFORM 8000-RETURN-TO-MAINMNU-PARA THRU 8000-EXIT00198209
+001389            WHEN DFHPF12                                          00198309
+001390                MOVE LOW-VALUES TO DLRMAPO                        00198409
+001391                MOVE -1 TO DLRID1L                                00198509
+001392                PERFORM 9200-PROCESS-PARA THRU 9200-EXIT          00198609
+001393            WHEN OTHER                                            00198709
+001394                PERFORM 9000-ERROR-PARA THRU 9000-EXIT            00198809
+               END-EVALUATE.                                            00198921
+001396*                                                                 00199009
+001406 2000-EXIT.                                                       00200019
+001407     EXIT.                                                        00200119
+001403*                                                                 00200209
+001403 3000-PROCESS-PARA.                                               00200319
+               PERFORM 4100-MOVE-MAP2PROG-PARA.                         00200458
+               PERFORM 2500-LINK-PARA.                                  00200519
+               PERFORM 4200-MOVE-PROG2MAP-PARA.                         00200658
+               PERFORM 1200-SEND-MAP-AND-DATA-PARA.                     00200719
+                EXEC CICS RETURN                                        00200850
+                    TRANSID ('M100')                                    00200950
+                    COMMAREA(WSCOMMAREA)                                00201050
+                    LENGTH(01)                                          00201150
+                END-EXEC.                                               00201250
+001405*                                                                 00201319
+001406 3000-EXIT.                                                       00201419
+001407     EXIT.                                                        00201519
+001410****************************************************************  00201844
+001419 2200-RECEIVE-MAP-PARA.                                           00201944
+001421*                                                                 00202144
+001422     EXEC CICS HANDLE CONDITION                                   00202244
+001423             MAPFAIL(2200-EXIT)                                   00202344
+001424     END-EXEC.                                                    00202444
+001425*                                                                 00202544
+001426     EXEC CICS RECEIVE                                            00202644
+001427            MAP('DLRMAP')                                         00202744
+001428            MAPSET('MDEALR')                                      00202844
+001429            INTO(DLRMAPI)                                         00202944
+001430     END-EXEC.                                                    00203044
+001432*                                                                 00203244
+001433 2200-EXIT.                                                       00203344
+001434     EXIT.                                                        00204044
+001302******************************************************************00220000
+       2500-LINK-PARA.                                                  00232010
+            DISPLAY 'LINK PARA'.                                        00233045
+            EXEC CICS LINK                                              00240000
+               PROGRAM ('CWDLMNTW')                                     00250002
+               COMMAREA (DFHCOMMAREA)                                   00260000
+            END-EXEC.                                                   00270000
+            DISPLAY 'LINK PARA END'.                                    00271055
+      *                                                                 00280000
+001357***************************************************************** 00280109
+       4100-MOVE-MAP2PROG-PARA.                                         00280258
+            DISPLAY "START MOVE MAP2PROG-PARA"                          00280358
+            DISPLAY "LS-DLRID"  DLRID1I                                 00280471
+            DISPLAY "LS-DLRNAME" DLRNM1I                                00280571
+            DISPLAY "LS-ADDLN1" ADDLN1I                                 00280671
+            DISPLAY "LS-ADDLN2" ADDLN2I                                 00280771
+            DISPLAY "LS-CITY  " CITY1I                                  00280871
+            DISPLAY "LS-STATE"  STATE1I                                 00280971
+            DISPLAY "LS-PCODE"  POSTCOD1I                               00281071
+            DISPLAY "LS-CTRY "  CNTRY1I                                 00281171
+            DISPLAY "LS-PHONE"  PHN1I                                   00281271
+            DISPLAY "LS-FAX  "  FAX1I                                   00281371
+            DISPLAY "LS-MSG"    MSG1I                                   00281471
+            MOVE DLRID1I    TO LS-DLRID                                 00281572
+            MOVE 'A'        TO LS-DLRNAME                               00281773
+            MOVE 'B'        TO LS-ADDLN1                                00281873
+            MOVE 'A'        TO LS-ADDLN2                                00281973
+            MOVE 'A'        TO LS-CITY                                  00282073
+            MOVE 'A'        TO LS-STATE                                 00282173
+            MOVE 'A'        TO LS-PCODE                                 00282273
+            MOVE 'A'        TO LS-CTRY                                  00282373
+            MOVE 'B'        TO LS-PHONE                                 00282473
+            MOVE 'A'        TO LS-FAX.                                  00282573
+            MOVE 'B'        TO LS-MSG.                                  00282673
+            MOVE 'A'        TO LS-CRDATE.                               00282773
+            MOVE 'B'        TO LS-CRDATE.                               00282873
+001302******************************************************************00283958
+       4200-MOVE-PROG2MAP-PARA.                                         00284058
+            DISPLAY 'PROG2 MAP PARA'.                                   00284155
+            MOVE LS-DLRID   TO DLRID1O                                  00284226
+      *     MOVE LS-DLRNAME TO DLRNM1O                                  00284369
+            MOVE LS-ADDLN1  TO ADDLN1O                                  00284426
+            MOVE LS-ADDLN2  TO ADDLN2O                                  00284526
+            MOVE LS-CITY    TO CITY1O                                   00284626
+            MOVE LS-STATE   TO STATE1O                                  00284726
+            MOVE LS-PCODE   TO POSTCOD1O                                00284826
+            MOVE LS-CTRY    TO CNTRY1O                                  00284926
+            MOVE LS-PHONE   TO PHN1O                                    00285026
+            MOVE LS-FAX     TO FAX1O                                    00285126
+            MOVE LS-MSG     TO MSG1O.                                   00285226
+      *                                                                 00285301
+            DISPLAY "LS-DLRID"  LS-DLRID                                00285452
+            DISPLAY "LS-DLRNAME" LS-DLRNAME                             00285552
+            DISPLAY "LS-ADDLN1" LS-ADDLN1                               00285652
+            DISPLAY "LS-ADDLN2" LS-ADDLN2                               00285752
+            DISPLAY "LS-CITY  " LS-CITY                                 00285852
+            DISPLAY "LS-STATE"  LS-STATE                                00285952
+            DISPLAY "LS-PCODE"  LS-PCODE                                00286052
+            DISPLAY "LS-CTRY "  LS-CTRY                                 00286152
+            DISPLAY "LS-PHONE"  LS-PHONE                                00286252
+            DISPLAY "LS-FAX  "  LS-FAX                                  00286352
+            DISPLAY "LS-MSG"    LS-MSG.                                 00286452
+001357***************************************************************** 00287009
+001786 7000-EXIT-PARA.                                                  00289009
+001787     EXEC CICS SEND TEXT                                          00290009
+001788               NOEDIT                                             00300009
+001789               FROM(WS-TXT1)                                      00310009
+001790               LENGTH(80)                                         00320009
+001791               ERASE                                              00330009
+001792     END-EXEC.                                                    00340009
+001793*                                                                 00350009
+001805 7000-EXIT.                                                       00390009
+001806     EXIT.                                                        00400009
+001807******************************************************************00410009
+001808 8000-RETURN-TO-MAINMNU-PARA.                                     00420009
+001809     EXEC CICS RETURN                                             00430009
+001810         TRANSID('M101')                                          00440009
+001811         IMMEDIATE                                                00450009
+001812     END-EXEC.                                                    00460009
+001813*                                                                 00470009
+001814 8000-EXIT.                                                       00480009
+001815     EXIT.                                                        00490009
+001816******************************************************************00500009
+001817 9000-ERROR-PARA.                                                 00510009
+001818      MOVE 'INVALID KEY PRESSED - PLZ TRY AGAIN' TO MSG1O.        00520009
+001819      MOVE -1 TO DLRID1L.                                         00530009
+001820      PERFORM 9200-PROCESS-PARA THRU 9200-EXIT.                   00540009
+001830*                                                                 00550009
+001900 9000-EXIT.                                                       00560009
+002000     EXIT.                                                        00570009
+002100******************************************************************00580009
+003000 9200-PROCESS-PARA.                                               00590009
+003100     PERFORM 1200-SEND-MAP-AND-DATA-PARA THRU 1200-EXIT.          00600009
+003110     DISPLAY 'MSG1O ' MSG1O                                       00610009
+003200     GO TO 2000-PROCESSING-PARA.                                  00620009
+003210*                                                                 00630009
+003300 9200-EXIT.                                                       00640009
+003400     EXIT.                                                        00650009

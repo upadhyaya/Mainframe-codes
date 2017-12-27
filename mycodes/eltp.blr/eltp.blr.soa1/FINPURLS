@@ -1,0 +1,609 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. PURORDR.                                             00020000
+000400 AUTHOR. SOA TEAM.                                                00040000
+000410 DATE-WRITTEN. 17/09/08.                                          00041000
+000420 DATE-COMPILED. 17/09/08.                                         00042000
+000717******************************************************************00071700
+000718 DATA DIVISION.                                                   00071800
+000719 WORKING-STORAGE SECTION.                                         00071900
+000724      EXEC SQL INCLUDE ORDR   END-EXEC.                           00072400
+000725      EXEC SQL INCLUDE CUSTM  END-EXEC.                           00072500
+000726      EXEC SQL INCLUDE PROD   END-EXEC.                           00072600
+000727      EXEC SQL INCLUDE STATUS END-EXEC.                           00072700
+000728      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00072800
+000729        COPY PURCPY.                                              00072900
+001007*                                                                 00100700
+001011 01 WS-END-PARA PIC X VALUE 'N'.                                  00101100
+001012*                                                                 00101200
+001013 01 WS-SCR-DATE.                                                  00101300
+001014    05 WS-MONTH PIC X(2).                                         00101400
+001015    05 SLASH1   PIC X(1) VALUE '/'.                               00101500
+001016    05 WS-DATE  PIC X(2).                                         00101600
+001017    05 SLASH2   PIC X(1) VALUE '/'.                               00101700
+001018    05 WS-YEAR  PIC X(4).                                         00101800
+001019*                                                                 00101900
+001020 01 WS-SLASH1   PIC X(1) VALUE '/'.                               00102000
+001030 01 WS-SLASH2   PIC X(1) VALUE '/'.                               00103000
+001031*                                                                 00103100
+001032 01 Q-NAME    PIC X(8).                                           00103200
+001033 01 CHOICE1 PIC S9(4) COMP VALUE 1.                               00103300
+001034 01 RE      PIC S9(4) COMP.                                       00103400
+001035*                                                                 00103500
+001036 01 WS-CST-ID    PIC X(10).                                       00103600
+001037 01 WS-ORDID   PIC X(10).                                         00103700
+001038 01 WS-PRD-ID   PIC X(10).                                        00103800
+001039 01 WS-QNTITY   PIC X(5).                                         00103900
+001040*                                                                 00104000
+001041 01 WS-COMMAREA  PIC X(9).                                        00104100
+001042*                                                                 00104200
+001043 01 WS-FLAG      PIC X(01) VALUE 'N'.                             00104300
+001044 01 WS-CUST-ID PIC 9(10) VALUE ZEROES.                            00104400
+001045 01 WS-ORD-ID PIC 9(10) VALUE ZEROES.                             00104500
+001046*                                                                 00104600
+001050 01 PURORDQ.                                                      00105000
+001051    05 Q-CUST-ID  PIC 9(10).                                      00105100
+001052    05 Q-ORD-ID PIC 9(10).                                        00105200
+001053    05 Q1-ORDID PIC 9(10).                                        00105300
+001055*                                                                 00105500
+001056 LINKAGE SECTION.                                                 00105600
+001057 01 DFHCOMMAREA.                                                  00105700
+001058      COPY PURCHCPY.                                              00105800
+001059******************************************************************00105900
+001070     EXEC SQL                                                     00107000
+001081          DECLARE C11 SCROLL                                      00108100
+001082          CURSOR FOR                                              00108200
+001083          SELECT ORD_CUST_ID,CUST_NAME,ORD_ID,ORD_PROD_ID,        00108300
+001084                 PROD_NAME,ORD_QUANT,ORD_DATE,STATUS_ID           00108400
+001085          FROM ADMT.T_OR_ORDER O, ADMT.T_CU_CUSTOMER C,           00108500
+001086               ADMT.T_PR_PRODUCT P, ADMT.T_ST_STATUS S            00108600
+001088          WHERE O.ORD_CUST_ID = :ORD-CUST-ID AND                  00108800
+001089                O.ORD_CUST_ID = C.CUST_ID AND                     00108900
+001090                O.ORD_PROD_ID = P.PROD_ID AND                     00109000
+001091                S.STATUS_ORD_ID = O.ORD_ID AND                    00109100
+001092                O.ORD_ID > :ORD-ID                                00109200
+001093          ORDER BY O.ORD_ID                                       00109300
+001094     END-EXEC.                                                    00109400
+001095******************************************************************00109500
+001096     EXEC SQL                                                     00109600
+001097          DECLARE D11 SCROLL                                      00109700
+001098          CURSOR FOR                                              00109800
+001099          SELECT ORD_CUST_ID,CUST_NAME,ORD_ID,ORD_PROD_ID,        00109900
+001100                 PROD_NAME,ORD_QUANT,ORD_DATE,STATUS_ID           00110000
+001101          FROM ADMT.T_OR_ORDER O, ADMT.T_CU_CUSTOMER C,           00110100
+001102               ADMT.T_PR_PRODUCT P, ADMT.T_ST_STATUS S            00110200
+001103          WHERE O.ORD_CUST_ID = :ORD-CUST-ID AND                  00110300
+001104                O.ORD_CUST_ID = C.CUST_ID AND                     00110400
+001105                O.ORD_PROD_ID = P.PROD_ID AND                     00110500
+001106                S.STATUS_ORD_ID = O.ORD_ID AND                    00110600
+001107                O.ORD_ID < :ORD-ID                                00110700
+001108          ORDER BY O.ORD_ID DESC                                  00110800
+001109     END-EXEC.                                                    00110900
+001110******************************************************************00111000
+001111     EXEC SQL                                                     00111100
+001112          DECLARE C12 SCROLL                                      00111200
+001113          CURSOR FOR                                              00111300
+001114          SELECT ORD_CUST_ID,CUST_NAME,ORD_ID,ORD_PROD_ID,        00111400
+001115                 PROD_NAME,ORD_QUANT,ORD_DATE,STATUS_ID           00111500
+001116          FROM ADMT.T_OR_ORDER O, ADMT.T_CU_CUSTOMER C,           00111600
+001117               ADMT.T_PR_PRODUCT P, ADMT.T_ST_STATUS S            00111700
+001118          WHERE O.ORD_CUST_ID = :ORD-CUST-ID AND                  00111800
+001119                O.ORD_CUST_ID = C.CUST_ID AND                     00111900
+001120                O.ORD_PROD_ID = P.PROD_ID AND                     00112000
+001121                S.STATUS_ORD_ID = O.ORD_ID AND                    00112100
+001122                O.ORD_ID >= :ORD-ID                               00112200
+001123          ORDER BY O.ORD_ID                                       00112300
+001124     END-EXEC.                                                    00112400
+001149******************************************************************00114900
+001150 PROCEDURE DIVISION USING DFHCOMMAREA.                            00115000
+001151******************************************************************00115100
+001152 EXEC CICS HANDLE CONDITION                                       00115200
+001153         MAPFAIL(2200-EXIT)                                       00115300
+001154         INVREQ(9300-EXIT-PARA)                                   00115400
+001155 END-EXEC.                                                        00115500
+001156*                                                                 00115600
+001157 1000-MAINLINE-PARA.                                              00115700
+001159     IF EIBCALEN = 0                                              00115900
+001160         MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG                 00116000
+001161         EXEC CICS RETURN                                         00116100
+001162         END-EXEC                                                 00116200
+001163     ELSE                                                         00116300
+001165         PERFORM 2000-PROCESSING-PARA                             00116500
+001166*                                                                 00116600
+001170         EXEC CICS RETURN                                         00117000
+001301         END-EXEC                                                 00130100
+001302     END-IF.                                                      00130200
+001303******************************************************************00130300
+001340 2000-PROCESSING-PARA.                                            00134000
+001345      EVALUATE TRUE                                               00134500
+001346         WHEN LS-OPT = 'CUST'                                     00134600
+001349             PERFORM 3000-LIST-CUSTID-PARA THRU 3000-EXIT         00134900
+001350         WHEN LS-OPT = 'ORDR'                                     00135000
+001354             PERFORM 4000-LIST-ORDID-PARA THRU 4000-EXIT          00135400
+001357         WHEN LS-OPT = 'PGDN'                                     00135700
+001358             IF LS-CUST-ID = ZERO                                 00135800
+001359                PERFORM 2100-MESSAGE-PARA THRU 2100-EXIT          00135900
+001363             END-IF                                               00136300
+001367                 MOVE 'N' TO WS-END-PARA                          00136700
+001369                  EXEC CICS READQ TS                              00136900
+001370                            QUEUE('Q-NAME')                       00137000
+001371                            INTO(PURORDQ)                         00137100
+001372                            ITEM(CHOICE1)                         00137200
+001373                  END-EXEC                                        00137300
+001375                 MOVE Q-CUST-ID    TO ORD-CUST-ID                 00137500
+001377                 MOVE Q-ORD-ID     TO ORD-ID                      00137700
+001379                 PERFORM 5000-PAGEDOWN-PROCESS1-PARA              00137900
+001386         WHEN LS-OPT = 'PGUP'                                     00138600
+001387             IF LS-CUST-ID = ZERO                                 00138700
+001388                PERFORM 2100-MESSAGE-PARA THRU 2100-EXIT          00138800
+001392             END-IF                                               00139200
+001395                 MOVE 'N' TO WS-END-PARA                          00139500
+001397                  EXEC CICS READQ TS                              00139700
+001398                            QUEUE('Q-NAME')                       00139800
+001399                            INTO(PURORDQ)                         00139900
+001400                            ITEM(CHOICE1)                         00140000
+001401                  END-EXEC                                        00140100
+001403                 MOVE Q-CUST-ID    TO ORD-CUST-ID                 00140300
+001405                 MOVE Q1-ORDID     TO ORD-ID                      00140500
+001407                 PERFORM 5500-PAGEUP-PROCESS1-PARA                00140700
+001414         WHEN OTHER                                               00141400
+001416                MOVE SPACES TO LS-OPT                             00141600
+001417                MOVE 0 TO LS-CUST-ID                              00141700
+001418                MOVE 0 TO LS-ORD-ID                               00141800
+001419                SET K TO 1                                        00141900
+001420                PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 800142000
+001421                MOVE 'INVALID OPTION SELECTED' TO LS-MSG          00142100
+001422                EXEC CICS RETURN END-EXEC                         00142200
+001423      END-EVALUATE .                                              00142300
+001424*                                                                 00142400
+001425 2000-EXIT.                                                       00142500
+001426     EXIT.                                                        00142600
+001427******************************************************************00142700
+001428 2100-MESSAGE-PARA.                                               00142800
+001430     MOVE SPACES TO LS-OPT.                                       00143000
+001431     MOVE 0 TO LS-CUST-ID.                                        00143100
+001432     MOVE 0 TO LS-ORD-ID.                                         00143200
+001433     SET K TO 1.                                                  00143300
+001434     PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8.          00143400
+001435     MOVE 'PERFORM SPECIFIC OPERATION BEFORE PAGE UP AND DOWN OPER00143500
+001436-         'ATION' TO LS-MSG.                                      00143600
+001437     EXEC CICS RETURN                                             00143700
+001438     END-EXEC.                                                    00143800
+001439*                                                                 00143900
+001440 2100-EXIT.                                                       00144000
+001441     EXIT.                                                        00144100
+001442***************************************************************** 00144200
+001443 2200-EXIT.                                                       00144300
+001444     EXIT.                                                        00144400
+001445***************************************************************** 00144500
+001446 3000-LIST-CUSTID-PARA.                                           00144600
+001447     IF LS-CUST-ID = 0                                            00144700
+001449        MOVE 'CUST' TO LS-OPT                                     00144900
+001450        MOVE 0 TO LS-CUST-ID                                      00145000
+001451        MOVE 0 TO LS-ORD-ID                                       00145100
+001452        SET K TO 1                                                00145200
+001453        PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8        00145300
+001454        MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   00145400
+001455        EXEC CICS RETURN                                          00145500
+001456        END-EXEC                                                  00145600
+001457*                                                                 00145700
+001458     ELSE IF LS-CUST-ID IS NOT NUMERIC                            00145800
+001460        MOVE 'CUST' TO LS-OPT                                     00146000
+001461        MOVE 0 TO LS-CUST-ID                                      00146100
+001462        MOVE 0 TO LS-ORD-ID                                       00146200
+001463        SET K TO 1                                                00146300
+001464        PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8        00146400
+001465        MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'       00146500
+001466             TO LS-MSG                                            00146600
+001467        EXEC CICS RETURN                                          00146700
+001468        END-EXEC                                                  00146800
+001469*                                                                 00146900
+001470     ELSE                                                         00147000
+001471        MOVE LS-CUST-ID  TO CUST-ID                               00147100
+001473*                                                                 00147300
+001474             EXEC SQL                                             00147400
+001475                SELECT CUST_ID                                    00147500
+001476                INTO :CUST-ID                                     00147600
+001477                FROM ADMT.T_CU_CUSTOMER                           00147700
+001478                WHERE CUST_ID = :CUST-ID                          00147800
+001479             END-EXEC                                             00147900
+001480*                                                                 00148000
+001482               EVALUATE SQLCODE                                   00148200
+001483                 WHEN 0                                           00148300
+001484                    MOVE LS-CUST-ID TO ORD-CUST-ID                00148400
+001485                    MOVE 0 TO ORD-ID                              00148500
+001488                    PERFORM 5000-PAGEDOWN-PROCESS1-PARA           00148800
+001489                 WHEN +100                                        00148900
+001490                    MOVE 'CUST' TO LS-OPT                         00149000
+001491                    MOVE CUST-ID TO LS-CUST-ID                    00149100
+001492                    MOVE 0 TO LS-ORD-ID                           00149200
+001493                    SET K TO 1                                    00149300
+001494                    PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL  00149400
+001495                        K > 8                                     00149500
+001496                    MOVE 'CUSTOMER ID DOES NOT EXISTS' TO LS-MSG  00149600
+001497                    EXEC CICS RETURN                              00149700
+001498                    END-EXEC                                      00149800
+001499               END-EVALUATE                                       00149900
+001500*                                                                 00150000
+001501          END-IF                                                  00150100
+001502*                                                                 00150200
+001503     END-IF.                                                      00150300
+001504*                                                                 00150400
+001510 3000-EXIT.                                                       00151000
+001600     EXIT.                                                        00160000
+001611******************************************************************00161100
+001612 4000-LIST-ORDID-PARA.                                            00161200
+001613     IF LS-ORD-ID = 0                                             00161300
+001615        MOVE 'ORDR' TO LS-OPT                                     00161500
+001616        MOVE 0 TO LS-CUST-ID                                      00161600
+001617        MOVE 0 TO LS-ORD-ID                                       00161700
+001618        SET K TO 1                                                00161800
+001619        PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8        00161900
+001621        MOVE 'ORDER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG      00162100
+001622        EXEC CICS RETURN                                          00162200
+001623        END-EXEC                                                  00162300
+001624*                                                                 00162400
+001625     ELSE IF LS-ORD-ID IS NOT NUMERIC                             00162500
+001627        MOVE 'ORDR' TO LS-OPT                                     00162700
+001628        MOVE 0 TO LS-CUST-ID                                      00162800
+001629        MOVE 0 TO LS-ORD-ID                                       00162900
+001630        SET K TO 1                                                00163000
+001631        PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8        00163100
+001633        MOVE 'ORDER ID SHOULD BE NUMERIC - PLZ ENTER IT'          00163300
+001640             TO LS-MSG                                            00164000
+001650        EXEC CICS RETURN                                          00165000
+001660        END-EXEC                                                  00166000
+001661*                                                                 00166100
+001670     ELSE                                                         00167000
+001680        MOVE LS-ORD-ID  TO ORD-ID                                 00168000
+001690             EXEC SQL                                             00169000
+001691                 SELECT ORD_ID                                    00169100
+001692                 INTO :ORD-ID                                     00169200
+001693                 FROM ADMT.T_OR_ORDER                             00169300
+001694                 WHERE ORD_ID = :ORD-ID                           00169400
+001695             END-EXEC                                             00169500
+001696*                                                                 00169600
+001697         EVALUATE SQLCODE                                         00169700
+001698           WHEN 0                                                 00169800
+001700              MOVE LS-ORD-ID TO ORD-ID                            00170000
+001701              MOVE 0 TO LS-CUST-ID                                00170100
+001702              PERFORM 7000-SELECT-ORDR-DETAILS-PARA THRU 7000-EXIT00170200
+001703              SET K TO 2                                          00170300
+001704              PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8  00170400
+001705              MOVE 'ORDER DETAILS RETRIEVED SUCCESSFULLY'         00170500
+001706                   TO LS-MSG                                      00170600
+001707              EXEC CICS RETURN                                    00170700
+001708              END-EXEC                                            00170800
+001709           WHEN +100                                              00170900
+001710              MOVE 'ORDR' TO LS-OPT                               00171000
+001711              MOVE 0 TO LS-CUST-ID                                00171100
+001712              MOVE ORD-ID   TO LS-ORD-ID                          00171200
+001713              SET K TO 1                                          00171300
+001714              PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8  00171400
+001715              MOVE 'ORDER ID DOES NOT EXISTS' TO LS-MSG           00171500
+001716              EXEC CICS RETURN                                    00171600
+001717              END-EXEC                                            00171700
+001718         END-EVALUATE                                             00171800
+001719*                                                                 00171900
+001720       END-IF                                                     00172000
+001721*                                                                 00172100
+001722     END-IF.                                                      00172200
+001723*                                                                 00172300
+001724 4000-EXIT.                                                       00172400
+001725     EXIT.                                                        00172500
+001726******************************************************************00172600
+001727 5000-PAGEDOWN-PROCESS1-PARA.                                     00172700
+001728     EXEC SQL OPEN C11 END-EXEC.                                  00172800
+001730     SET K TO 1.                                                  00173000
+001732     MOVE ZEROS TO LS-ORD-ID.                                     00173200
+001733*                                                                 00173300
+001734     PERFORM 6000-FETCH-FORWARD1-PARA THRU 6000-EXIT UNTIL K > 8  00173400
+001735             OR WS-END-PARA = 'Y'.                                00173500
+001736*                                                                 00173600
+001737     IF WS-END-PARA = 'Y'                                         00173700
+001739        MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG           00173900
+001740        MOVE 'N' TO WS-FLAG                                       00174000
+001741     ELSE                                                         00174100
+001742        MOVE SPACES TO LS-MSG                                     00174200
+001743     END-IF.                                                      00174300
+001744*                                                                 00174400
+001745     PERFORM 9500-WRITEQ-PARA THRU 9500-EXIT.                     00174500
+001747*                                                                 00174700
+001748        EXEC SQL CLOSE C11 END-EXEC.                              00174800
+001784        MOVE 0 TO LS-ORD-ID.                                      00178400
+001785        MOVE ORD-CUST-ID TO LS-CUST-ID.                           00178500
+001787              EXEC CICS RETURN                                    00178700
+001788              END-EXEC.                                           00178800
+001818******************************************************************00181800
+001819 5500-PAGEUP-PROCESS1-PARA.                                       00181900
+001821     EXEC SQL OPEN D11 END-EXEC.                                  00182100
+001823     SET K TO 1.                                                  00182300
+001824     SET J TO 1.                                                  00182400
+001826     MOVE ZEROS TO LS-ORD-ID.                                     00182600
+001827*                                                                 00182700
+001828     PERFORM 6600-FETCH-BACKWARD12-PARA THRU 6600-EXIT UNTIL J > 800182800
+001829             OR WS-END-PARA = 'Y'.                                00182900
+001830*                                                                 00183000
+001831     IF LS-MSG = 'START OF THE PAGE'                              00183100
+001832        MOVE 'START OF THE PAGE' TO LS-MSG                        00183200
+001833     ELSE                                                         00183300
+001834      SET J TO 8                                                  00183400
+001835      SET K TO 1                                                  00183500
+001836      PERFORM 6310-MV-TEMP-TO-CPYFLD-PARA THRU 6310-EXIT          00183600
+001837             UNTIL K > 8                                          00183700
+001838     END-IF.                                                      00183800
+001839     PERFORM 9500-WRITEQ-PARA THRU 9500-EXIT.                     00183900
+001840*                                                                 00184000
+001842     IF WS-END-PARA = 'Y'                                         00184200
+001844        MOVE 'START OF THE PAGE' TO LS-MSG                        00184400
+001845        MOVE 'N' TO WS-FLAG                                       00184500
+001846     ELSE                                                         00184600
+001847        MOVE SPACES TO LS-MSG                                     00184700
+001848     END-IF.                                                      00184800
+001849*                                                                 00184900
+001852        EXEC SQL CLOSE D11 END-EXEC.                              00185200
+001853*                                                                 00185300
+001878        MOVE 0 TO LS-ORD-ID.                                      00187800
+001879        MOVE ORD-CUST-ID TO LS-CUST-ID.                           00187900
+001881              EXEC CICS RETURN                                    00188100
+001882              END-EXEC.                                           00188200
+001971******************************************************************00197100
+001972 6000-FETCH-FORWARD1-PARA.                                        00197200
+001975      EXEC SQL FETCH NEXT                                         00197500
+001976          FROM C11                                                00197600
+001977          INTO :ORD-CUST-ID,:CUST-NAME,:ORD-ID,                   00197700
+001978               :ORD-PROD-ID,:PROD-NAME,:ORD-QUANT,                00197800
+001979               :ORD-DATE,:STATUS-ID                               00197900
+001980      END-EXEC.                                                   00198000
+001981*                                                                 00198100
+001983        EVALUATE SQLCODE                                          00198300
+001984            WHEN 0                                                00198400
+001985               PERFORM 6200-MV-DCLGEN-TO-MAPFLDS-PARA THRU        00198500
+001986                        6200-EXIT                                 00198600
+001987            WHEN +100                                             00198700
+001988               IF K = 1                                           00198800
+001989               PERFORM 9400-READQ-PARA THRU 9400-EXIT             00198900
+001991                   EXEC SQL OPEN C12 END-EXEC                     00199100
+001992                   SET K TO 1                                     00199200
+001993                   PERFORM 6100-FETCH-FORWARD2-PARA THRU 6100-EXIT00199300
+001994                      UNTIL K > 8 OR WS-END-PARA = 'Y'            00199400
+001995                   EXEC SQL CLOSE C12 END-EXEC                    00199500
+001996                   MOVE 'Y' TO WS-END-PARA                        00199600
+001997               ELSE                                               00199700
+001998                PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 800199800
+001999                MOVE 'Y' TO WS-END-PARA                           00199900
+002000               END-IF                                             00200000
+002001            WHEN OTHER                                            00200100
+002002               EXEC CICS RETURN END-EXEC                          00200200
+002003        END-EVALUATE.                                             00200300
+002004*                                                                 00200400
+002005 6000-EXIT.                                                       00200500
+002006     EXIT.                                                        00200600
+002007******************************************************************00200700
+002008 6100-FETCH-FORWARD2-PARA.                                        00200800
+002011      EXEC SQL FETCH NEXT                                         00201100
+002012          FROM C12                                                00201200
+002013          INTO :ORD-CUST-ID,:CUST-NAME,:ORD-ID,                   00201300
+002014               :ORD-PROD-ID,:PROD-NAME,:ORD-QUANT,                00201400
+002015               :ORD-DATE,:STATUS-ID                               00201500
+002016      END-EXEC.                                                   00201600
+002017*                                                                 00201700
+002019        EVALUATE SQLCODE                                          00201900
+002020            WHEN 0                                                00202000
+002021                PERFORM 6200-MV-DCLGEN-TO-MAPFLDS-PARA THRU       00202100
+002022                        6200-EXIT                                 00202200
+002023            WHEN +100                                             00202300
+002024              IF WS-FLAG = 'Y' AND K = 1                          00202400
+002025                MOVE 'Y' TO WS-END-PARA                           00202500
+002026              ELSE                                                00202600
+002027                PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 800202700
+002028                MOVE 'Y' TO WS-END-PARA                           00202800
+002029              END-IF                                              00202900
+002030            WHEN OTHER                                            00203000
+002031               EXEC CICS RETURN END-EXEC                          00203100
+002032        END-EVALUATE.                                             00203200
+002033*                                                                 00203300
+002034 6100-EXIT.                                                       00203400
+002035     EXIT.                                                        00203500
+002036******************************************************************00203600
+002037 6200-MV-DCLGEN-TO-MAPFLDS-PARA.                                  00203700
+002039     MOVE ORD-CUST-ID   TO LS-CUSTID(K).                          00203900
+002041     MOVE CUST-NAME     TO LS-CUST-NAME(K).                       00204100
+002043     MOVE ORD-ID        TO LS-ORDID(K).                           00204300
+002049     MOVE LS-ORDID(1)  TO Q1-ORDID.                               00204900
+002051     MOVE ORD-PROD-ID   TO LS-PROD-ID(K).                         00205100
+002053     MOVE PROD-NAME     TO LS-PROD-NAME(K).                       00205300
+002055     MOVE ORD-QUANT     TO LS-QNTY(K).                            00205500
+002057*                                                                 00205700
+002058     MOVE ORD-DATE(1:4) TO WS-YEAR.                               00205800
+002059     MOVE ORD-DATE(6:2) TO WS-MONTH.                              00205900
+002060     MOVE ORD-DATE(9:2) TO WS-DATE.                               00206000
+002061     MOVE WS-SCR-DATE   TO LS-ORD-DATE(K).                        00206100
+002062     MOVE STATUS-ID     TO LS-STATUS(K).                          00206200
+002063*                                                                 00206300
+002067     SET K UP BY 1.                                               00206700
+002070*                                                                 00207000
+002075 6200-EXIT.                                                       00207500
+002076     EXIT.                                                        00207600
+002077***************************************************************** 00207700
+002078 6300-MV-DCLGN-TO-TMPFLD-PARA.                                    00207800
+002080     MOVE ORD-CUST-ID   TO WSN-CUSTID(J).                         00208000
+002082     MOVE CUST-NAME     TO WSN-CUST-NAME(J).                      00208200
+002084     MOVE ORD-ID        TO WSN-ORDID(J).                          00208400
+002088     MOVE ORD-PROD-ID   TO WSN-PROD-ID(J).                        00208800
+002090     MOVE PROD-NAME     TO WSN-PROD-NAME(J).                      00209000
+002092     MOVE ORD-QUANT     TO WSN-QNTY(J).                           00209200
+002094*                                                                 00209400
+002095     MOVE ORD-DATE(1:4) TO WS-YEAR.                               00209500
+002096     MOVE ORD-DATE(6:2) TO WS-MONTH.                              00209600
+002097     MOVE ORD-DATE(9:2) TO WS-DATE.                               00209700
+002098     MOVE WS-SCR-DATE   TO WSN-ORD-DATE(J).                       00209800
+002099     MOVE STATUS-ID     TO WSN-STATUS(J).                         00209900
+002100*                                                                 00210000
+002103     SET J UP BY 1.                                               00210300
+002106*                                                                 00210600
+002111 6300-EXIT.                                                       00211100
+002112     EXIT.                                                        00211200
+002113***************************************************************** 00211300
+002115 6310-MV-TEMP-TO-CPYFLD-PARA.                                     00211500
+002117     MOVE WSN-CUSTID(J)    TO LS-CUSTID(K).                       00211700
+002119     MOVE WSN-CUST-NAME(J) TO LS-CUST-NAME(K).                    00211900
+002121     MOVE WSN-ORDID(J)     TO LS-ORDID(K).                        00212100
+002123     MOVE LS-CUSTID(1)     TO Q-CUST-ID.                          00212300
+002124     MOVE LS-ORDID(1)      TO Q1-ORDID.                           00212400
+002125     MOVE LS-ORDID(8)      TO Q-ORD-ID.                           00212500
+002128     MOVE WSN-PROD-ID(J)   TO LS-PROD-ID(K).                      00212800
+002130     MOVE WSN-PROD-NAME(J) TO LS-PROD-NAME(K).                    00213000
+002132     MOVE WSN-QNTY(J)      TO LS-QNTY(K).                         00213200
+002135     MOVE WSN-ORD-DATE(J)  TO LS-ORD-DATE(K).                     00213500
+002136     MOVE WSN-STATUS(J)    TO LS-STATUS(K).                       00213600
+002137*                                                                 00213700
+002138     SET K UP BY 1.                                               00213800
+002139     SET J DOWN BY 1.                                             00213900
+002147*                                                                 00214700
+002148 6310-EXIT.                                                       00214800
+002149     EXIT.                                                        00214900
+002150***************************************************************** 00215000
+002164 6600-FETCH-BACKWARD12-PARA.                                      00216400
+002167     EXEC SQL FETCH                                               00216700
+002168          FROM D11                                                00216800
+002169          INTO :ORD-CUST-ID,:CUST-NAME,:ORD-ID,                   00216900
+002170               :ORD-PROD-ID,:PROD-NAME,:ORD-QUANT,                00217000
+002171               :ORD-DATE,:STATUS-ID                               00217100
+002172     END-EXEC.                                                    00217200
+002173*                                                                 00217300
+002174        EVALUATE SQLCODE                                          00217400
+002175            WHEN 0                                                00217500
+002176                PERFORM 6300-MV-DCLGN-TO-TMPFLD-PARA THRU         00217600
+002177                        6300-EXIT                                 00217700
+002180            WHEN +100                                             00218000
+002181                SET K TO 1                                        00218100
+002182                EXEC SQL OPEN C12 END-EXEC                        00218200
+002183                PERFORM 6100-FETCH-FORWARD2-PARA THRU 6100-EXIT   00218300
+002184                        UNTIL K > 8                               00218400
+002185                MOVE 'Y' TO WS-END-PARA                           00218500
+002186                MOVE 'START OF THE PAGE' TO LS-MSG                00218600
+002187                EXEC SQL CLOSE C12 END-EXEC                       00218700
+002188            WHEN OTHER                                            00218800
+002189               EXEC CICS RETURN END-EXEC                          00218900
+002190        END-EVALUATE.                                             00219000
+002191*                                                                 00219100
+002192 6600-EXIT.                                                       00219200
+002193     EXIT.                                                        00219300
+002194******************************************************************00219400
+002195 6800-CLEAR-PARA.                                                 00219500
+002197*    MOVE LOW-VALUES TO WS-CST-ID.                                00219700
+002198     MOVE 0  TO LS-CUSTID(K).                                     00219800
+002200     MOVE SPACES TO LS-CUST-NAME(K).                              00220000
+002202*    MOVE LOW-VALUES TO WS-ORDID.                                 00220200
+002203     MOVE 0   TO LS-ORDID(K).                                     00220300
+002205*    MOVE LOW-VALUES TO WS-PRD-ID.                                00220500
+002206     MOVE 0  TO LS-PROD-ID(K).                                    00220600
+002208     MOVE SPACES TO LS-PROD-NAME(K).                              00220800
+002210*    MOVE LOW-VALUES TO WS-QNTITY.                                00221000
+002211     MOVE 0  TO LS-QNTY(K).                                       00221100
+002213     MOVE SPACES TO LS-ORD-DATE(K).                               00221300
+002214     MOVE SPACES TO LS-STATUS(K).                                 00221400
+002215*                                                                 00221500
+002216     SET K UP BY 1.                                               00221600
+002218*                                                                 00221800
+002220 6800-EXIT.                                                       00222000
+002300     EXIT.                                                        00230000
+017100******************************************************************01710000
+017110 7000-SELECT-ORDR-DETAILS-PARA.                                   01711000
+017120     EXEC SQL                                                     01712000
+017130         SELECT ORD_CUST_ID,CUST_NAME,ORD_ID,ORD_PROD_ID,         01713000
+017140            PROD_NAME,ORD_QUANT,ORD_DATE,STATUS_ID                01714000
+017150            INTO :ORD-CUST-ID,:CUST-NAME,                         01715000
+017160                 :ORD-ID,                                         01716000
+017170                 :ORD-PROD-ID,                                    01717000
+017180                 :PROD-NAME,                                      01718000
+017190                 :ORD-QUANT,                                      01719000
+017191                 :ORD-DATE,                                       01719100
+017192                 :STATUS-ID                                       01719200
+017193         FROM ADMT.T_OR_ORDER O, ADMT.T_CU_CUSTOMER C,            01719300
+017194               ADMT.T_PR_PRODUCT P, ADMT.T_ST_STATUS S            01719400
+017195         WHERE O.ORD_ID = :ORD-ID AND                             01719500
+017196                O.ORD_CUST_ID = C.CUST_ID AND                     01719600
+017197                O.ORD_PROD_ID = P.PROD_ID AND                     01719700
+017198                O.ORD_ID = S.STATUS_ORD_ID                        01719800
+017199     END-EXEC.                                                    01719900
+017200*                                                                 01720000
+017201         EVALUATE SQLCODE                                         01720100
+017202           WHEN 0                                                 01720200
+017203              SET K TO 1                                          01720300
+017204              PERFORM 7500-MOVE-ORD-DETAILS-PARA THRU 7500-EXIT   01720400
+017205           WHEN +100                                              01720500
+017206              MOVE 'ORDR' TO LS-OPT                               01720600
+017207              MOVE 0 TO LS-CUST-ID                                01720700
+017208              MOVE ORD-ID   TO LS-ORD-ID                          01720800
+017209              SET K TO 1                                          01720900
+017210              PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8  01721000
+017211              MOVE 'ORDER ID DOES NOT EXISTS' TO LS-MSG           01721100
+017212              EXEC CICS RETURN                                    01721200
+017213              END-EXEC                                            01721300
+017214         END-EVALUATE.                                            01721400
+017215*                                                                 01721500
+017216 7000-EXIT.                                                       01721600
+017217     EXIT.                                                        01721700
+017218******************************************************************01721800
+017219 7500-MOVE-ORD-DETAILS-PARA.                                      01721900
+017220     MOVE ORD-CUST-ID   TO LS-CUSTID(1).                          01722000
+017221     MOVE CUST-NAME     TO LS-CUST-NAME(1).                       01722100
+017222     MOVE ORD-ID        TO LS-ORDID(1).                           01722200
+017223     MOVE ORD-PROD-ID   TO LS-PROD-ID(1).                         01722300
+017224     MOVE PROD-NAME     TO LS-PROD-NAME(1).                       01722400
+017225     MOVE ORD-QUANT     TO LS-QNTY(1).                            01722500
+017226*                                                                 01722600
+017227     MOVE ORD-DATE(1:4) TO WS-YEAR.                               01722700
+017228     MOVE ORD-DATE(6:2) TO WS-MONTH.                              01722800
+017229     MOVE ORD-DATE(9:2) TO WS-DATE.                               01722900
+017230     MOVE WS-SCR-DATE   TO LS-ORD-DATE(1).                        01723000
+017231     MOVE STATUS-ID     TO LS-STATUS(1).                          01723100
+017232*                                                                 01723200
+017233 7500-EXIT.                                                       01723300
+017234     EXIT.                                                        01723400
+017235******************************************************************01723500
+017240 9300-EXIT-PARA.                                                  01724000
+017300     EXEC CICS RETURN                                             01730000
+017400     END-EXEC.                                                    01740000
+017500******************************************************************01750000
+017600 9400-READQ-PARA.                                                 01760000
+017700     EXEC CICS READQ TS                                           01770000
+017800                QUEUE('Q-NAME')                                   01780000
+017900                INTO(PURORDQ)                                     01790000
+018000                ITEM(CHOICE1)                                     01800000
+018100     END-EXEC.                                                    01810000
+018300     MOVE Q-CUST-ID    TO ORD-CUST-ID.                            01830000
+018500     MOVE Q1-ORDID     TO ORD-ID.                                 01850000
+018700*                                                                 01870000
+018800 9400-EXIT.                                                       01880000
+018900     EXIT.                                                        01890000
+019000******************************************************************01900000
+019100 9500-WRITEQ-PARA.                                                01910000
+019102       IF LS-OPT = 'PGDN' OR LS-OPT = 'CUST'                      01910200
+019120        MOVE ORD-ID TO Q-ORD-ID                                   01912000
+019122        MOVE ORD-CUST-ID TO Q-CUST-ID                             01912200
+019125       END-IF.                                                    01912500
+019126*                                                                 01912600
+019132      EXEC CICS WRITEQ TS                                         01913200
+019140               QUEUE('Q-NAME')                                    01914000
+019150               FROM(PURORDQ)                                      01915000
+019160               ITEM(CHOICE1)                                      01916000
+019170               REWRITE                                            01917000
+019180               MAIN                                               01918000
+019190               RESP(RE)                                           01919000
+019191      END-EXEC.                                                   01919100
+019193      IF RE = DFHRESP(NORMAL) CONTINUE                            01919300
+019194      ELSE                                                        01919400
+019195      EXEC CICS WRITEQ TS                                         01919500
+019196               QUEUE('Q-NAME')                                    01919600
+019197               FROM(PURORDQ)                                      01919700
+019198               ITEM(CHOICE1)                                      01919800
+019199*              REWRITE                                            01919900
+019200               MAIN                                               01920000
+019201               RESP(RE)                                           01920100
+019202      END-EXEC                                                    01920200
+019203      END-IF.                                                     01920300
+020200*                                                                 02020000
+020300 9500-EXIT.                                                       02030000
+020400     EXIT.                                                        02040000

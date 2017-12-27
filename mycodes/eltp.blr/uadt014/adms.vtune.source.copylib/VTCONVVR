@@ -1,0 +1,69 @@
+      *****************************************************************
+      *WORKING STORAGE VARIABLES FOR CONVERTING A BYTE TO BITS
+      *****************************************************************
+       01  WS-BITS2BYTES-FIELDS.
+           05  TWO-BYTES.
+               10  TWO-BYTES-01        PIC X.
+               10  TWO-BYTES-02        PIC X.
+           05  TWO-BYTES-BINARY        REDEFINES   TWO-BYTES
+                                       PIC S9(4)   BINARY.
+           05  IX-1                    PIC 99      VALUE 0.
+           05  REGISTER-1              PIC S9(5)   VALUE 0.
+           05  BTS-PASS-BITS           PIC X.
+           05  BTS-PASS-BYTES.
+               10  BTS-PASS-BYTE-01    PIC X.
+               10  BTS-PASS-BYTE-02    PIC X.
+               10  BTS-PASS-BYTE-03    PIC X.
+               10  BTS-PASS-BYTE-04    PIC X.
+               10  BTS-PASS-BYTE-05    PIC X.
+               10  BTS-PASS-BYTE-06    PIC X.
+               10  BTS-PASS-BYTE-07    PIC X.
+               10  BTS-PASS-BYTE-08    PIC X.
+      *****************************************************************
+       01 I                            PIC 9 VALUE 1.
+       01 WS-ARRAY-OF-BYTES.
+          05 WS-ARRAY-BYTES OCCURS 8 TIMES INDEXED BY J.
+             10 WS-BYTES-ARRAY         PIC X(8).
+      *****************************************************************
+       01  WS-TIMESTAMP2DATETIME-FIELDS.
+           05  WS-TIMESTAMP-DECIMAL  PIC 9(18) VALUE ZEROES.
+           05  WS-DAYS-FROM-1900     PIC 9(18).
+           05  WS-64BITS             PIC X(64).
+           05  WS-52BITS             PIC X(52).
+           05  WS-BIT-EXTRACT        PIC X(01).
+           05  WS-BIT-EXTRACT-NUM    REDEFINES WS-BIT-EXTRACT PIC 9(01).
+           05  WS-EXPONENT           PIC 9(02).
+           05  K                     PIC 9(02).
+      *****************************************************************
+           05 WS-FLAG                PIC X(01) VALUE 'N'.
+           05 WS-DAYS                PIC 9(18) VALUE ZEROES.
+           05 WS-YEARS               PIC 9(04) VALUE ZEROES.
+           05 WS-REMAINING-DAYS      PIC 9(04) VALUE ZEROES.
+           05 WS-REMAINING-DAYS-LAST PIC 9(03) VALUE ZEROES.
+           05 WS-PRESENT-YEAR        PIC 9(04) VALUE ZEROES.
+           05 WS-PRESENT-YEAR-LAST   REDEFINES WS-PRESENT-YEAR.
+              10 WS-PRESENT-YEAR-PX1 PIC 9(2).
+              10 WS-PRESENT-YEAR-PX2 PIC 9(2).
+           05 NEW-JULIAN.
+              10 NEW-JULIAN-PREFIX   PIC X(01).
+              10 NEW-JULIAN-YEAR     PIC X(02).
+              10 NEW-JULIAN-DAY      PIC X(03).
+      *****************************************************************
+           05 WS-MICROSECONDS        PIC 9(18)        VALUE ZEROES.
+           05 WS-SECONDS             PIC 9(12)V999999 VALUE ZEROES.
+           05 WS-MICRO-SECS          REDEFINES WS-SECONDS.
+              10 WS-MICRO-SECS1      PIC 9(12).
+              10 WS-MICRO-SECS2      PIC 9(06).
+           05 WS-FINALTIME-DISPLAY.
+              10 WS-HOURS            PIC 9(02) VALUE ZEROES.
+              10 FILLER              PIC X(01) VALUE ':'.
+              10 WS-MINS             PIC 9(02) VALUE ZEROES.
+              10 FILLER              PIC X(01) VALUE ':'.
+              10 WS-SECS             PIC 9(02) VALUE ZEROES.
+              10 FILLER              PIC X(01) VALUE '.'.
+              10 WS-MSECS            PIC 9(06).
+           05 WS-MINUTES-TEMP        PIC 9(16) VALUE ZEROES.
+      *****************************************************************
+       01 WS-SECONDS-START           PIC 9(12)V999999 VALUE ZEROES.
+       01 WS-SECONDS-STOP            PIC 9(12)V999999 VALUE ZEROES.
+      *****************************************************************

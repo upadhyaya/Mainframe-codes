@@ -1,0 +1,697 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. OMORMNTC.                                            00020099
+000400 AUTHOR. GURU.                                                    00040099
+000410 DATE-WRITTEN. 04/09/08.                                          00041099
+000420 DATE-COMPILED. 04/09/08.                                         00042099
+000421*                                                                 00042199
+000430*MODULE       : ORDER MODULE.                                     00043065
+000500*TITLE        : NA                                                00050004
+000700*MAPS USED    : MORDER1 MAP.                                      00070099
+000701*                                                                 00070199
+000702*FUNCTIONALITY: THIS PROGRAM PERFORMS INSERTION OF ALL THE FIELDS 00070204
+000703*                INTO THE DATABASE AND RETRIEVES THE SAME USING   00070304
+000704*                SELECT AND PERFORMS UPDATION AND DELETION ALSO,  00070499
+000705*                FUNCTIONAL KEYS LIKE PF9 AND PF10 ARE USED TO    00070599
+000706*                TRANSFER THE LINK TO LISTING PROGRAM TO FETCH    00070699
+000707*                THE INFORMATION ACCORDINGLY.                     00070799
+000708*                                                                 00070899
+000709*LOGIC        : EMBEDDED SQL'S HAVE BEEN USED FOR FETCHING RECORDS00070999
+000710*                FROM THE DATABASE, INSERTING RECORDS INTO THE    00071099
+000711*                DATABASE AND DELETION OF RECORDS FROM THE        00071199
+000712*                DATABASE.                                        00071299
+000713*                                                                 00071399
+000714*PROGRAM FUNCTION KEYS USED: PF1,PF2,PF3,PF4,PF5,PF6,PF9,PF10,PF1200071499
+000715* MESSAGES     : 1. 'PARTIAL OR INVALID CUSTID - PRESS PF9 TO     00071599
+000716*                    FETCH FROM THE LIST'                         00071699
+000717*                2. 'NEW ORDER, CAN PERFORM INSERTION ONLY'       00071799
+000718*                3. 'NO DATA IS ENTERED - PLEASE ENTER THE DATA'  00071899
+000719******************************************************************00071907
+000720 DATA DIVISION.                                                   00072003
+000721 WORKING-STORAGE SECTION.                                         00072104
+000722      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00072299
+000723      EXEC SQL INCLUDE PROD   END-EXEC.                           00072399
+000724      EXEC SQL INCLUDE ORDR   END-EXEC.                           00072499
+000725      EXEC SQL INCLUDE EMPLOY END-EXEC.                           00072599
+000726      EXEC SQL INCLUDE CUSTM  END-EXEC.                           00072699
+000727 COPY DFHAID.                                                     00072799
+000728 COPY DFHBMSCA.                                                   00072899
+000729 COPY MORDER1.                                                    00072999
+000730 COPY VALIDDT.                                                    00073099
+000731*                                                                 00073199
+000732 01 WS-COMMAREA PIC 9 VALUE ZEROES.                               00073299
+000733 01 WS-COMMAREA-LEN                PIC S9(09) COMP-3.             00073399
+000734 01 CHOICE1             PIC S9(4) COMP VALUE 1.                   00073499
+000735 01 RE                  PIC S9(4) COMP.                           00073599
+000736 01 WS-CALL     PIC X(8) VALUE 'OMORMNTW'.                        00073699
+000737 01 WS-FLAGS.                                                     00073799
+000738    05 WS-TRANSFER-FLAG            PIC X(01).                     00073899
+000739       88 TRANSFER-TO-ORWEB        VALUE 'Y'.                     00073999
+000740       88 DO-NOT-TRANSFER-TO-ORWEB VALUE 'N'.                     00074099
+000741    05 WS-ERROR-FLAG               PIC X(01).                     00074199
+000742       88 ERROR-FOUND              VALUE 'Y'.                     00074299
+000743       88 NO-ERROR                 VALUE 'N'.                     00074399
+000744    05 WS-EXITCICS-FLAG            PIC X(01).                     00074499
+000745       88 EXIT-TO-CICS             VALUE 'Y'.                     00074599
+000746       88 DO-NOT-EXIT-TO-CICS      VALUE 'N'.                     00074699
+000747    05 WS-EXIT-TO-MAIN-FLAG        PIC X(01).                     00074799
+000748       88 EXIT-TO-MAIN-MENU        VALUE 'Y'.                     00074899
+000749       88 DO-NOT-EXIT-TO-MAIN      VALUE 'N'.                     00074999
+000750    05 WS-DELETE-FLAG              PIC X(01).                     00075099
+000751       88 CONFIRM-DELETE           VALUE 'Y'.                     00075199
+000752       88 DO-NOT-DELETE            VALUE 'N'.                     00075299
+000753*                                                                 00075399
+000754  01 WS-REDEFINES-FIELDS.                                         00075499
+000755     05 TEMP-VAR1 PIC 9(10)V99.                                   00075599
+000756     05 WS-CARCOST REDEFINES TEMP-VAR1 PIC 9(12).                 00075699
+000757     05 WS-TOTCOST PIC 9(18).                                     00075799
+000758     05 TEMP-VAR2 REDEFINES WS-TOTCOST PIC 9(16)V99.              00075899
+000759     05 TEMP-VAR3  PIC 9(12).                                     00075999
+000760     05 WS-UNITPR  REDEFINES TEMP-VAR3  PIC 9(10)V99.             00076099
+000761*                                                                 00076199
+000762 01 WK-DATE.                                                      00076299
+000763    05 WK-D-DD PIC 99.                                            00076399
+000764    05 FILLER  PIC X.                                             00076499
+000765    05 WK-D-MM PIC 99.                                            00076599
+000766    05 FILLER  PIC X.                                             00076699
+000767    05 WK-D-YY PIC 99.                                            00076799
+000770 01 WK-TIME.                                                      00077091
+000900    05 WK-T-HH PIC 99.                                            00090016
+000910    05 FILLER  PIC X.                                             00091016
+000920    05 WK-T-MM PIC 99.                                            00092016
+000930    05 FILLER  PIC X.                                             00093016
+000940    05 WK-T-SS PIC 99.                                            00094016
+000950 01 DT PIC S9(15) COMP-3.                                         00095016
+000951*                                                                 00095185
+000969 01 WS-TOTCT PIC 9(16)V99 VALUE 0.                                00096999
+000970*                                                                 00097099
+000972 01 WS-SCR-DATE.                                                  00097299
+000973    05 WS-MONTH PIC X(2).                                         00097399
+000974    05 SLASH1   PIC X(1) VALUE '/'.                               00097499
+000975    05 WS-DATE  PIC X(2).                                         00097599
+000976    05 SLASH2   PIC X(1) VALUE '/'.                               00097699
+000977    05 WS-YEAR  PIC X(4).                                         00097799
+000978*                                                                 00097899
+000979 01 WS-SLASH1   PIC X(1) VALUE '/'.                               00097999
+000980 01 WS-SLASH2   PIC X(1) VALUE '/'.                               00098099
+000981*                                                                 00098199
+000982 01 WS-QUOT     PIC 9(4)     VALUE 0.                             00098299
+000983 01 WS-REM      PIC 9(4)     VALUE 0.                             00098399
+000984 01 WS-UNPRC    PIC 9(10)V99 VALUE 0.                             00098499
+000985*                                                                 00098599
+000986 01 QNAME    PIC X(8).                                            00098699
+000987 01 TEMP-QNAME REDEFINES QNAME.                                   00098799
+000988    02 FIRST-REF  PIC X(4).                                       00098899
+000989    02 SECOND-REF PIC 9(4).                                       00098999
+000990*                                                                 00099099
+000991 01 WS-TXT1  PIC X(80) VALUE 'SESSION COMPLETED'.                 00099199
+000992 01 WS-TXT2  PIC X(80) VALUE 'DIRECT ENTRY TO OMB1 IS RESTRICTED'.00099299
+000993*                                                                 00099361
+000994 01 WS-FLAG PIC X    VALUE 'N'.                                   00099499
+000995*                                                                 00099599
+000996 01 WS-ORINFWEB-AREA.                                             00099699
+000997     COPY ORINCPY.                                                00099799
+000998*                                                                 00099899
+000999 01 WS-PRODUCT-AREA.                                              00099999
+001000     05 WS-FIRSTVAL2 PIC 9(10).                                   00100099
+001001     05 WS-LASTVAL2  PIC 9(10).                                   00100199
+001002     05 WS-FSTPG2    PIC X(1) .                                   00100299
+001003     05 WS-STARTVAL2 PIC 9(10).                                   00100399
+001004*                                                                 00100499
+001005 01 WS-LISTING-AREA.                                              00100599
+001006     05 LS-SAVE-FIRST-ID PIC 9(10).                               00100699
+001007     05 LS-SAVE-LAST-ID  PIC 9(10).                               00100799
+001008*                                                                 00100899
+001009 01 WS-STATUS-FIELDS.                                             00100999
+001010    05 STATUS-OF-RECEIVE PIC X   VALUE SPACE.                     00101099
+001011       88 GOOD-RECEIVE           VALUE 'G'.                       00101199
+001012       88 MAPFAIL-ON-RECEIVE     VALUE 'F'.                       00101299
+001013*                                                                 00101399
+001014 01 ORMNTQ.                                                       00101499
+001015     05 WS-ORDID   PIC 9(10).                                     00101599
+001016     05 WS-CUSTID  PIC 9(10).                                     00101699
+001017     05 WS-EMPID   PIC 9(10).                                     00101799
+001018     05 WS-PRDID   PIC 9(10).                                     00101899
+001019     05 WS-UNIPC   PIC 9(10)V9(2).                                00101999
+001020     05 WS-QUANTY  PIC 9(5).                                      00102099
+001021     05 WS-ORDDT   PIC X(10).                                     00102199
+001022     05 WS-REQDT   PIC X(10).                                     00102299
+001023     05 WS-SHPDT   PIC X(10).                                     00102399
+001024     05 WS-CARCST  PIC 9(10)V9(2).                                00102499
+001025*                                                                 00102599
+001026 LINKAGE SECTION.                                                 00102699
+001027 01 DFHCOMMAREA.                                                  00102799
+001028   05 WS-CSTID PIC 9(10).                                         00102899
+001029   05 WS-CSID     PIC 9(10).                                      00102999
+001030   05 WS-UNITPRC  PIC 9(10)V99.                                   00103099
+001034******************************************************************00103499
+001035 PROCEDURE DIVISION USING DFHCOMMAREA.                            00103599
+001036******************************************************************00103699
+001037*COPY VALDATE.                                                    00103799
+001038 1000-MAINLINE-PARA.                                              00103899
+001039       MOVE 'ORDR' TO FIRST-REF.                                  00103999
+001040       MOVE EIBTRMID TO SECOND-REF.                               00104099
+001042       SET DO-NOT-TRANSFER-TO-ORWEB TO TRUE.                      00104299
+001043       SET DO-NOT-EXIT-TO-CICS TO TRUE.                           00104399
+001044       SET DO-NOT-EXIT-TO-MAIN TO TRUE.                           00104499
+001045       SET NO-ERROR TO TRUE.                                      00104599
+001046       MOVE LENGTH OF DFHCOMMAREA TO WS-COMMAREA-LEN.             00104699
+001050       IF EIBCALEN = 0 AND EIBTRNID = 'OMB1'                      00105099
+                PERFORM 1100-INITIAL-ENTRY-PARA                         00105199
+                EXEC CICS RETURN                                        00105299
+                  TRANSID ('OMB1')                                      00105399
+                  COMMAREA(WS-COMMAREA)                                 00105499
+                END-EXEC                                                00105599
+001051*         EXEC CICS SEND TEXT                                     00105699
+001052*                   NOEDIT                                        00105799
+001053*                   FROM(WS-TXT2)                                 00105899
+001054*                   LENGTH(80)                                    00105999
+001055*                   ERASE                                         00106099
+001056*         END-EXEC                                                00106199
+001057                                                                  00106299
+001058                                                                  00106399
+001059        EXEC CICS RETURN                                          00106499
+001060        END-EXEC                                                  00106599
+001061*                                                                 00106699
+001062       ELSE IF EIBTRNID = 'M101'                                  00106799
+001063           PERFORM 1100-INITIAL-ENTRY-PARA THRU 1100-EXIT         00106899
+001064           EXEC CICS RETURN                                       00106999
+001065             TRANSID ('OMB1')                                     00107099
+001066             COMMAREA(WS-COMMAREA)                                00107199
+001067           END-EXEC                                               00107299
+001068       ELSE IF EIBTRNID = 'M106'                                  00107399
+001069           MOVE LOW-VALUES  TO ORDMAPO                            00107499
+001070           PERFORM 9700-MV-TEMP-TO-SCR-PARA THRU 9700-EXIT        00107599
+001071           MOVE WS-PRDID TO PRDID1O                               00107699
+001072           MOVE WS-UNIPC TO UNIPRCO                               00107799
+001073           MOVE WS-CSTID TO CUSTID1O                              00107899
+001074           MOVE 'CUSTID FETCHED FROM THE LIST - PRESS PF1/PF3 TO I00107999
+001075-              'NSERT OR UPDATE' TO MSG1O                         00108099
+001080           MOVE -1 TO EMPID1L                                     00108199
+001082*                                                                 00108299
+001083       ELSE IF EIBTRNID = 'M107'                                  00108399
+001084           MOVE LOW-VALUES  TO ORDMAPO                            00108499
+001085           PERFORM 9700-MV-TEMP-TO-SCR-PARA THRU 9700-EXIT        00108599
+001086           MOVE WS-CUSTID   TO CUSTID1O                           00108699
+001087           MOVE WS-CSID    TO PRDID1O                             00108799
+001088           MOVE WS-UNITPRC  TO UNIPRCO                            00108899
+001089           MOVE 'PRODID FETCHED FROM THE LIST - PRESS PF1/PF3 TO I00108999
+001090-                   'NSERT OR UPDATE' TO MSG1O                    00109099
+001091           MOVE -1 TO QNTY1L                                      00109199
+001104*                                                                 00110499
+001105       ELSE                                                       00110599
+001107           PERFORM 1500-MAIN-PROCESS-PARA THRU 1500-EXIT          00110799
+001118           END-IF                                                 00111899
+001119*                                                                 00111999
+001120         END-IF                                                   00112099
+001121*                                                                 00112199
+001122       END-IF.                                                    00112299
+001123     IF EXIT-TO-CICS                                              00112399
+001124         EXEC CICS RETURN                                         00112499
+001125         END-EXEC                                                 00112599
+001126     ELSE IF EXIT-TO-MAIN-MENU                                    00112699
+001127         EXEC CICS RETURN                                         00112799
+001128           TRANSID ('M101')                                       00112899
+001129           IMMEDIATE                                              00112999
+001130         END-EXEC                                                 00113099
+001131     ELSE                                                         00113199
+001132         PERFORM 1200-SEND-MAP-AND-DATA-PARA THRU 1200-EXIT       00113299
+001133         EXEC CICS RETURN                                         00113399
+001134           TRANSID ('OMB1')                                       00113499
+001135           COMMAREA(DFHCOMMAREA)                                  00113599
+001137         END-EXEC                                                 00113799
+001138     END-IF.                                                      00113899
+001139*    GOBACK.                                                      00113999
+001140*                                                                 00114099
+001147******************************************************************00114799
+001148 1100-INITIAL-ENTRY-PARA.                                         00114899
+001149     MOVE LOW-VALUES TO ORDMAPO.                                  00114999
+001150     MOVE -1 TO ORDID1L.                                          00115099
+001151     PERFORM 1200-SEND-MAP-AND-DATA-PARA THRU 1200-EXIT.          00115199
+001152*                                                                 00115299
+001153 1100-EXIT.                                                       00115399
+001154     EXIT.                                                        00115499
+001155***************************************************************** 00115599
+001156 1200-SEND-MAP-AND-DATA-PARA.                                     00115699
+001157     PERFORM 1300-GET-DATE-AND-TIME-PARA THRU 1300-EXIT.          00115799
+001158     MOVE WK-DATE TO DATE1O.                                      00115899
+001159     MOVE WK-TIME TO TIME1O.                                      00115999
+001160*                                                                 00116099
+001161     EXEC CICS SEND                                               00116199
+001162          MAP('ORDMAP')                                           00116299
+001163          MAPSET('MORDER1')                                       00116399
+001164          FROM(ORDMAPO)                                           00116499
+001165          ERASE                                                   00116599
+001166          CURSOR                                                  00116699
+001167     END-EXEC.                                                    00116799
+001168*                                                                 00116899
+001169 1200-EXIT.                                                       00116999
+001170     EXIT.                                                        00117099
+001171***************************************************************** 00117199
+001172 1300-GET-DATE-AND-TIME-PARA.                                     00117299
+001173     EXEC CICS ASKTIME ABSTIME(DT) END-EXEC.                      00117399
+001174     EXEC CICS FORMATTIME                                         00117499
+001175               ABSTIME(DT)                                        00117599
+001176               MMDDYY(WK-DATE)                                    00117699
+001177               DATESEP                                            00117799
+001178               TIME(WK-TIME)                                      00117899
+001179               TIMESEP                                            00117999
+001180     END-EXEC.                                                    00118099
+001181*                                                                 00118199
+001182 1300-EXIT.                                                       00118299
+001183     EXIT.                                                        00118399
+001184***************************************************************** 00118499
+001185 1500-MAIN-PROCESS-PARA.                                          00118599
+001186     PERFORM 2000-PROCESSING-PARA THRU 2000-EXIT.                 00118699
+001187     IF TRANSFER-TO-ORWEB AND NO-ERROR                            00118799
+001188          PERFORM 9300-MOVE-PARA THRU 9300-EXIT                   00118899
+001189           EXEC CICS LINK                                         00118999
+001190                 PROGRAM(WS-CALL)                                 00119099
+001191                 COMMAREA(WS-ORINFWEB-AREA)                       00119199
+001193           END-EXEC                                               00119399
+001194          PERFORM 9400-MOVEBACK-PARA THRU 9400-EXIT               00119499
+001195          PERFORM 9500-CURSOR-POS-PARA THRU 9500-EXIT             00119599
+001196     END-IF.                                                      00119699
+001197 1500-EXIT.                                                       00119799
+001198     EXIT.                                                        00119899
+001199***************************************************************** 00119999
+001200 2000-PROCESSING-PARA.                                            00120099
+001201     PERFORM 2100-RECEIVE-MAP-PARA THRU 2100-EXIT.                00120199
+001202*                                                                 00120299
+001203     IF GOOD-RECEIVE                                              00120399
+001204*                                                                 00120499
+001205        EVALUATE EIBAID                                           00120599
+001206           WHEN DFHPF1                                            00120699
+001207               MOVE 'INSERT' TO LS-OPT                            00120799
+001208               SET TRANSFER-TO-ORWEB TO TRUE                      00120899
+001209               SET DO-NOT-DELETE TO TRUE                          00120999
+001210           WHEN DFHPF2                                            00121099
+001211               MOVE 'SELECT' TO LS-OPT                            00121199
+001212               SET TRANSFER-TO-ORWEB TO TRUE                      00121299
+001213               SET DO-NOT-DELETE TO TRUE                          00121399
+001214           WHEN DFHPF3                                            00121499
+001215               MOVE 'UPDATE' TO LS-OPT                            00121599
+001216               SET TRANSFER-TO-ORWEB TO TRUE                      00121699
+001217               SET DO-NOT-DELETE TO TRUE                          00121799
+001218           WHEN DFHPF4                                            00121899
+001219               IF CONFIRM-DELETE                                  00121999
+001220                    PERFORM 6100-DELETE-PARA THRU 6100-EXIT       00122099
+001221               ELSE                                               00122199
+001222                    PERFORM 6000-CONFIRMATION-PARA THRU 6000-EXIT 00122299
+001223               END-IF                                             00122399
+001224           WHEN DFHPF5                                            00122499
+001225               SET DO-NOT-DELETE TO TRUE                          00122599
+001226               PERFORM 7000-EXIT-SESSION-PARA THRU 7000-EXIT      00122699
+001227           WHEN DFHPF6                                            00122799
+001228               SET DO-NOT-DELETE TO TRUE                          00122899
+001230               SET EXIT-TO-MAIN-MENU TO TRUE                      00123099
+001231           WHEN DFHPF9                                            00123199
+001232               PERFORM 8100-LINK-TO-CUSTLIST-PARA THRU 8100-EXIT  00123299
+001233           WHEN DFHPF10                                           00123399
+001234               PERFORM 8200-LINK-TO-PRODLIST-PARA THRU 8200-EXIT  00123499
+001235           WHEN DFHPF12                                           00123599
+001236               MOVE LOW-VALUES TO ORDMAPO                         00123699
+001237               MOVE -1 TO ORDID1L                                 00123799
+001239           WHEN OTHER                                             00123999
+001240               PERFORM 9000-ERROR-SESSION-PARA THRU 9000-EXIT     00124099
+001241        END-EVALUATE                                              00124199
+001242*                                                                 00124299
+001243     ELSE IF STATUS-OF-RECEIVE = 'F'                              00124399
+001244             MOVE 'INVALID KEY PRESSED - PLZ TRY AGAIN' TO MSG1O  00124499
+001245             MOVE -1 TO ORDID1L                                   00124599
+001246             SET ERROR-FOUND TO TRUE                              00124699
+001249          END-IF                                                  00124999
+001250*                                                                 00125099
+001251     END-IF.                                                      00125199
+001252*                                                                 00125299
+001253 2000-EXIT.                                                       00125399
+001254     EXIT.                                                        00125499
+001255****************************************************************  00125599
+001256 2100-RECEIVE-MAP-PARA.                                           00125699
+001257     MOVE 'F' TO STATUS-OF-RECEIVE.                               00125799
+001258*                                                                 00125899
+001259     EXEC CICS HANDLE CONDITION                                   00125999
+001260             MAPFAIL(2100-EXIT)                                   00126099
+001261             INVREQ(INVREQ-PARA)                                  00126199
+001262     END-EXEC.                                                    00126299
+001263*                                                                 00126399
+001264     EXEC CICS RECEIVE                                            00126499
+001265            MAP('ORDMAP')                                         00126599
+001266            MAPSET('MORDER1')                                     00126699
+001267            INTO(ORDMAPI)                                         00126799
+001268     END-EXEC.                                                    00126899
+001269     MOVE 'G' TO STATUS-OF-RECEIVE.                               00126999
+001270*                                                                 00127099
+001280 2100-EXIT.                                                       00128099
+001300     EXIT.                                                        00130099
+001608******************************************************************00160899
+001609 6000-CONFIRMATION-PARA.                                          00160999
+001610     SET DO-NOT-DELETE TO TRUE.                                   00161099
+001611     IF ORDID1L = 0                                               00161199
+001612        MOVE 'ORDER ID NOT ENTERED - PLZ ENTER IT' TO MSG1O       00161299
+001613        MOVE -1 TO ORDID1L                                        00161399
+001614        SET ERROR-FOUND TO TRUE                                   00161499
+001616*                                                                 00161699
+001617     ELSE IF ORDID1I IS NOT NUMERIC                               00161799
+001618        MOVE 'ORDER ID SHOULD BE NUMERIC - PLZ ENTER IT' TO MSG1O 00161899
+001620        MOVE -1 TO ORDID1L                                        00162099
+001621        SET ERROR-FOUND TO TRUE                                   00162199
+001623       END-IF                                                     00162399
+001624     END-IF.                                                      00162499
+001625*                                                                 00162599
+001626     IF NO-ERROR                                                  00162699
+001627      IF DO-NOT-DELETE                                            00162799
+001628        MOVE ORDID1I TO ORD-ID                                    00162899
+001629        EXEC SQL                                                  00162999
+001630            SELECT ORD_ID                                         00163099
+001631            INTO :ORD-ID                                          00163199
+001632            FROM ADMT.T_OR_ORDER                                  00163299
+001633            WHERE ORD_ID = :ORD-ID                                00163399
+001634        END-EXEC                                                  00163499
+001635*                                                                 00163599
+001636        EVALUATE SQLCODE                                          00163699
+001637           WHEN 0                                                 00163799
+001638             MOVE 'ARE YOU SURE YOU WANT TO DELETE THE DETAILS - T00163899
+001639-                 'YPE Y AND PRESS F4' TO MSG1O                   00163999
+001640             MOVE -1 TO OPTL                                      00164099
+001641             SET CONFIRM-DELETE TO TRUE                           00164199
+001644           WHEN OTHER                                             00164499
+001645              MOVE LOW-VALUES TO ORDMAPO                          00164599
+001648              MOVE ORD-ID    TO ORDID1O                           00164899
+001649              MOVE 'NEW ORDER, CAN PERFORM INSERTION ONLY'        00164999
+001650                   TO MSG1O                                       00165099
+001651              MOVE -1 TO CUSTID1L                                 00165199
+001652              SET ERROR-FOUND TO TRUE                             00165299
+001653        END-EVALUATE                                              00165399
+001654        END-IF                                                    00165499
+001655      END-IF.                                                     00165599
+001656*                                                                 00165699
+001657 6000-EXIT.                                                       00165799
+001658     EXIT.                                                        00165899
+001659******************************************************************00165999
+001660 6100-DELETE-PARA.                                                00166099
+001661     IF NO-ERROR AND CONFIRM-DELETE                               00166199
+001666             EVALUATE TRUE                                        00166699
+001667                WHEN OPTI = 'Y'                                   00166799
+001668                    MOVE LOW-VALUES TO OPTO                       00166899
+001669                    MOVE 'DELETE' TO LS-OPT                       00166999
+001670                    SET TRANSFER-TO-ORWEB TO TRUE                 00167099
+001671                    SET DO-NOT-DELETE TO TRUE                     00167199
+001672                WHEN OPTI = 'N'                                   00167299
+001673                    MOVE LOW-VALUES TO OPTO                       00167399
+001674                    MOVE 'DETAILS NOT DELETED - PLEASE TRY AGAIN' 00167499
+001675                           TO MSG1O                               00167599
+001676                    MOVE -1 TO ORDID1L                            00167699
+001677                    SET ERROR-FOUND TO TRUE                       00167799
+001678                    SET DO-NOT-DELETE TO TRUE                     00167899
+001679                WHEN OTHER                                        00167999
+001680                    MOVE LOW-VALUES TO OPTO                       00168099
+001681                    MOVE 'INVALID OPTION - ENTER Y/N' TO MSG1O    00168199
+001682                    MOVE -1 TO OPTL                               00168299
+001683                    SET ERROR-FOUND TO TRUE                       00168399
+001684                    SET DO-NOT-DELETE TO TRUE                     00168499
+001688             END-EVALUATE                                         00168899
+001689*                                                                 00168999
+001700     END-IF.                                                      00170099
+001701*                                                                 00170199
+001702 6100-EXIT.                                                       00170299
+001703     EXIT.                                                        00170399
+001704******************************************************************00170499
+001705 7000-EXIT-SESSION-PARA.                                          00170596
+001706     EXEC CICS SEND TEXT                                          00170699
+001707               NOEDIT                                             00170799
+001708               FROM(WS-TXT1)                                      00170899
+001709               LENGTH(80)                                         00170999
+001710               ERASE                                              00171099
+001711     END-EXEC.                                                    00171199
+001712     SET EXIT-TO-CICS TO TRUE.                                    00171299
+001715*                                                                 00171596
+001716 7000-EXIT.                                                       00171696
+001717     EXIT.                                                        00171796
+001727******************************************************************00172799
+001728 8100-LINK-TO-CUSTLIST-PARA.                                      00172899
+001729     IF CUSTID1L = 0                                              00172999
+001730          MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO MSG1O  00173099
+001731          MOVE -1 TO CUSTID1L                                     00173199
+001732          SET ERROR-FOUND TO TRUE                                 00173299
+001734*                                                                 00173499
+001735     ELSE IF CUSTID1I IS NOT NUMERIC                              00173599
+001736          MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'     00173699
+001737                TO MSG1O                                          00173799
+001738          MOVE -1 TO CUSTID1L                                     00173899
+001739          SET ERROR-FOUND TO TRUE                                 00173999
+001741*                                                                 00174199
+001742     ELSE                                                         00174299
+001743          MOVE PRDID1I   TO WS-PRDID                              00174399
+001744          PERFORM 9600-MV-SCR-TO-TEMP-PARA THRU 9600-EXIT         00174499
+001746          MOVE CUSTID1I  TO WS-CSID                               00174699
+001747*                                                                 00174799
+001749          MOVE ZEROS   TO LS-SAVE-FIRST-ID                        00174999
+001750          MOVE WS-CSID TO LS-SAVE-LAST-ID                         00175099
+001752          EXEC CICS XCTL                                          00175299
+001753               PROGRAM ('CWCSLSTC')                               00175399
+001754               COMMAREA(WS-LISTING-AREA)                          00175499
+001755*              LENGTH(10)                                         00175599
+001756          END-EXEC                                                00175699
+001757*                                                                 00175799
+001758         END-IF                                                   00175899
+001759*                                                                 00175999
+001760     END-IF.                                                      00176099
+001761*                                                                 00176199
+001762 8100-EXIT.                                                       00176299
+001763     EXIT.                                                        00176399
+001764******************************************************************00176499
+001765 8200-LINK-TO-PRODLIST-PARA.                                      00176599
+001766     IF PRDID1L = 0                                               00176699
+001767          MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO MSG1O   00176799
+001768          MOVE -1 TO PRDID1L                                      00176899
+001769          SET ERROR-FOUND TO TRUE                                 00176999
+001771*                                                                 00177199
+001772     ELSE IF PRDID1I IS NOT NUMERIC                               00177299
+001773          MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'      00177399
+001774               TO MSG1O                                           00177499
+001775          MOVE -1 TO PRDID1L                                      00177599
+001776          SET ERROR-FOUND TO TRUE                                 00177699
+001778*                                                                 00177899
+001779     ELSE                                                         00177999
+001780          MOVE CUSTID1I TO WS-CUSTID                              00178099
+001781          PERFORM 9600-MV-SCR-TO-TEMP-PARA THRU 9600-EXIT         00178199
+001783          MOVE PRDID1I  TO WS-CSID                                00178399
+001784*                                                                 00178499
+001786          MOVE WS-CSID TO WS-FIRSTVAL2                            00178699
+001787          MOVE ZEROS   TO WS-LASTVAL2                             00178799
+001788          MOVE ZEROS   TO WS-STARTVAL2                            00178899
+001789          MOVE SPACES  TO WS-FSTPG2                               00178999
+001790          EXEC CICS XCTL                                          00179099
+001791                 PROGRAM ('CWPRLSTC')                             00179199
+001792                 COMMAREA(WS-PRODUCT-AREA)                        00179299
+001793*                LENGTH(10)                                       00179399
+001794          END-EXEC                                                00179499
+001795*                                                                 00179599
+001796          END-IF                                                  00179699
+001797*                                                                 00179799
+001798     END-IF.                                                      00179899
+001799*                                                                 00179999
+001800 8200-EXIT.                                                       00180099
+001801     EXIT.                                                        00180199
+001802******************************************************************00180299
+001803 9000-ERROR-SESSION-PARA.                                         00180399
+001804     IF CONFIRM-DELETE                                            00180499
+001805        MOVE LOW-VALUES TO OPTO                                   00180599
+001806        MOVE 'F4 IS ONLY THE VALID KEY FOR DELETE CONFIRMATION'   00180699
+001807              TO MSG1O                                            00180799
+001808        MOVE -1 TO OPTL                                           00180899
+001809     ELSE                                                         00180999
+001810        MOVE 'INVALID KEY PRESSED - PLZ TRY AGAIN' TO MSG1O       00181099
+001811        MOVE -1 TO ORDID1L                                        00181199
+001812     END-IF.                                                      00181299
+001813     SET ERROR-FOUND TO TRUE.                                     00181399
+001814     SET DO-NOT-DELETE TO TRUE.                                   00181499
+001815*                                                                 00181599
+001820 9000-EXIT.                                                       00182099
+001900     EXIT.                                                        00190099
+008100******************************************************************00810099
+008101 9300-MOVE-PARA.                                                  00810199
+008102      IF ORDID1L = 0                                              00810299
+008103          MOVE ZEROS    TO LS-ORDID                               00810399
+008104      ELSE                                                        00810499
+008106          MOVE ORDID1I  TO LS-ORDID                               00810699
+008107      END-IF.                                                     00810799
+008108      IF CUSTID1L = 0                                             00810899
+008109          MOVE ZEROS    TO LS-CUSTID                              00810999
+008110      ELSE                                                        00811099
+008112          MOVE CUSTID1I TO LS-CUSTID                              00811299
+008113      END-IF.                                                     00811399
+008114      IF EMPID1L = 0                                              00811499
+008115          MOVE ZEROS    TO LS-EMPID                               00811599
+008116      ELSE                                                        00811699
+008117          MOVE EMPID1I  TO LS-EMPID                               00811799
+008119      END-IF.                                                     00811999
+008120      IF PRDID1L = 0                                              00812099
+008121          MOVE ZEROS    TO LS-PRDID                               00812199
+008122      ELSE                                                        00812299
+008123          MOVE PRDID1I  TO LS-PRDID                               00812399
+008124      END-IF.                                                     00812499
+008125      IF QNTY1L = 0                                               00812599
+008126          MOVE ZEROS    TO LS-QUANTY                              00812699
+008127      ELSE                                                        00812799
+008128          MOVE QNTY1I  TO LS-QUANTY                               00812899
+008129      END-IF.                                                     00812999
+008130      IF ORDDATL = 0                                              00813099
+008131          MOVE SPACES  TO LS-ORDDT                                00813199
+008132      ELSE                                                        00813299
+008133          MOVE ORDDATI TO LS-ORDDT                                00813399
+008134      END-IF.                                                     00813499
+008135      IF REQDATL = 0                                              00813599
+008136          MOVE SPACES  TO LS-REQDT                                00813699
+008137      ELSE                                                        00813799
+008138          MOVE REQDATI TO LS-REQDT                                00813899
+008139      END-IF.                                                     00813999
+008140      IF SHPDATL = 0                                              00814099
+008141          MOVE SPACES  TO LS-SHPDT                                00814199
+008142      ELSE                                                        00814299
+008143          MOVE SHPDATI TO LS-SHPDT                                00814399
+008144      END-IF.                                                     00814499
+008145      IF CARCSTL = 0                                              00814599
+008146          MOVE ZEROS  TO LS-CARCST                                00814699
+008147      ELSE                                                        00814799
+008148          MOVE CARCSTI TO TEMP-VAR1                               00814899
+008149          MOVE WS-CARCOST TO LS-CARCST                            00814999
+008150      END-IF.                                                     00815099
+008151                                                                  00815199
+008152*                                                                 00815299
+008153 9300-EXIT.                                                       00815399
+008154     EXIT.                                                        00815499
+008155******************************************************************00815599
+008156 9400-MOVEBACK-PARA.                                              00815699
+008157      MOVE LOW-VALUES TO ORDMAPO.                                 00815799
+008158      MOVE LS-ORDID   TO ORDID1O.                                 00815899
+008159      MOVE LS-CUSTID  TO CUSTID1O.                                00815999
+008160      MOVE LS-EMPID   TO EMPID1O.                                 00816099
+008161      MOVE LS-PRDID   TO PRDID1O.                                 00816199
+008162      MOVE LS-UNIPC   TO TEMP-VAR3.                               00816299
+008164      MOVE WS-UNITPR  TO UNIPRCO.                                 00816499
+008166      MOVE LS-QUANTY  TO QNTY1O.                                  00816699
+008167      MOVE LS-ORDDT   TO ORDDATO.                                 00816799
+008168      MOVE LS-REQDT   TO REQDATO.                                 00816899
+008169      MOVE LS-SHPDT   TO SHPDATO.                                 00816999
+008170      MOVE LS-CARCST  TO WS-CARCOST.                              00817099
+008172      MOVE TEMP-VAR1  TO CARCSTO.                                 00817299
+008174      MOVE LS-TOTCST  TO WS-TOTCOST.                              00817499
+008175      MOVE TEMP-VAR2  TO TOTCSTO.                                 00817599
+008176      MOVE LS-MSG     TO MSG1O.                                   00817699
+008177*                                                                 00817799
+008178 9400-EXIT.                                                       00817899
+008179     EXIT.                                                        00817999
+008180******************************************************************00818099
+008181 9500-CURSOR-POS-PARA.                                            00818199
+008182      IF LS-CURSOR-POS = 0                                        00818299
+008183         CONTINUE                                                 00818399
+008184      ELSE                                                        00818499
+008190         EVALUATE TRUE                                            00819099
+008191              WHEN LS-CURSOR-POS = 1                              00819199
+008192                   MOVE -1 TO ORDID1L                             00819299
+008193              WHEN LS-CURSOR-POS = 2                              00819399
+008194                   MOVE -1 TO CUSTID1L                            00819499
+008195              WHEN LS-CURSOR-POS = 3                              00819599
+008196                   MOVE -1 TO EMPID1L                             00819699
+008197              WHEN LS-CURSOR-POS = 4                              00819799
+008198                   MOVE -1 TO PRDID1L                             00819899
+008199              WHEN LS-CURSOR-POS = 5                              00819999
+008200                   MOVE -1 TO QNTY1L                              00820099
+008201              WHEN LS-CURSOR-POS = 6                              00820199
+008202                   MOVE -1 TO ORDDATL                             00820299
+008203              WHEN LS-CURSOR-POS = 7                              00820399
+008204                   MOVE -1 TO REQDATL                             00820499
+008205              WHEN LS-CURSOR-POS = 8                              00820599
+008206                   MOVE -1 TO SHPDATL                             00820699
+008207              WHEN LS-CURSOR-POS = 9                              00820799
+008208                   MOVE -1 TO CARCSTL                             00820899
+008215              WHEN OTHER                                          00821599
+008216                   CONTINUE                                       00821699
+008217        END-EVALUATE                                              00821799
+008218      END-IF.                                                     00821899
+008219*                                                                 00821999
+008220 9500-EXIT.                                                       00822099
+008221      EXIT.                                                       00822199
+008222******************************************************************00822299
+008230 9600-MV-SCR-TO-TEMP-PARA.                                        00823099
+008240     PERFORM 9800-CLEAR-PARA THRU 9800-EXIT.                      00824099
+008300     MOVE ORDID1I  TO WS-ORDID.                                   00830099
+008500     MOVE EMPID1I  TO WS-EMPID.                                   00850099
+008700     MOVE QNTY1I   TO WS-QUANTY.                                  00870099
+008800     MOVE ORDDATI  TO WS-ORDDT.                                   00880099
+008900     MOVE REQDATI  TO WS-REQDT.                                   00890099
+009000     MOVE SHPDATI  TO WS-SHPDT.                                   00900099
+009100     MOVE CARCSTI  TO WS-CARCST.                                  00910099
+009110     PERFORM 9850-WRITEQ-PARA THRU 9850-EXIT.                     00911099
+009200*                                                                 00920099
+009300 9600-EXIT.                                                       00930099
+009400     EXIT.                                                        00940099
+009500******************************************************************00950099
+009600 9700-MV-TEMP-TO-SCR-PARA.                                        00960099
+009610     PERFORM 9900-READ-PARA THRU 9900-EXIT.                       00961099
+009700     MOVE WS-ORDID  TO ORDID1O.                                   00970099
+009900     MOVE WS-EMPID  TO EMPID1O.                                   00990099
+010100     MOVE WS-QUANTY TO QNTY1O.                                    01010099
+010200     MOVE WS-ORDDT  TO ORDDATO.                                   01020099
+010300     MOVE WS-REQDT  TO REQDATO.                                   01030099
+010400     MOVE WS-SHPDT  TO SHPDATO.                                   01040099
+010500     MOVE WS-CARCST TO CARCSTO.                                   01050099
+010501     PERFORM 9800-CLEAR-PARA THRU 9800-EXIT.                      01050199
+010600*                                                                 01060099
+010700 9700-EXIT.                                                       01070099
+010800     EXIT.                                                        01080099
+010900******************************************************************01090099
+011000 INVREQ-PARA.                                                     01100099
+011100         PERFORM 1200-SEND-MAP-AND-DATA-PARA THRU 1200-EXIT.      01110099
+011200         EXEC CICS RETURN                                         01120099
+011300           TRANSID ('OMB1')                                       01130099
+011400           COMMAREA(DFHCOMMAREA)                                  01140099
+011500         END-EXEC.                                                01150099
+011600******************************************************************01160099
+011700 9800-CLEAR-PARA.                                                 01170099
+011800     MOVE ZEROS      TO WS-ORDID.                                 01180099
+012000     MOVE ZEROS      TO WS-EMPID.                                 01200099
+012030     MOVE ZEROS      TO WS-QUANTY.                                01203099
+012040     MOVE ZEROS      TO WS-UNIPC.                                 01204099
+012100     MOVE LOW-VALUES TO WS-ORDDT.                                 01210099
+012200     MOVE LOW-VALUES TO WS-REQDT.                                 01220099
+012300     MOVE LOW-VALUES TO WS-SHPDT.                                 01230099
+012400     MOVE ZEROS      TO WS-CARCST.                                01240099
+012600*                                                                 01260099
+012700 9800-EXIT.                                                       01270099
+012800     EXIT.                                                        01280099
+012900******************************************************************01290099
+013000 9850-WRITEQ-PARA.                                                01300099
+013100         EXEC CICS WRITEQ TS                                      01310099
+013200                  QUEUE(QNAME)                                    01320099
+013300                  FROM(ORMNTQ)                                    01330099
+013400                  ITEM(CHOICE1)                                   01340099
+013500                  REWRITE                                         01350099
+013600                  MAIN                                            01360099
+013700                  RESP(RE)                                        01370099
+013800         END-EXEC.                                                01380099
+013900         IF RE = DFHRESP(NORMAL) CONTINUE                         01390099
+014000         ELSE                                                     01400099
+014100         EXEC CICS WRITEQ TS                                      01410099
+014200                  QUEUE(QNAME)                                    01420099
+014300                  FROM(ORMNTQ)                                    01430099
+014400                  ITEM(CHOICE1)                                   01440099
+014500*                 REWRITE                                         01450099
+014600                  MAIN                                            01460099
+014700                  RESP(RE)                                        01470099
+014800         END-EXEC                                                 01480099
+014900         END-IF.                                                  01490099
+015000*                                                                 01500099
+015100  9850-EXIT.                                                      01510099
+015200      EXIT.                                                       01520099
+015300******************************************************************01530099
+015400 9900-READ-PARA.                                                  01540099
+015500      EXEC CICS READQ TS                                          01550099
+015600                QUEUE(QNAME)                                      01560099
+015700                INTO(ORMNTQ)                                      01570099
+015800                ITEM(CHOICE1)                                     01580099
+015900      END-EXEC.                                                   01590099
+016000*                                                                 01600099
+016100  9900-EXIT.                                                      01610099
+016200      EXIT.                                                       01620099

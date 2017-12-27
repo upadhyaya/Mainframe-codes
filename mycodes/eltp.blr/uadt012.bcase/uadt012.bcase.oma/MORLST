@@ -1,0 +1,348 @@
+       01  OLMAPI.
+           02  FILLER PIC X(12).
+           02  DATE1L    COMP  PIC  S9(4).
+           02  DATE1F    PICTURE X.
+           02  FILLER REDEFINES DATE1F.
+             03 DATE1A    PICTURE X.
+           02  DATE1I  PIC X(10).
+           02  TIME1L    COMP  PIC  S9(4).
+           02  TIME1F    PICTURE X.
+           02  FILLER REDEFINES TIME1F.
+             03 TIME1A    PICTURE X.
+           02  TIME1I  PIC X(10).
+           02  CUSIDL    COMP  PIC  S9(4).
+           02  CUSIDF    PICTURE X.
+           02  FILLER REDEFINES CUSIDF.
+             03 CUSIDA    PICTURE X.
+           02  CUSIDI  PIC 9(10).
+           02  ORDDTL    COMP  PIC  S9(4).
+           02  ORDDTF    PICTURE X.
+           02  FILLER REDEFINES ORDDTF.
+             03 ORDDTA    PICTURE X.
+           02  ORDDTI  PIC X(10).
+           02  PRODIDL    COMP  PIC  S9(4).
+           02  PRODIDF    PICTURE X.
+           02  FILLER REDEFINES PRODIDF.
+             03 PRODIDA    PICTURE X.
+           02  PRODIDI  PIC 9(10).
+           02  EMPLIDL    COMP  PIC  S9(4).
+           02  EMPLIDF    PICTURE X.
+           02  FILLER REDEFINES EMPLIDF.
+             03 EMPLIDA    PICTURE X.
+           02  EMPLIDI  PIC 9(10).
+           02  ORDID1L    COMP  PIC  S9(4).
+           02  ORDID1F    PICTURE X.
+           02  FILLER REDEFINES ORDID1F.
+             03 ORDID1A    PICTURE X.
+           02  ORDID1I  PIC X(10).
+           02  CUSTID1L    COMP  PIC  S9(4).
+           02  CUSTID1F    PICTURE X.
+           02  FILLER REDEFINES CUSTID1F.
+             03 CUSTID1A    PICTURE X.
+           02  CUSTID1I  PIC X(10).
+           02  PRDID1L    COMP  PIC  S9(4).
+           02  PRDID1F    PICTURE X.
+           02  FILLER REDEFINES PRDID1F.
+             03 PRDID1A    PICTURE X.
+           02  PRDID1I  PIC X(10).
+           02  EMPID1L    COMP  PIC  S9(4).
+           02  EMPID1F    PICTURE X.
+           02  FILLER REDEFINES EMPID1F.
+             03 EMPID1A    PICTURE X.
+           02  EMPID1I  PIC X(10).
+           02  QNTY1L    COMP  PIC  S9(4).
+           02  QNTY1F    PICTURE X.
+           02  FILLER REDEFINES QNTY1F.
+             03 QNTY1A    PICTURE X.
+           02  QNTY1I  PIC X(5).
+           02  TOTCST1L    COMP  PIC  S9(4).
+           02  TOTCST1F    PICTURE X.
+           02  FILLER REDEFINES TOTCST1F.
+             03 TOTCST1A    PICTURE X.
+           02  TOTCST1I  PIC X(17).
+           02  ORDDAT1L    COMP  PIC  S9(4).
+           02  ORDDAT1F    PICTURE X.
+           02  FILLER REDEFINES ORDDAT1F.
+             03 ORDDAT1A    PICTURE X.
+           02  ORDDAT1I  PIC X(10).
+           02  ORDID2L    COMP  PIC  S9(4).
+           02  ORDID2F    PICTURE X.
+           02  FILLER REDEFINES ORDID2F.
+             03 ORDID2A    PICTURE X.
+           02  ORDID2I  PIC X(10).
+           02  CUSTID2L    COMP  PIC  S9(4).
+           02  CUSTID2F    PICTURE X.
+           02  FILLER REDEFINES CUSTID2F.
+             03 CUSTID2A    PICTURE X.
+           02  CUSTID2I  PIC X(10).
+           02  PRDID2L    COMP  PIC  S9(4).
+           02  PRDID2F    PICTURE X.
+           02  FILLER REDEFINES PRDID2F.
+             03 PRDID2A    PICTURE X.
+           02  PRDID2I  PIC X(10).
+           02  EMPID2L    COMP  PIC  S9(4).
+           02  EMPID2F    PICTURE X.
+           02  FILLER REDEFINES EMPID2F.
+             03 EMPID2A    PICTURE X.
+           02  EMPID2I  PIC X(10).
+           02  QNTY2L    COMP  PIC  S9(4).
+           02  QNTY2F    PICTURE X.
+           02  FILLER REDEFINES QNTY2F.
+             03 QNTY2A    PICTURE X.
+           02  QNTY2I  PIC X(5).
+           02  TOTCST2L    COMP  PIC  S9(4).
+           02  TOTCST2F    PICTURE X.
+           02  FILLER REDEFINES TOTCST2F.
+             03 TOTCST2A    PICTURE X.
+           02  TOTCST2I  PIC X(17).
+           02  ORDDAT2L    COMP  PIC  S9(4).
+           02  ORDDAT2F    PICTURE X.
+           02  FILLER REDEFINES ORDDAT2F.
+             03 ORDDAT2A    PICTURE X.
+           02  ORDDAT2I  PIC X(10).
+           02  ORDID3L    COMP  PIC  S9(4).
+           02  ORDID3F    PICTURE X.
+           02  FILLER REDEFINES ORDID3F.
+             03 ORDID3A    PICTURE X.
+           02  ORDID3I  PIC X(10).
+           02  CUSTID3L    COMP  PIC  S9(4).
+           02  CUSTID3F    PICTURE X.
+           02  FILLER REDEFINES CUSTID3F.
+             03 CUSTID3A    PICTURE X.
+           02  CUSTID3I  PIC X(10).
+           02  PRDID3L    COMP  PIC  S9(4).
+           02  PRDID3F    PICTURE X.
+           02  FILLER REDEFINES PRDID3F.
+             03 PRDID3A    PICTURE X.
+           02  PRDID3I  PIC X(10).
+           02  EMPID3L    COMP  PIC  S9(4).
+           02  EMPID3F    PICTURE X.
+           02  FILLER REDEFINES EMPID3F.
+             03 EMPID3A    PICTURE X.
+           02  EMPID3I  PIC X(10).
+           02  QNTY3L    COMP  PIC  S9(4).
+           02  QNTY3F    PICTURE X.
+           02  FILLER REDEFINES QNTY3F.
+             03 QNTY3A    PICTURE X.
+           02  QNTY3I  PIC X(5).
+           02  TOTCST3L    COMP  PIC  S9(4).
+           02  TOTCST3F    PICTURE X.
+           02  FILLER REDEFINES TOTCST3F.
+             03 TOTCST3A    PICTURE X.
+           02  TOTCST3I  PIC X(17).
+           02  ORDDAT3L    COMP  PIC  S9(4).
+           02  ORDDAT3F    PICTURE X.
+           02  FILLER REDEFINES ORDDAT3F.
+             03 ORDDAT3A    PICTURE X.
+           02  ORDDAT3I  PIC X(10).
+           02  ORDID4L    COMP  PIC  S9(4).
+           02  ORDID4F    PICTURE X.
+           02  FILLER REDEFINES ORDID4F.
+             03 ORDID4A    PICTURE X.
+           02  ORDID4I  PIC X(10).
+           02  CUSTID4L    COMP  PIC  S9(4).
+           02  CUSTID4F    PICTURE X.
+           02  FILLER REDEFINES CUSTID4F.
+             03 CUSTID4A    PICTURE X.
+           02  CUSTID4I  PIC X(10).
+           02  PRDID4L    COMP  PIC  S9(4).
+           02  PRDID4F    PICTURE X.
+           02  FILLER REDEFINES PRDID4F.
+             03 PRDID4A    PICTURE X.
+           02  PRDID4I  PIC X(10).
+           02  EMPID4L    COMP  PIC  S9(4).
+           02  EMPID4F    PICTURE X.
+           02  FILLER REDEFINES EMPID4F.
+             03 EMPID4A    PICTURE X.
+           02  EMPID4I  PIC X(10).
+           02  QNTY4L    COMP  PIC  S9(4).
+           02  QNTY4F    PICTURE X.
+           02  FILLER REDEFINES QNTY4F.
+             03 QNTY4A    PICTURE X.
+           02  QNTY4I  PIC X(5).
+           02  TOTCST4L    COMP  PIC  S9(4).
+           02  TOTCST4F    PICTURE X.
+           02  FILLER REDEFINES TOTCST4F.
+             03 TOTCST4A    PICTURE X.
+           02  TOTCST4I  PIC X(17).
+           02  ORDDAT4L    COMP  PIC  S9(4).
+           02  ORDDAT4F    PICTURE X.
+           02  FILLER REDEFINES ORDDAT4F.
+             03 ORDDAT4A    PICTURE X.
+           02  ORDDAT4I  PIC X(10).
+           02  ORDID5L    COMP  PIC  S9(4).
+           02  ORDID5F    PICTURE X.
+           02  FILLER REDEFINES ORDID5F.
+             03 ORDID5A    PICTURE X.
+           02  ORDID5I  PIC X(10).
+           02  CUSTID5L    COMP  PIC  S9(4).
+           02  CUSTID5F    PICTURE X.
+           02  FILLER REDEFINES CUSTID5F.
+             03 CUSTID5A    PICTURE X.
+           02  CUSTID5I  PIC X(10).
+           02  PRDID5L    COMP  PIC  S9(4).
+           02  PRDID5F    PICTURE X.
+           02  FILLER REDEFINES PRDID5F.
+             03 PRDID5A    PICTURE X.
+           02  PRDID5I  PIC X(10).
+           02  EMPID5L    COMP  PIC  S9(4).
+           02  EMPID5F    PICTURE X.
+           02  FILLER REDEFINES EMPID5F.
+             03 EMPID5A    PICTURE X.
+           02  EMPID5I  PIC X(10).
+           02  QNTY5L    COMP  PIC  S9(4).
+           02  QNTY5F    PICTURE X.
+           02  FILLER REDEFINES QNTY5F.
+             03 QNTY5A    PICTURE X.
+           02  QNTY5I  PIC X(5).
+           02  TOTCST5L    COMP  PIC  S9(4).
+           02  TOTCST5F    PICTURE X.
+           02  FILLER REDEFINES TOTCST5F.
+             03 TOTCST5A    PICTURE X.
+           02  TOTCST5I  PIC X(17).
+           02  ORDDAT5L    COMP  PIC  S9(4).
+           02  ORDDAT5F    PICTURE X.
+           02  FILLER REDEFINES ORDDAT5F.
+             03 ORDDAT5A    PICTURE X.
+           02  ORDDAT5I  PIC X(10).
+           02  ORDID6L    COMP  PIC  S9(4).
+           02  ORDID6F    PICTURE X.
+           02  FILLER REDEFINES ORDID6F.
+             03 ORDID6A    PICTURE X.
+           02  ORDID6I  PIC X(10).
+           02  CUSTID6L    COMP  PIC  S9(4).
+           02  CUSTID6F    PICTURE X.
+           02  FILLER REDEFINES CUSTID6F.
+             03 CUSTID6A    PICTURE X.
+           02  CUSTID6I  PIC X(10).
+           02  PRDID6L    COMP  PIC  S9(4).
+           02  PRDID6F    PICTURE X.
+           02  FILLER REDEFINES PRDID6F.
+             03 PRDID6A    PICTURE X.
+           02  PRDID6I  PIC X(10).
+           02  EMPID6L    COMP  PIC  S9(4).
+           02  EMPID6F    PICTURE X.
+           02  FILLER REDEFINES EMPID6F.
+             03 EMPID6A    PICTURE X.
+           02  EMPID6I  PIC X(10).
+           02  QNTY6L    COMP  PIC  S9(4).
+           02  QNTY6F    PICTURE X.
+           02  FILLER REDEFINES QNTY6F.
+             03 QNTY6A    PICTURE X.
+           02  QNTY6I  PIC X(5).
+           02  TOTCST6L    COMP  PIC  S9(4).
+           02  TOTCST6F    PICTURE X.
+           02  FILLER REDEFINES TOTCST6F.
+             03 TOTCST6A    PICTURE X.
+           02  TOTCST6I  PIC X(17).
+           02  ORDDAT6L    COMP  PIC  S9(4).
+           02  ORDDAT6F    PICTURE X.
+           02  FILLER REDEFINES ORDDAT6F.
+             03 ORDDAT6A    PICTURE X.
+           02  ORDDAT6I  PIC X(10).
+           02  ORDID7L    COMP  PIC  S9(4).
+           02  ORDID7F    PICTURE X.
+           02  FILLER REDEFINES ORDID7F.
+             03 ORDID7A    PICTURE X.
+           02  ORDID7I  PIC X(10).
+           02  CUSTID7L    COMP  PIC  S9(4).
+           02  CUSTID7F    PICTURE X.
+           02  FILLER REDEFINES CUSTID7F.
+             03 CUSTID7A    PICTURE X.
+           02  CUSTID7I  PIC X(10).
+           02  PRDID7L    COMP  PIC  S9(4).
+           02  PRDID7F    PICTURE X.
+           02  FILLER REDEFINES PRDID7F.
+             03 PRDID7A    PICTURE X.
+           02  PRDID7I  PIC X(10).
+           02  EMPID7L    COMP  PIC  S9(4).
+           02  EMPID7F    PICTURE X.
+           02  FILLER REDEFINES EMPID7F.
+             03 EMPID7A    PICTURE X.
+           02  EMPID7I  PIC X(10).
+           02  QNTY7L    COMP  PIC  S9(4).
+           02  QNTY7F    PICTURE X.
+           02  FILLER REDEFINES QNTY7F.
+             03 QNTY7A    PICTURE X.
+           02  QNTY7I  PIC X(5).
+           02  TOTCST7L    COMP  PIC  S9(4).
+           02  TOTCST7F    PICTURE X.
+           02  FILLER REDEFINES TOTCST7F.
+             03 TOTCST7A    PICTURE X.
+           02  TOTCST7I  PIC X(17).
+           02  ORDDAT7L    COMP  PIC  S9(4).
+           02  ORDDAT7F    PICTURE X.
+           02  FILLER REDEFINES ORDDAT7F.
+             03 ORDDAT7A    PICTURE X.
+           02  ORDDAT7I  PIC X(10).
+           02  ORDID8L    COMP  PIC  S9(4).
+           02  ORDID8F    PICTURE X.
+           02  FILLER REDEFINES ORDID8F.
+             03 ORDID8A    PICTURE X.
+           02  ORDID8I  PIC X(10).
+           02  CUSTID8L    COMP  PIC  S9(4).
+           02  CUSTID8F    PICTURE X.
+           02  FILLER REDEFINES CUSTID8F.
+             03 CUSTID8A    PICTURE X.
+           02  CUSTID8I  PIC X(10).
+           02  PRDID8L    COMP  PIC  S9(4).
+           02  PRDID8F    PICTURE X.
+           02  FILLER REDEFINES PRDID8F.
+             03 PRDID8A    PICTURE X.
+           02  PRDID8I  PIC X(10).
+           02  EMPID8L    COMP  PIC  S9(4).
+           02  EMPID8F    PICTURE X.
+           02  FILLER REDEFINES EMPID8F.
+             03 EMPID8A    PICTURE X.
+           02  EMPID8I  PIC X(10).
+           02  QNTY8L    COMP  PIC  S9(4).
+           02  QNTY8F    PICTURE X.
+           02  FILLER REDEFINES QNTY8F.
+             03 QNTY8A    PICTURE X.
+           02  QNTY8I  PIC X(5).
+           02  TOTCST8L    COMP  PIC  S9(4).
+           02  TOTCST8F    PICTURE X.
+           02  FILLER REDEFINES TOTCST8F.
+             03 TOTCST8A    PICTURE X.
+           02  TOTCST8I  PIC X(17).
+           02  ORDDAT8L    COMP  PIC  S9(4).
+           02  ORDDAT8F    PICTURE X.
+           02  FILLER REDEFINES ORDDAT8F.
+             03 ORDDAT8A    PICTURE X.
+           02  ORDDAT8I  PIC X(10).
+           02  MSG1L    COMP  PIC  S9(4).
+           02  MSG1F    PICTURE X.
+           02  FILLER REDEFINES MSG1F.
+             03 MSG1A    PICTURE X.
+           02  MSG1I  PIC X(70).
+       01  OLMAPO REDEFINES OLMAPI.
+           02  FILLER PIC X(12).
+           02  FILLER PICTURE X(3).
+           02  DATE1O PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  TIME1O PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  CUSIDO  PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  ORDDTO  PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  PRODIDO  PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  EMPLIDO  PIC X(10).
+           02  ORDINFO OCCURS 8 TIMES.
+               05  FILLER PICTURE X(3).
+               05  ORDIDO PIC 9(10).
+               05  FILLER PICTURE X(3).
+               05  CUSTIDO PIC 9(10).
+               05  FILLER PICTURE X(3).
+               05  PRDIDO PIC 9(10).
+               05  FILLER PICTURE X(3).
+               05  EMPIDO PIC 9(10).
+               05  FILLER PICTURE X(3).
+               05  QNTYO PIC 9(05).
+               05  FILLER PICTURE X(3).
+               05  TOTCSTO PIC 9(15)V99.
+               05  FILLER PICTURE X(3).
+               05  ORDDATO PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  MSG1O PIC X(70).

@@ -1,0 +1,20 @@
+//UADT012I JOB NOTIFY=&SYSUID,REGION=0M,MSGLEVEL=(1,1)                  00001000
+/*JOBPARM LINES=99999                                                   00001100
+//*                                                                     00002000
+//STEP1    EXEC PGM=IKJEFT01,DYNAMNBR=30                                00003000
+//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR                              00004000
+//VSAMIN   DD DSN=ELTP.BLR.OMA,DISP=SHR                                 00004601
+//VSAMIN1  DD DSN=ELTP.BLR.OMA.AIX.PATH,DISP=SHR                        00004701
+//SYSPRINT DD SYSOUT=*                                                  00005000
+//SYSTSPRT DD SYSOUT=*                                                  00006000
+//SYSUDUMP DD SYSOUT=*                                                  00007000
+//SYSOUT   DD SYSOUT=*                                                  00008000
+//SYSTSIN  DD *                                                         00009000
+    DSN SYSTEM(DB2A)                                                    00009400
+        RUN PROGRAM(OMINPGM2) PLAN(ADMTPLN1) -                          00009501
+        PARM('0001235677') -                                            00009604
+        LIBRARY('UADT012.BLR.LOAD')                                     00009700
+    END                                                                 00009800
+/*                                                                      00009900
+//*                                                                     00010000
+//*     PARM('0001235659') -                                            00020001

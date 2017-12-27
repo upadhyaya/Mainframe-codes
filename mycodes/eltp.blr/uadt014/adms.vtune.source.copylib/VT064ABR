@@ -1,0 +1,100 @@
+      ****************************************************************  00001003
+      *   CODE FOR WRITING THE ACRONYMS AND THEIR EXPLANATIONS*         00002003
+      ****************************************************************  00003003
+       2600-ABBREV-PARA.                                                00010001
+           WRITE SMF-OUTPUT FROM WS-PATTERN.                            00020000
+           MOVE '-----------------------------ACRONYMS & EXPLANATIONS---00030002
+      -    '----------------------' TO WS-ABBR.                         00031002
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00032000
+           WRITE SMF-OUTPUT FROM WS-PATTERN.                            00040000
+           MOVE SPACES TO WS-ABBR.                                      00060000
+           MOVE 'MACRF1 FIELDS:-' TO WS-ABBR.                           00061000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00062000
+           WRITE SMF-OUTPUT FROM WS-FILLER.                             00063000
+           MOVE 'RK - RECORD IDENTIFIED BY KEY' TO WS-ABBR.             00070000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00080000
+           MOVE SPACES TO WS-ABBR.                                      00090000
+           MOVE 'RB - RECORD IDENTIFIED BY RBA' TO WS-ABBR.             00100000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00110000
+           MOVE SPACES TO WS-ABBR.                                      00120000
+           MOVE 'CP - CONTROL INTERVAL PROCESSING' TO WS-ABBR.          00130000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00140000
+           MOVE SPACES TO WS-ABBR.                                      00150000
+           MOVE 'SP - SEQUENTIAL PROCESSING' TO WS-ABBR                 00160000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00170000
+           MOVE SPACES TO WS-ABBR.                                      00180000
+           MOVE 'DP - DIRECT PROCESSING' TO WS-ABBR                     00190000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00200000
+           MOVE SPACES TO WS-ABBR.                                      00210000
+           MOVE 'IP - INPUT PROCESSING' TO WS-ABBR.                     00220000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00240000
+           MOVE SPACES TO WS-ABBR.                                      00250000
+           MOVE 'OP - OUTPUT PROCESSING' TO WS-ABBR.                    00260000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00280000
+           MOVE SPACES TO WS-ABBR.                                      00290000
+           MOVE 'UB - USER SUPPLIED BUFFERSPACE' TO WS-ABBR.            00300000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00310000
+           MOVE SPACES TO WS-ABBR.                                      00320000
+           WRITE SMF-OUTPUT FROM WS-LINE.                               00330000
+      *                                                                 00340000
+           MOVE 'MACRF2 FIELDS:-' TO WS-ABBR.                           00341000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00342000
+           WRITE SMF-OUTPUT FROM WS-FILLER.                             00343000
+           MOVE 'JO - DEFINED ONLY WHEN OUTPUT AND JES FORMAT'          00344000
+                 TO WS-ABBR.                                            00344100
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00345000
+           MOVE SPACES TO WS-ABBR.                                      00346000
+           MOVE 'CP - CONTROL CHARACTER TYPE' TO WS-ABBR.               00349100
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00349200
+           MOVE SPACES TO WS-ABBR.                                      00349300
+           MOVE 'RS - RESERVED' TO WS-ABBR                              00349400
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00349500
+           MOVE SPACES TO WS-ABBR.                                      00349600
+           MOVE 'SS - SKIP SEQUENTIAL PROCESSING' TO WS-ABBR.           00349700
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00349800
+           MOVE SPACES TO WS-ABBR.                                      00349900
+           MOVE 'VL - VTAM LOGON INDICATOR' TO  WS-ABBR.                00350000
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00350100
+           MOVE SPACES TO WS-ABBR.                                      00350200
+           MOVE 'EM - SET DATASET TO EMPTY STATE' TO WS-ABBR.           00350300
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00350400
+           MOVE SPACES TO WS-ABBR.                                      00350500
+           MOVE 'SC - SHARED CONTROL BLOCKS' TO WS-ABBR.                00350600
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00350700
+           MOVE SPACES TO WS-ABBR.                                      00350800
+           MOVE 'AI - ALTERNATE INDEX OF THE PATH' TO WS-ABBR.          00350900
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00351000
+           MOVE SPACES TO WS-ABBR.                                      00351100
+           WRITE SMF-OUTPUT FROM WS-LINE.                               00351200
+           MOVE 'MACRF3 FIELDS:-' TO WS-ABBR.                           00351300
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00351400
+           WRITE SMF-OUTPUT FROM WS-FILLER.                             00351500
+           MOVE 'RS - RESERVED' TO WS-ABBR.                             00351600
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00351700
+           MOVE SPACES TO WS-ABBR.                                      00351800
+           MOVE 'LS - LOCAL SHARED RESOURCE' TO WS-ABBR.                00351900
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00352000
+           MOVE SPACES TO WS-ABBR.                                      00352100
+           MOVE 'GS - GLOBAL SHARED RESOURCE' TO WS-ABBR.               00352200
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00352300
+           MOVE SPACES TO WS-ABBR.                                      00352400
+           MOVE 'IC - IMPROVED CONTROL INTERVAL PROCESSING' TO WS-ABBR. 00352500
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00352600
+           MOVE SPACES TO WS-ABBR.                                      00352700
+           MOVE 'DW - DEFERRED WRITE' TO  WS-ABBR.                      00352800
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00352900
+           MOVE SPACES TO WS-ABBR.                                      00353000
+           MOVE 'SI - SEQUENTIAL INSERT STRATEGY' TO WS-ABBR.           00353100
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00353200
+           MOVE SPACES TO WS-ABBR.                                      00353300
+           MOVE 'CR - CONTROL BLOCKS FIXED IN REAL STORAGE' TO WS-ABBR. 00353400
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00353500
+           MOVE SPACES TO WS-ABBR.                                      00353600
+           MOVE 'VS - VSAM 31-BIT ADDRESSING MODE I/O BUFFERS'          00353700
+                TO WS-ABBR.                                             00353800
+           WRITE SMF-OUTPUT FROM WS-ABBR.                               00353900
+           MOVE SPACES TO WS-ABBR.                                      00354000
+           WRITE SMF-OUTPUT FROM WS-PATTERN.                            00354100
+      *                                                                 00354200
+       2600-ABBREV-EXIT.                                                00355001
+            EXIT.                                                       00360000

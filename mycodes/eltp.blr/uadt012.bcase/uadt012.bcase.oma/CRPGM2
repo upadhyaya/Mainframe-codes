@@ -1,0 +1,304 @@
+000100 IDENTIFICATION DIVISION.                                         00002000
+000200 PROGRAM-ID. CRPGM2.                                              00003099
+000400 ENVIRONMENT DIVISION.                                            00005000
+      *INPUT-OUTPUT SECTION.                                            00006043
+      *FILE-CONTROL.                                                    00006143
+      *          SELECT CCRECORD ASSIGN TO KSDS                         00006243
+      *          ORGANIZATION IS INDEXED                                00006343
+      *          ACCESS MODE IS SEQUENTIAL                              00006443
+      *          RECORD KEY IS FS-CC-NO                                 00006543
+      *          FILE STATUS IS CCRECORD-STAT.                          00006643
+000600 DATA DIVISION.                                                   00007000
+      *FILE SECTION.                                                    00008043
+      *FD CCRECORD.                                                     00008143
+      *01 FS-CC-NO      PIC 9(16).                                      00008243
+      *01 FS-CS-NO      PIC 9(3).                                       00008343
+      *01 FS-EX-DT.                                                     00008443
+      *   07   WS-D-MM     PIC 99.                                      00008543
+      *   07   FILLER      PIC X.                                       00008643
+      *   07   WS-D-DD     PIC 99.                                      00008743
+      *   07   FILLER      PIC X.                                       00008843
+      *   07   WS-D-YY     PIC 9999.                                    00008943
+      *01 FS-CC-TYPE    PIC X(25).                                      00009043
+      *01 FS-CREDLIM    PIC 9(6)V99.                                    00009143
+000800 WORKING-STORAGE SECTION.                                         00009200
+       01   CHOICE1 PIC S9(4) COMP VALUE 1.                             00009355
+       01   CHOICE5 PIC S9(4) COMP VALUE 1.                             00009499
+       01   CHOICE8 PIC S9(4) COMP VALUE 1.                             00009599
+       01   LEN PIC 9(4) COMP VALUE 1000.                               00009699
+       01   LENT PIC 9(4) COMP VALUE 62.                                00009799
+       01   CCRECORD-STAT PIC 99.                                       00009899
+       01   MSG1.                                                       00009999
+              05 MESS PIC X(50).                                        00010099
+       01 RE5                   PIC S9(4) COMP.                         00010199
+       01 RE8                   PIC S9(4) COMP.                         00010299
+       01 RE10                  PIC S9(4) COMP.                         00010399
+       01   LK-TRNID      PIC X(4).                                     00010499
+       01   WS-LTP        PIC 9(3).                                     00010799
+       01 CC-DATA.                                                      00011014
+             05 WS-CC-NO      PIC 9(16).                                00020099
+             05 WS-CS-NO      PIC 9(3).                                 00030028
+             05 WS-EX-DT.                                               00040028
+                 07   WS-D-YY     PIC 9999.                             00051099
+                 07   FILLER      PIC X.                                00060013
+                 07   WS-D-MM     PIC 99.                               00061099
+                 07   FILLER      PIC X.                                00062099
+                 07   WS-D-DD     PIC 99.                               00070013
+             05 WS-CC-TYPE    PIC X(25).                                00100028
+             05 WS-CC-AMTR    PIC 9(6).                                 00101099
+             05 WS-CC-AMTP    PIC 9(2).                                 00101199
+      *                                                                 00101299
+       01 CC-DATA2.                                                     00110199
+             05 WS2-CC-NO      PIC 9(16).                               00110299
+             05 WS2-CS-NO      PIC 9(3).                                00110499
+             05 WS2-EX-DT.                                              00110599
+                 07   WS2-D-YY     PIC 9999.                            00110699
+                 07   FILLER      PIC X.                                00110799
+                 07   WS2-D-MM     PIC 99.                              00110899
+                 07   FILLER      PIC X.                                00110999
+                 07   WS2-D-DD     PIC 99.                              00111099
+             05 WS2-CC-TYPE    PIC X(25).                               00111299
+             05 WS2-CC-LTR     PIC 9(6).                                00111499
+             05 WS2-CC-LTP     PIC 9(2).                                00111599
+      *                                                                 00111699
+       77 WS-CC-AMNT       PIC 9(6)V99.                                 00111799
+001600 77 WS-VAR1          PIC 9(5) VALUE 100.                          00112060
+001700 77 WS-VAR2          PIC 9(5) VALUE 200.                          00120000
+001800 77 WS-RES           PIC 9(6) VALUE 0.                            00130000
+       77 WS-TXT           PIC X(50) VALUE SPACES.                      00131000
+       COPY DFHBMSCA.                                                   00140000
+       COPY DFHAID.                                                     00150000
+       COPY ADDAPO.                                                     00160099
+                EXEC SQL                                                00160118
+                     INCLUDE SQLCA                                      00160228
+                END-EXEC.                                               00160318
+                EXEC SQL                                                00160422
+                     INCLUDE CCTAB                                      00160522
+                END-EXEC.                                               00160622
+       01 WS-COMMAREA PIC X(20) VALUE SPACES.                           00161001
+001820 LINKAGE SECTION.                                                 00180000
+001830 01 DFHCOMMAREA.                                                  00181000
+          COPY CCCOPY.                                                  00182099
+      *   COPY CRCOPYS.                                                 00183099
+001900 PROCEDURE DIVISION.                                              00185000
+              MOVE LS-TRANSID TO LK-TRNID.                              00185399
+              DISPLAY 'CONTROL FROM PGM1'                               00185499
+              DISPLAY 'TRANS-ID' LS-TRANSID ',' LK-TRNID.               00185599
+002000 0000-MAIN-PARA.                                                  00186000
+002100      IF EIBCALEN = 0                                             00186209
+              DISPLAY 'WEBSERVICE STARTED WITH NO DATA FROM CLIENT'     00186328
+              EXEC CICS RETURN                                          00186410
+              END-EXEC                                                  00186822
+            ELSE                                                        00187010
+              IF LK-TRNID = 'SO01'                                      00187293
+               PERFORM 2000-MOVE-PARA                                   00187507
+               PERFORM 2000-GETDET-PARA                                 00187607
+            ELSE IF LK-TRNID = 'SO03'                                   00187899
+               PERFORM 2001-MOVE-PARA                                   00188414
+               PERFORM 2000-CHECK-PARA                                  00188528
+            ELSE  EXEC CICS RETURN                                      00188690
+              END-EXEC                                                  00189090
+            END-IF.                                                     00220010
+       2010-MOVE-PARA.                                                  00239899
+               MOVE    WS-CC-NO  TO LS-CC-NO.                           00239999
+               MOVE    WS-CS-NO  TO LS-CS-NO.                           00240199
+               MOVE    WS-EX-DT  TO LS-EX-DT.                           00240299
+               MOVE    WS-CC-TYPE  TO LS-CC-TYPE.                       00240399
+               MOVE    WS-CC-AMTR TO LS-AMOUNTR.                        00240499
+               MOVE    WS-CC-AMTP TO LS-AMOUNTP.                        00240599
+       2000-MOVE-PARA.                                                  00240699
+               MOVE LS-CC-NO TO WS-CC-NO.                               00240799
+               MOVE LS-CS-NO TO WS-CS-NO.                               00240999
+               MOVE LS-EX-DT TO WS-EX-DT.                               00241099
+               MOVE LS-CC-TYPE TO WS-CC-TYPE.                           00241199
+               MOVE LS-AMOUNTR TO WS-CC-AMTR.                           00241299
+               MOVE LS-AMOUNTP TO WS-CC-AMTP.                           00241399
+               EXEC CICS WRITEQ TS                                      00482599
+                         QUEUE('CCDATA1')                               00482699
+                         FROM(CC-DATA)                                  00482799
+                         ITEM(CHOICE1)                                  00482899
+                         REWRITE                                        00482999
+                         RESP(RE5)                                      00483099
+                         MAIN                                           00483199
+               END-EXEC.                                                00483299
+               DISPLAY RE5                                              00483399
+               IF RE5  = DFHRESP(NORMAL)                                00483499
+                 CONTINUE                                               00483599
+               ELSE                                                     00483699
+               EXEC CICS WRITEQ TS                                      00483799
+                         QUEUE('CCDATA1')                               00483899
+                         FROM(CC-DATA)                                  00483999
+                         ITEM(CHOICE1)                                  00484099
+                         MAIN                                           00484199
+               END-EXEC.                                                00484299
+       2000-GETDET-PARA.                                                00484399
+               MOVE WS-CC-NO TO LS-CC-NO.                               00484499
+               MOVE 'SO02' TO LS-TRANSID.                               00484599
+               EXEC CICS XCTL                                           00486499
+                     PROGRAM ('CRPGM3')                                 00486599
+                     COMMAREA (DFHCOMMAREA)                             00486699
+                     LENGTH (127)                                       00486799
+               END-EXEC.                                                00486899
+       2001-MOVE-PARA.                                                  00486999
+               EXEC CICS READQ TS                                       00487099
+                         QUEUE('CCDATA1')                               00487199
+                         INTO(CC-DATA)                                  00487299
+                         ITEM(CHOICE1)                                  00487399
+               END-EXEC                                                 00487499
+              IF LS-MSG = 'RECORD DOES NOT EXIST - PLZ TRY AGAIN'       00487599
+               MOVE 'SO02' TO LS-TRANSID                                00487699
+               PERFORM 2010-MOVE-PARA                                   00487799
+               MOVE 'RECORD DOES NOT EXIST - PLZ TRY AGAIN' TO LS-MSG   00487899
+               PERFORM 2000-QPARA                                       00487999
+               PERFORM 2500-TRANSFER-PARA                               00488099
+               ELSE IF LS-MSG = 'INVALID DETAILS'                       00488199
+                MOVE 'SO02' TO LS-TRANSID                               00488299
+                PERFORM 2010-MOVE-PARA                                  00488399
+                MOVE 'INVALID DETAILS' TO LS-MSG                        00488499
+                PERFORM 2000-QPARA                                      00488599
+                PERFORM 2500-TRANSFER-PARA                              00488699
+               ELSE                                                     00488799
+               EXEC CICS READQ TS                                       00488899
+                         QUEUE('CCDATA1')                               00488999
+                         INTO(CC-DATA)                                  00489099
+                         ITEM(CHOICE1)                                  00489199
+               END-EXEC.                                                00489299
+       2000-CHECK-PARA.                                                 00489399
+              IF LS-CC-NO = WS-CC-NO                                    00489499
+               CONTINUE                                                 00489599
+              ELSE                                                      00489699
+                 MOVE 'INVALID CREDIT CARD NO - PLZ TRY AGAIN' TO LS-MSG00489799
+                 PERFORM 2010-MOVE-PARA                                 00489899
+                 MOVE 'SO02' TO LS-TRANSID                              00489999
+                 PERFORM 2000-QPARA                                     00490099
+                 PERFORM 2500-TRANSFER-PARA.                            00490199
+              IF LS-CS-NO = WS-CS-NO                                    00490299
+                     CONTINUE                                           00490399
+              ELSE                                                      00490499
+                 MOVE 'INVALID CSN NO - PLZ TRY AGAIN' TO LS-MSG        00490599
+                 PERFORM 2010-MOVE-PARA                                 00490699
+                 MOVE 'SO02' TO LS-TRANSID                              00490799
+                 PERFORM 2000-QPARA                                     00490899
+                 PERFORM 2500-TRANSFER-PARA.                            00490999
+              IF LS-CC-TYPE = WS-CC-TYPE                                00491099
+                      DISPLAY '3'                                       00491199
+              ELSE                                                      00491299
+                 MOVE 'INVALID CARD TYPE - PLZ TRY AGAIN' TO LS-MSG     00491399
+                 PERFORM 2010-MOVE-PARA                                 00491499
+               MOVE 'SO02' TO LS-TRANSID                                00491599
+               PERFORM 2000-QPARA                                       00491699
+               PERFORM 2500-TRANSFER-PARA.                              00491799
+              IF LS-EX-DT = WS-EX-DT                                    00491899
+                      DISPLAY '3'                                       00491999
+              ELSE                                                      00492099
+                 MOVE 'INVALID EXPIRY DATE - PLZ TRY AGAIN ' TO LS-MSG  00492199
+                 PERFORM 2010-MOVE-PARA                                 00492299
+                 MOVE 'SO02' TO LS-TRANSID                              00492399
+                 PERFORM 2000-QPARA                                     00492499
+                 PERFORM 2500-TRANSFER-PARA.                            00492599
+              IF  WS-CC-NO < 5000000000000000                           00493099
+                   DISPLAY '4'                                          00493199
+                   PERFORM 2000-PROCESS-PARA                            00493299
+              ELSE                                                      00493399
+                  IF WS-CC-NO > 5000000000000000                        00493499
+                  PERFORM 2001-PROCESS-PARA.                            00493599
+       2000-PROCESS-PARA.                                               00493699
+             IF WS-CC-AMTR < LS-CC-LTR                                  00493799
+             PERFORM 2002-PROCESS-PARA                                  00493899
+             SUBTRACT WS-CC-AMTR FROM LS-CC-LTR GIVING LS-CC-LTR        00493999
+             MOVE WS-CC-NO TO CR-CARD-NO                                00494099
+             MOVE LS-CC-LTR TO WS-CC-AMNT(1:6)                          00494199
+             MOVE LS-CC-LTP TO WS-CC-AMNT(7:2)                          00494299
+             MOVE WS-CC-AMNT TO CR-LMT                                  00494399
+             DISPLAY 'CR-LMT ', CR-LMT                                  00494499
+                 EXEC SQL                                               00494599
+                       UPDATE ADMT.CC_DTL                               00494699
+                       SET                                              00494799
+                             CR_LMT = :CR-LMT                           00494899
+                        WHERE CR_CARD_NO = :CR-CARD-NO                  00494999
+                    END-EXEC                                            00495099
+              MOVE 'SUCCESSFUL TRANSACTION PRESS F12 TO CLEAR' TO LS-MSG00497099
+               ELSE MOVE 'INSUFFICIENT FUNDS - PLZ TRY AGAIN' TO LS-MSG.00497199
+                 PERFORM 2010-MOVE-PARA                                 00497299
+               MOVE 'SO02' TO LS-TRANSID                                00497399
+               PERFORM 2000-QPARA                                       00497499
+               PERFORM 2500-TRANSFER-PARA.                              00497599
+       2001-PROCESS-PARA.                                               00498099
+                 EXEC CICS                                              00498199
+                   READ FILE ('CCREC3')                                 00498299
+                       INTO (CC-DATA2)                                  00498399
+                       RIDFLD(LS-CC-NO)                                 00498499
+                       LENGTH(LENT)                                     00498599
+                       UPDATE                                           00498699
+                 END-EXEC                                               00498799
+             DISPLAY 'CR-LMT ', CR-LMT                                  00498899
+             IF WS-CC-AMTR <= LS-CC-LTR                                 00498999
+                PERFORM 2002-PROCESS-PARA                               00499099
+                SUBTRACT WS-CC-AMTR FROM LS-CC-LTR GIVING LS-CC-LTR     00499899
+                DISPLAY 'CR-LMT ', CR-LMT                               00499999
+                MOVE WS-CC-NO TO WS2-CC-NO                              00500099
+                MOVE LS-CC-LTR TO WS2-CC-LTR                            00500199
+                MOVE LS-CC-LTP TO WS2-CC-LTP                            00500299
+                MOVE LS-EX-DT TO WS2-EX-DT                              00500399
+                MOVE LS-CS-NO TO WS2-CS-NO                              00500499
+                MOVE LS-CC-TYPE TO WS2-CC-TYPE                          00500599
+                EXEC CICS                                               00500899
+                  REWRITE FILE ('CCREC3')                               00500999
+                      FROM (CC-DATA2)                                   00501099
+                      LENGTH(LENT)                                      00501199
+      *               RIDFLD(LS-CC-NO)                                  00501299
+                END-EXEC                                                00501399
+             MOVE 'SUCCESSFUL TRANSACTION PRESS F12 TO CLEAR' TO LS-MSG 00501499
+              ELSE MOVE 'INSUFFICIENT FUNDS - PLZ TRY AGAIN' TO LS-MSG. 00501599
+                 PERFORM 2010-MOVE-PARA                                 00504599
+               MOVE 'SO02' TO LS-TRANSID                                00504699
+               PERFORM 2000-QPARA                                       00504799
+               PERFORM 2500-TRANSFER-PARA.                              00504899
+       2002-PROCESS-PARA.                                               00511099
+                 IF WS-CC-AMTP > LS-CC-LTP                              00512099
+                     MOVE LS-CC-LTP TO WS-LTP                           00513099
+                     ADD 100 TO WS-LTP                                  00514099
+                     SUBTRACT WS-CC-AMTP FROM WS-LTP GIVING WS-LTP      00515099
+                     SUBTRACT 1 FROM LS-CC-LTR GIVING LS-CC-LTR         00516099
+                     MOVE WS-LTP TO LS-CC-LTP                           00517099
+                  ELSE                                                  00540099
+                  IF WS-CC-AMTP <= LS-CC-LTP                            00540199
+                     SUBTRACT WS-CC-AMTP FROM LS-CC-LTP GIVING LS-CC-LTP00540299
+                  END-IF.                                               00580099
+       2500-TRANSFER-PARA.                                              00590099
+                      DISPLAY 'BACK TO FIRST'.                          00591099
+                      EXEC CICS RETURN                                  00600099
+      *                     COMMAREA (DFHCOMMAREA)                      00600199
+      *                     TRANSID('SO01')                             00601099
+      *                     LENGTH (1000)                               00630099
+                      END-EXEC.                                         00640099
+      *          ELSE                                                   00641099
+      *               EXEC CICS XCTL                                    00650099
+      *                     PROGRAM ('CCPGM1')                          00660099
+      *                     COMMAREA (DFHCOMMAREA)                      00670099
+      *                     LENGTH (900)                                00680099
+      *               END-EXEC                                          00690099
+      *          END-IF.                                                00700099
+      *                                                                 00701099
+       2000-QPARA.                                                      00710099
+              MOVE LS-MSG TO MESS                                       00720099
+              EXEC CICS WRITEQ TS                                       00730099
+                        QUEUE('MSG')                                    00740099
+                        FROM(MSG1)                                      00750099
+                        ITEM(CHOICE5)                                   00760099
+                        REWRITE                                         00770099
+                        MAIN                                            00780099
+                        RESP(RE8)                                       00790099
+              END-EXEC.                                                 00800099
+              DISPLAY 'RE8' RE8                                         00810099
+              IF RE8  = DFHRESP(NORMAL)                                 00820099
+                 DISPLAY 'MESSIF' MESS                                  00821099
+                CONTINUE                                                00830099
+              ELSE                                                      00840099
+              EXEC CICS WRITEQ TS                                       00850099
+                        QUEUE('MSG')                                    00860099
+                        ITEM(CHOICE5)                                   00870099
+                        FROM(MSG1)                                      00871099
+                        MAIN                                            00880099
+              END-EXEC.                                                 00890099
+              DISPLAY 'MESS' MESS.                                      00900099

@@ -1,0 +1,154 @@
+              05 C-LS-MSG       PIC X(70).                              00010000
+              05 C-LS-CUSTID    PIC 9(10).                              00020000
+              05 C-LS-CUSNAME   PIC X(40).                              00030000
+              05 C-LS-ADDLN1    PIC X(40).                              00040000
+              05 C-LS-ADDLN2    PIC X(40).                              00050000
+              05 C-LS-CITY      PIC X(15).                              00060000
+              05 C-LS-STATE     PIC X(15).                              00070000
+              05 C-LS-PCODE     PIC X(10).                              00080000
+              05 C-LS-CTRY      PIC X(15).                              00090000
+              05 C-LS-PHONE     PIC X(24).                              00100000
+              05 C-LS-FAX       PIC X(24).                              00110000
+              05 C-LS-OPT       PIC X(06).                              00120000
+              05 C-LS-CURSOR    PIC 9(02).                              00130000
+      *                                                                 00131001
+              05 E-LS-OPT          PIC X(6).                            00140000
+              05 E-LS-TRANS-ID     PIC X(4).                            00150000
+              05 E-LS-CURSOR-POS   PIC 9(2).                            00160000
+              05 E-LS-MSG          PIC X(70).                           00170000
+              05 E-LS-EMP-ID       PIC 9(10).                           00180000
+              05 E-LS-EMP-NAME     PIC X(40).                           00190000
+              05 E-LS-EMP-BIRTH-DT.                                     00200000
+                   07 E-LS-D-MM PIC 99.                                 00210000
+                   07 FILLER  PIC X.                                    00220000
+                   07 E-LS-D-DD PIC 99.                                 00230000
+                   07 FILLER  PIC X.                                    00240000
+                   07 E-LS-D-YY PIC 9999.                               00250000
+              05 E-LS-EMP-HIRE-DT.                                      00260000
+                   07 E-LS-D-MM PIC 99.                                 00270000
+                   07 FILLER  PIC X.                                    00280000
+                   07 E-LS-D-DD PIC 99.                                 00290000
+                   07 FILLER  PIC X.                                    00300000
+                   07 E-LS-D-YY PIC 9999.                               00310000
+              05 E-LS-EMP-ADR-LN-1 PIC X(40).                           00320000
+              05 E-LS-EMP-ADR-LN-2 PIC X(40).                           00330000
+              05 E-LS-EMP-CITY     PIC X(15).                           00340000
+              05 E-LS-EMP-STATE    PIC X(15).                           00350000
+              05 E-LS-EMP-POST-CD  PIC X(10).                           00360000
+              05 E-LS-EMP-COUNTRY  PIC X(15).                           00370000
+              05 E-LS-EMP-PHONE    PIC X(24).                           00380000
+              05 E-LS-EMP-FAX      PIC X(24).                           00390000
+      *                                                                 00390101
+              05 L1S-PGMNAME    PIC X(8)   VALUE SPACES.                00400000
+              05 L1S-OPT        PIC X(4)   VALUE SPACES.                00410000
+              05 L1S-FLAG       PIC X(4)   VALUE SPACES.                00420000
+              05 L1S-CNT        PIC 9      VALUE ZERO.                  00430000
+              05 L1S-ORD-ID     PIC 9(10)  VALUE ZEROS.                 00440000
+              05 L1S1-ORD-ID    PIC 9(10) VALUE ZEROS.                  00450000
+              05 L1S-CUST-ID    PIC 9(10)  VALUE ZEROS.                 00460000
+              05 L1S-ORDER-DATE.                                        00470000
+                 07 L1S-OD-DD   PIC 99 VALUE ZEROS.                     00480000
+                 07 FILLER     PIC X.                                   00490000
+                 07 L1S-OD-MM   PIC 99 VALUE ZEROS.                     00500000
+                 07 FILLER     PIC X.                                   00510000
+                 07 L1S-OD-YY   PIC 9999 VALUE ZEROS.                   00520000
+              05 L1S-PROD-ID    PIC 9(10) VALUE ZEROS.                  00530000
+              05 L1S-EMP-ID     PIC 9(10) VALUE ZEROS.                  00540000
+              05 L1S-CURPOS     PIC 9 VALUE ZEROS.                      00550000
+              05 L1S-ORDERID1   PIC 9(10) VALUE ZEROS.                  00560000
+              05 L1S-CUSTID1    PIC 9(10) VALUE ZEROS.                  00570000
+              05 L1S-PRODID1    PIC 9(10) VALUE ZEROS.                  00580000
+              05 L1S-EMPID1     PIC 9(10) VALUE ZEROS.                  00590000
+              05 L1S-QNTY1      PIC 9(5) VALUE ZEROS.                   00600000
+              05 L1S-TOTALCOST1 PIC X(18) VALUE SPACES.                 00610000
+              05 L1S-ORDERDT1.                                          00620000
+                 07 L1S1-D-DD    PIC 99 VALUE ZEROS.                    00630000
+                 07 FILLER      PIC X.                                  00640000
+                 07 L1S1-D-MM    PIC 99 VALUE ZEROS.                    00650000
+                 07 FILLER      PIC X.                                  00660000
+                 07 L1S1-D-YY    PIC 9999 VALUE ZEROS.                  00670000
+              05 L1S-ORDERID2   PIC 9(10) VALUE ZEROS.                  00680000
+              05 L1S-CUSTID2    PIC 9(10) VALUE ZEROS.                  00690000
+              05 L1S-PRODID2    PIC 9(10) VALUE ZEROS.                  00700000
+              05 L1S-EMPID2     PIC 9(10) VALUE ZEROS.                  00710000
+              05 L1S-QNTY2      PIC 9(5) VALUE ZEROS.                   00720000
+              05 L1S-TOTALCOST2 PIC X(18) VALUE SPACES.                 00730000
+              05 L1S-ORDERDT2.                                          00740000
+                 07 L1S2-D-DD    PIC 99 VALUE ZEROS.                    00750000
+                 07 FILLER      PIC X.                                  00760000
+                 07 L1S2-D-MM    PIC 99 VALUE ZEROS.                    00770000
+                 07 FILLER      PIC X.                                  00780000
+                 07 L1S2-D-YY    PIC 9999 VALUE ZEROS.                  00790000
+              05 L1S-ORDERID3   PIC 9(10) VALUE ZEROS.                  00800000
+              05 L1S-CUSTID3    PIC 9(10) VALUE ZEROS.                  00810000
+              05 L1S-PRODID3    PIC 9(10) VALUE ZEROS.                  00820000
+              05 L1S-EMPID3     PIC 9(10) VALUE ZEROS.                  00830000
+              05 L1S-QNTY3      PIC 9(5) VALUE ZEROS.                   00840000
+              05 L1S-TOTALCOST3 PIC X(18) VALUE SPACES.                 00850000
+              05 L1S-ORDERDT3.                                          00860000
+                 07 L1S3-D-DD    PIC 99 VALUE ZEROS.                    00870000
+                 07 FILLER      PIC X.                                  00880000
+                 07 L1S3-D-MM    PIC 99 VALUE ZEROS.                    00890000
+                 07 FILLER      PIC X.                                  00900000
+                 07 L1S3-D-YY    PIC 9999 VALUE ZEROS.                  00910000
+              05 L1S-ORDERID4   PIC 9(10) VALUE ZEROS.                  00920000
+              05 L1S-CUSTID4    PIC 9(10) VALUE ZEROS.                  00930000
+              05 L1S-PRODID4    PIC 9(10) VALUE ZEROS.                  00940000
+              05 L1S-EMPID4     PIC 9(10) VALUE ZEROS.                  00950000
+              05 L1S-QNTY4      PIC 9(5) VALUE ZEROS.                   00960000
+              05 L1S-TOTALCOST4 PIC X(18) VALUE SPACES.                 00970000
+              05 L1S-ORDERDT4.                                          00980000
+                 07 L1S4-D-DD    PIC 99 VALUE ZEROS.                    00990000
+                 07 FILLER      PIC X.                                  01000000
+                 07 L1S4-D-MM    PIC 99 VALUE ZEROS.                    01010000
+                 07 FILLER      PIC X.                                  01020000
+                 07 L1S4-D-YY    PIC 9999 VALUE ZEROS.                  01030000
+              05 L1S-ORDERID5   PIC 9(10) VALUE ZEROS.                  01040000
+              05 L1S-CUSTID5    PIC 9(10) VALUE ZEROS.                  01050000
+              05 L1S-PRODID5    PIC 9(10) VALUE ZEROS.                  01060000
+              05 L1S-EMPID5     PIC 9(10) VALUE ZEROS.                  01070000
+              05 L1S-QNTY5      PIC 9(5) VALUE ZEROS.                   01080000
+              05 L1S-TOTALCOST5 PIC X(18) VALUE SPACES.                 01090000
+              05 L1S-ORDERDT5.                                          01100000
+                 07 L1S5-D-DD    PIC 99 VALUE ZEROS.                    01110000
+                 07 FILLER      PIC X.                                  01120000
+                 07 L1S5-D-MM    PIC 99 VALUE ZEROS.                    01130000
+                 07 FILLER      PIC X.                                  01140000
+                 07 L1S5-D-YY    PIC 9999 VALUE ZEROS.                  01150000
+              05 L1S-ORDERID6   PIC 9(10) VALUE ZEROS.                  01160000
+              05 L1S-CUSTID6    PIC 9(10) VALUE ZEROS.                  01170000
+              05 L1S-PRODID6    PIC 9(10) VALUE ZEROS.                  01180000
+              05 L1S-EMPID6     PIC 9(10) VALUE ZEROS.                  01190000
+              05 L1S-QNTY6      PIC 9(5) VALUE ZEROS.                   01200000
+              05 L1S-TOTALCOST6 PIC X(18) VALUE SPACES.                 01210000
+              05 L1S-ORDERDT6.                                          01220000
+                 07 L1S6-D-DD    PIC 99 VALUE ZEROS.                    01230000
+                 07 FILLER      PIC X.                                  01240000
+                 07 L1S6-D-MM    PIC 99 VALUE ZEROS.                    01250000
+                 07 FILLER      PIC X.                                  01260000
+                 07 L1S6-D-YY    PIC 9999 VALUE ZEROS.                  01270000
+              05 L1S-ORDERID7   PIC 9(10) VALUE ZEROS.                  01280000
+              05 L1S-CUSTID7    PIC 9(10) VALUE ZEROS.                  01290000
+              05 L1S-PRODID7    PIC 9(10) VALUE ZEROS.                  01300000
+              05 L1S-EMPID7     PIC 9(10) VALUE ZEROS.                  01310000
+              05 L1S-QNTY7      PIC 9(5) VALUE ZEROS.                   01320000
+              05 L1S-TOTALCOST7 PIC X(18) VALUE SPACES.                 01330000
+              05 L1S-ORDERDT7.                                          01340000
+                 07 L1S7-D-DD    PIC 99 VALUE ZEROS.                    01350000
+                 07 FILLER      PIC X.                                  01360000
+                 07 L1S7-D-MM    PIC 99 VALUE ZEROS.                    01370000
+                 07 FILLER      PIC X.                                  01380000
+                 07 L1S7-D-YY    PIC 9999 VALUE ZEROS.                  01390000
+              05 L1S-ORDERID8   PIC 9(10) VALUE ZEROS.                  01400000
+              05 L1S-CUSTID8    PIC 9(10) VALUE ZEROS.                  01410000
+              05 L1S-PRODID8    PIC 9(10) VALUE ZEROS.                  01420000
+              05 L1S-EMPID8     PIC 9(10) VALUE ZEROS.                  01430000
+              05 L1S-QNTY8      PIC 9(5) VALUE ZEROS.                   01440000
+              05 L1S-TOTALCOST8 PIC X(18) VALUE SPACES.                 01450000
+              05 L1S-ORDERDT8.                                          01460000
+                 07 L1S8-D-DD    PIC 99 VALUE ZEROS.                    01470000
+                 07 FILLER      PIC X.                                  01480000
+                 07 L1S8-D-MM    PIC 99 VALUE ZEROS.                    01490000
+                 07 FILLER      PIC X.                                  01500000
+                 07 L1S8-D-YY    PIC 9999 VALUE ZEROS.                  01510000
+              05 L1S-MSG        PIC X(70) VALUE SPACES.                 01520000

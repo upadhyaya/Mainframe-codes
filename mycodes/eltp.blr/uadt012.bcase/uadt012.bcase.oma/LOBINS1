@@ -1,0 +1,57 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. LOBINS.                                              00020001
+000400 AUTHOR. TEAMSOA.                                                 00040000
+000410 DATE-WRITTEN. 26/04/07.                                          00041000
+000420 DATE-COMPILED. 28/04/07.                                         00042000
+000421*                                                                 00042100
+000717******************************************************************00071700
+       ENVIRONMENT DIVISION.                                            00071812
+       INPUT-OUTPUT SECTION.                                            00072013
+       FILE-CONTROL.                                                    00072112
+                SELECT FILE1  ASSIGN TO F2.                             00072218
+000718 DATA DIVISION.                                                   00072312
+       FILE SECTION.                                                    00072420
+       FD FILE1 RECORD VARYING FROM 1 TO 32767 CHARACTERS.              00072519
+       01  INPUTRECORD1 PIC X(32767).                                   00072622
+000719 WORKING-STORAGE SECTION.                                         00072712
+           EXEC SQL INCLUDE SQLCA END-EXEC.                             00072807
+       01  LENGTH1     PIC 9(8).                                        00074022
+       01  WS-TEXT2    PIC X(80).                                       00074129
+       01  INPUTRECORD PIC X(32767).                                    00074227
+       01  EOF-INPUT PIC X(1) VALUE 'N'.                                00074327
+       01  DCLPROD-PICTURES.                                            00074427
+          10 PRODUCT-ID           PIC S9(10)V USAGE COMP-3.             00074527
+          10 ROW-ID               USAGE SQL TYPE IS ROWID.              00074627
+          10 UPLOAD-ATTACH        USAGE SQL TYPE IS BLOB(100K).         00074727
+000726                                                                  00075010
+001048******************************************************************00114100
+001039 LINKAGE SECTION.                                                 00114200
+001040 01 DFHCOMMAREA PIC X.                                            00114332
+001048******************************************************************00114700
+001089 PROCEDURE DIVISION.                                              00114800
+001090******************************************************************00114900
+001092 1000-MAINLINE-PARA.                                              00115400
+              DISPLAY 'LOBINS1'                                         00116230
+              MOVE 82777 TO PRODUCT-ID                                  00116301
+              MOVE 0 TO UPLOAD-ATTACH-LENGTH                            00116422
+              OPEN INPUT FILE1.                                         00116522
+              PERFORM UNTIL EOF-INPUT = 'Y'                             00116609
+               READ FILE1 INTO INPUTRECORD                              00116721
+      *         AT END MOVE 'Y' TO EOF-INPUT                            00116812
+             IF EOF-INPUT = 'N'                                         00116910
+              MOVE LENGTH OF INPUTRECORD TO LENGTH1                     00117010
+             MOVE INPUTRECORD TO                                        00117108
+                  UPLOAD-ATTACH-DATA(UPLOAD-ATTACH-LENGTH + 1:LENGTH1)  00117210
+             ADD LENGTH1 TO UPLOAD-ATTACH-LENGTH                        00117310
+             END-IF                                                     00117408
+             END-PERFORM                                                00117508
+      *       MOVE 'UBET515.RETAIL.PS' TO UPLOAD-ATTACH-NAME            00117608
+      *       MOVE SQL-FILE-READ TO UPLOAD-ATTACH-FILE-OPTION           00117708
+                EXEC SQL INSERT INTO ADMT.PROD_PICTURES                 00117808
+                     (PRODUCT_ID,UPLOAD_ATTACH)                         00117908
+                  VALUES(:PRODUCT-ID,:UPLOAD-ATTACH)                    00118008
+                  END-EXEC                                              00118108
+                DISPLAY 'LOBSQLCODE'SQLCODE.                            00118234
+                CLOSE FILE1.                                            00118324
+                STOP RUN.                                               00118433
+               EXEC CICS RETURN END-EXEC.                               00120000

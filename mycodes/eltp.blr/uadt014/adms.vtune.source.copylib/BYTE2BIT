@@ -1,0 +1,32 @@
+      *  *=============================================================*00001107
+      *           CODE FOR CONVERTING A BYTE TO BITS  :-                00002007
+      *  * INPUT:  BTS-PASS-BITS, A ONE BYTE FIELD (8-BITS)             00003007
+      *  * OUTPUT: BTS-PASS-BYTES, AN EIGHT BYTE FIELD                  00003107
+      *  *                                                              00003207
+      *  * FOR EACH BIT THAT IS ON IN BTS-PASS-BITS SET THE             00003307
+      *  * CORRESPONDING BYTE IN BTS-PASS-BYTES TO A VALUE OF ONE.      00003407
+      *  *                                                              00003507
+      *  * FOR EACH BIT THAT IS OFF IN BTS-PASS-BITS SET THE            00003607
+      *  * CORRESPONDING BYTE IN BTS-PASS-BYTES TO A VALUE OF ZERO.     00003707
+      *  *                                                              00003807
+      *  * EXAMPLE:                                                     00003907
+      *  * BTS-PASS-BITS = X'55' THEN BTS-PASS-BYTES WILL BE '01010101'.00004007
+      *  *=============================================================*00005007
+       9500-BYTE2BITS-PARA.                                             00010000
+              SUBTRACT TWO-BYTES-BINARY FROM TWO-BYTES-BINARY.          00011001
+              ADD 1   TO ZERO GIVING IX-1.                              00012001
+              ADD 128 TO ZERO GIVING REGISTER-1.                        00013001
+              MOVE BTS-PASS-BITS TO TWO-BYTES-02.                       00014001
+              PERFORM 8 TIMES                                           00015000
+                 IF  TWO-BYTES-BINARY = REGISTER-1 OR                   00016000
+                     TWO-BYTES-BINARY > REGISTER-1                      00017000
+                     MOVE '1' TO BTS-PASS-BYTES(IX-1:1)                 00018000
+                     SUBTRACT REGISTER-1 FROM TWO-BYTES-BINARY          00019000
+                 ELSE                                                   00019100
+                      MOVE '0' TO BTS-PASS-BYTES(IX-1:1)                00019200
+                 END-IF                                                 00019300
+                 DIVIDE 2 INTO REGISTER-1                               00019400
+                 ADD 1 TO IX-1                                          00019500
+              END-PERFORM.                                              00019605
+       9500-BYTE2BITS-EXIT.                                             00019800
+            EXIT.                                                       00019902

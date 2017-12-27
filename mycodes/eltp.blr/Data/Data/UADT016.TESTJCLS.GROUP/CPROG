@@ -1,0 +1,6 @@
+#include <stdio.h>                                                      00010000
+int main(void)                                                          00040000
+{                                                                       00050000
+  static int i=10;                                                      00051001
+  printf("hello!! this is C program");                                  00060000
+}                                                                       00070000

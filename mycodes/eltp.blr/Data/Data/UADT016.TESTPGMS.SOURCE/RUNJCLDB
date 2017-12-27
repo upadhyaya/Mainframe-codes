@@ -1,0 +1,17 @@
+//UADT016P JOB NOTIFY=&SYSUID,REGION=0M                                 00010018
+//*                                                                     00020000
+//STEP1    EXEC PGM=IKJEFT01,DYNAMNBR=30                                00030000
+//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR                              00040000
+//*F1       DD DSN=ELTP.BLR.TEAM4.COUNTRY,DISP=SHR                      00050000
+//*F2       DD DSN=ELTP.BLR.TEAM4.REPFILE,DISP=OLD                      00060000
+//SYSPRINT DD SYSOUT=*                                                  00070000
+//SYSTSPRT DD SYSOUT=*                                                  00080000
+//SYSUDUMP DD SYSOUT=*                                                  00090000
+//SYSOUT   DD SYSOUT=*                                                  00100000
+//SYSTSIN  DD *                                                         00110000
+DSN SYSTEM(DB2A)                                                        00120000
+RUN PROGRAM(DBPARM) PLAN(ADMTPLN1) PARM('0060082959  bl             ')- 00130018
+    LIBRARY('UADT016.BASE.LOADLIB')                                     00140000
+END                                                                     00150000
+//*ARM('/2006-01-02 2007-04-20')                                        00160000
+/*                                                                      00170000

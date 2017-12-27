@@ -1,0 +1,305 @@
+                                                                        00010000
+000100 IDENTIFICATION DIVISION.                                         00020000
+                                                                        00030000
+000200 PROGRAM-ID.    XTRCT110.                                         00040000
+                                                                        00050000
+000400 AUTHOR.        RADHIKA.                                          00060022
+                                                                        00070022
+000500 DATE-WRITTEN.  13/12/08.                                         00080022
+                                                                        00090022
+000600 DATE-COMPILED. 13/12/08.                                         00100022
+                                                                        00110022
+002000******************************************************************00120000
+      ***                                                            ***00130023
+      *** PROGRAM NAME: XTRCT110.                                    ***00140023
+      ***                                                            ***00150023
+      *** INTRODUCTION:                                              ***00160023
+      ***                                                            ***00170023
+      *** THIS PROGRAM IS USED TO EXTRACT DATA FROM SMF110 RECORDS.  ***00180024
+      ***                                                            ***00190023
+      *** PROGRAM CALLED BY:                                         ***00200023
+      ***     NONE.                                                  ***00210023
+      ***                                                            ***00220023
+      *** PROGRAM CALLS:                                             ***00230023
+      ***     NONE.                                                  ***00240023
+      ***                                                            ***00250023
+      *** FUNCTION:-                                                 ***00260023
+      ***                                                            ***00270023
+      *** CICS MONITORING COLLECTS DATA ABOUT THE PERFORMANCE OF ALL ***00280024
+      *** USER- & CICS-SUPPLIED TRANSACTIONS DURING ONLINE PROCESSING***00290024
+      *** FOR LATER OFFLINE ANALYSIS. THE RECORDS PRODUCED BY CICS   ***00300024
+      *** MONITORING ARE OF THE MVS SYSTEM MANAGEMENT FACILITY (SMF) ***00310024
+      *** TYPE 110, AND ARE WRITTEN TO AN SMF DATA SET.              ***00320024
+      ***                                                            ***00330024
+      *** THESE RECORDS ARE READ AND ONLY THE PERFORMANCE CLASS      ***00340024
+      *** DATA IS WRITTEN INTO THE REPORT. THIS IS THE EXTRACT REPORT***00350024
+      *** DATA WHICH IS LATER USED AS INPUT FOR VARIOUS KINDS OF     ***00360024
+      *** REPORTS.                                                   ***00370024
+      ***                                                            ***00380024
+      *** THE TYPES, OR "CLASSES", OF MONITORING DATA THAT CICS      ***00390024
+      *** COLLECTS ARE PERFORMANCE, EXCEPTION AND TRANSACTION        ***00400024
+      *** RESOURCE CLASS.                                            ***00410024
+      *** PERFORMANCE DATA IS DETAILED TRANSACTION-LEVEL INFORMATION,***00420024
+      *** SUCH AS THE PROCESSOR AND ELAPSED TIME FOR A TRANSACTION,OR***00430024
+      *** THE TIME SPENT WAITING FOR I/O. CICS WRITES AT LEAST ONE   ***00440024
+      *** PERFORMANCE RECORD FOR EACH TRANSACTION THAT IS BEING      ***00450024
+      *** MONITORED.THE REPORTS GENERATED FOR 110 USES ONLY PERF     ***00460024
+      *** CLASS DATA.                                                ***00470024
+      ***                                                            ***00740024
+      *** THE EXTRACT REPORT WILL HAVE ONLY PERF RECORDS OF SMF110.  ***00750024
+      *** THESE FIELDS ARE FINALIZED BASED ON THE REPORT THAT HAS TO ***00760024
+      *** BE GENERATED.                                              ***00770024
+      *** THE EXTRACTED OUTPUT FILE IS USED FOR REPORT GENERATION.   ***00771024
+      *** THE SMF RECORDS ARE DOWNLOADED USING SMFDUMP PROGRAM       ***00780024
+      *** IFASMFDP.                                                  ***00790024
+      ***                                                            ***00800024
+      ***  INCLUDE CODE FROM COPY LIBRARY-ADMS.VTUNE.SOURCE.COPYLIB  ***00810024
+      ***                                                            ***00820024
+      ***  VT011CPY:- SMF110 RECORD STRUCTURE.                       ***00830024
+      ***                                                            ***00840024
+      ***  VT110EXT:- SMF110 CMF PERFORMANCE CLASS RECORD STRUCTURE. ***00850024
+      ***             THIS HAS ONLY THE REQUIRED FIELDS OF SMF110.   ***00860024
+      ***             BASICALLY THE EXTRACT COPYBOOK.                ***00870024
+      ***                                                            ***00880024
+      ***  FILES USED:-                                              ***00890024
+      ***    SMFDATA - INPUT FILE.                                   ***00900024
+      ***    SMFOUT  - OUTPUT FILE.                                  ***00910024
+      ***                                                            ***00920024
+      ***  PROGRAM FORMAT:-                                          ***00930024
+      ***                                                            ***00940024
+      ***     0000-MAIN-PARA.                                        ***00950024
+      ***          PERFORM 1000-INITIALIZE-PARA.                     ***00960024
+      ***          PERFORM 2000-PROCESS-PARA.                        ***00961024
+      ***          PERFORM 3000-CLOSE-PARA.                          ***00962024
+      ***          STOP-RUN.                                         ***00963024
+      ***     1000-INITIALIZE-PARA.                                  ***00964024
+      ***          OPEN THE FILES FOR INPUT AND OUTPUT.              ***00965024
+      ***          PERFORM 1100-READ-SMF.                            ***00966024
+      ***     1100-READ-SMF.                                         ***00967024
+      ***          READ THE INPUT FILE TILL END.                     ***00968024
+      ***     2000-PROCESS-PARA.                                     ***00969024
+      ***          PERFORM 2100-READWRITE-PARA.                      ***00969124
+      ***          PERFORM 2103-MOVE-PERFDATA-SECTION.               ***00969224
+      ***     3000-CLOSE-PARA.                                       ***00969324
+      ***          CLOSE THE INPUT AND OUTPUT FILES.                 ***00969424
+      ***                                                            ***00969524
+      ***     2103-MOVE-PERFDATA-SECTION(EXTRACTING ONLY PERFORMANCE ***00969624
+      ***                                RECORDS)                    ***00971024
+      ***     THE THREE COMPONENTS OF A CICS MONITORING RECORD ARE AN***00971124
+      ***     SMF HEADER, AN SMF PRODUCT SECTION, AND A CICS DATA    ***00971224
+      ***     SECTION.                                               ***00971324
+      ***     THE SMF HEADER DESCRIBES THE SYSTEM CREATING THE O/P.  ***00971424
+      ***     THIS GIVES INFO(OFFSET/LENGTH/NUMBER) ABT THE PRODUCT  ***00971524
+      ***     AND DATA SECTIONS.                                     ***00971624
+      ***     THE PRODUCT SECTION GIVES INFO REGARDING THE CLASS OF  ***00971724
+      ***     DATA AND ABT THE DATA RECORDS.                         ***00971824
+      ***     THE CICS DATA SECTION CAN BE MADE UP OF A DICTIONARY   ***00971924
+      ***     DATA SECTION, A PERFORMANCE DATA SECTION, OR AN        ***00972024
+      ***     EXCEPTION DATA SECTION.                                ***00972124
+      ***     EACH SMF110 RECORD DOWNLOADED MAY CONTAIN ONE OR MORE  ***00972224
+      ***     PERFORMANCE RECORDS. THESE ARE EXTRACTED AND WRITTEN   ***00972324
+      ***     INTO THE OUTPUT.                                       ***00972424
+      ******************************************************************00975024
+002010 ENVIRONMENT DIVISION.                                            00980000
+002020 INPUT-OUTPUT SECTION.                                            00990000
+002030 FILE-CONTROL.                                                    01000000
+002040     SELECT SMFDATA ASSIGN TO SMFDATA.                            01010000
+002040     SELECT SMFOUT  ASSIGN TO SMFOUT.                             01020000
+002042*                                                                 01030000
+002050 DATA DIVISION.                                                   01040000
+002060 FILE SECTION.                                                    01050000
+002061*  *=============================================================*01060024
+      *  *SMF DUMP PROGRAM (IFASMFDP) IS USED TO DOWNLOAD THE SMFDATA.  01070024
+      *  *THE DATA IS DOWNLOADED INTO A FILE WHICH IS USED AS THE INPUT 01080024
+      *  *DATASET IN THIS PROGRAM.                                      01090024
+002061*  *=============================================================*01091024
+002070 FD  SMFDATA                                                      01100000
+002071     RECORDING MODE IS S                                          01110000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 01120000
+002081 01  SMF-RECORD                  PIC X(32756).                    01130000
+002061*  *=============================================================*01141024
+      *  *THE EXTRACTED DATA THAT CONTAINS ONLY SMF110 PERF RECORDS     01150024
+      *  *FIELDS IS THE OUTPUT OF THE PGM AND IS STORED IN THIS FILE.   01160024
+002061*  *=============================================================*01161024
+002070 FD  SMFOUT                                                       01170000
+002071     RECORDING MODE IS F                                          01180000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 01190000
+002081 01  SMF-OUTPUT                  PIC X(1880).                     01200000
+002090*                                                                 01210000
+002100 WORKING-STORAGE SECTION.                                         01220000
+002090*                                                                 01230000
+004200 01 WS-VARIABLES.                                                 01240000
+004340     05 WS-SMF110OFF           PIC S9(9) COMP-3.                  01250000
+004350     05 WS-SMF110LEN           PIC S9(4) COMP-3.                  01260000
+004340     05 WS-SMF110OFF-CONN      PIC S9(9) COMP-3.                  01270000
+004350     05 WS-SMF110LEN-CONN      PIC S9(4) COMP-3.                  01280000
+004340     05 WS-SMF110OFF-DATA      PIC S9(9) COMP-3.                  01290000
+004350     05 WS-SMF110LEN-DATA      PIC S9(4) COMP-3.                  01300000
+004350     05 WS-TOTAL-PERF-RECORDS  PIC 9(04) VALUE ZEROES.            01310000
+002061*  *=============================================================*01321024
+      *  *STATUS FLAGS FOR END-OF-FILE INDICATION.                      01330024
+002061*  *=============================================================*01331024
+004400 01 WS-FLAGS.                                                     01340000
+004500     05 WS-SMFDATA-FILE-FLAG  PIC X(01).                          01350000
+004600        88 SMFDATA-OVER       VALUE 'Y'.                          01360000
+004700        88 SMFDATA-NOT-OVER   VALUE 'N'.                          01370000
+002061*  *=============================================================*01381024
+      *  *SMF RECORD TYPE 110 LAYOUT                                    01390024
+002061*  *=============================================================*01391024
+005277      COPY VT110CPY.                                              01400000
+002061*  *=============================================================*01401024
+      *  *SMF RECORD TYPE 110 LAYOUT OF PERFORMANCE RECORDS             01420024
+      *  *PERF CLASS:PERFORMANCE DATA IS DETAILED TRANSACTION-LEVEL     01430024
+      *  *INFORMATION, SUCH AS THE PROCESSOR AND ELAPSED TIME FOR A     01440024
+      *  *TRANSACTION, OR THE TIME SPENT WAITING FOR I/O. CICS WRITES AT01450024
+      *  *ALEAST 1 PERFORMANCE RECORD FOR EACH TRANSACTION THAT IS BEING01460024
+      *  *MONITORED.                                                    01470024
+002061*  *=============================================================*01471024
+005277      COPY VT110EXT.                                              01490000
+002061*  *=============================================================*01491024
+005521******************************************************************01500000
+005522 PROCEDURE DIVISION.                                              01510000
+005523******************************************************************01520000
+      *  *=============================================================*01521024
+      *  *                       MAIN-PARA                             *01522024
+      *  *=============================================================*01523024
+005524 0000-MAIN-PARA.                                                  01530000
+005530     PERFORM 1000-INITIALIZE-PARA THRU  1000-INITIALIZE-EXIT.     01540000
+005600     PERFORM 2000-PROCESS-PARA    THRU  2000-PROCESS-EXIT         01550000
+                                        UNTIL SMFDATA-OVER.             01560000
+005700     PERFORM 3000-CLOSE-PARA      THRU  3000-CLOSE-EXIT.          01570000
+006030*                                                                 01580000
+006010 0000-MAIN-EXIT.                                                  01590000
+005900     STOP RUN.                                                    01600000
+      *  *=============================================================*01611024
+      *  *THE INPUT AND THE OUTPUT FILES ARE OPENED AND THE STATUS FLAGS01620024
+      *  *ARE INITIALIZED.                                              01630024
+      *  *=============================================================*01631024
+006040 1000-INITIALIZE-PARA.                                            01650000
+006050     OPEN INPUT  SMFDATA.                                         01660000
+           OPEN OUTPUT SMFOUT.                                          01670000
+006051     SET  SMFDATA-NOT-OVER TO TRUE                                01680000
+006052     PERFORM 1100-READ-SMF.                                       01690000
+006070     CONTINUE.                                                    01700000
+006091*                                                                 01710000
+006080 1000-INITIALIZE-EXIT.                                            01720000
+006090     EXIT.                                                        01730000
+      *  *=============================================================*01740024
+      *  *READ THE INPUT FILE AND AT END SET THE END-OF-FILE INDICATION 01750024
+      *  *FLAG.                                                         01760024
+      *  *=============================================================*01761024
+006092 1100-READ-SMF.                                                   01780000
+006093     READ SMFDATA                                                 01790000
+006094     AT END SET SMFDATA-OVER TO TRUE.                             01800000
+006100     CONTINUE.                                                    01810000
+006103*                                                                 01820000
+006101 1100-EXIT.                                                       01830000
+006102     EXIT.                                                        01840000
+      *  *=============================================================*01851024
+      *  *THE CONDITIONS FOR REPORT GENERATION ARE                      01860024
+      *  *A)RECORD-TYPE = 110(X'6E')                                    01870024
+      *  *B)RECORD-SUBTYPE(FIELD-SMF30STP)= 01(MONITORING USES TYPE 1)  01880024
+      *  *THE RECS THAT SATISY THE ABOVE CONDITION ARE READ & IN THOSE  01890024
+      *  *RECORDS ONLY PERF CLASS DATA IS XTRACTED AND WRITTEN ON TO    01900024
+      *  *OUTPUT.                                                       01910024
+      *  *=============================================================*01911024
+006104 2000-PROCESS-PARA.                                               01930000
+006106     MOVE SMF-RECORD (2:1) TO SMF110-RECORD-TYPE.                 01940000
+      *  *=============================================================*01941024
+006103*  *RECORD TYPE=110                                               01950024
+      *  *=============================================================*01951024
+           IF RECORD-TYPE = X'6E'                                       01960000
+006106        MOVE SMF-RECORD (20:1) TO SMF110-SUBRECORD-TYPE           01970000
+      *  *=============================================================*01971024
+006103*  *RECORD SUBTYPE=01(X'0001' - CICS MONITORING)                  01980024
+      *  *=============================================================*01981024
+              IF RECORD-SUB-TYPE = X'01'                                01990000
+                   PERFORM 2100-READWRITE-PARA                          02000000
+              END-IF                                                    02010000
+           END-IF                                                       02020000
+006294     PERFORM 1100-READ-SMF                                        02030000
+006295     CONTINUE.                                                    02040000
+      *                                                                 02050000
+006296 2000-PROCESS-EXIT.                                               02060000
+006297     EXIT.                                                        02070000
+      *                                                                 02080000
+       2100-READWRITE-PARA.                                             02090000
+006106     MOVE SMF-RECORD ( 1 :40 ) TO SMF-HEADER.                     02100000
+           MOVE SMF-PS-OFFSET TO WS-SMF110OFF                           02110000
+           MOVE SMF-PS-LENGTH TO WS-SMF110LEN                           02120000
+           COMPUTE WS-SMF110OFF = WS-SMF110OFF + 1 - 4                  02130000
+           MOVE SMF-RECORD(WS-SMF110OFF:WS-SMF110LEN)                   02140000
+                TO SMF-PRODUCT-SECTION                                  02150000
+           MOVE SMF-RECORD(03:08) TO SMF110-TIMEDATE.                   02160000
+           MOVE SMF-RECORD(11:08) TO SMF110-SYSIDS.                     02170000
+           MOVE SMF-RECORD(43:16) TO SMF110-APPLIDS.                    02180000
+           MOVE SMF-RECORD(64:01) TO SMF110-CLASS-OF-DATA.              02190000
+      *  *=============================================================*02191024
+      *  *CLASS OF DATA---> 03 = PERFORMANCE                            02200024
+      *  *=============================================================*02201024
+           IF RECORD-CLASS = X'03'                                      02210000
+              PERFORM 2103-MOVE-PERFDATA-SECTION                        02220000
+           END-IF.                                                      02230000
+006298*                                                                 02240000
+006900 2102-EXIT.                                                       02250000
+007000     EXIT.                                                        02260000
+      *  *=============================================================*02271024
+007100*  *EACH PERFORMANCE DATA SECTION IS MADE UP OF ONE OR MORE       02280024
+007100*  *PERF DATA RECORDS.ALL OF THE PERFORMANCE RECORDS PRODUCED     02290024
+007100*  *BY A SINGLE CICS RUN HAVE THE SAME FORMAT, AND EACH RECORD IS,02300024
+007100*  *BY DEFAULT, 1848 BYTES LONG. SO ALL THE PERFORMANCE RECORDS   02310024
+007100*  *IN A SINGLE SMF RECORD ARE EXTRACTED AND WRITTEN SEPARATELY   02320024
+007100*  *INTO THE EXTRACT FILE.                                        02330024
+      *  *=============================================================*02331024
+       2103-MOVE-PERFDATA-SECTION.                                      02350000
+           MOVE SMF-RECORD-TIME        TO SMF110-TIME-EXT1.             02360000
+           MOVE SMF-RECORD-DATE        TO SMF110-DATE-EXT1.             02370000
+           MOVE SMF110-SYSTEM-ID       TO SMF110-SYSTEMID-EXT1.         02380000
+           MOVE SMF110-SUBSYSTEM-ID    TO SMF110-SUBSYSID-EXT1.         02390000
+           MOVE SMF110-GENERIC-APPLID  TO SMF110-GEN-APPLID-EXT1.       02400000
+           MOVE SMF110-SPECIFIC-APPLID TO SMF110-SPC-APPLID-EXT1.       02410000
+           MOVE ZEROES TO WS-TOTAL-PERF-RECORDS.                        02420000
+      *  *=============================================================*02421024
+      *  *MOVE THE CICS DATA SECTION OFFSET/LENGTH/NUMBER OF PERF       02421124
+      *  *RECORDS PRESENT TO WORKING STORAGE VARIABLES.                 02421224
+      *  *COMPUTE THE OFFSET AND MOVE INTO THE EXTRACT COPYBOOK.        02421324
+      *  *=============================================================*02422024
+           MOVE SMF-REC-OFFSET TO WS-SMF110OFF-DATA                     02430000
+           MOVE SMF-REC-LENGTH TO WS-SMF110LEN-DATA                     02440000
+           MOVE SMF-REC-NUMBER TO WS-TOTAL-PERF-RECORDS                 02450000
+           COMPUTE WS-SMF110OFF-DATA = WS-SMF110OFF-DATA + 1 - 4        02460000
+           MOVE SMF-RECORD(WS-SMF110OFF-DATA:WS-SMF110LEN-DATA)         02470000
+                 TO SMF110-PERF-DATA                                    02480000
+           MOVE SMF110-PERF-DATA TO SMF110-PERF-DATA-EXT1(33:1848)      02490000
+           WRITE SMF-OUTPUT FROM SMF110-PERF-DATA-EXT1                  02500000
+           PERFORM 2104-MOVE-PERF-DATA UNTIL WS-TOTAL-PERF-RECORDS = 1  02510000
+           CONTINUE.                                                    02520000
+007100*                                                                 02530000
+006900 2103-EXIT.                                                       02540000
+007000     EXIT.                                                        02550000
+      *  *=============================================================*02661024
+      *  *COMPUTE THE OFFSET FOR THE NUMBER OF PERF RECORDS AND         02661124
+      *  *PROCESS ALL THE PERF RECORDS PRESENT IN A SINGLE CICS RECORD. 02661224
+      *  *=============================================================*02662024
+       2104-MOVE-PERF-DATA.                                             02670000
+           COMPUTE WS-SMF110OFF-DATA = WS-SMF110OFF-DATA +              02680000
+                                       WS-SMF110LEN-DATA                02690000
+           MOVE SMF-RECORD(WS-SMF110OFF-DATA:WS-SMF110LEN-DATA)         02700000
+                 TO SMF110-PERF-DATA                                    02710000
+           MOVE SMF110-PERF-DATA TO SMF110-PERF-DATA-EXT1(33:1848)      02720000
+           WRITE SMF-OUTPUT FROM SMF110-PERF-DATA-EXT1                  02730000
+           SUBTRACT 1 FROM WS-TOTAL-PERF-RECORDS.                       02740000
+007100*                                                                 02750000
+       2104-EXIT.                                                       02760000
+           EXIT.                                                        02770000
+      *  *=============================================================*02790024
+007100*  *CLOSE THE INPUT AND OUTPUT FILES.                             02800024
+      *  *=============================================================*02810024
+006300 3000-CLOSE-PARA.                                                 02820024
+006400     CLOSE SMFDATA.                                               02830024
+           CLOSE SMFOUT.                                                02840024
+006800     CONTINUE.                                                    02850024
+007100*                                                                 02860024
+006900 3000-CLOSE-EXIT.                                                 02870024
+007000     EXIT.                                                        02880024
+007100*                                                                 02890024

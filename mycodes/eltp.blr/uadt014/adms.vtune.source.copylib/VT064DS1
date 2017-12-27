@@ -1,0 +1,129 @@
+       01 SMF64-DESCRIPTIONA.                                           00010000
+            10  WS-DESC-SMF64RSD          PIC X(10) VALUE 'DATE      '. 00020000
+            10  FILLER           PIC X(1) VALUE ' '.                    00030000
+            10  WS-DESC-SMF64RST          PIC X(11) VALUE 'TIME       '.00040000
+            10  FILLER           PIC X(1) VALUE ' '.                    00050000
+            10  WS-DESC-SMF64JBN          PIC X(09) VALUE 'JOB NAME/'.  00051000
+            10  FILLER           PIC X(1) VALUE ' '.                    00052000
+            10  WS-DESC-SMF64DTY          PIC X(09) VALUE               00060000
+                                          'COMPONENT'.                  00061000
+            10  FILLER           PIC X(1) VALUE ' '.                    00070000
+            10  WS-DESC-SMF64DNM          PIC X(44) VALUE 'ENTRY NAME'. 00080000
+            10  FILLER           PIC X(1) VALUE ' '.                    00090000
+            10  WS-DESC-SMF64VSN          PIC X(06) VALUE 'VOLUME'.     00100000
+            10  FILLER           PIC X(1) VALUE ' '.                    00110000
+            10  WS-DESC-SMF64NEX          PIC X(09) VALUE               00120000
+                                          'NUMBER OF'.                  00121000
+            10  FILLER           PIC X(1) VALUE ' '.                    00130000
+            10  FILLER           PIC X(09) VALUE '---------'.           00161003
+            10  WS-DESC-SMF64NDE          PIC X(06) VALUE               00170001
+                                          'NUMBER'.                     00180001
+            10  FILLER           PIC X(1) VALUE ' '.                    00180101
+            10  WS-DESC-SMF64NDE1         PIC X(02) VALUE               00181001
+                                          'OF'.                         00182001
+            10  FILLER           PIC X(1) VALUE ' '.                    00182101
+            10  WS-DESC-SMF64NDE2         PIC X(07) VALUE               00183001
+                                          'RECORDS'.                    00184001
+            10  FILLER           PIC X(09) VALUE '---------'.           00185009
+            10  FILLER           PIC X(1) VALUE ' '.                    00190000
+            10  WS-DESC-SMF64NCS          PIC X(09) VALUE               00190100
+                                          'SPLITS-CI'.                  00190200
+            10  FILLER           PIC X(1) VALUE ' '.                    00190500
+            10  WS-DESC-SMF64NAS          PIC X(09) VALUE               00190600
+                                          'SPLITS-CA'.                  00190700
+            10  FILLER           PIC X(1) VALUE ' '.                    00190800
+            10  WS-DESC-SMF64DEP          PIC X(08) VALUE               00190900
+                                          'EXCP-NUM'.                   00191000
+            10  FILLER           PIC X(1) VALUE ' '.                    00191100
+            10  WS-DESC-SMF64BNO          PIC X(08) VALUE               00191200
+                                          ' BUFFERS'.                   00191309
+            10  FILLER           PIC X(1) VALUE ' '.                    00191400
+            10  WS-DESC-SMF64BSP          PIC X(11) VALUE               00191500
+                                          'BUFFERSPACE'.                00191600
+            10  FILLER           PIC X(1) VALUE ' '.                    00191700
+            10  WS-DESC-SMF64BFD          PIC X(11) VALUE               00191800
+                                          'DATA-BUFFER'.                00191904
+            10  FILLER           PIC X(1) VALUE ' '.                    00192000
+            10  WS-DESC-SMF64BFI          PIC X(12) VALUE               00192100
+                                          'INDEX-BUFFER'.               00192204
+            10  FILLER           PIC X(1) VALUE ' '.                    00192300
+            10  WS-DESC-SMF64NIL          PIC X(09) VALUE               00192405
+                                          'LEVELS IN'.                  00192507
+            10  FILLER           PIC X(1) VALUE ' '.                    00192605
+            10  WS-DESC-SMF64DCS1         PIC X(19) VALUE               00193005
+                                          'CHANGE IN NUMBER OF'.        00193107
+            10  FILLER           PIC X(1) VALUE ' '.                    00193205
+            10  FILLER           PIC X(6) VALUE '------'.               00193309
+            10  WS-DESC-SMF64MC1          PIC X(12) VALUE               00193409
+                                          'MACRF-FIELD1'.               00193509
+            10  FILLER           PIC X(5) VALUE '-----'.                00193609
+            10  FILLER           PIC X(1) VALUE ' '.                    00193709
+            10  FILLER           PIC X(6) VALUE '------'.               00193809
+            10  WS-DESC-SMF64MC2          PIC X(12) VALUE               00193909
+                                          'MACRF-FIELD2'.               00194009
+            10  FILLER           PIC X(5) VALUE '-----'.                00194109
+            10  FILLER           PIC X(1) VALUE ' '.                    00194209
+            10  FILLER           PIC X(6) VALUE '------'.               00194309
+            10  WS-DESC-SMF64MC3          PIC X(12) VALUE               00194409
+                                          'MACRF-FIELD3'.               00194509
+            10  FILLER           PIC X(5) VALUE '-----'.                00194609
+            10  FILLER           PIC X(1) VALUE ' '.                    00194709
+       01 SMF64-DESCRIPTIONB.                                           00194809
+            10  FILLER           PIC X(10) VALUE '          '.          00194909
+            10  FILLER           PIC X(1) VALUE ' '.                    00195009
+            10  FILLER           PIC X(11) VALUE '           '.         00195109
+            10  FILLER           PIC X(1) VALUE ' '.                    00195200
+            10  FILLER           PIC X(09) VALUE 'TSO USER'.            00196000
+            10  FILLER           PIC X(1) VALUE ' '.                    00197000
+            10  FILLER           PIC X(09) VALUE '         '.           00198000
+            10  FILLER           PIC X(1) VALUE ' '.                    00199100
+            10  FILLER           PIC X(20) VALUE '                   '. 00199200
+            10  FILLER           PIC X(24) VALUE                        00199300
+                                 '                        '.            00199400
+            10  FILLER           PIC X(1) VALUE ' '.                    00199500
+            10  FILLER           PIC X(06) VALUE 'SERIAL'.              00199600
+            10  FILLER           PIC X(1) VALUE ' '.                    00199700
+            10  WS-DESC-SMF64NEX1 PIC X(07) VALUE                       00199900
+                                          'EXTENTS'.                    00200000
+            10  FILLER           PIC X(2) VALUE ' '.                    00200100
+            10  FILLER           PIC X(1) VALUE ' '.                    00200200
+            10  WS-DESC-SMF64NDE3         PIC X(08) VALUE               00200700
+                                          ' DELETED'.                   00200800
+            10  FILLER           PIC X(1) VALUE '|'.                    00200911
+            10  WS-DESC-SMF64NIN          PIC X(08) VALUE               00201000
+                                          'INSERTED'.                   00210000
+            10  FILLER           PIC X(1) VALUE '|'.                    00220011
+            10  WS-DESC-SMF64NUP          PIC X(08) VALUE               00230000
+                                          ' UPDATED'.                   00240000
+            10  FILLER           PIC X(1) VALUE '|'.                    00250011
+            10  WS-DESC-SMF64NRE          PIC X(08) VALUE               00260000
+                                          'SELECTED'.                   00270000
+            10  FILLER           PIC X(1) VALUE ' '.                    00280000
+            10  FILLER           PIC X(09) VALUE '         '.           00290000
+            10  FILLER           PIC X(1) VALUE ' '.                    00300000
+            10  FILLER           PIC X(09) VALUE '         '.           00310000
+            10  FILLER           PIC X(1) VALUE ' '.                    00320000
+            10  FILLER           PIC X(08) VALUE '        '.            00330000
+            10  FILLER           PIC X(1) VALUE ' '.                    00340000
+            10  FILLER           PIC X(08) VALUE '        '.            00350000
+            10  FILLER           PIC X(1) VALUE ' '.                    00360000
+            10  FILLER           PIC X(11) VALUE '           '.         00370000
+            10  FILLER           PIC X(1) VALUE ' '.                    00380000
+            10  FILLER           PIC X(11) VALUE '           '.         00390000
+            10  FILLER           PIC X(1) VALUE ' '.                    00400000
+            10  FILLER           PIC X(12) VALUE '            '.        00410000
+            10  FILLER           PIC X(1) VALUE ' '.                    00420000
+            10  FILLER           PIC X(2) VALUE '--'.                   00421007
+            10  FILLER           PIC X(5) VALUE 'INDEX'.                00430006
+            10  FILLER           PIC X(2) VALUE '--'.                   00431007
+            10  FILLER           PIC X(1) VALUE ' '.                    00440005
+            10  FILLER           PIC X(9) VALUE 'CI-SPLITS'.            00461007
+            10  FILLER           PIC X(1) VALUE '|'.                    00462009
+            10  FILLER           PIC X(9) VALUE 'CA-SPLITS'.            00463007
+            10  FILLER           PIC X(1) VALUE ' '.                    00464005
+            10  FILLER       PIC X(23) VALUE '                       '. 00470008
+            10  FILLER           PIC X(1) VALUE ' '.                    00480005
+            10  FILLER       PIC X(23) VALUE '                       '. 00490008
+            10  FILLER           PIC X(1) VALUE ' '.                    00500005
+            10  FILLER       PIC X(23) VALUE '                       '. 00510008
+            10  FILLER           PIC X(1) VALUE ' '.                    00520005

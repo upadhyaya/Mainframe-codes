@@ -1,0 +1,13 @@
+000010       05 LS-OPT               PIC X(4).                          00001001
+000011       05 LS-PROD-ID           PIC 9(10).                         00001101
+000020       05 LS-PROD-NAME         PIC X(40).                         00002001
+000100*                                                                 00010001
+000110       05 PRODUCTLIST-ARRAY OCCURS 8 TIMES INDEXED BY K.          00011001
+000120          06 LS-ORD-ID         PIC 9(10).                         00012001
+000130          06 LS-CUST-ID        PIC 9(10).                         00013001
+000140          06 LS-EMP-ID        PIC 9(10).                          00014001
+000150          06 LS-QUANT          PIC 9(05).                         00015001
+000500          06 LS-DATE       PIC X(10).                             00050002
+000600          06 LS-TOTAL-COST PIC 9(18).                             00060002
+000700*                                                                 00070001
+000800       05 LS-MSG               PIC X(100).                        00080001

@@ -1,0 +1,24 @@
+//UADT014A JOB 'IBMMFS','MAC',CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID
+//STEP1 EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN DD *
+     DEFINE CLUSTER               -
+     (                            -
+     NAME(ELTP.BLR.OMA)           -
+     TRACKS(10,10)                -
+     CONTROLINTERVALSIZE(4096)    -
+     RECORDSIZE(118,118)          -
+     FREESPACE(10,20)             -
+     KEYS(10,0)                   -
+     SHR(3,3)                     -
+     )                            -
+     DATA                         -
+     (                            -
+     NAME(ELTP.BLR.OMA.DATA)      -
+     )                            -
+     INDEX                        -
+     (                            -
+     NAME(ELTP.BLR.OMA.INDEX)     -
+     CONTROLINTERVALSIZE(4096)    -
+     )
+/*

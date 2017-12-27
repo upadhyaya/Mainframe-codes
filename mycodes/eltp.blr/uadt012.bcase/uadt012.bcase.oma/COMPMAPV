@@ -1,0 +1,11 @@
+//UADT012M JOB NOTIFY=&SYSUID                                           00010099
+//* BMS MAP (CICS)                                                      00011005
+//PROCLIB JCLLIB ORDER=UADT012.BCASE.OMA                                00020099
+//*                                                                     00021000
+//MAPASEM EXEC DFHMAPS,                                                 00030000
+//   MAPLIB='ADMS.CICSA1.LOAD',           <==PHYS MAP                   00040036
+//   DSCTLIB='UADT012.BCASE.OMA.COPYLIB', <==SYMBOLIC MAP               00050099
+//   MAPNAME='ADDAP1'                   <==MAPSET NAME(NOT MAP NAME)    00060099
+//*                                                                     00061002
+//COPY.SYSUT1 DD DISP=SHR,DSN=UADT012.BCASE.OMA(CCDMAP)  <==INPUTMAP    00070099
+//                                                                      00080000

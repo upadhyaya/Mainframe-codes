@@ -1,0 +1,24 @@
+//UADT016A JOB 'VSAM',CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID                 JOB08081
+//STEP1 EXEC PGM=IDCAMS                                                 00031001
+//SYSPRINT DD SYSOUT=*                                                  00032001
+//SYSIN DD *                                                            00040001
+     DEFINE CLUSTER               -                                     00050001
+     (                            -                                     00060001
+     NAME(ELTP.BLR.SAMP1.BASE)     -                                    00070001
+     TRACKS(05,05)                -                                     00080002
+     CONTROLINTERVALSIZE(4096)    -                                     00090017
+     RECORDSIZE(118,118)          -                                     00100018
+     FREESPACE(10,20)             -                                     00110001
+     KEYS(10,0)                    -                                    00120002
+     SHR(3,3)                     -                                     00121001
+     )                            -                                     00130001
+     DATA                         -                                     00140001
+     (                            -                                     00150001
+     NAME(ELTP.BLR.SAMP1.DATA)     -                                    00160002
+     )                            -                                     00170001
+     INDEX                        -                                     00180001
+     (                            -                                     00190001
+     NAME(ELTP.BLR.SAMP1.INDEX)    -                                    00200002
+     CONTROLINTERVALSIZE(4096)    -                                     00210019
+     )                                                                  00211001
+/*                                                                      00220001

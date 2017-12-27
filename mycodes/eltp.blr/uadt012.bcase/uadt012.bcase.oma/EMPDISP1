@@ -1,0 +1,34 @@
+       IDENTIFICATION DIVISION.                                         00010056
+       PROGRAM-ID. EMPDISP1.                                            00020056
+       AUTHOR. TEAMSOA.                                                 00040056
+       DATE-WRITTEN. 26/04/07.                                          00041056
+       DATE-COMPILED. 28/04/07.                                         00042056
+      *                                                                 00042156
+      ******************************************************************00071756
+       DATA DIVISION.                                                   00071856
+       WORKING-STORAGE SECTION.                                         00071956
+      *                                                                 00072656
+      ******************************************************************00114156
+       LINKAGE SECTION.                                                 00114256
+       01 DFHCOMMAREA.                                                  00114356
+          COPY EMPLK1.                                                  00114456
+          COPY EMPLK.                                                   00114556
+      ******************************************************************00114756
+       PROCEDURE DIVISION.                                              00114856
+      ******************************************************************00114956
+       1000-MAINLINE-PARA.                                              00115456
+               PERFORM 1100-LINK-PARA.                                  00116251
+               EXEC CICS RETURN END-EXEC.                               00117048
+      ******************************************************************00130256
+       1100-LINK-PARA.                                                  00131425
+            EXEC CICS LINK                                              00131525
+               PROGRAM ('EMPDISP')                                      00131656
+               COMMAREA (DFHCOMMAREA)                                   00131725
+            END-EXEC.                                                   00131825
+      *                                                                 00131925
+       9300-EXIT-PARA.                                                  00977200
+            EXEC CICS RETURN END-EXEC.                                  00978000
+                                                                        00980000
+       9400-RETURN-PARA.                                                00980100
+              EXEC CICS RETURN                                          00990000
+               END-EXEC.                                                01000000

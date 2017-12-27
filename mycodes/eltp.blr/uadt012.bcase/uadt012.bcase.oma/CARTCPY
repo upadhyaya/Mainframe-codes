@@ -1,0 +1,20 @@
+000010       05 LS-OPT       PIC X(06).                                 00001002
+000010       05 LS-CART-ID   PIC 9(05).                                 00002004
+000031       05 LS-CUST-ID   PIC 9(10).                                 00003100
+000033       05 LS-PROD-ID   PIC 9(10).                                 00003303
+000034       05 LS-UNIT-PRC  PIC X(12).                                 00003400
+000035       05 LS-QUANTITY  PIC 9(5).                                  00003503
+000036       05 LS-ORD-DATE  PIC X(10).                                 00003600
+000036       05 LS-CARR-COST PIC X(12).                                 00003707
+000036       05 LS-TOT-COST  PIC X(18).                                 00003809
+000500       05 LS-MSG       PIC X(80).                                 00003912
+      *                                                                 00005005
+      *      05 CART-ARRAY OCCURS 8 TIMES INDEXED BY K.                 00005111
+      *         06 LS-ARR-CART-ID   PIC 9(05).                          00005211
+      *         06 LS-ARR-CUST-ID   PIC 9(10).                          00005311
+      *         06 LS-ARR-PROD-ID   PIC 9(10).                          00005411
+      *         06 LS-ARR-UNIT-PRC  PIC X(12).                          00005511
+      *         06 LS-ARR-QUANTITY  PIC 9(5).                           00005611
+      *         06 LS-ARR-ORD-DATE  PIC X(10).                          00005711
+      *         06 LS-ARR-CARR-COST  PIC X(12).                         00005811
+      *                                                                 00005905

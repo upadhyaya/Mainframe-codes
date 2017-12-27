@@ -1,0 +1,14 @@
+000010       05 LS-MSG       PIC X(80).                                 00001001
+000030       05 LS-CUSTID    PIC 9(10).                                 00003001
+000031       05 LS-CUSNAME   PIC X(40).                                 00003101
+000032       05 LS-ADDLN1    PIC X(40).                                 00003201
+000033       05 LS-ADDLN2    PIC X(40).                                 00003301
+000034       05 LS-CITY      PIC X(15).                                 00003401
+000035       05 LS-STATE     PIC X(15).                                 00003501
+000036       05 LS-PCODE     PIC X(10).                                 00003601
+000037       05 LS-CTRY      PIC X(15).                                 00003701
+000038       05 LS-PHONE     PIC X(24).                                 00003801
+000039       05 LS-FAX       PIC X(24).                                 00003901
+000040       05 LS-OPT       PIC X(06).                                 00004001
+000041       05 LS-EMAIL     PIC X(40).                                 00004101
+000042       05 LS-CRDATE    PIC X(10).                                 00004201

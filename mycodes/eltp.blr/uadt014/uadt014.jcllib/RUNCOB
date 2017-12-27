@@ -1,0 +1,19 @@
+//UADT014C JOB NOTIFY=&SYSUID,REGION=0M,TIME=NOLIMIT                    00001048
+/*JOBPARM LINES=999999                                                  00001142
+//*                                                                     00002004
+//STEP1    EXEC PGM=IKJEFT01,DYNAMNBR=30                                00003004
+//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR                              00004004
+//*3      DD DSN=ELTP.BLR.REPORTC7,DISP=(NEW,CATLG),                    00004359
+//*            UNIT=SYSDA,DCB=(RECFM=FB,LRECL=80,DSORG=PS),             00004459
+//*            SPACE=(TRK,(200,20))                                     00004559
+//SYSPRINT DD SYSOUT=*                                                  00005004
+//SYSTSPRT DD SYSOUT=*                                                  00006004
+//SYSUDUMP DD SYSOUT=*                                                  00007004
+//SYSOUT   DD SYSOUT=*                                                  00008004
+//SYSTSIN  DD *                                                         00009004
+    DSN SYSTEM(DB2A)                                                    00009107
+        RUN PROGRAM(TEST8) PLAN(ADMTPLN1) -                             00009261
+        LIBRARY('UADT014.BASE.LOADLIB')                                 00009359
+    END                                                                 00009407
+/*                                                                      00009504
+//*                                                                     00009604

@@ -1,0 +1,30 @@
+//UADT012A JOB 'IBMMFS','MAC',CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID         00010054
+//STEP1 EXEC PGM=IDCAMS                                                 00020002
+//SYSPRINT DD SYSOUT=*                                                  00030002
+//SYSIN DD *                                                            00030154
+      DELETE ELTP.BCASE.OMA                                             00030255
+//*                                                                     00030419
+//STEP2 EXEC PGM=IDCAMS                                                 00031019
+//SYSPRINT DD SYSOUT=*                                                  00032019
+//SYSIN DD *                                                            00040002
+     DEFINE CLUSTER               -                                     00050002
+     (                            -                                     00060002
+     NAME(ELTP.BCASE.OMA)         -                                     00070054
+     TRACKS(10,10)                -                                     00080027
+     CONTROLINTERVALSIZE(4096)    -                                     00090034
+     RECORDSIZE(118,118)        -                                       00100056
+     FREESPACE(10,20)             -                                     00110017
+     KEYS(10,0)                  -                                      00120055
+     SHR(3,3)                     -                                     00121005
+     )                            -                                     00130002
+     DATA                         -                                     00140002
+     (                            -                                     00150002
+     NAME(ELTP.BCASE.OMA.DATA)    -                                     00160054
+     )                            -                                     00170002
+     INDEX                        -                                     00180002
+     (                            -                                     00190002
+     NAME(ELTP.BCASE.OMA.INDEX)   -                                     00200054
+     CONTROLINTERVALSIZE(4096)    -                                     00210034
+     )                                                                  00211002
+/*                                                                      00220002
+//                                                                      00230002

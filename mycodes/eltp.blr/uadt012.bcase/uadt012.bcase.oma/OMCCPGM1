@@ -1,0 +1,440 @@
+000020 IDENTIFICATION DIVISION.                                         00002033
+000030 PROGRAM-ID. OMCCPGM1.                                            00003099
+000050 ENVIRONMENT DIVISION.                                            00005033
+000059 DATA DIVISION.                                                   00005933
+000082 WORKING-STORAGE SECTION.                                         00008233
+000700 COPY DFHBMSCA.                                                   00008345
+000800 COPY DFHAID.                                                     00008445
+000900 COPY ADDAPO.                                                     00008599
+000083 77 WS-TXT             PIC X(50) VALUE SPACES.                    00008699
+000084 01 ERR-FLAG           PIC X VALUE 'N'.                           00008799
+       01   MSG1.                                                       00008899
+              05 MESS PIC X(50).                                        00008999
+      *                                                                 00009699
+000086 01 WS-CCDB.                                                      00009799
+000087    05 WS-CC-NO        PIC 9(16).                                 00009899
+000088    05 WS-CS-NO        PIC 9(3).                                  00009999
+000089    05 WS-EX-DT.                                                  00010099
+000400       07   WS-D-YY      PIC 9999.                                00010199
+000300       07   FILLER       PIC X.                                   00010299
+000090       07   WS-D-MM      PIC 99.                                  00010399
+000100       07   FILLER       PIC X.                                   00011099
+000200       07   WS-D-DD      PIC 99.                                  00020099
+000500    05 WS-CC-TYPE      PIC X(25).                                 00050099
+          05 WS-AMNTR        PIC 9(6).                                  00060099
+          05 WS-AMNTP        PIC 9(2).                                  00060199
+      *                                                                 00060499
+000086 01 WS2-CCDB.                                                     00061099
+000087    05 WS2-CC-NO       PIC 9(16).                                 00061199
+000088    05 WS2-CS-NO       PIC 9(3).                                  00061299
+000089    05 WS2-EX-DT.                                                 00061399
+000400       07   WS2-D-YY     PIC 9999.                                00061499
+000100       07   FILLER       PIC X.                                   00061699
+000090       07   WS2-D-MM     PIC 99.                                  00061799
+000300       07   FILLER       PIC X.                                   00061999
+000200       07   WS2-D-DD     PIC 99.                                  00062099
+000500    05 WS2-CC-TYPE     PIC X(25).                                 00062199
+          05 WS2-AMNTR        PIC 9(6).                                 00062299
+          05 WS2-AMNTP        PIC 9(2).                                 00062399
+      *                                                                 00063099
+001000 01 WS-COMMAREA        PIC 9.                                     00071099
+       01 LK-TRNID           PIC X(4).                                  00072099
+       01 CHOICE2 PIC S9(4) COMP VALUE 1.                               00073099
+       01 CHOICE5 PIC S9(4) COMP VALUE 1.                               00073199
+       01 RE3                   PIC S9(4) COMP.                         00074099
+      *                                                                 00100199
+       01 MONTHDAYTABLE.                                                00101075
+          02 TABLEVALUES     PIC X(24)                                  00102099
+                   VALUE "312831303130313130313031".                    00103075
+          02 FILLER REDEFINES TABLEVALUES.                              00104075
+             03 DAYSINMONTH OCCURS 12 TIMES PIC 99.                     00105075
+       01 LQUOTE             PIC 99.                                    00106099
+       01 REMAIN             PIC 99.                                    00107099
+       01 FLAG               PIC X.                                     00108099
+       01 YEARLA             PIC 9(4).                                  00108199
+       01 MONTHLA            PIC 9(2).                                  00108299
+       01 DAYLA              PIC 9(2).                                  00109099
+001100*                                                                 00110033
+001200 LINKAGE SECTION.                                                 00120033
+001300 01 DFHCOMMAREA.                                                  00130033
+001400    COPY CCCOPY.                                                  00140099
+001600*                                                                 00160033
+001700 PROCEDURE DIVISION.                                              00170033
+      *                                                                 00171099
+001800 0000-MAIN-PARA.                                                  00180033
+           MOVE LS-TRANSID TO LK-TRNID.                                 00180399
+           DISPLAY 'TRANS' LS-TRANSID.                                  00180499
+001810     EXEC CICS HANDLE CONDITION                                   00181099
+001820         INVMPSZ(1000-PARA)                                       00182099
+001830         MAPFAIL(1000-PARA)                                       00183099
+001830         LENGERR(1000-PARA)                                       00183199
+001840         INVREQ(1000-PARA)                                        00184099
+001840         ILLOGIC(1000-PARA)                                       00184199
+001850     END-EXEC.                                                    00185099
+001860     DISPLAY 'SOA TESTING' EIBTASKN.                              00186047
+001881*                                                                 00188136
+001882     IF EIBCALEN = 0                                              00188247
+              MOVE DFHBMUNP TO CCNOA, CSNOA, EXDTA, CCTYPA, AMNTRA, MSGA00188399
+                   , AMNTPA                                             00188499
+001880          MOVE LOW-VALUES TO CCDMAPO                              00188699
+002444          MOVE -1 TO CCNOL                                        00188899
+001884          PERFORM 1000-SEND-MAP THRU 1000-EXIT                    00189099
+002360          EXEC CICS RETURN                                        00189299
+002370                    TRANSID('SO01')                               00189399
+002380                    COMMAREA(WS-COMMAREA)                         00189499
+002391                    LENGTH(130)                                   00189599
+002392          END-EXEC                                                00189799
+001885     ELSE IF LK-TRNID = 'SO02'                                    00189899
+                EXEC CICS READQ TS                                      00190199
+                          QUEUE('CCDATA3')                              00190299
+                          INTO(WS2-CCDB)                                00190399
+                          ITEM(CHOICE2)                                 00190499
+                END-EXEC                                                00190599
+                MOVE WS2-CC-NO     TO  CCNOO, CCNOI                     00190799
+                MOVE WS2-CS-NO     TO  CSNOO, CSNOI                     00190899
+                MOVE WS2-EX-DT     TO  EXDTO, EXDTI, LS-EX-DT           00190999
+                MOVE WS2-CC-TYPE   TO  CCTYPO, CCTYPI                   00191199
+                MOVE WS2-AMNTP     TO  AMNTPO, AMNTPI                   00191299
+                MOVE WS2-AMNTR     TO  AMNTRO, AMNTRI                   00191399
+001890          MOVE LS-MSG        TO  MSGO                             00191899
+001890          MOVE LS-MSG        TO  WS-TXT                           00191999
+                PERFORM MESS-PARA                                       00192099
+001890          MOVE LS-MSG        TO  MSGO                             00193099
+001889     ELSE                                                         00194199
+001887          IF LK-TRNID = 'SO01'                                    00194299
+001886          DISPLAY 'WEBSERVICE STARTED WITH DATA FROM CLIENT'      00196299
+001886          DISPLAY 'TRANSID' , LK-TRNID                            00196399
+001886          DISPLAY 'LS-CC-NO'   LS-CC-NO                           00196499
+001886          DISPLAY 'LS-CS-NO'   LS-CS-NO                           00196599
+001886          DISPLAY 'LS-EX-DT'   LS-EX-DT                           00196699
+001886          DISPLAY 'LS-CC-TYPE' LS-CC-TYPE                         00196799
+001886          DISPLAY 'LS-AMOUNTR' LS-AMOUNTR                         00196899
+001886          DISPLAY 'LS-AMOUNTP' LS-AMOUNTP                         00196999
+                PERFORM 2000-MOVEBACK-PARA                              00197099
+001886          DISPLAY '1'                                             00197199
+001888          PERFORM 2000-PROCESS-PARA                               00197299
+001889*    ELSE IF EIBTRNID = 'SO01'                                    00198699
+ 02415*         EXEC CICS RECEIVE                                       00198799
+002416*                  MAPSET('ADDAPO')                               00198899
+002417*                  MAP('CCDMAP')                                  00198999
+002418*                  INTO(CCDMAPI)                                  00199099
+002419*         END-EXEC                                                00199199
+001886*         DISPLAY 'WEBSERVICE STARTED WITH DATA FROM CICS'        00199299
+001888*         PERFORM 2000-MOVE-PARA                                  00199399
+001888*         PERFORM 2000-PROCESS-PARA                               00199799
+            END-IF.                                                     00199999
+001884*      PERFORM 1000-SEND-MAP THRU 1000-EXIT.                      00200099
+002360       EXEC CICS RETURN                                           00200199
+002370                 TRANSID('SO01')                                  00200299
+002380                 COMMAREA(WS-COMMAREA)                            00200399
+002391                 LENGTH(130)                                      00200499
+002392       END-EXEC.                                                  00200699
+002000*                                                                 00201033
+002100 1000-SEND-MAP.                                                   00210099
+002200      EXEC CICS SEND                                              00220099
+002310                MAP('CCDMAP')                                     00221099
+002300                MAPSET('ADDAPO')                                  00230099
+002320                FROM(CCDMAPO)                                     00232099
+002405                ERASE                                             00233099
+                      CURSOR                                            00233199
+002340      END-EXEC.                                                   00234099
+      *     MOVE 'SO01' TO LS-TRANSID.                                  00239399
+002394*                                                                 00240794
+       1000-EXIT.                                                       00240899
+            EXIT.                                                       00240999
+      *                                                                 00241099
+002400 2000-PROCESS-PARA.                                               00242699
+002401      EVALUATE TRUE WHEN EIBAID = DFHPF3 OR LS-KEY = 'EXIT'       00242799
+002402         MOVE 'BYE ... SEE YOU' TO WS-TXT                         00242999
+002403         EXEC CICS SEND TEXT                                      00243099
+002404                        FROM(WS-TXT)                              00243199
+002405                        ERASE                                     00243299
+002406         END-EXEC                                                 00243399
+002407         EXEC CICS RETURN                                         00243499
+002408         END-EXEC                                                 00243599
+002409      WHEN                                                        00243699
+002410          EIBAID = DFHENTER OR LS-KEY = 'ENTER'                   00243799
+                DISPLAY ' PROCESS'                                      00243899
+001888          PERFORM 2000-CHECK-PARA                                 00244099
+                DISPLAY 'FLAG' , ERR-FLAG                               00244199
+                IF ERR-FLAG = 'Y'                                       00244299
+001888                   CONTINUE                                       00244399
+                ELSE                                                    00244499
+                   DISPLAY 'INSIDE WRITEQ1'                             00244599
+                   EXEC CICS WRITEQ TS                                  00244899
+                           QUEUE('CCDATA3')                             00244999
+                           FROM(WS-CCDB)                                00245099
+                           ITEM(CHOICE2)                                00245199
+                           REWRITE                                      00245299
+                           RESP(RE3)                                    00245399
+                           MAIN                                         00245499
+                   END-EXEC                                             00245599
+                   IF RE3  = DFHRESP(NORMAL)                            00245699
+                     CONTINUE                                           00245799
+                   ELSE                                                 00245899
+                   DISPLAY 'INSIDE WRITEQ'                              00245999
+                     EXEC CICS WRITEQ TS                                00246099
+                           QUEUE('CCDATA3')                             00246199
+                           FROM(WS-CCDB)                                00246299
+                           ITEM(CHOICE2)                                00246399
+                           MAIN                                         00246499
+                     END-EXEC                                           00246599
+                   END-IF                                               00246699
+      *                                                                 00246799
+                   DISPLAY 'INSIDE FILE'                                00246899
+002479             EXEC CICS                                            00246999
+002480                  WRITE FILE ('CCRECD')                           00247099
+002481                  FROM (WS-CCDB)                                  00247199
+002482                  RIDFLD(WS-CC-NO)                                00247299
+                        RBA                                             00247399
+002483             END-EXEC                                             00247499
+      *                                                                 00247599
+                 PERFORM 2500-TRANSFER-PARA                             00247899
+             END-IF                                                     00249199
+      *                                                                 00249299
+002410      WHEN                                                        00250099
+                EIBAID = DFHPF12 OR LS-KEY = 'CLEAR'                    00250199
+001880          MOVE LOW-VALUES TO CCDMAPO                              00250299
+                MOVE -1 TO CCNOL                                        00250399
+002412      WHEN OTHER                                                  00250499
+                MOVE 'PRESS A VALID KEY' TO MSGO                        00250599
+                MOVE 'PRESS A VALID KEY' TO LS-MSG                      00250699
+002413      END-EVALUATE.                                               00250799
+002440         DISPLAY 'DOT NET CLIENT FINALLY INVOKED MF WEBS'.        00250899
+      *                                                                 00250999
+001888 2000-CHECK-PARA.                                                 00251099
+                  DISPLAY 'CHECK'                                       00251199
+002441      IF CCNOI IS NOT NUMERIC                                     00251299
+002442            MOVE 'ENTER VALID CREDIT CARD NUMBER' TO MSGO         00251499
+002442            MOVE 'ENTER VALID CREDIT CARD NUMBER' TO LS-MSG       00251599
+002443            MOVE  DFHHLT TO CCNOA                                 00251699
+002444            MOVE  -1 TO CCNOL                                     00251799
+002445            MOVE 'Y' TO ERR-FLAG                                  00251899
+002446      ELSE IF CSNOI IS NOT NUMERIC                                00251999
+002447            MOVE 'ENTER VALID CSN NUMBER' TO MSGO                 00252299
+002447            MOVE 'ENTER VALID CSN NUMBER' TO LS-MSG               00252399
+002448            MOVE  DFHHLT TO CSNOA                                 00252499
+002449            MOVE  -1 TO CSNOL                                     00252599
+002450            MOVE 'Y' TO ERR-FLAG                                  00252699
+002456      ELSE IF CCTYPL = 0                                          00252799
+002457            MOVE 'ENTER THE CREDIT CARD TYPE' TO MSGO             00252999
+002457            MOVE 'ENTER THE CREDIT CARD TYPE' TO LS-MSG           00253099
+002458            MOVE  DFHHLT TO CCTYPA                                00253199
+002459            MOVE  -1 TO CCTYPL                                    00253299
+002460            MOVE 'Y' TO ERR-FLAG                                  00253399
+002456      ELSE IF CCTYPI IS NOT ALPHABETIC                            00253499
+002457            MOVE 'CREDIT CARD TYPE SHOULD BE ALPHABETIC' TO MSGO  00253599
+002457            MOVE 'CREDIT CARD TYPE SHOULD BE ALPHABETIC' TO LS-MSG00253699
+002458            MOVE  DFHHLT TO CCTYPA                                00253799
+002459            MOVE  -1 TO CCTYPL                                    00253899
+002460            MOVE 'Y' TO ERR-FLAG                                  00253999
+002456      ELSE IF AMNTPI IS NOT NUMERIC                               00254199
+002462            MOVE 'ENTER AMOUNT(PS)(NUMERIC VALUE)' TO MSGO        00254499
+002462            MOVE 'ENTER AMOUNT(PS)(NUMERIC VALUE)' TO LS-MSG      00254599
+002463            MOVE  DFHHLT TO AMNTPA                                00254699
+002464            MOVE  -1 TO AMNTPL                                    00254799
+002465            MOVE 'Y' TO ERR-FLAG                                  00254899
+002456      ELSE IF AMNTRI IS NOT NUMERIC                               00254999
+002462            MOVE 'ENTER AMOUNT(RS)(NUMERIC VALUE)' TO MSGO        00255099
+002462            MOVE 'ENTER AMOUNT(RS)(NUMERIC VALUE)' TO LS-MSG      00255199
+002463            MOVE  DFHHLT TO AMNTRA                                00255299
+002464            MOVE  -1 TO AMNTRL                                    00255399
+002465            MOVE 'Y' TO ERR-FLAG                                  00255499
+002456      ELSE IF EXDTI = SPACES OR EXDTL = 0 OR EXDTL > 0            00255599
+                  DISPLAY 'CHECK1'                                      00255699
+                  PERFORM 1450-ORDATE-VALIDATE-PARA                     00255799
+002466      END-IF.                                                     00255899
+002467*                                                                 00255999
+001888 2000-MOVE-PARA.                                                  00256099
+002468         MOVE CCNOI TO LS-CC-NO.                                  00256899
+002469         MOVE CSNOI TO LS-CS-NO.                                  00256999
+002470         MOVE EXDTI TO LS-EX-DT.                                  00257099
+002471         MOVE CCTYPI TO LS-CC-TYPE.                               00257199
+002472         MOVE AMNTRI TO LS-AMOUNTR.                               00257299
+002472         MOVE AMNTPI TO LS-AMOUNTP.                               00257399
+002468         MOVE CCNOI TO WS-CC-NO.                                  00257499
+002469         MOVE CSNOI TO WS-CS-NO.                                  00257599
+002470         MOVE EXDTI TO WS-EX-DT.                                  00257699
+002471         MOVE CCTYPI TO WS-CC-TYPE.                               00257799
+002472         MOVE AMNTRI TO WS-AMNTR.                                 00257899
+002472         MOVE AMNTPI TO WS-AMNTP.                                 00257999
+002490*                                                                 00258099
+       2000-MOVEBACK-PARA.                                              00258199
+               DISPLAY ' INSIDE MOVEBACK'                               00258299
+002473         MOVE LS-CC-NO   TO WS-CC-NO.                             00258499
+002474         MOVE LS-CS-NO   TO WS-CS-NO.                             00258599
+002475         MOVE LS-EX-DT   TO WS-EX-DT.                             00258699
+002476         MOVE LS-CC-TYPE TO WS-CC-TYPE.                           00258799
+002477         MOVE LS-AMOUNTR TO WS-AMNTR.                             00258899
+002477         MOVE LS-AMOUNTP TO WS-AMNTP.                             00258999
+002473         MOVE LS-CC-NO   TO CCNOI.                                00259099
+002474         MOVE LS-CS-NO   TO CSNOI.                                00259199
+002475         MOVE LS-EX-DT   TO EXDTI.                                00259299
+002476         MOVE LS-CC-TYPE TO CCTYPI.                               00259399
+002477         MOVE LS-AMOUNTR TO AMNTRI.                               00259499
+002477         MOVE LS-AMOUNTP TO AMNTPI.                               00259599
+      *                                                                 00259699
+002491 1000-PARA.                                                       00259799
+002492     EXEC CICS RETURN                                             00259899
+002493     END-EXEC.                                                    00259999
+002494*                                                                 00260099
+       1450-ORDATE-VALIDATE-PARA.                                       00260899
+            DISPLAY 'DATEVAL'                                           00260999
+            IF EXDTL < 10 OR EXDTL = 0                                  00261099
+                 MOVE 'INCOMPLETE DATE' TO MSGO                         00261199
+                 MOVE 'INCOMPLETE DATE' TO LS-MSG                       00261299
+                 MOVE -1 TO EXDTL                                       00262099
+002465           MOVE 'Y' TO ERR-FLAG                                   00270099
+            ELSE IF EXDTI(7:1) = '.'                                    00271099
+                   OR EXDTI(7:1) = ',' OR EXDTI(7:1) = '$'              00271199
+                   OR EXDTI(7:1) = '/' OR EXDTI(7:1) = '%'              00271299
+                   OR EXDTI(7:1) = '!' OR EXDTI(7:1) = '@'              00271399
+                   OR EXDTI(7:1) = '›' OR EXDTI(7:1) = '*'              00271499
+                   OR EXDTI(7:1) = '(' OR EXDTI(7:1) = ')'              00271599
+                   OR EXDTI(7:1) = '_' OR EXDTI(7:1) = '+'              00271799
+                 MOVE 'ENTER VALID MONTH' TO MSGO                       00272099
+                 MOVE 'ENTER VALID MONTH' TO LS-MSG                     00272299
+                 MOVE -1 TO EXDTL                                       00273099
+002465           MOVE 'Y' TO ERR-FLAG                                   00274099
+            ELSE                                                        00280099
+                 MOVE EXDTI(1:4) TO YEARLA                              00290076
+                 MOVE EXDTI(6:2) TO MONTHLA                             00300076
+                 MOVE EXDTI(9:2) TO DAYLA                               00310076
+                   DISPLAY 'DATE VAL2'                                  00320099
+                   DISPLAY 'YEAR' , YEARLA                              00330099
+                   DISPLAY 'MONTH' , MONTHLA                            00340099
+                   DISPLAY 'DAYL' , DAYLA                               00350099
+                          PERFORM 1460-ORYEAR-VALIDATE-PARA             00410075
+            END-IF.                                                     00460099
+      *                                                                 00461099
+        1460-ORYEAR-VALIDATE-PARA.                                      00470075
+                   DISPLAY '1'                                          00470199
+                 IF YEARLA IS NOT > 0                                   00470299
+                       MOVE 'ENTER VALID YEAR' TO MSGO                  00470399
+                       MOVE 'ENTER VALID YEAR' TO LS-MSG                00470499
+                       MOVE -1 TO EXDTL                                 00470599
+                       MOVE 'Y' TO ERR-FLAG                             00470699
+                   DISPLAY '2'                                          00470799
+                 ELSE IF MONTHLA IS NOT > 0                             00470899
+                       MOVE 'ENTER VALID MONTH' TO MSGO                 00470999
+                       MOVE 'ENTER VALID MONTH' TO LS-MSG               00471099
+                       MOVE -1 TO EXDTL                                 00471199
+                       MOVE 'Y' TO ERR-FLAG                             00471299
+                   DISPLAY '3'                                          00471399
+                   DISPLAY 'MONTH' , MONTHLA                            00471499
+                 ELSE IF DAYLA = ZEROS                                  00471599
+                   OR EXDTI(1:1) EQUAL TO '.'                           00471699
+                   OR EXDTI(2:1) EQUAL TO '.'                           00472093
+                   OR EXDTI(3:1) EQUAL TO '.'                           00473093
+                   OR EXDTI(4:1) EQUAL TO '.'                           00474093
+      *            OR EXDTI(6:1) EQUAL TO '0'                           00474199
+      *            OR EXDTI(7:1) EQUAL TO '.'                           00474299
+                   OR MONTHLA IS NOT NUMERIC OR DAYLA                   00475093
+                   IS NOT NUMERIC OR YEARLA IS NOT NUMERIC              00476093
+      *            OR YEARLA IS NOT > 0                                 00476199
+                    MOVE 'ENTER VALID DATE' TO MSGO                     00476299
+                    MOVE 'ENTER VALID DATE' TO LS-MSG                   00476399
+                   DISPLAY '4'                                          00476499
+                          MOVE -1 TO EXDTL                              00476599
+002465                    MOVE 'Y' TO ERR-FLAG                          00476699
+                 ELSE IF EXDTI(5:1) NOT EQUAL TO '-' OR EXDTI(8:1)      00477099
+                    NOT EQUAL TO '-'                                    00478093
+                    MOVE 'DATE SEPARATOR IS -' TO MSGO                  00479099
+                    MOVE 'DATE SEPARATOR IS -' TO LS-MSG                00479199
+                   DISPLAY '5'                                          00479299
+                          MOVE -1 TO EXDTL                              00479399
+002465                    MOVE 'Y' TO ERR-FLAG                          00479499
+                          DISPLAY 'SENDMAP'                             00479599
+001884*                   PERFORM 1000-SEND-MAP                         00479699
+                   ELSE                                                 00479793
+               DIVIDE YEARLA BY 400 GIVING LQUOTE REMAINDER REMAIN      00480093
+               IF REMAIN = 0                                            00490075
+                  MOVE 'G' TO FLAG                                      00500075
+                   DISPLAY '6'                                          00501099
+               ELSE DIVIDE YEARLA BY 100 GIVING LQUOTE REMAINDER REMAIN 00510075
+               IF REMAIN NOT = 0                                        00520075
+                   DIVIDE YEARLA BY 4 GIVING LQUOTE REMAINDER REMAIN    00530075
+                      IF REMAIN = 0                                     00540075
+                         MOVE 'G' TO FLAG                               00550075
+                      ELSE                                              00560075
+                         MOVE 'D' TO FLAG                               00570075
+                      END-IF                                            00580075
+                END-IF                                                  00590075
+            END-IF.                                                     00600075
+               IF FLAG = 'G' AND MONTHLA = 02                           00610075
+                  MOVE 29 TO DAYSINMONTH(2)                             00620075
+               END-IF.                                                  00630099
+                  IF MONTHLA > 0 AND MONTHLA <= 12                      00640075
+                     IF DAYLA > DAYSINMONTH(MONTHLA)                    00650075
+                        MOVE 'ENTER VALID-DATE' TO MSGO                 00660082
+                        MOVE 'ENTER VALID-DATE' TO LS-MSG               00661099
+                        MOVE -1 TO EXDTL                                00670076
+002465                  MOVE 'Y' TO ERR-FLAG                            00671081
+                    END-IF                                              00700075
+                  ELSE                                                  00710075
+      *              IF ERR-FLAG = 'Y'                                  00711099
+001888*                  PERFORM 1000-SEND-MAP THRU 1000-EXIT           00712199
+      *              ELSE                                               00713099
+      *                  CONTINUE                                       00714099
+      *              END-IF                                             00715099
+                     MOVE 'ENTER VALID MONTH' TO MSGO                   00720099
+                     MOVE 'ENTER VALID MONTH' TO LS-MSG                 00721099
+                     MOVE -1 TO EXDTL                                   00730076
+002465               MOVE 'Y' TO ERR-FLAG                               00731099
+                  END-IF.                                               00760075
+       MESS-PARA.                                                       00770099
+                IF WS-TXT = 'INVALID CREDIT CARD NO - PLZ TRY AGAIN'    00780099
+001880                    MOVE LOW-VALUES TO CCDMAPO                    00792099
+                ELSE IF WS-TXT = 'RECORD DOES NOT EXIST - PLZ TRY AGAIN'00793099
+001880                    MOVE LOW-VALUES TO CCDMAPO                    00794099
+                ELSE IF WS-TXT = 'INVALID CSN NO - PLZ TRY AGAIN'       00800099
+001880                    MOVE LOW-VALUES TO CCDMAPO                    00812099
+                ELSE IF WS-TXT = 'INVALID CARD TYPE - PLZ TRY AGAIN'    00820099
+001880                    MOVE LOW-VALUES TO CCDMAPO                    00832099
+                ELSE IF WS-TXT = 'INVALID EXPIRY DATE - PLZ TRY AGAIN'  00840099
+001880                    MOVE LOW-VALUES TO CCDMAPO                    00851199
+                ELSE IF WS-TXT = 'INSUFFICIENT FUNDS - PLZ TRY AGAIN'   00852099
+001880                    MOVE LOW-VALUES TO CCDMAPO                    00856099
+            ELSE IF WS-TXT = 'SUCCESSFUL TRANSACTION PRESS F12 TO CLEAR'00857099
+            MOVE DFHPROTI TO CCNOA, CSNOA, EXDTA, CCTYPA, AMNTRA, AMNTPA00857199
+                 END-IF.                                                00860099
+                 MOVE -1 TO CCNOL.                                      00870099
+      *                                                                 00871099
+       2500-TRANSFER-PARA.                                              00871199
+      *            IF LK-TRNID = 'SO01'                                 00872099
+                      MOVE 'SO01' TO LS-TRANSID.                        00872299
+                      DISPLAY '2'.                                      00872399
+002485                EXEC CICS LINK                                    00873099
+002486                    PROGRAM('OMCCPGM2')                           00874099
+002487                    COMMAREA (DFHCOMMAREA)                        00875099
+002488                    LENGTH(1000)                                  00876099
+002489                END-EXEC.                                         00877099
+      *                                                                 00877199
+                      DISPLAY 'IN OMCCPGM1'.                            00877299
+                      EXEC CICS READQ TS                                00877399
+                          QUEUE('MSG')                                  00877499
+                          INTO(MSG1)                                    00877599
+                          ITEM(CHOICE5)                                 00877699
+                      END-EXEC                                          00877799
+                      DISPLAY '3'.                                      00877899
+                      MOVE MESS TO LS-MSG.                              00877999
+                EXEC CICS READQ TS                                      00878099
+                          QUEUE('CCDATA3')                              00878199
+                          INTO(WS2-CCDB)                                00878299
+                          ITEM(CHOICE2)                                 00878399
+                END-EXEC                                                00878499
+                MOVE WS2-CC-NO     TO  LS-CC-NO.                        00878599
+                MOVE WS2-CS-NO     TO  LS-CS-NO.                        00878699
+                MOVE WS2-EX-DT     TO  LS-EX-DT.                        00878799
+                MOVE WS2-CC-TYPE   TO  LS-CC-TYPE.                      00878899
+                MOVE WS2-AMNTP     TO  LS-AMOUNTP.                      00878999
+                MOVE WS2-AMNTR     TO  LS-AMOUNTR.                      00879099
+      *            ELSE                                                 00879199
+      *               MOVE 'SO01' TO LS-TRANSID                         00879299
+      *               DISPLAY '4'                                       00879399
+002485*               EXEC CICS XCTL                                    00879499
+002486*                   PROGRAM('CCPGM2')                             00880099
+002487*                   COMMAREA (DFHCOMMAREA)                        00890099
+002488*                    LENGTH(1000)                                 00900099
+002489*               END-EXEC                                          00910099
+      *            END-IF.                                              00920099

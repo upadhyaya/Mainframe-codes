@@ -1,0 +1,108 @@
+      *  *=============================================================*00000148
+      ***  VTCONV  : THE START-TIME AND STOP-TIME IS IN THE UNIT OF  ***00001048
+      ***            TIMESTAMP. A TIME STAMP IS AN 8-BYTE COPY OF THE***00002048
+      ***            OUTPUT OF AN STCK INSTRUCTION. THIS IS CONVERTED***00003048
+      ***            TO EQUIVALENT DATE AND TIME FIELDS.             ***00004048
+      ***            STCK(STORE CLOCK) INSTRUCTION RETURNS TIME IN   ***00005048
+      ***            UNITS OF 1 MICROSECONDS IN BINARY SINCE         ***00006048
+      ***            1ST JANUARY 1900.THE TIME IS STORED AT THE 8    ***00007048
+      ***            BYTES SPECIFIED AND USES ONLY BITS 0-51 OF THE  ***00008048
+      ***            8-BYTE FIELD.                                   ***00009048
+      *  *=============================================================*00009148
+      *  *STEPS FOLLOWED TO CONVERT THE TIMESTAMP TO DATE AND TIME:-    00009248
+      *  * 1. THE 8 BYTE(X(8)) FIELD IS CONVERTED TO BITS.(64 BITS ARE  00009348
+      *  * OBTAINED).                                                   00009448
+      *  * 2. ONLY THE FIRST 52BITS ARE USED FOR CONVERSION.            00009548
+      *  * 3. THE 52BITS ARE CONVERTED TO DECIMAL VALUE.THIS WILL GIVE  00009648
+      *  *    THE TIME IN UNITS OF 1 MICROSECONDS IN BINARY SINCE       00009748
+      *  *    1ST JANUARY 1900.                                         00009848
+      *  * 4. THIS TIME IS CONVERTED TO THE NUMBER OF DAYS SINCE 1900   00009948
+      *  *    AND THE DATE IS CALCULATED FROM IT.                       00010048
+      *  * 5. THE TIME IN MICROSECONDS OBTAINED IS CONVERTED TO         00010148
+      *  *    HH:MM:SS.SS FORMAT. THIS TIME IS IN GMT.                  00010248
+      *  *=============================================================*00010548
+       9700-CONVERT-PARA.                                               00010648
+           INITIALIZE WS-BITS2BYTES-FIELDS.                             00011033
+           INITIALIZE WS-ARRAY-OF-BYTES.                                00011145
+           INITIALIZE WS-TIMESTAMP2DATETIME-FIELDS.                     00012033
+           MOVE 1 TO I.                                                 00013034
+           SET J TO 1.                                                  00020001
+           PERFORM 8 TIMES                                              00030001
+             MOVE SMF110-TIMESTAMP(I:1) TO BTS-PASS-BITS                00050036
+             PERFORM 9500-BYTE2BITS-PARA                                00070001
+             MOVE BTS-PASS-BYTES TO WS-BYTES-ARRAY(J)                   00090045
+             ADD 1 TO I                                                 00110001
+             SET J UP BY 1                                              00120001
+           END-PERFORM.                                                 00130001
+           MOVE WS-ARRAY-OF-BYTES TO WS-64BITS                          00141045
+           MOVE WS-64BITS(1:52) TO WS-52BITS.                           00142040
+           MOVE 1 TO K.                                                 00142101
+           MOVE 51 TO WS-EXPONENT.                                      00142240
+           PERFORM 52 TIMES                                             00143001
+              MOVE WS-52BITS(K:1) TO WS-BIT-EXTRACT                     00144040
+              COMPUTE WS-TIMESTAMP-DECIMAL = WS-TIMESTAMP-DECIMAL +     00145040
+                                             (WS-BIT-EXTRACT-NUM *      00145140
+                                                 (2 ** WS-EXPONENT))    00145240
+              ADD 1 TO K                                                00146040
+              SUBTRACT 1 FROM WS-EXPONENT                               00147040
+           END-PERFORM.                                                 00148001
+           COMPUTE WS-DAYS-FROM-1900 =  WS-TIMESTAMP-DECIMAL /          00149140
+                                        86400000000                     00149240
+           PERFORM 9710-DAYS-TO-DATE-PARA UNTIL WS-FLAG = 'Y'.          00149643
+           PERFORM 9720-DAYS-2DATE-PARA.                                00149743
+      *                                                                 00150001
+       9700-CONVERT-EXIT.                                               00150144
+           EXIT.                                                        00150244
+      *                                                                 00150344
+       9710-DAYS-TO-DATE-PARA.                                          00151043
+           COMPUTE WS-DAYS = WS-DAYS + 366 + 365 + 365 + 365            00152040
+           COMPUTE WS-YEARS = WS-YEARS + 4.                             00153040
+           IF WS-DAYS-FROM-1900 < WS-DAYS                               00153140
+              MOVE 'Y' TO WS-FLAG                                       00153215
+           END-IF.                                                      00153315
+      *                                                                 00153407
+       9720-DAYS-2DATE-PARA.                                            00153543
+           IF WS-DAYS-FROM-1900 < WS-DAYS                               00154040
+              COMPUTE WS-YEARS   = WS-YEARS - 4                         00155040
+              COMPUTE WS-DAYS    = WS-DAYS - (366 + 365 + 365 + 365)    00156040
+              COMPUTE WS-REMAINING-DAYS                                 00156140
+                                 = WS-DAYS-FROM-1900 - WS-DAYS + 2      00156240
+           END-IF.                                                      00157007
+           IF WS-REMAINING-DAYS > 366                                   00158040
+              COMPUTE WS-REMAINING-DAYS = WS-REMAINING-DAYS - 366       00159040
+              COMPUTE WS-YEARS = WS-YEARS + 1                           00159140
+           END-IF.                                                      00159212
+           IF WS-REMAINING-DAYS > 365                                   00159343
+              COMPUTE WS-REMAINING-DAYS = WS-REMAINING-DAYS - 365       00159443
+              COMPUTE WS-YEARS = WS-YEARS + 1                           00159543
+           END-IF.                                                      00159643
+           IF WS-REMAINING-DAYS > 365                                   00159743
+              COMPUTE WS-REMAINING-DAYS = WS-REMAINING-DAYS - 365       00159843
+              COMPUTE WS-YEARS = WS-YEARS + 1                           00159943
+           END-IF.                                                      00160043
+           COMPUTE WS-PRESENT-YEAR = 1900 + WS-YEARS.                   00163040
+           IF WS-PRESENT-YEAR-PX1 = 19                                  00164040
+              MOVE '0' TO NEW-JULIAN-PREFIX                             00165007
+           ELSE                                                         00166007
+              MOVE '1' TO NEW-JULIAN-PREFIX                             00167007
+           END-IF.                                                      00168007
+           MOVE WS-PRESENT-YEAR-PX2    TO NEW-JULIAN-YEAR               00169048
+           MOVE WS-REMAINING-DAYS      TO WS-REMAINING-DAYS-LAST        00169248
+           MOVE WS-REMAINING-DAYS-LAST TO NEW-JULIAN-DAY.               00169340
+           MOVE NEW-JULIAN             TO WS-JULIAN.                    00169548
+           PERFORM 9000-JULIAN2GREGORIAN-PARA THRU                      00169608
+                   9000-JULIAN2GREGORIAN-EXIT                           00169708
+      *    DISPLAY "FINAL-DATE:" WS-GREGORIAN.                          00169846
+           PERFORM 9730-TIME-PARA.                                      00169943
+      *                                                                 00170021
+       9730-TIME-PARA.                                                  00180043
+           COMPUTE WS-MICROSECONDS = FUNCTION REM(WS-TIMESTAMP-DECIMAL, 00181040
+                                                 86400000000)           00181140
+           COMPUTE WS-SECONDS     = WS-MICROSECONDS / 1000000           00182040
+           COMPUTE WS-HOURS  = WS-SECONDS / 3600                        00185040
+           COMPUTE WS-MINUTES-TEMP = WS-SECONDS / 60                    00186040
+           COMPUTE WS-MINS  = FUNCTION REM(WS-MINUTES-TEMP, 60)         00187040
+           COMPUTE WS-SECS  = FUNCTION REM(WS-SECONDS, 60)              00188040
+           MOVE WS-MICRO-SECS2 TO WS-MSECS.                             00188147
+      *    DISPLAY "FINAL-TIME:" WS-FINALTIME-DISPLAY.                  00188246
+      *                                                                 00190021

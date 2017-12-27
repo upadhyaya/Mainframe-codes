@@ -1,0 +1,36 @@
+      ******************************************************************
+      * DCLGEN TABLE(ADMT.T_CU_CUSTOMER)                               *
+      *        LIBRARY(ADMS.BASE.COPYLIB(CUSTM))                       *
+      *        LANGUAGE(COBOL)                                         *
+      *        QUOTE                                                   *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE ADMT.T_CU_CUSTOMER TABLE
+           ( CUST_ID                        DECIMAL(10,0) NOT NULL,
+             CUST_NAME                      CHAR(40) NOT NULL,
+             CUST_ADR_LN_1                  CHAR(40) NOT NULL,
+             CUST_ADR_LN_2                  CHAR(40) NOT NULL,
+             CUST_CITY                      CHAR(15) NOT NULL,
+             CUST_STATE                     CHAR(15) NOT NULL,
+             CUST_POST_CD                   CHAR(10) NOT NULL,
+             CUST_COUNTRT                   CHAR(15) NOT NULL,
+             CUST_PHONE                     CHAR(24) NOT NULL,
+             CUST_FAX                       CHAR(24) NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ADMT.T_CU_CUSTOMER                 *
+      ******************************************************************
+       01  DCLT-CU-CUSTOMER.
+           10 CUST-ID              PIC S9(10)V USAGE COMP-3.
+           10 CUST-NAME            PIC X(40).
+           10 CUST-ADR-LN-1        PIC X(40).
+           10 CUST-ADR-LN-2        PIC X(40).
+           10 CUST-CITY            PIC X(15).
+           10 CUST-STATE           PIC X(15).
+           10 CUST-POST-CD         PIC X(10).
+           10 CUST-COUNTRT         PIC X(15).
+           10 CUST-PHONE           PIC X(24).
+           10 CUST-FAX             PIC X(24).
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 10      *
+      ******************************************************************

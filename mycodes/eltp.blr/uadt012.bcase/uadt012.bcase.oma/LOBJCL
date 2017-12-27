@@ -1,0 +1,35 @@
+//UADT012Q JOB NOTIFY=&SYSUID,REGION=0M,LINES=(51,CANCEL),PRTY=12       00010000
+//* COBOL + DB2 + CICS                                                  00020000
+//*  ASSUMED THAT IPPGM = DBRM = LOAD MODULE NAME ARE SAME              00030000
+//*                                                                     00040000
+//*                                                                     00041001
+//PROCLIB JCLLIB ORDER='UADT012.BCASE.OMA'                              00050000
+//*                                                                     00060000
+//STEP1 EXEC PROC=DB2CICSC,                                             00070000
+//           INLIB='UADT012.BCASE.OMA',           <= INPUT PGM PATH     00080000
+//           SRCLIB='UADT012.BCASE.OMA',       <= INCLUDE/DCL LIB       00090000
+//           DBRMLIB='UADT012.BLR.DBRMLIB', <= DBRM SOURCE PATH         00100000
+//           RPLLIB='ADMS.CICSA1.LOAD',        <= CICS LOAD LIB         00110000
+//           MEM=LOBINS                                                 00120004
+//F2    DD DSN='/adms/hats.jpg'                                         00121007
+//LKED.SYSIN DD *                                                       00130000
+   NAME LOBINS(R)                    <= NAME OF LOAD MODULE             00150000
+//*                                                                     00160000
+//PACKBND EXEC PGM=IKJEFT01,REGION=4096K,                               00170000
+//         DYNAMNBR=75                                                  00180000
+//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR                              00190000
+//         DD DSN=SYS1.DSN810.SDSNEXIT,DISP=SHR                         00200000
+//         DD DSN=DSN810.RUNLIB.LOAD,DISP=SHR                           00210000
+//DBRMLIB  DD DSN=ELTP.BLR.TEAM3.DBRMLIB,DISP=SHR      <= DBRM LIBRARY  00220000
+//SYSTSPRT DD SYSOUT=*                                                  00230000
+//SYSPRINT DD SYSOUT=*                                                  00240000
+//SYSUDUMP DD SYSOUT=*                                                  00250000
+//SYSTSIN  DD *                                                         00260000
+  DSN SYSTEM(DB2A)                                                      00270000
+  BIND PACKAGE(ADMTCOL1) MEM(LOBINS) -                                  00280000
+  LIBRARY('UADT012.BLR.DBRMLIB') -                                      00290000
+  OWNER(GADMT) QUALIFIER(ADMT) -                                        00291000
+  ACTION(REPLACE) CURRENTDATA(NO) DEGREE(1) ENCODING(EBCDIC) -          00300000
+  EXPLAIN(NO) FLAG(I) ISOLATION(CS) NOREOPT(VARS) -                     00310000
+  RELEASE(DEALLOCATE) SQLERROR(NOPACKAGE) VALIDATE(BIND)                00320000
+/*                                                                      00330000

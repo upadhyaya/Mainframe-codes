@@ -1,0 +1,1430 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. CWORLSTW.                                            00020099
+000400 AUTHOR. TEAMSOA.                                                 00040099
+000410 DATE-WRITTEN. 26/04/07.                                          00041099
+000420 DATE-COMPILED. 28/04/07.                                         00042099
+000421*                                                                 00042199
+000430*MODULE       : ORDER LIST MODULE.                                00043099
+000500*TITLE        : NA                                                00050004
+000700*MAPS USED    : MODLST MAP.                                       00070099
+000701*                                                                 00070199
+000702*FUNCTIONALITY: THIS PROGRAM DISPLAYS THE LIST BASED ON CUSTOMER  00070299
+000703*               ID, PRODUCT ID, EMPLOYEE ID AND ORDER DATE ON THE 00070399
+000704*               SCREEN , PAGE UP AND PAGE DOWN CONCEPTS HAS BEEN  00070499
+000705*               INCLUDED.                                         00070599
+000706*                                                                 00070699
+000707*LOGIC        : DB2 SCROLL CURSORS HAVE BEEN USED FOR FETCHING THE00070799
+000708*               RECORDS FROM THE DATABASE AND FOR PERFORMING      00070899
+000709*               PAGEUP AND PAGE DOWN OPERATIONS.                  00070999
+000710*                                                                 00071099
+000711*PROGRAM FUNCTION KEYS USED: PF2,PF3,PF4,PF5,PF6,PF7,PF8,PF12     00071199
+000712* MESSAGES     : 1. 'NO DATA IS ENTERED - PLEASE ENTER THE DATA'  00071299
+000713*                2. 'RETURNING TO MAINMENU SCREEN'                00071399
+000717******************************************************************00071707
+000718 DATA DIVISION.                                                   00071803
+000719 WORKING-STORAGE SECTION.                                         00071904
+000720 COPY DFHAID.                                                     00072019
+000721 COPY DFHBMSCA.                                                   00072119
+000722 COPY MORLST.                                                     00072299
+000723 COPY VALIDDT.                                                    00072399
+000724      EXEC SQL INCLUDE ORDR   END-EXEC.                           00072499
+000725      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00072570
+000726*                                                                 00072699
+       01 TOTCOS1-REDEF.                                                00072799
+          05 WS-TOTCOS1            PIC 9(15)V99.                        00072899
+          05 RE-TOTCOS1 REDEFINES WS-TOTCOS1 PIC X(18).                 00072999
+       01 TOTCOS2-REDEF.                                                00073099
+          05 WS-TOTCOS2            PIC 9(15)V99.                        00073199
+          05 RE-TOTCOS2 REDEFINES WS-TOTCOS2 PIC X(18).                 00073299
+       01 TOTCOS3-REDEF.                                                00073399
+          05 WS-TOTCOS3            PIC 9(15)V99.                        00073499
+          05 RE-TOTCOS3 REDEFINES WS-TOTCOS3 PIC X(18).                 00073599
+       01 TOTCOS4-REDEF.                                                00073699
+          05 WS-TOTCOS4            PIC 9(15)V99.                        00073799
+          05 RE-TOTCOS4 REDEFINES WS-TOTCOS4 PIC X(18).                 00073899
+       01 TOTCOS5-REDEF.                                                00073999
+          05 WS-TOTCOS5            PIC 9(15)V99.                        00074099
+          05 RE-TOTCOS5 REDEFINES WS-TOTCOS5 PIC X(18).                 00074199
+       01 TOTCOS6-REDEF.                                                00074299
+          05 WS-TOTCOS6            PIC 9(15)V99.                        00074399
+          05 RE-TOTCOS6 REDEFINES WS-TOTCOS6 PIC X(18).                 00074499
+       01 TOTCOS7-REDEF.                                                00074599
+          05 WS-TOTCOS7            PIC 9(15)V99.                        00074699
+          05 RE-TOTCOS7 REDEFINES WS-TOTCOS7 PIC X(18).                 00074799
+       01 TOTCOS8-REDEF.                                                00074899
+          05 WS-TOTCOS8            PIC 9(15)V99.                        00074999
+          05 RE-TOTCOS8 REDEFINES WS-TOTCOS8 PIC X(18).                 00075099
+000727 01 WK-DATE.                                                      00075199
+000728    05 WK-D-DD PIC 99.                                            00075299
+000729    05 FILLER  PIC X.                                             00075399
+000730    05 WK-D-MM PIC 99.                                            00075499
+000731    05 FILLER  PIC X.                                             00075599
+000740    05 WK-D-YY PIC 99.                                            00076099
+000900 01 WK-TIME.                                                      00090038
+001001    05 WK-T-HH PIC 99.                                            00100139
+001002    05 FILLER  PIC X.                                             00100239
+001003    05 WK-T-MM PIC 99.                                            00100339
+001004    05 FILLER  PIC X.                                             00100439
+001005    05 WK-T-SS PIC 99.                                            00100539
+001006 01 DT PIC S9(15) COMP-3.                                         00100639
+001007*                                                                 00100799
+       01 CUSTIDQ.                                                      00100899
+          05 Q-ORDID  PIC 9(10).                                        00100999
+          05 Q1-ORDID PIC 9(10).                                        00101099
+          05 Q-CUSID  PIC 9(10).                                        00101199
+          05 Q-PRODID PIC 9(10).                                        00101299
+          05 Q-EMPID  PIC 9(10).                                        00101399
+          05 Q-QNTY   PIC 9(5).                                         00101499
+          05 Q-TOTCOS PIC 9(16)V99.                                     00101599
+          05 Q-ORDDT  PIC X(10).                                        00101699
+          05 Q-CNT    PIC 9.                                            00101799
+          05 Q-OPT    PIC X(4).                                         00101899
+          05 Q-FLAG   PIC X(4).                                         00101999
+001008 01 J           PIC 9 VALUE 1.                                    00102099
+001009 01 CNT         PIC 9 VALUE 1.                                    00102199
+001010 01 WS-END-PARA PIC X VALUE 'N'.                                  00102299
+       01 CHOICE1 PIC S9(4) COMP VALUE 1.                               00102399
+       01 RE      PIC S9(4) COMP.                                       00102499
+001011*                                                                 00102599
+001012 01 WS-TXT2  PIC X(80) VALUE 'DIRECT ENTRY TO M108 IS RESTRICTED'.00102699
+001012 01 WS-TXT3  PIC X(80) VALUE 'SESSION COMPLETED'.                 00102799
+001041 01 WS-COMMAREA  PIC 9.                                           00102899
+001042 01 WS-CUSTID       PIC 9(10).                                    00102999
+001043 01 WS-ORDDATE      PIC X(10).                                    00103099
+001044 01 WS-PRDID        PIC 9(10).                                    00103199
+001045 01 WS-EMPLEID      PIC 9(10).                                    00103299
+      *                                                                 00103399
+       01 Q-NAME    PIC X(8).                                           00103499
+       01 TEMP-QNAME REDEFINES Q-NAME.                                  00103599
+          02 FIRST-REF  PIC X(4).                                       00103699
+          02 SECOND-REF PIC 9(4).                                       00103799
+001013*                                                                 00103899
+001014 01 WS-SCR-DATE.                                                  00103999
+001015    05 WS-MONTH PIC X(2).                                         00104099
+001016    05 SLASH1   PIC X(1) VALUE '/'.                               00104199
+001017    05 WS-DATE  PIC X(2).                                         00104299
+001018    05 SLASH2   PIC X(1) VALUE '/'.                               00104399
+001019    05 WS-YEAR  PIC X(4).                                         00104499
+001020*                                                                 00104599
+001021 01 WS-SLASH1   PIC X(1) VALUE '/'.                               00104699
+001022 01 WS-SLASH2   PIC X(1) VALUE '/'.                               00104799
+001023*                                                                 00104899
+001024 01 WS-QUOT     PIC 9(4) VALUE 0.                                 00104999
+001025 01 WS-REM      PIC 9(4) VALUE 0.                                 00105099
+001026*                                                                 00105199
+001027 01 WS-ORDID    PIC X(10).                                        00105299
+001028 01 WS-CST-ID   PIC X(10).                                        00105399
+001029 01 WS-PRD-ID   PIC X(10).                                        00105499
+001030 01 WS-EMP-ID   PIC X(10).                                        00105599
+001031 01 WS-QNTITY   PIC X(5).                                         00105699
+001032 01 WS-TOTCST   PIC X(18).                                        00105799
+001033*                                                                 00105899
+001034 01 WS-STATUS-FIELDS.                                             00105999
+001035    05 STATUS-OF-RECEIVE PIC X   VALUE SPACE.                     00106099
+001036      88 GOOD-RECEIVE            VALUE 'G'.                       00106199
+001037      88 MAPFAIL-ON-RECEIVE      VALUE 'F'.                       00106299
+001038*                                                                 00106399
+001049     EXEC SQL                                                     00106499
+001050        DECLARE C1 SCROLL                                         00106599
+001051        CURSOR FOR                                                00106699
+001052        SELECT ORD_ID,ORD_CUST_ID,ORD_EMP_ID,ORD_PROD_ID,         00106799
+001053               ORD_QUANT,ORD_DATE,ORD_TOTAL_COST                  00106899
+001054        FROM ADMT.T_OR_ORDER                                      00106999
+              WHERE ORD_CUST_ID = :ORD-CUST-ID AND ORD_ID >  :ORD-ID    00107099
+001056        ORDER BY ORD_ID                                           00107199
+001057     END-EXEC.                                                    00107299
+001049     EXEC SQL                                                     00107399
+001050        DECLARE D1 SCROLL                                         00107499
+001051        CURSOR FOR                                                00107599
+001052        SELECT ORD_ID,ORD_CUST_ID,ORD_EMP_ID,ORD_PROD_ID,         00107699
+001053               ORD_QUANT,ORD_DATE,ORD_TOTAL_COST                  00107799
+001054        FROM ADMT.T_OR_ORDER                                      00107899
+              WHERE ORD_CUST_ID = :ORD-CUST-ID AND ORD_ID < :ORD-ID     00107999
+001056        ORDER BY ORD_ID DESC                                      00108099
+001057     END-EXEC.                                                    00108199
+001058******************************************************************00108299
+001059     EXEC SQL                                                     00108399
+001060        DECLARE C2 SCROLL                                         00108499
+001061        CURSOR FOR                                                00108599
+001062        SELECT ORD_ID,ORD_CUST_ID,ORD_EMP_ID,ORD_PROD_ID,         00108699
+001063               ORD_QUANT,ORD_DATE,ORD_TOTAL_COST                  00108799
+001064        FROM ADMT.T_OR_ORDER                                      00108899
+001065        WHERE ORD_DATE  = :ORD-DATE AND ORD_ID >  :ORD-ID         00108999
+001066        ORDER BY ORD_ID                                           00109099
+001067     END-EXEC.                                                    00109199
+001059     EXEC SQL                                                     00109299
+001060        DECLARE D2 SCROLL                                         00109399
+001061        CURSOR FOR                                                00109499
+001062        SELECT ORD_ID,ORD_CUST_ID,ORD_EMP_ID,ORD_PROD_ID,         00109599
+001063               ORD_QUANT,ORD_DATE,ORD_TOTAL_COST                  00109699
+001064        FROM ADMT.T_OR_ORDER                                      00109799
+001065        WHERE ORD_DATE  = :ORD-DATE AND ORD_ID < :ORD-ID          00109899
+001066        ORDER BY ORD_ID DESC                                      00109999
+001067     END-EXEC.                                                    00110099
+001068******************************************************************00110199
+001069     EXEC SQL                                                     00110299
+001070        DECLARE C3 SCROLL                                         00110399
+001071        CURSOR FOR                                                00110499
+001072        SELECT ORD_ID,ORD_CUST_ID,ORD_EMP_ID,ORD_PROD_ID,         00110599
+001073               ORD_QUANT,ORD_DATE,ORD_TOTAL_COST                  00110699
+001074        FROM ADMT.T_OR_ORDER                                      00110799
+001075        WHERE ORD_PROD_ID = :ORD-PROD-ID AND ORD_ID >  :ORD-ID    00110899
+001076        ORDER BY ORD_ID                                           00110999
+001077     END-EXEC.                                                    00111099
+001069     EXEC SQL                                                     00111199
+001070        DECLARE D3 SCROLL                                         00111299
+001071        CURSOR FOR                                                00111399
+001072        SELECT ORD_ID,ORD_CUST_ID,ORD_EMP_ID,ORD_PROD_ID,         00111499
+001073               ORD_QUANT,ORD_DATE,ORD_TOTAL_COST                  00111599
+001074        FROM ADMT.T_OR_ORDER                                      00111699
+001075        WHERE ORD_PROD_ID = :ORD-PROD-ID AND ORD_ID < :ORD-ID     00111799
+001076        ORDER BY ORD_ID DESC                                      00111899
+001077     END-EXEC.                                                    00111999
+001078******************************************************************00112099
+001079     EXEC SQL                                                     00112199
+001080        DECLARE C4 SCROLL                                         00112299
+001081        CURSOR FOR                                                00112399
+001082        SELECT ORD_ID,ORD_CUST_ID,ORD_EMP_ID,ORD_PROD_ID,         00112499
+001083               ORD_QUANT,ORD_DATE,ORD_TOTAL_COST                  00112599
+001084        FROM ADMT.T_OR_ORDER                                      00112699
+001085        WHERE ORD_EMP_ID = :ORD-EMP-ID  AND ORD_ID >  :ORD-ID     00112799
+001086        ORDER BY ORD_ID                                           00112899
+001087     END-EXEC.                                                    00112999
+001079     EXEC SQL                                                     00113099
+001080        DECLARE D4 SCROLL                                         00113199
+001081        CURSOR FOR                                                00113299
+001082        SELECT ORD_ID,ORD_CUST_ID,ORD_EMP_ID,ORD_PROD_ID,         00113399
+001083               ORD_QUANT,ORD_DATE,ORD_TOTAL_COST                  00113499
+001084        FROM ADMT.T_OR_ORDER                                      00113599
+001085        WHERE ORD_EMP_ID = :ORD-EMP-ID  AND ORD_ID < :ORD-ID      00113699
+001086        ORDER BY ORD_ID DESC                                      00113799
+001087     END-EXEC.                                                    00113899
+001048******************************************************************00113999
+001039 LINKAGE SECTION.                                                 00114099
+001040 01 DFHCOMMAREA.                                                  00114199
+          COPY ORLSIND.                                                 00114299
+001048******************************************************************00114399
+001089 PROCEDURE DIVISION USING DFHCOMMAREA.                            00114499
+001090******************************************************************00114599
+001091 COPY VALDATE.                                                    00114699
+             EXEC CICS HANDLE CONDITION                                 00114799
+                     MAPFAIL(3400-EXIT)                                 00114899
+                     INVREQ(9300-EXIT-PARA)                             00114999
+             END-EXEC.                                                  00115099
+             MOVE LS-ORD-ID TO ORD-ID.                                  00115199
+001092 1000-MAINLINE-PARA.                                              00115299
+               MOVE 'ORDLIS5' TO FIRST-REF.                             00115399
+               MOVE EIBTRMID TO SECOND-REF.                             00115499
+001093      IF EIBCALEN = 0                                             00115699
+001094        EXEC CICS SEND TEXT                                       00115799
+001095                  NOEDIT                                          00115899
+001096                  FROM(WS-TXT2)                                   00115999
+001097                  LENGTH(80)                                      00116099
+001098                  ERASE                                           00116199
+001099        END-EXEC                                                  00116299
+001100*                                                                 00116399
+001101        EXEC CICS RETURN                                          00116499
+001102        END-EXEC                                                  00116599
+001104*                                                                 00116699
+001105     ELSE                                                         00116799
+001106        PERFORM 1100-INITIAL-ENTRY-PARA THRU 1100-EXIT            00116899
+001107        PERFORM 2000-PROCESSING-PARA                              00116999
+001108     END-IF.                                                      00117099
+001109*                                                                 00117199
+001110     EXEC CICS RETURN                                             00117399
+001120          TRANSID ('M108')                                        00118099
+001200          COMMAREA(WS-COMMAREA)                                   00120099
+001301     END-EXEC.                                                    00130156
+001302******************************************************************00130256
+001303 1100-INITIAL-ENTRY-PARA.                                         00130399
+001307     PERFORM 1200-SEND-MAP-AND-DATA-PARA THRU 1200-EXIT.          00130799
+001308*                                                                 00130857
+001309 1100-EXIT.                                                       00130957
+001310     EXIT.                                                        00131057
+001311***************************************************************** 00131157
+001312 1200-SEND-MAP-AND-DATA-PARA.                                     00131299
+001313     PERFORM 1300-GET-DATE-AND-TIME-PARA THRU 1300-EXIT.          00131399
+001314     MOVE WK-DATE TO DATE1O.                                      00131457
+001315     MOVE WK-TIME TO TIME1O.                                      00131557
+001323*                                                                 00132357
+001324 1200-EXIT.                                                       00132457
+001325     EXIT.                                                        00132558
+001326***************************************************************** 00132658
+001327 1300-GET-DATE-AND-TIME-PARA.                                     00132799
+001328     EXEC CICS ASKTIME ABSTIME(DT) END-EXEC.                      00132858
+001329     EXEC CICS FORMATTIME                                         00132958
+001330               ABSTIME(DT)                                        00133058
+001331               MMDDYY(WK-DATE)                                    00133199
+001332               DATESEP                                            00133258
+001333               TIME(WK-TIME)                                      00133358
+001334               TIMESEP                                            00133458
+001335     END-EXEC.                                                    00133558
+001336*                                                                 00133658
+001337 1300-EXIT.                                                       00133758
+001338     EXIT.                                                        00133858
+001339***************************************************************** 00133958
+001340 2000-PROCESSING-PARA.                                            00134099
+001345        EVALUATE TRUE                                             00134599
+001346           WHEN EIBAID = DFHPF2 OR LS-OPT = 'CUST'                00134699
+001347               PERFORM 3000-LIST-CUSTID-PARA THRU 3000-EXIT       00134899
+001348           WHEN EIBAID = DFHPF3 OR LS-OPT = 'ODAT'                00134999
+001349               PERFORM 3100-LIST-ORDDATE-PARA THRU 3100-EXIT      00135199
+001350           WHEN EIBAID = DFHPF4 OR LS-OPT = 'PROD'                00135299
+001351               PERFORM 3200-LIST-PRODID-PARA THRU 3200-EXIT       00135399
+001352           WHEN EIBAID = DFHPF5 OR LS-OPT = 'EMPL'                00135499
+001353               PERFORM 3300-LIST-EMPID-PARA THRU 3300-EXIT        00135599
+001354           WHEN EIBAID = DFHPF6 OR LS-OPT = 'RET'                 00135699
+001355               PERFORM 8000-RETURN-TO-MAINMNU-PARA THRU 8000-EXIT 00135799
+001357           WHEN EIBAID = DFHPF7 OR LS-OPT = 'PGUP'                00135899
+      *                                                                 00136099
+001345                 EVALUATE TRUE                                    00136199
+001346                   WHEN LS-FLAG = 'CUST'                          00136299
+                           MOVE 'N' TO WS-END-PARA                      00136499
+                           PERFORM 4100-PAGEUP-PROCESS1-PARA            00136599
+001348                   WHEN LS-FLAG = 'ODAT'                          00136699
+                           MOVE 'N' TO WS-END-PARA                      00136899
+                           PERFORM 5100-PAGEUP-PROCESS2-PARA            00136999
+001350                   WHEN LS-FLAG = 'PROD'                          00137099
+                           MOVE 'N' TO WS-END-PARA                      00137199
+                           PERFORM 6100-PAGEUP-PROCESS3-PARA            00137399
+001352                   WHEN LS-FLAG = 'EMPL'                          00137499
+                           MOVE 'N' TO WS-END-PARA                      00137599
+                           PERFORM 7100-PAGEUP-PROCESS4-PARA            00137799
+                         WHEN OTHER                                     00137899
+      *                      DISPLAY 'PGUP HERE', LS-FLAG               00137999
+                             EXEC CICS RETURN END-EXEC                  00138099
+                         END-EVALUATE                                   00138299
+001359           WHEN EIBAID = DFHPF8 OR LS-OPT = 'PGDN'                00138399
+001345                  EVALUATE TRUE                                   00138599
+001346                   WHEN LS-FLAG = 'CUST'                          00138699
+                          IF ORD-CUST-ID IS NOT NUMERIC                 00138799
+                                EXEC CICS READQ TS                      00138899
+                                          QUEUE(Q-NAME)                 00138999
+                                          INTO(CUSTIDQ)                 00139099
+                                          ITEM(CHOICE1)                 00139199
+                                END-EXEC                                00139299
+                               MOVE Q-CUSID     TO ORD-CUST-ID          00139399
+                               MOVE Q-ORDID     TO ORD-ID               00139499
+                          END-IF                                        00139599
+001428                     EXEC SQL OPEN C1 END-EXEC                    00139699
+                           MOVE 'N' TO WS-END-PARA                      00139799
+                           PERFORM 4000-PAGEDOWN-PROCESS1-PARA          00139899
+001348                   WHEN LS-FLAG = 'ODAT'                          00139999
+                               EXEC CICS READQ TS                       00140399
+                                         QUEUE(Q-NAME)                  00140499
+                                         INTO(CUSTIDQ)                  00140599
+                                         ITEM(CHOICE1)                  00140699
+                               END-EXEC                                 00140799
+                            MOVE LS-ORDER-DATE TO ORD-DATE              00140999
+                            MOVE Q-ORDID TO ORD-ID                      00141099
+001428                     EXEC SQL OPEN C2 END-EXEC                    00141399
+                           MOVE 'N' TO WS-END-PARA                      00141599
+                           PERFORM 5000-PAGEDOWN-PROCESS2-PARA          00141699
+001350                   WHEN LS-FLAG = 'PROD'                          00141799
+                          IF ORD-PROD-ID IS NOT NUMERIC                 00141899
+                               EXEC CICS READQ TS                       00141999
+                                         QUEUE(Q-NAME)                  00142099
+                                         INTO(CUSTIDQ)                  00142199
+                                         ITEM(CHOICE1)                  00142299
+                               END-EXEC                                 00142399
+                               MOVE Q-PRODID TO ORD-PROD-ID             00142499
+                               MOVE Q-ORDID TO ORD-ID                   00142599
+                          END-IF                                        00142699
+                           MOVE 'N' TO WS-END-PARA                      00142799
+                           EXEC SQL OPEN C3 END-EXEC                    00142899
+                           PERFORM 6000-PAGEDOWN-PROCESS3-PARA          00142999
+001352                   WHEN LS-FLAG = 'EMPL'                          00143099
+                          IF ORD-EMP-ID IS NOT NUMERIC                  00143199
+                               EXEC CICS READQ TS                       00143299
+                                         QUEUE(Q-NAME)                  00143399
+                                         INTO(CUSTIDQ)                  00143499
+                                         ITEM(CHOICE1)                  00143599
+                               END-EXEC                                 00143699
+                               MOVE Q-EMPID TO ORD-EMP-ID               00143799
+                               MOVE Q-ORDID TO ORD-ID                   00143899
+                          END-IF                                        00143999
+                           MOVE 'N' TO WS-END-PARA                      00144099
+                           EXEC SQL OPEN C4 END-EXEC                    00144199
+                           PERFORM 7000-PAGEDOWN-PROCESS4-PARA          00144299
+                         WHEN OTHER                                     00144399
+      *                      DISPLAY 'PGDN HERE', LS-FLAG               00144499
+      *                      EXEC CICS READQ TS                         00144599
+      *                                QUEUE(Q-NAME)                    00144699
+      *                                INTO(CUSTIDQ)                    00144799
+      *                                ITEM(CHOICE1)                    00144899
+      *                      END-EXEC                                   00144999
+      *                      MOVE Q-FLAG TO LS-FLAG                     00145199
+      *                      PERFORM 2000-PROCESSING-PARA               00145399
+                             EXEC CICS RETURN END-EXEC                  00145499
+                         END-EVALUATE                                   00145599
+001361           WHEN EIBAID = DFHPF12 OR LS-OPT = 'CLR'                00145699
+001362               MOVE LOW-VALUES TO OLMAPO                          00145799
+001363               MOVE -1 TO CUSIDL                                  00145899
+001364               PERFORM 9100-PROCESS-PARA THRU 9100-EXIT           00145999
+001365           WHEN OTHER                                             00146099
+001366               PERFORM 9000-ERROR-PARA THRU 9000-EXIT             00146199
+001367        END-EVALUATE.                                             00146299
+001379 2000-EXIT.                                                       00146359
+001380     EXIT.                                                        00146459
+001381****************************************************************  00146559
+001382 2100-MESSAGE-PARA.                                               00146699
+001383     MOVE 'PERFORM SPECIFIC OPERATION BEFORE PAGE UP AND DOWN PROC00146799
+001384-         'ESS' TO LS-MSG.                                        00146899
+           PERFORM 9400-RETURN-PARA.                                    00146999
+001387*                                                                 00147099
+001388 2100-EXIT.                                                       00147199
+001389     EXIT.                                                        00147299
+001390***************************************************************** 00147399
+001391 3000-LIST-CUSTID-PARA.                                           00147499
+001394      IF LENGTH OF LS-CUST-ID = 0                                 00147599
+001395        MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   00147699
+              MOVE 1 TO LS-CURPOS                                       00147799
+001401        PERFORM 9100-PROCESS-PARA THRU 9100-EXIT                  00147899
+001410*                                                                 00147999
+001416       ELSE IF LS-CUST-ID IS NOT NUMERIC                          00148099
+              MOVE 1 TO LS-CURPOS                                       00148199
+001417            MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'   00148299
+001418                 TO LS-MSG                                        00148399
+001423            PERFORM 9100-PROCESS-PARA THRU 9100-EXIT              00148499
+001416       ELSE IF LS-CUST-ID IS ZERO                                 00148599
+                  MOVE 1 TO J                                           00148699
+                  PERFORM 4600-CLEAR-PARA THRU 4600-EXIT UNTIL J > 8    00148799
+                  MOVE 'Y' TO WS-END-PARA                               00148899
+                  MOVE 'CUSTOMER ID CANNOT BE ZERO' TO LS-MSG           00148999
+                  PERFORM 9200-MOVEBACK-PARA                            00149099
+                  PERFORM 9400-RETURN-PARA                              00149199
+                                                                        00149299
+001424*                                                                 00149399
+001425          ELSE                                                    00149499
+001426            MOVE LS-CUST-ID TO WS-CUSTID                          00149599
+001427            MOVE LS-CUST-ID TO ORD-CUST-ID                        00149699
+001428            EXEC SQL OPEN C1 END-EXEC                             00149799
+001429            PERFORM 4000-PAGEDOWN-PROCESS1-PARA                   00149899
+001430*                                                                 00149999
+001431          END-IF                                                  00150099
+001432*                                                                 00150199
+001433      END-IF.                                                     00150299
+001434*                                                                 00150399
+001435 3000-EXIT.                                                       00150499
+001436      EXIT.                                                       00150599
+001437******************************************************************00150699
+001438 3100-LIST-ORDDATE-PARA.                                          00150799
+            PERFORM 3500-VALIDDATE-PARA THRU 3500-EXIT.                 00151099
+001536      MOVE LS-ORDER-DATE TO WS-ORDDATE.                           00153699
+001537      MOVE LS-ORDER-DATE TO ORD-DATE.                             00153799
+001538      EXEC SQL OPEN C2 END-EXEC.                                  00153899
+001539      PERFORM 5000-PAGEDOWN-PROCESS2-PARA.                        00153999
+001542*                                                                 00154299
+001543 3100-EXIT.                                                       00154399
+001544     EXIT.                                                        00154499
+001545******************************************************************00154599
+001546 3200-LIST-PRODID-PARA.                                           00154699
+001547      IF LENGTH OF LS-PROD-ID = 0                                 00154799
+001548        MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG    00154899
+              MOVE 3 TO LS-CURPOS                                       00154999
+001553        PERFORM 9100-PROCESS-PARA THRU 9100-EXIT                  00155399
+001554*                                                                 00155499
+001555      ELSE IF LS-PROD-ID IS NOT NUMERIC                           00155599
+001556            MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'    00155699
+001557                 TO LS-MSG                                        00155799
+              MOVE 3 TO LS-CURPOS                                       00155899
+001562            PERFORM 9100-PROCESS-PARA THRU 9100-EXIT              00156299
+001416       ELSE IF LS-PROD-ID IS ZERO                                 00156399
+                  MOVE 1 TO J                                           00156499
+                  PERFORM 4600-CLEAR-PARA THRU 4600-EXIT UNTIL J > 8    00156599
+                  MOVE 'Y' TO WS-END-PARA                               00156699
+                  MOVE 'PRODUCT ID CANNOT BE ZERO' TO LS-MSG            00156799
+                  PERFORM 9200-MOVEBACK-PARA                            00156899
+                  PERFORM 9400-RETURN-PARA                              00156999
+001563*                                                                 00157099
+001564          ELSE                                                    00157199
+001565            MOVE LS-PROD-ID TO WS-PRDID                           00157299
+001566            MOVE LS-PROD-ID TO ORD-PROD-ID                        00157399
+001567            EXEC SQL OPEN C3 END-EXEC                             00157499
+001568            PERFORM 6000-PAGEDOWN-PROCESS3-PARA                   00157599
+001570          END-IF                                                  00157699
+001572      END-IF.                                                     00157799
+001573*                                                                 00157899
+001574 3200-EXIT.                                                       00157999
+001575      EXIT.                                                       00158099
+001576******************************************************************00158199
+001577 3300-LIST-EMPID-PARA.                                            00158299
+001578      IF LENGTH OF LS-EMP-ID = 0                                  00158399
+              MOVE 4 TO LS-CURPOS                                       00158499
+001579        MOVE 'EMPLOYEE ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   00158599
+001584        PERFORM 9100-PROCESS-PARA THRU 9100-EXIT                  00158699
+001585*                                                                 00158799
+001586      ELSE IF LS-EMP-ID IS NOT NUMERIC                            00158899
+              MOVE 4 TO LS-CURPOS                                       00158999
+001587            MOVE 'EMPLOYEE ID SHOULD BE NUMERIC - PLZ ENTER IT'   00159099
+001588                 TO LS-MSG                                        00159199
+001593            PERFORM 9100-PROCESS-PARA THRU 9100-EXIT              00159399
+001416       ELSE IF LS-EMP-ID IS ZERO                                  00159499
+                  MOVE 1 TO J                                           00159599
+                  PERFORM 4600-CLEAR-PARA THRU 4600-EXIT UNTIL J > 8    00159699
+                  MOVE 'Y' TO WS-END-PARA                               00159799
+                  MOVE 'EMPLOYEE ID CANNOT BE ZERO' TO LS-MSG           00159899
+                  PERFORM 9200-MOVEBACK-PARA                            00159999
+                  PERFORM 9400-RETURN-PARA                              00160099
+001594*                                                                 00160199
+001595          ELSE                                                    00160299
+001596               MOVE LS-EMP-ID TO WS-EMPLEID                       00160399
+001597               MOVE LS-EMP-ID TO ORD-EMP-ID                       00160499
+001598               EXEC SQL OPEN C4 END-EXEC                          00160599
+001599               PERFORM 7000-PAGEDOWN-PROCESS4-PARA                00160699
+001600          END-IF                                                  00160799
+001601*                                                                 00160899
+001602      END-IF.                                                     00160999
+001603*                                                                 00161099
+001604 3300-EXIT.                                                       00161199
+001605      EXIT.                                                       00161299
+001606******************************************************************00162099
+001621 3400-EXIT.                                                       00162199
+001622      EXIT.                                                       00162299
+001623******************************************************************00162360
+001624 3500-VALIDDATE-PARA.                                             00162499
+001625      IF LENGTH OF LS-ORDER-DATE = 0 OR LS-ORDER-DATE = SPACES    00162699
+              MOVE 2 TO LS-CURPOS                                       00162799
+001626        MOVE 'ORDER DATE NOT ENTERED - PLZ ENTER IT' TO LS-MSG    00162899
+001627        MOVE -1 TO ORDDTL                                         00162999
+001628        MOVE 0 TO CUSIDO                                          00163099
+001629        MOVE 0 TO PRODIDO                                         00163199
+001630        MOVE 0 TO EMPLIDO                                         00163299
+001631        PERFORM 9100-PROCESS-PARA THRU 9100-EXIT                  00163399
+001632      ELSE                                                        00163499
+001633          MOVE LS-ORDER-DATE      TO INPUTDATELA                  00163599
+001634          MOVE LS-ORDER-DATE(1:2) TO MONTHLA                      00163699
+001635          MOVE LS-ORDER-DATE(3:1) TO WS-SLASH1                    00163799
+001636          MOVE LS-ORDER-DATE(4:2) TO DAYLA                        00163899
+001637          MOVE LS-ORDER-DATE(6:1) TO WS-SLASH2                    00163999
+001638          MOVE LS-ORDER-DATE(7:4) TO YEARLA                       00164099
+001639*                                                                 00164199
+001640          PERFORM 9400-BEGIN-PARA THRU 9400-EXIT                  00164299
+001641*                                                                 00164399
+001642          EVALUATE TRUE                                           00164499
+001643            WHEN DATENOTNUMERIC                                   00164599
+001644              MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT IN MM00164699
+001645-                  '/DD/YYYY FORMAT' TO LS-MSG                    00164799
+001646              MOVE -1 TO ORDDTL                                   00164899
+                    MOVE 2 TO LS-CURPOS                                 00164999
+001647              PERFORM 9100-PROCESS-PARA THRU 9100-EXIT            00165099
+001648            WHEN MONTHCONTAINSZEROS                               00165199
+001649              MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00165299
+001650                   TO LS-MSG                                      00165399
+                    MOVE 2 TO LS-CURPOS                                 00165499
+001651              MOVE -1 TO ORDDTL                                   00165599
+001652              PERFORM 9100-PROCESS-PARA THRU 9100-EXIT            00165699
+001653            WHEN MONTHGREATERTHAN12                               00165799
+001654              MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00165899
+001655                   TO LS-MSG                                      00165999
+                    MOVE 2 TO LS-CURPOS                                 00166099
+001656              MOVE -1 TO ORDDTL                                   00166199
+001657              PERFORM 9100-PROCESS-PARA THRU 9100-EXIT            00166299
+001658            WHEN DAYCONTAINSZEROS                                 00166399
+001659              MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    00166499
+001660                   TO LS-MSG                                      00166599
+                    MOVE 2 TO LS-CURPOS                                 00166699
+001661              MOVE -1 TO ORDDTL                                   00166799
+001662              PERFORM 9100-PROCESS-PARA THRU 9100-EXIT            00166899
+001663            WHEN DAYTOOGREATFORMONTH                              00166999
+001664              MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENT00167099
+001665-                  'ER CORRECT FORMAT' TO LS-MSG                  00167199
+                    MOVE 2 TO LS-CURPOS                                 00167299
+001666              MOVE -1 TO ORDDTL                                   00167399
+001667              PERFORM 9100-PROCESS-PARA THRU 9100-EXIT            00167499
+001668            WHEN YEARCONTAINSZEROS                                00167599
+                    MOVE 2 TO LS-CURPOS                                 00167699
+001669              MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'    00167799
+001670                   TO LS-MSG                                      00167899
+001671              MOVE -1 TO ORDDTL                                   00167999
+001672              PERFORM 9100-PROCESS-PARA THRU 9100-EXIT            00168099
+001673          END-EVALUATE                                            00168199
+001674*                                                                 00168299
+001675          IF LS-ORDER-DATE(1:2) IS NOT NUMERIC                    00168399
+001676              MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00168499
+001677                    TO LS-MSG                                     00168599
+                    MOVE 2 TO LS-CURPOS                                 00168699
+001678              MOVE -1 TO ORDDTL                                   00168799
+001679              PERFORM 9100-PROCESS-PARA THRU 9100-EXIT            00168899
+001680          END-IF                                                  00168999
+001681*                                                                 00169099
+001682          IF LS-ORDER-DATE(4:2) IS NOT NUMERIC                    00169199
+                    MOVE 2 TO LS-CURPOS                                 00169299
+001683              MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    00169399
+001684                    TO LS-MSG                                     00169499
+001685              MOVE -1 TO ORDDTL                                   00169599
+001686              PERFORM 9100-PROCESS-PARA THRU 9100-EXIT            00169699
+001687          END-IF                                                  00169799
+001688*                                                                 00169899
+001689          IF LS-ORDER-DATE (7:4) IS NOT NUMERIC                   00169999
+                    MOVE 2 TO LS-CURPOS                                 00170099
+001690               MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'   00170199
+001691                     TO LS-MSG                                    00170299
+001692               MOVE -1 TO ORDDTL                                  00170399
+001693               PERFORM 9100-PROCESS-PARA THRU 9100-EXIT           00170499
+001694          ELSE                                                    00170599
+001695               DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM 00170699
+001696                                                                  00170799
+001697               IF MONTHLA = 02 AND WS-SLASH1 = '/' AND DAYLA = 29 00170899
+001698                  AND WS-SLASH2 = '/' AND WS-REM NOT = 0          00170999
+001699                  MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ00171099
+001700-                   ' ENTER CORRECT FORMAT' TO LS-MSG             00171199
+                    MOVE 2 TO LS-CURPOS                                 00171299
+001701                  MOVE -1 TO ORDDTL                               00171399
+001702                  PERFORM 9100-PROCESS-PARA THRU 9100-EXIT        00171499
+001703               END-IF                                             00171599
+001704*                                                                 00171699
+001705          END-IF                                                  00171799
+001708*                                                                 00171899
+001709          EVALUATE TRUE                                           00171999
+001710              WHEN WS-SLASH1 NOT = '/'                            00172099
+001711                MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A S00172199
+001712-                    'EPERATOR'  TO LS-MSG                        00172299
+                    MOVE 2 TO LS-CURPOS                                 00172399
+001713                MOVE -1 TO ORDDTL                                 00172499
+001714                PERFORM 9100-PROCESS-PARA THRU 9100-EXIT          00172599
+001715              WHEN WS-SLASH2 NOT = '/'                            00172699
+001716                MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A S00172799
+001717-                    'EPERATOR'  TO LS-MSG                        00172899
+                    MOVE 2 TO LS-CURPOS                                 00172999
+001718                MOVE -1 TO ORDDTL                                 00173099
+001719                PERFORM 9100-PROCESS-PARA THRU 9100-EXIT          00173199
+001720          END-EVALUATE                                            00173299
+001721*                                                                 00173399
+001722      END-IF.                                                     00173499
+001723*                                                                 00173599
+001724 3500-EXIT.                                                       00173699
+001725      EXIT.                                                       00173799
+001726******************************************************************00173899
+001727 4000-PAGEDOWN-PROCESS1-PARA.                                     00173999
+001728      MOVE 1 TO J.                                                00174899
+001729      MOVE 1 TO CNT.                                              00174999
+001730*                                                                 00175099
+001800      MOVE ZERO  TO LS-EMP-ID.                                    00175299
+001801      MOVE ZERO  TO LS-PROD-ID.                                   00175399
+001802      MOVE ZERO  TO LS-ORDER-DATE.                                00175499
+      *                                                                 00176099
+001731      PERFORM 4200-FETCH-FORWARD1-PARA THRU 4200-EXIT UNTIL J > 8 00176199
+001732             OR WS-END-PARA = 'Y'.                                00176299
+001733*                                                                 00176399
+001734      IF WS-END-PARA = 'Y'                                        00176599
+               IF SQLCODE = 100                                         00176699
+001735            MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG       00176799
+               ELSE MOVE 0    TO LS-MSG                                 00176899
+               END-IF                                                   00176999
+               MOVE 'CWORLSTW' TO LS-PGMNAME                            00177099
+               MOVE LS-CUST-ID TO Q-CUSID                               00177199
+               MOVE LS-ORD-ID  TO Q-ORDID                               00177299
+               MOVE ORDIDO(1)  TO Q1-ORDID                              00177399
+               MOVE 0          TO Q-EMPID                               00177499
+               MOVE 0          TO Q-PRODID                              00177599
+               MOVE 0          TO Q-TOTCOS                              00177699
+               MOVE LOW-VALUES TO Q-ORDDT                               00177799
+               MOVE CNT        TO Q-CNT                                 00177899
+               PERFORM 9200-MOVEBACK-PARA                               00178099
+001747         EXEC SQL CLOSE C1 END-EXEC                               00178299
+001800         MOVE ZERO  TO LS-EMP-ID                                  00178399
+001801         MOVE ZERO  TO LS-PROD-ID                                 00178499
+001802         MOVE ZERO  TO LS-ORDER-DATE                              00178599
+               PERFORM 9400-RETURN-PARA                                 00178799
+001736      END-IF.                                                     00178899
+001737*                                                                 00179099
+001784******************************************************************00179399
+001785 4100-PAGEUP-PROCESS1-PARA.                                       00179499
+             EXEC CICS READQ TS                                         00179599
+                       QUEUE(Q-NAME)                                    00179699
+                       INTO(CUSTIDQ)                                    00179799
+                       ITEM(CHOICE1)                                    00179899
+             END-EXEC                                                   00179999
+            MOVE Q-CUSID TO ORD-CUST-ID                                 00180299
+            MOVE Q1-ORDID TO ORD-ID                                     00180399
+            MOVE Q-CNT TO CNT                                           00180499
+      *     MOVE LS-CUST-ID    TO ORD-CUST-ID                           00180599
+      *     MOVE LS1-ORD-ID     TO ORD-ID                               00180699
+      *      MOVE Q-CNT         TO CNT                                  00180799
+            EXEC SQL OPEN D1 END-EXEC                                   00180899
+001788*                                                                 00181299
+001789      MOVE 1 TO J.                                                00181399
+001790      MOVE 'N' TO WS-END-PARA.                                    00181499
+001791      PERFORM 4500-FETCH-BACKWARD12-PARA THRU 4500-EXIT           00181699
+001792          UNTIL J > 8 OR WS-END-PARA = 'Y'.                       00181799
+            MOVE LS-ORD-ID TO ORD-ID                                    00181999
+            EXEC SQL OPEN C1 END-EXEC                                   00182099
+001794      MOVE 1 TO J                                                 00182199
+001795      MOVE 'N' TO WS-END-PARA                                     00182299
+001796      PERFORM 4200-FETCH-FORWARD1-PARA THRU 4200-EXIT UNTIL J > 8 00182499
+001797             OR WS-END-PARA = 'Y'                                 00182599
+001800      MOVE ZERO  TO LS-EMP-ID.                                    00182999
+001801      MOVE ZERO  TO LS-PROD-ID.                                   00183099
+001802      MOVE ZERO  TO LS-ORDER-DATE.                                00183199
+001734      IF WS-END-PARA = 'Y'                                        00183299
+              IF SQLCODE = 100                                          00183399
+001735         MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG          00183499
+              ELSE IF LS-MSG = 'START OF THE PAGE'                      00183699
+                    MOVE LS-MSG TO LS-MSG                               00183799
+              ELSE MOVE 0 TO LS-MSG                                     00183899
+              END-IF                                                    00183999
+               MOVE 'CWORLSTW' TO LS-PGMNAME                            00184199
+               MOVE LS-CUST-ID TO Q-CUSID                               00184299
+               MOVE LS-ORD-ID  TO Q-ORDID                               00184399
+               MOVE ORDIDO(1)  TO Q1-ORDID                              00184499
+               MOVE 0          TO Q-EMPID                               00184599
+               MOVE 0          TO Q-PRODID                              00184699
+               MOVE 0          TO Q-TOTCOS                              00184799
+               MOVE LOW-VALUES TO Q-ORDDT                               00184899
+               MOVE CNT        TO Q-CNT                                 00184999
+               PERFORM 9200-MOVEBACK-PARA                               00185099
+               EXEC SQL CLOSE C1 END-EXEC                               00185199
+               PERFORM 9400-RETURN-PARA                                 00185299
+001736      END-IF.                                                     00186099
+001845******************************************************************00188299
+001846 4200-FETCH-FORWARD1-PARA.                                        00188399
+001847      EXEC SQL FETCH NEXT                                         00188599
+001848              FROM C1                                             00188699
+001849              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00188799
+001850                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00188899
+001851                   :ORD-TOTAL-COST                                00188999
+001852      END-EXEC.                                                   00189099
+001853*                                                                 00189199
+001854        EVALUATE SQLCODE                                          00189299
+001855            WHEN 0                                                00189399
+001856                PERFORM 4300-MV-DCLGEN-TO-MAPFLDS-PARA THRU       00189499
+001857                        4300-EXIT                                 00189599
+                      IF J > 8                                          00189699
+                       MOVE 'Y' TO WS-END-PARA                          00189799
+                      END-IF                                            00189899
+001858            WHEN +100                                             00189999
+                    IF J = 1                                            00190199
+                     IF LS-PGMNAME = 'CWORLSTC'                         00190299
+      *               DISPLAY 'J=1 HERE'                                00190399
+                      MOVE J TO LS-CNT                                  00190499
+                      MOVE LOW-VALUES TO OLMAPO                         00190599
+                      PERFORM 9200-MOVEBACK-PARA                        00190699
+                      MOVE ZERO  TO LS-EMP-ID                           00190799
+                      MOVE ZERO  TO LS-PROD-ID                          00190899
+                      MOVE ZERO  TO LS-ORDER-DATE                       00190999
+                      MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG   00191099
+                     ELSE                                               00191199
+                      MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG   00191299
+                     END-IF                                             00191399
+                     MOVE 'CWORLSTW' TO LS-PGMNAME                      00191499
+                     EXEC CICS RETURN END-EXEC                          00191599
+                    END-IF                                              00191699
+      *             DISPLAY 'LS-PGMNAME' LS-PGMNAME                     00191799
+                                                                        00191899
+                    IF LS-PGMNAME = 'CWORLSTW'                          00191999
+                                                                        00192199
+001859               PERFORM 4601-CLEAR-PARA THRU 4601-EXIT UNTIL J > 8 00192299
+                    ELSE                                                00192499
+001859               PERFORM 4600-CLEAR-PARA THRU 4600-EXIT UNTIL J > 8 00192599
+                    END-IF                                              00192699
+001860              MOVE 'Y' TO WS-END-PARA                             00192799
+                 WHEN OTHER                                             00192899
+                     EXEC CICS RETURN END-EXEC                          00192999
+001861        END-EVALUATE.                                             00193099
+001862*                                                                 00193199
+001863 4200-EXIT.                                                       00193299
+001864      EXIT.                                                       00193399
+001865******************************************************************00193499
+001866 4300-MV-DCLGEN-TO-MAPFLDS-PARA.                                  00193599
+001867      MOVE ORD-ID            TO ORDIDO(J).                        00193699
+001867      MOVE ORD-ID            TO LS-ORD-ID.                        00193799
+001867                                                                  00193899
+001868      MOVE ORD-CUST-ID       TO CUSTIDO(J).                       00193999
+001869      MOVE ORD-PROD-ID       TO PRDIDO(J).                        00194099
+001870      MOVE ORD-EMP-ID        TO EMPIDO(J).                        00194199
+001871      MOVE ORD-QUANT         TO QNTYO(J).                         00194299
+001872      MOVE ORD-TOTAL-COST    TO TOTCSTO(J).                       00194399
+001873*                                                                 00194499
+001874      MOVE ORD-DATE(1:4)     TO WS-YEAR.                          00194599
+001875      MOVE ORD-DATE(6:2)     TO WS-MONTH.                         00194699
+001876      MOVE ORD-DATE(9:2)     TO WS-DATE.                          00194799
+001877      MOVE WS-SCR-DATE       TO ORDDATO(J).                       00194899
+001878*                                                                 00194999
+001879      ADD 1 TO J.                                                 00195099
+001880      MOVE J TO CNT.                                              00195199
+001881*                                                                 00195299
+001882 4300-EXIT.                                                       00195399
+001883      EXIT.                                                       00195499
+001884***************************************************************** 00195599
+001885 4400-FETCH-BACKWARD11-PARA.                                      00195699
+001886      EXEC SQL FETCH                                              00195799
+001887              FROM D1                                             00195899
+001888              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00195999
+001889                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00196099
+001890                   :ORD-TOTAL-COST                                00196199
+001891      END-EXEC.                                                   00196299
+001893      SUBTRACT 1 FROM CNT GIVING CNT.                             00196399
+001894*                                                                 00196499
+001895 4400-EXIT.                                                       00196599
+001896      EXIT.                                                       00196699
+001897******************************************************************00196799
+001898 4500-FETCH-BACKWARD12-PARA.                                      00196899
+001899      EXEC SQL FETCH                                              00196999
+001900              FROM D1                                             00197099
+001901              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00197199
+001902                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00197299
+001903                   :ORD-TOTAL-COST                                00197399
+001904     END-EXEC.                                                    00197499
+001905*                                                                 00197599
+001906        EVALUATE SQLCODE                                          00197699
+001907            WHEN 0                                                00197799
+                      MOVE ORD-ID TO LS-ORD-ID                          00197899
+001908                ADD 1 TO J                                        00197999
+                      SUBTRACT 1 FROM CNT GIVING CNT                    00198099
+001909            WHEN +100                                             00198199
+                      MOVE 0      TO LS-ORD-ID                          00198299
+001910                MOVE 'Y' TO WS-END-PARA                           00198399
+001911                MOVE 'START OF THE PAGE' TO LS-MSG                00198499
+001914        END-EVALUATE.                                             00198599
+001915*                                                                 00198699
+001916 4500-EXIT.                                                       00198799
+001917     EXIT.                                                        00198899
+001918******************************************************************00198999
+001919 4600-CLEAR-PARA.                                                 00199099
+001920     MOVE LOW-VALUES TO WS-ORDID.                                 00199199
+001921     MOVE WS-ORDID   TO ORDIDO(J).                                00199299
+001922     MOVE LOW-VALUES TO WS-CST-ID.                                00199399
+001923     MOVE WS-CST-ID  TO CUSTIDO(J).                               00199499
+001924     MOVE LOW-VALUES TO WS-PRD-ID.                                00199599
+001925     MOVE WS-PRD-ID  TO PRDIDO(J).                                00199699
+001926     MOVE LOW-VALUES TO WS-EMP-ID.                                00199799
+001927     MOVE WS-EMP-ID  TO EMPIDO(J).                                00199899
+001928     MOVE LOW-VALUES TO WS-QNTITY.                                00199999
+001929     MOVE WS-QNTITY  TO QNTYO(J).                                 00200099
+00193      MOVE LOW-VALUES TO WS-TOTCST.                                00200199
+001931     MOVE WS-TOTCST  TO TOTCSTO(J).                               00200299
+001932     MOVE LOW-VALUES TO ORDDATO(J).                               00200399
+      *    MOVE ZEROS TO LS-CUST-ID                                     00200499
+      *    MOVE LOW-VALUES TO LS-ORDER-DATE                             00200599
+      *    MOVE ZEROS TO LS-PROD-ID                                     00200699
+      *    MOVE ZEROS TO LS-EMP-ID                                      00200799
+001933*                                                                 00200899
+001934     ADD 1 TO J.                                                  00200999
+001935     MOVE J TO CNT.                                               00201099
+001936*                                                                 00201199
+001937 4600-EXIT.                                                       00201299
+001938     EXIT.                                                        00201399
+      *                                                                 00201499
+001919 4601-CLEAR-PARA.                                                 00201599
+001920     MOVE LOW-VALUES TO WS-ORDID.                                 00201699
+001921     MOVE ZERO       TO ORDIDO(J).                                00201799
+001922     MOVE LOW-VALUES TO WS-CST-ID.                                00201899
+001923     MOVE ZERO       TO CUSTIDO(J).                               00201999
+001924     MOVE LOW-VALUES TO WS-PRD-ID.                                00202099
+001925     MOVE ZERO       TO PRDIDO(J).                                00202199
+001926     MOVE LOW-VALUES TO WS-EMP-ID.                                00202299
+001927     MOVE ZERO       TO EMPIDO(J).                                00202399
+001928     MOVE LOW-VALUES TO WS-QNTITY.                                00202499
+001929     MOVE ZERO       TO QNTYO(J).                                 00202599
+00193      MOVE LOW-VALUES TO WS-TOTCST.                                00202699
+001931     MOVE ZERO       TO TOTCSTO(J).                               00202799
+001932     MOVE ZERO       TO ORDDATO(J).                               00202899
+      *    MOVE ZEROS TO LS-CUST-ID                                     00202999
+      *    MOVE LOW-VALUES TO LS-ORDER-DATE                             00203099
+      *    MOVE ZEROS TO LS-PROD-ID                                     00203199
+      *    MOVE ZEROS TO LS-EMP-ID                                      00203299
+001933*                                                                 00203399
+001934     ADD 1 TO J.                                                  00203499
+001935     MOVE J TO CNT.                                               00203599
+001936*                                                                 00203699
+001937 4601-EXIT.                                                       00203799
+001938     EXIT.                                                        00203899
+001939******************************************************************00203999
+001940 5000-PAGEDOWN-PROCESS2-PARA.                                     00204099
+001941     MOVE 1 TO J.                                                 00204199
+001942     MOVE 1 TO CNT.                                               00204299
+001943*                                                                 00204399
+001944     PERFORM 5200-FETCH-FORWARD2-PARA THRU 5200-EXIT UNTIL J > 8  00204499
+001945             OR WS-END-PARA = 'Y'.                                00204599
+001950*                                                                 00204699
+001734     IF WS-END-PARA = 'Y'                                         00204799
+              IF SQLCODE = 100                                          00204899
+001735          MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG         00204999
+      *        ELSE IF LS-MSG = 'START OF THE PAGE'       CONTINUE      00205099
+               ELSE MOVE 0      TO LS-MSG                               00205199
+              END-IF                                                    00205299
+               MOVE 'CWORLSTW' TO LS-PGMNAME                            00205399
+               MOVE LS-ORDER-DATE TO Q-ORDDT                            00205499
+               MOVE LS-ORD-ID     TO Q-ORDID                            00205599
+               MOVE ORDIDO(1)     TO Q1-ORDID                           00205699
+               MOVE 0             TO Q-EMPID                            00205799
+               MOVE 0             TO Q-PRODID                           00205899
+               MOVE 0             TO Q-TOTCOS                           00205999
+               MOVE 0             TO Q-CUSID                            00206099
+               MOVE CNT        TO Q-CNT                                 00206199
+               PERFORM 9200-MOVEBACK-PARA                               00206299
+               EXEC SQL CLOSE C2 END-EXEC                               00206399
+001800         MOVE ZERO  TO LS-EMP-ID                                  00206499
+001801         MOVE ZERO  TO LS-PROD-ID                                 00206599
+001802         MOVE ZERO  TO LS-CUST-ID                                 00206699
+               PERFORM 9400-RETURN-PARA                                 00206799
+001736     END-IF.                                                      00206899
+001957*                                                                 00206999
+001997******************************************************************00207099
+001998 5100-PAGEUP-PROCESS2-PARA.                                       00207199
+            EXEC CICS READQ TS                                          00207299
+                       QUEUE(Q-NAME)                                    00207399
+                       INTO(CUSTIDQ)                                    00207499
+                       ITEM(CHOICE1)                                    00207599
+            END-EXEC.                                                   00207699
+            MOVE Q-ORDDT TO ORD-DATE                                    00207799
+            MOVE Q1-ORDID TO ORD-ID                                     00207899
+            MOVE Q-CNT TO CNT                                           00207999
+            EXEC SQL OPEN D2 END-EXEC.                                  00208099
+      *     PERFORM 5300-FETCH-BACKWARD21-PARA THRU 5300-EXIT UNTIL     00208199
+      *             CNT = 1.                                            00208299
+002002     MOVE 1 TO J.                                                 00208599
+002003     MOVE 'N' TO WS-END-PARA.                                     00208699
+002004     PERFORM 5400-FETCH-BACKWARD22-PARA THRU 5400-EXIT UNTIL J > 800208799
+002005             OR WS-END-PARA = 'Y'.                                00208899
+002006*                                                                 00208999
+           MOVE LS-ORD-ID TO ORD-ID                                     00209099
+           EXEC SQL OPEN C2 END-EXEC.                                   00209199
+002007     MOVE 1 TO J.                                                 00209299
+002008     MOVE 'N' TO WS-END-PARA.                                     00209399
+002009     PERFORM 5200-FETCH-FORWARD2-PARA THRU 5200-EXIT UNTIL J > 8  00209599
+002010             OR WS-END-PARA = 'Y'.                                00209699
+002011*                                                                 00209799
+002012     MOVE -1 TO ORDDTL.                                           00209899
+002013     MOVE ZEROS TO LS-CUST-ID.                                    00209999
+002014     MOVE ZEROS TO LS-PROD-ID                                     00210099
+002015     MOVE ZEROS TO LS-EMP-ID.                                     00210199
+001734     IF WS-END-PARA = 'Y'                                         00210299
+               IF SQLCODE = 100                                         00210399
+001735           MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG        00210499
+               ELSE IF LS-MSG = 'START OF THE PAGE'                     00210599
+                    MOVE LS-MSG TO LS-MSG                               00210699
+               ELSE MOVE 0      TO LS-MSG                               00210799
+               END-IF                                                   00210899
+               MOVE 'CWORLSTW' TO LS-PGMNAME                            00210999
+               MOVE LS-ORDER-DATE TO Q-ORDDT                            00211099
+               MOVE LS-ORD-ID     TO Q-ORDID                            00211199
+               MOVE ORDIDO(1)     TO Q1-ORDID                           00211299
+               MOVE 0             TO Q-EMPID                            00211399
+               MOVE 0             TO Q-PRODID                           00211499
+               MOVE 0             TO Q-TOTCOS                           00211599
+               MOVE 0             TO Q-CUSID                            00211699
+               MOVE CNT        TO Q-CNT                                 00211799
+               PERFORM 9200-MOVEBACK-PARA                               00211899
+               PERFORM 9400-RETURN-PARA                                 00211999
+001736     END-IF.                                                      00212099
+002018*                                                                 00213099
+002058******************************************************************00214499
+002059 5200-FETCH-FORWARD2-PARA.                                        00214599
+002060     EXEC SQL FETCH NEXT                                          00214699
+002061              FROM C2                                             00214799
+002062              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00214899
+002063                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00214999
+002064                   :ORD-TOTAL-COST                                00215099
+002065     END-EXEC.                                                    00215199
+002066*                                                                 00215299
+002067        EVALUATE SQLCODE                                          00215399
+002068            WHEN 0                                                00215499
+002069                PERFORM 4300-MV-DCLGEN-TO-MAPFLDS-PARA THRU       00215599
+002070                        4300-EXIT                                 00215699
+                           IF J > 8                                     00215799
+                              MOVE 'Y' TO WS-END-PARA                   00215899
+                           END-IF                                       00215999
+002071            WHEN +100                                             00216099
+                    IF J = 1                                            00216199
+                       IF LS-PGMNAME = 'CWORLSTC'                       00216299
+                        PERFORM 9200-MOVEBACK-PARA                      00216499
+                        MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG 00216599
+                       ELSE                                             00216699
+                        MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG 00216799
+                       END-IF                                           00216899
+                       MOVE 'CWORLSTW' TO LS-PGMNAME                    00216999
+                       EXEC CICS RETURN END-EXEC                        00217099
+                    END-IF                                              00217199
+                    IF LS-PGMNAME = 'CWORLSTW'                          00217299
+001859               PERFORM 4601-CLEAR-PARA THRU 4600-EXIT UNTIL J > 8 00217399
+                    ELSE                                                00217499
+001859               PERFORM 4600-CLEAR-PARA THRU 4600-EXIT UNTIL J > 8 00217599
+                    END-IF                                              00217699
+002073                MOVE 'Y' TO WS-END-PARA                           00217899
+                  WHEN OTHER                                            00217999
+                      EXEC CICS RETURN END-EXEC                         00218099
+002074        END-EVALUATE.                                             00218199
+002075*                                                                 00218299
+002076 5200-EXIT.                                                       00218399
+002077     EXIT.                                                        00218499
+002078******************************************************************00218599
+002079 5300-FETCH-BACKWARD21-PARA.                                      00218699
+002080     EXEC SQL FETCH                                               00218799
+002081              FROM D2                                             00218899
+002082              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00218999
+002083                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00219099
+002084                   :ORD-TOTAL-COST                                00219199
+002085     END-EXEC.                                                    00219299
+002086*                                                                 00219399
+002087     SUBTRACT 1 FROM CNT GIVING CNT.                              00219499
+002088*                                                                 00219599
+002089 5300-EXIT.                                                       00219699
+002090     EXIT.                                                        00219799
+002091******************************************************************00219899
+002092 5400-FETCH-BACKWARD22-PARA.                                      00219999
+002093     EXEC SQL FETCH                                               00220099
+002094              FROM D2                                             00220199
+002095              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00220299
+002096                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00220399
+002097                   :ORD-TOTAL-COST                                00220499
+002098     END-EXEC.                                                    00220599
+002099*                                                                 00220699
+002100        EVALUATE SQLCODE                                          00220799
+002101            WHEN 0                                                00220899
+                      MOVE ORD-ID TO LS-ORD-ID                          00220999
+002102                ADD 1 TO J                                        00221099
+                      SUBTRACT 1 FROM CNT GIVING CNT                    00221199
+002103            WHEN +100                                             00221299
+                      MOVE 0      TO LS-ORD-ID                          00221399
+002104                MOVE 'Y' TO WS-END-PARA                           00221499
+002105                MOVE 'START OF THE PAGE' TO LS-MSG                00221599
+002108        END-EVALUATE.                                             00221699
+002109*                                                                 00221799
+002110 5400-EXIT.                                                       00221899
+002111     EXIT.                                                        00221999
+002112******************************************************************00222099
+002113 6000-PAGEDOWN-PROCESS3-PARA.                                     00222199
+002114     MOVE 1 TO J.                                                 00222299
+002115     MOVE 1 TO CNT.                                               00222399
+002116*                                                                 00222499
+      *                                                                 00222599
+002117     PERFORM 6200-FETCH-FORWARD3-PARA THRU 6200-EXIT UNTIL J > 8  00222699
+002118             OR WS-END-PARA = 'Y'.                                00222799
+002123*                                                                 00222899
+001734       IF WS-END-PARA = 'Y'                                       00222999
+                IF SQLCODE = 100                                        00223099
+001735           MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG        00223199
+      *         ELSE IF LS-MSG = 'START OF THE PAGE'       CONTINUE     00223299
+                ELSE MOVE SPACES TO LS-MSG                              00223399
+                END-IF                                                  00223499
+               MOVE 'CWORLSTW' TO LS-PGMNAME                            00223599
+               MOVE LOW-VALUES    TO Q-ORDDT                            00223699
+               MOVE LS-ORD-ID     TO Q-ORDID                            00223799
+               MOVE ORDIDO(1)     TO Q1-ORDID                           00223899
+               MOVE 0             TO Q-EMPID                            00223999
+               MOVE LS-PROD-ID     TO Q-PRODID                          00224099
+               MOVE 0             TO Q-TOTCOS                           00224199
+               MOVE 0             TO Q-CUSID                            00224299
+               MOVE CNT        TO Q-CNT                                 00224399
+               PERFORM 9200-MOVEBACK-PARA                               00224499
+               EXEC SQL CLOSE C3 END-EXEC                               00224599
+001800         MOVE ZERO  TO LS-EMP-ID                                  00224699
+001802         MOVE ZERO  TO LS-CUST-ID                                 00224799
+001802         MOVE ZERO  TO LS-ORDER-DATE                              00224899
+               PERFORM 9400-RETURN-PARA                                 00224999
+001736       END-IF.                                                    00225199
+002130*                                                                 00226099
+002170******************************************************************00227299
+002171 6100-PAGEUP-PROCESS3-PARA.                                       00227399
+            EXEC CICS READQ TS                                          00227499
+                       QUEUE(Q-NAME)                                    00227599
+                       INTO(CUSTIDQ)                                    00227699
+                       ITEM(CHOICE1)                                    00227799
+            END-EXEC                                                    00227899
+            MOVE Q-PRODID TO ORD-PROD-ID                                00227999
+            MOVE Q1-ORDID TO ORD-ID                                     00228099
+            MOVE Q-CNT TO CNT                                           00228199
+            EXEC SQL OPEN D3 END-EXEC                                   00228299
+002174*                                                                 00228699
+002175      MOVE 1 TO J.                                                00228799
+002176      MOVE 'N' TO WS-END-PARA.                                    00228899
+002177      PERFORM 6400-FETCH-BACKWARD32-PARA THRU 6400-EXIT           00228999
+002178            UNTIL J > 8  OR WS-END-PARA = 'Y'.                    00229099
+002179*                                                                 00229199
+            MOVE LS-ORD-ID TO ORD-ID                                    00229499
+            EXEC SQL OPEN C3 END-EXEC                                   00229599
+002180      MOVE 1 TO J.                                                00229699
+002181      MOVE 'N' TO WS-END-PARA.                                    00229799
+002182      PERFORM 6200-FETCH-FORWARD3-PARA THRU 6200-EXIT UNTIL J > 8 00229899
+002183             OR WS-END-PARA = 'Y'.                                00229999
+002184*                                                                 00230099
+002185      MOVE -1 TO PRODIDL.                                         00230199
+002186      MOVE ZEROS TO LS-CUST-ID.                                   00230299
+002187      MOVE ZEROS TO LS-EMP-ID.                                    00230399
+002188      MOVE ZEROS TO LS-ORDER-DATE.                                00230499
+            IF WS-END-PARA = 'Y'                                        00230599
+                IF SQLCODE = 100                                        00230699
+                 MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG        00230799
+                ELSE IF LS-MSG = 'START OF THE PAGE'                    00230899
+                    MOVE LS-MSG TO LS-MSG                               00230999
+                ELSE MOVE  0     TO LS-MSG                              00231099
+                END-IF                                                  00231199
+               MOVE 'CWORLSTW' TO LS-PGMNAME                            00231299
+               MOVE LOW-VALUES    TO Q-ORDDT                            00231399
+               MOVE LS-ORD-ID     TO Q-ORDID                            00231499
+               MOVE ORDIDO(1)     TO Q1-ORDID                           00231599
+               MOVE 0             TO Q-EMPID                            00231699
+               MOVE LS-PROD-ID    TO Q-PRODID                           00231799
+               MOVE 0             TO Q-TOTCOS                           00231899
+               MOVE 0             TO Q-CUSID                            00231999
+               MOVE CNT        TO Q-CNT                                 00232099
+                 PERFORM 9200-MOVEBACK-PARA                             00232199
+                 PERFORM 9400-RETURN-PARA                               00232299
+           END-IF.                                                      00232399
+002191*                                                                 00233099
+002231******************************************************************00233799
+002232 6200-FETCH-FORWARD3-PARA.                                        00233899
+002233      EXEC SQL FETCH NEXT                                         00233999
+002234              FROM C3                                             00234099
+002235              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00234199
+002236                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00234299
+002237                   :ORD-TOTAL-COST                                00234399
+002238      END-EXEC.                                                   00234499
+002239*                                                                 00234599
+002240        EVALUATE SQLCODE                                          00234699
+002241            WHEN 0                                                00234799
+002242                PERFORM 4300-MV-DCLGEN-TO-MAPFLDS-PARA THRU       00234899
+002243                        4300-EXIT                                 00234999
+                      IF J > 8                                          00235099
+                       MOVE 'Y' TO WS-END-PARA                          00235199
+                      END-IF                                            00235299
+002244            WHEN +100                                             00235399
+                    IF J = 1                                            00235499
+                       IF LS-PGMNAME = 'CWORLSTC'                       00235599
+                        PERFORM 9200-MOVEBACK-PARA                      00235799
+                        MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG 00235899
+                       ELSE                                             00235999
+                        MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG 00236099
+                       END-IF                                           00236199
+                       MOVE 'CWORLSTW' TO LS-PGMNAME                    00236299
+                       EXEC CICS RETURN END-EXEC                        00236399
+                    END-IF                                              00236499
+                    IF LS-PGMNAME = 'CWORLSTW'                          00236599
+001859               PERFORM 4601-CLEAR-PARA THRU 4600-EXIT UNTIL J > 8 00236699
+                    ELSE                                                00236799
+001859               PERFORM 4600-CLEAR-PARA THRU 4600-EXIT UNTIL J > 8 00236899
+                    END-IF                                              00236999
+002246                MOVE 'Y' TO WS-END-PARA                           00237199
+                    WHEN OTHER                                          00237299
+                        EXEC CICS RETURN END-EXEC                       00237399
+002247        END-EVALUATE.                                             00237499
+002248*                                                                 00237599
+002249 6200-EXIT.                                                       00237699
+002250     EXIT.                                                        00237799
+002251******************************************************************00237899
+002252 6300-FETCH-BACKWARD31-PARA.                                      00237999
+002253     EXEC SQL FETCH                                               00238099
+002254              FROM D3                                             00238199
+002255              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00238299
+002256                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00238399
+002257                   :ORD-TOTAL-COST                                00238499
+002258     END-EXEC.                                                    00238599
+002259*                                                                 00238699
+002260     SUBTRACT 1 FROM CNT GIVING CNT.                              00238799
+002261*                                                                 00238899
+002262 6300-EXIT.                                                       00238999
+002263     EXIT.                                                        00239099
+002264******************************************************************00239199
+002265 6400-FETCH-BACKWARD32-PARA.                                      00239299
+002266     EXEC SQL FETCH                                               00239399
+002267              FROM D3                                             00239499
+002268              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00239599
+002269                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00239699
+002270                   :ORD-TOTAL-COST                                00239799
+002271     END-EXEC.                                                    00239899
+002272*                                                                 00239999
+002273        EVALUATE SQLCODE                                          00240099
+002274            WHEN 0                                                00240199
+                      MOVE ORD-ID TO LS-ORD-ID                          00240299
+002275                ADD 1 TO J                                        00240399
+                      SUBTRACT 1 FROM CNT GIVING CNT                    00240499
+002276            WHEN +100                                             00240599
+                      MOVE 0      TO LS-ORD-ID                          00240699
+002277                MOVE 'Y' TO WS-END-PARA                           00240799
+002278                MOVE 'START OF THE PAGE' TO LS-MSG                00240899
+002281        END-EVALUATE.                                             00240999
+002282*                                                                 00241099
+002283 6400-EXIT.                                                       00241199
+002284     EXIT.                                                        00241299
+002285******************************************************************00241399
+002286 7000-PAGEDOWN-PROCESS4-PARA.                                     00241499
+002287     MOVE 1 TO J.                                                 00241599
+002288     MOVE 1 TO CNT.                                               00241699
+002289*                                                                 00241799
+002290     PERFORM 7200-FETCH-FORWARD4-PARA THRU 7200-EXIT UNTIL J > 8  00241899
+002291             OR WS-END-PARA = 'Y'.                                00241999
+           DISPLAY 'INSIDE PROCESS4'                                    00242099
+           DISPLAY 'VALUE WS END  'WS-END-PARA                          00242199
+002292*                                                                 00242299
+           IF WS-END-PARA = 'Y'                                         00242399
+               DISPLAY 'INSIDE WS-END PROCESS4'                         00242499
+               IF SQLCODE = 100                                         00242599
+                 MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG        00242699
+               ELSE MOVE SPACES TO LS-MSG                               00242799
+               END-IF                                                   00242899
+               MOVE 'CWORLSTW' TO LS-PGMNAME                            00242999
+               MOVE LOW-VALUES    TO Q-ORDDT                            00243099
+               MOVE LS-ORD-ID     TO Q-ORDID                            00243199
+               MOVE ORDIDO(1)     TO Q1-ORDID                           00243299
+               MOVE LS-EMP-ID     TO Q-EMPID                            00243399
+               MOVE 0             TO Q-PRODID                           00243499
+               MOVE 0             TO Q-TOTCOS                           00243599
+               MOVE 0             TO Q-CUSID                            00243699
+               MOVE CNT        TO Q-CNT                                 00243799
+               DISPLAY 'INSIDE WS-END MID PROCESS4'                     00243899
+               PERFORM 9200-MOVEBACK-PARA                               00243999
+               EXEC SQL CLOSE C4 END-EXEC                               00244099
+001800         MOVE ZERO  TO LS-PROD-ID                                 00244199
+001802         MOVE ZERO  TO LS-CUST-ID                                 00244299
+001802         MOVE ZERO  TO LS-ORDER-DATE                              00244399
+               DISPLAY 'INSIDE WS-END B4 RETURN'                        00244499
+               PERFORM 9400-RETURN-PARA                                 00244599
+           END-IF.                                                      00244699
+002303*                                                                 00245099
+002343******************************************************************00246599
+002344 7100-PAGEUP-PROCESS4-PARA.                                       00246699
+            EXEC CICS READQ TS                                          00246799
+                       QUEUE(Q-NAME)                                    00246899
+                       INTO(CUSTIDQ)                                    00246999
+                       ITEM(CHOICE1)                                    00247099
+            END-EXEC                                                    00247199
+            MOVE Q-EMPID  TO ORD-EMP-ID                                 00247299
+            MOVE Q1-ORDID TO ORD-ID                                     00247399
+            MOVE Q-CNT TO CNT                                           00247499
+           EXEC SQL OPEN D4 END-EXEC                                    00247699
+      *      PERFORM 7300-FETCH-BACKWARD41-PARA THRU 7300-EXIT UNTIL    00247799
+      *              CNT = 1.                                           00247899
+002347*                                                                 00247999
+002348     MOVE 1 TO J.                                                 00248099
+002349     MOVE 'N' TO WS-END-PARA.                                     00248199
+002350     PERFORM 7400-FETCH-BACKWARD42-PARA THRU 7400-EXIT UNTIL J > 800248299
+002351             OR WS-END-PARA = 'Y'.                                00248399
+002352      MOVE LS-ORD-ID TO ORD-ID                                    00248499
+            EXEC SQL OPEN C4 END-EXEC                                   00248599
+002353     MOVE 1 TO J.                                                 00248699
+002354     MOVE 'N' TO WS-END-PARA.                                     00248799
+002355     PERFORM 7200-FETCH-FORWARD4-PARA THRU 7200-EXIT UNTIL J > 8  00248999
+002356             OR WS-END-PARA = 'Y'.                                00249099
+002358*                                                                 00249199
+002360     MOVE ZEROS TO LS-CUST-ID.                                    00249299
+002361     MOVE ZEROS TO LS-PROD-ID.                                    00249399
+002362     MOVE ZEROS TO LS-ORDER-DATE.                                 00249499
+           IF WS-END-PARA = 'Y'                                         00249599
+             IF SQLCODE = 100                                           00249699
+                 MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG        00249799
+               ELSE IF LS-MSG = 'START OF THE PAGE'                     00249899
+                    MOVE LS-MSG TO LS-MSG                               00249999
+             ELSE MOVE 0      TO LS-MSG                                 00250099
+             END-IF                                                     00250199
+                 MOVE 'CWORLSTW' TO LS-PGMNAME                          00250299
+               MOVE LOW-VALUES    TO Q-ORDDT                            00250399
+               MOVE LS-ORD-ID     TO Q-ORDID                            00250499
+               MOVE ORDIDO(1)     TO Q1-ORDID                           00250599
+               MOVE LS-EMP-ID     TO Q-EMPID                            00250699
+               MOVE 0             TO Q-PRODID                           00250799
+               MOVE 0             TO Q-TOTCOS                           00250899
+               MOVE 0             TO Q-CUSID                            00250999
+               MOVE CNT        TO Q-CNT                                 00251099
+                 PERFORM 9200-MOVEBACK-PARA                             00251199
+                 PERFORM 9400-RETURN-PARA                               00251299
+           END-IF.                                                      00251399
+002365*                                                                 00252099
+002405******************************************************************00253099
+002406 7200-FETCH-FORWARD4-PARA.                                        00253199
+002407     EXEC SQL FETCH NEXT                                          00253299
+002408              FROM C4                                             00253399
+002409              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00253499
+002410                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00253599
+002411                   :ORD-TOTAL-COST                                00253699
+002412     END-EXEC.                                                    00253799
+002413*                                                                 00253899
+002414        EVALUATE SQLCODE                                          00253999
+002415            WHEN 0                                                00254099
+002416                PERFORM 4300-MV-DCLGEN-TO-MAPFLDS-PARA THRU       00254199
+002417                        4300-EXIT                                 00254299
+                      IF J > 8                                          00254399
+                       MOVE 'Y' TO WS-END-PARA                          00254499
+                      END-IF                                            00254599
+002418            WHEN +100                                             00254699
+                    IF J = 1                                            00254799
+                       IF LS-PGMNAME = 'CWORLSTC'                       00254899
+                        PERFORM 9200-MOVEBACK-PARA                      00254999
+                        MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG 00255199
+                       ELSE                                             00255299
+                        MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG 00255399
+                       END-IF                                           00255499
+                       MOVE 'CWORLSTW' TO LS-PGMNAME                    00255599
+                       EXEC CICS RETURN END-EXEC                        00255699
+                    END-IF                                              00255799
+                    IF LS-PGMNAME = 'CWORLSTW'                          00255899
+001859               PERFORM 4601-CLEAR-PARA THRU 4600-EXIT UNTIL J > 8 00255999
+                    ELSE                                                00256099
+001859               PERFORM 4600-CLEAR-PARA THRU 4600-EXIT UNTIL J > 8 00256199
+                    END-IF                                              00256299
+002420                MOVE 'Y' TO WS-END-PARA                           00256499
+                  WHEN OTHER                                            00256599
+                      EXEC CICS RETURN END-EXEC                         00256699
+002422        END-EVALUATE.                                             00256799
+002423*                                                                 00256899
+002424 7200-EXIT.                                                       00256999
+002425     EXIT.                                                        00257099
+002426******************************************************************00257199
+002427 7300-FETCH-BACKWARD41-PARA.                                      00257299
+002428     EXEC SQL FETCH                                               00257399
+002429              FROM D4                                             00257499
+002430              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00257599
+002431                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00257699
+002432                   :ORD-TOTAL-COST                                00257799
+002433     END-EXEC.                                                    00257899
+002434*                                                                 00257999
+002435     SUBTRACT 1 FROM CNT GIVING CNT.                              00258099
+002436*                                                                 00258199
+002437 7300-EXIT.                                                       00258299
+002438     EXIT.                                                        00258399
+002439******************************************************************00258499
+002440 7400-FETCH-BACKWARD42-PARA.                                      00258599
+002441     EXEC SQL FETCH                                               00258699
+002442              FROM D4                                             00258799
+002443              INTO :ORD-ID,:ORD-CUST-ID,:ORD-EMP-ID,              00258899
+002444                   :ORD-PROD-ID,:ORD-QUANT,:ORD-DATE,             00258999
+002445                   :ORD-TOTAL-COST                                00259099
+002446     END-EXEC.                                                    00259199
+002447*                                                                 00259299
+002448        EVALUATE SQLCODE                                          00259399
+002449            WHEN 0                                                00259499
+                      MOVE ORD-ID TO LS-ORD-ID                          00259599
+002450                ADD 1 TO J                                        00259699
+                      SUBTRACT 1 FROM CNT GIVING CNT                    00259799
+002451            WHEN +100                                             00259899
+                      MOVE 0      TO LS-ORD-ID                          00259999
+002452                MOVE 'Y' TO WS-END-PARA                           00260099
+002453                MOVE 'START OF THE PAGE' TO LS-MSG                00260199
+002456        END-EVALUATE.                                             00260299
+002457*                                                                 00260399
+002458 7400-EXIT.                                                       00260499
+002459     EXIT.                                                        00260599
+002460******************************************************************00260699
+002461 8000-RETURN-TO-MAINMNU-PARA.                                     00260799
+              EXEC CICS SEND TEXT                                       00260899
+                 NOEDIT                                                 00260999
+                 FROM(WS-TXT3)                                          00261099
+                 LENGTH(80)                                             00261199
+                 ERASE                                                  00261299
+              END-EXEC                                                  00261399
+              EXEC CICS RETURN                                          00261499
+              END-EXEC.                                                 00261599
+002466*                                                                 00261699
+002467 8000-EXIT.                                                       00261799
+002468     EXIT.                                                        00261899
+002469******************************************************************00261999
+002470 9000-ERROR-PARA.                                                 00262099
+002471     MOVE 'INVALID KEY PRESSED - PLZ TRY AGAIN' TO LS-MSG.        00262199
+002472     MOVE -1 TO CUSIDL.                                           00262299
+002473     PERFORM 9100-PROCESS-PARA THRU 9100-EXIT.                    00262399
+002474*                                                                 00262499
+002475 9000-EXIT.                                                       00262599
+002476     EXIT.                                                        00262699
+002477******************************************************************00262799
+002478 9100-PROCESS-PARA.                                               00262899
+002480     PERFORM 1200-SEND-MAP-AND-DATA-PARA THRU 1200-EXIT.          00262999
+                 MOVE 'CWORLSTW' TO LS-PGMNAME                          00263099
+                 PERFORM 9200-MOVEBACK-PARA                             00263199
+                 PERFORM 9400-RETURN-PARA.                              00263299
+002600*                                                                 00264099
+002700 9100-EXIT.                                                       00270099
+002800     EXIT.                                                        00280099
+002478 9102-PROCESS-PARA.                                               00290099
+002480     PERFORM 1200-SEND-MAP-AND-DATA-PARA THRU 1200-EXIT.          00300099
+                 MOVE 'CWORLSTW' TO LS-PGMNAME                          00310099
+                 PERFORM 9400-RETURN-PARA.                              00330099
+002600*                                                                 00340099
+002700 9102-EXIT.                                                       00350099
+002800     EXIT.                                                        00360099
+       9200-MOVEBACK-PARA.                                              00951099
+               MOVE LS-OPT TO Q-OPT                                     00951199
+               MOVE LS-FLAG TO Q-FLAG                                   00951299
+      *        DISPLAY 'LS-OPT WEB 'LS-OPT','Q-OPT                      00951399
+               EXEC CICS WRITEQ TS                                      00951899
+                        QUEUE(Q-NAME)                                   00951999
+                        FROM(CUSTIDQ)                                   00952099
+                        ITEM(CHOICE1)                                   00952199
+                        REWRITE                                         00952299
+                        MAIN                                            00952499
+                        RESP(RE)                                        00952599
+               END-EXEC                                                 00952699
+               IF RE = DFHRESP(NORMAL) CONTINUE                         00952799
+               ELSE                                                     00952899
+               EXEC CICS WRITEQ TS                                      00952999
+                        QUEUE(Q-NAME)                                   00953099
+                        FROM(CUSTIDQ)                                   00953199
+                        ITEM(CHOICE1)                                   00953299
+      *                 REWRITE                                         00953399
+                        MAIN                                            00953499
+                        RESP(RE)                                        00953599
+               END-EXEC                                                 00953699
+               END-IF                                                   00953799
+            MOVE ORDIDO(1)   TO LS-ORDERID(1)                           00959299
+            MOVE ORDIDO(2)   TO LS-ORDERID(2)                           00959799
+            MOVE ORDIDO(3)   TO LS-ORDERID(3)                           00959899
+            MOVE ORDIDO(4)   TO LS-ORDERID(4)                           00959999
+            MOVE ORDIDO(5)   TO LS-ORDERID(5)                           00960099
+            MOVE ORDIDO(6)   TO LS-ORDERID(6)                           00960199
+            MOVE ORDIDO(7)   TO LS-ORDERID(7)                           00960299
+            MOVE ORDIDO(8)   TO LS-ORDERID(8)                           00960399
+            MOVE CUSTIDO(1)  TO LS-CUSTID(1)                            00960899
+            MOVE CUSTIDO(2)  TO LS-CUSTID(2)                            00961099
+            MOVE CUSTIDO(3)  TO LS-CUSTID(3)                            00961199
+            MOVE CUSTIDO(4)  TO LS-CUSTID(4)                            00961299
+            MOVE CUSTIDO(5) TO LS-CUSTID(5)                             00961399
+            MOVE CUSTIDO(6) TO LS-CUSTID(6)                             00961499
+            MOVE CUSTIDO(7) TO LS-CUSTID(7)                             00961599
+            MOVE CUSTIDO(8) TO LS-CUSTID(8)                             00961699
+            MOVE PRDIDO(1) TO LS-PRODID(1)                              00961899
+            MOVE PRDIDO(2) TO LS-PRODID(2)                              00961999
+            MOVE PRDIDO(3) TO LS-PRODID(3)                              00962099
+            MOVE PRDIDO(4) TO LS-PRODID(4)                              00962199
+            MOVE PRDIDO(5) TO LS-PRODID(5)                              00962299
+            MOVE PRDIDO(6) TO LS-PRODID(6)                              00962399
+            MOVE PRDIDO(7) TO LS-PRODID(7)                              00962499
+            MOVE PRDIDO(8) TO LS-PRODID(8)                              00962599
+            MOVE EMPIDO(1) TO LS-EMPID(1)                               00962699
+            MOVE EMPIDO(2) TO LS-EMPID(2)                               00962799
+            MOVE EMPIDO(3) TO LS-EMPID(3)                               00962899
+            MOVE EMPIDO(4) TO LS-EMPID(4)                               00962999
+            MOVE EMPIDO(5) TO LS-EMPID(5)                               00963099
+            MOVE EMPIDO(6) TO LS-EMPID(6)                               00963199
+            MOVE EMPIDO(7) TO LS-EMPID(7)                               00963299
+            MOVE EMPIDO(8) TO LS-EMPID(8)                               00963399
+            MOVE QNTYO(1)   TO LS-QNTY(1)                               00963499
+            MOVE QNTYO(2)   TO LS-QNTY(2)                               00963599
+            MOVE QNTYO(3)   TO LS-QNTY(3)                               00963699
+            MOVE QNTYO(4)   TO LS-QNTY(4)                               00963799
+            MOVE QNTYO(5)   TO LS-QNTY(5)                               00963899
+            MOVE QNTYO(6)   TO LS-QNTY(6)                               00963999
+            MOVE QNTYO(7)   TO LS-QNTY(7)                               00964099
+            MOVE QNTYO(8)   TO LS-QNTY(8)                               00964199
+            MOVE TOTCSTO(1) TO WS-TOTCOS1                               00964299
+            MOVE RE-TOTCOS1 TO LS-TOTALCOST(1)                          00964399
+            MOVE TOTCSTO(2) TO WS-TOTCOS2                               00964499
+            MOVE RE-TOTCOS2 TO LS-TOTALCOST(2)                          00964599
+            MOVE TOTCSTO(3) TO WS-TOTCOS3                               00964699
+            MOVE RE-TOTCOS3 TO LS-TOTALCOST(3)                          00964799
+            MOVE TOTCSTO(4) TO WS-TOTCOS4                               00964899
+            MOVE RE-TOTCOS4 TO LS-TOTALCOST(4)                          00964999
+            MOVE TOTCSTO(5) TO WS-TOTCOS5                               00965099
+            MOVE RE-TOTCOS5 TO LS-TOTALCOST(5)                          00965199
+            MOVE TOTCSTO(6) TO WS-TOTCOS6                               00965299
+            MOVE RE-TOTCOS6 TO LS-TOTALCOST(6)                          00965399
+            MOVE TOTCSTO(7) TO WS-TOTCOS7                               00965499
+            MOVE RE-TOTCOS7 TO LS-TOTALCOST(7)                          00965599
+            MOVE TOTCSTO(8) TO WS-TOTCOS8                               00965699
+            MOVE RE-TOTCOS8 TO LS-TOTALCOST(8)                          00965799
+            MOVE ORDDATO(1) TO LS-ORDERDT(1)                            00966499
+            MOVE ORDDATO(2) TO LS-ORDERDT(2)                            00966599
+            MOVE ORDDATO(3) TO LS-ORDERDT(3)                            00966699
+            MOVE ORDDATO(4) TO LS-ORDERDT(4)                            00966799
+            MOVE ORDDATO(5) TO LS-ORDERDT(5)                            00966899
+            MOVE ORDDATO(6) TO LS-ORDERDT(6)                            00966999
+            MOVE ORDDATO(7) TO LS-ORDERDT(7)                            00967099
+            MOVE ORDDATO(8) TO LS-ORDERDT(8)                            00967199
+            MOVE ORDIDO(1)  TO LS1-ORD-ID.                              00968099
+            MOVE 'CWORLSTW' TO LS-PGMNAME.                              00968399
+            MOVE CNT TO LS-CNT.                                         00968499
+       9300-EXIT-PARA.                                                  00977299
+            EXEC CICS RETURN END-EXEC.                                  00978099
+                                                                        00980099
+       9400-RETURN-PARA.                                                00980199
+              EXEC CICS RETURN                                          00990099
+               END-EXEC.                                                01000099

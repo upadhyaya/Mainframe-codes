@@ -1,0 +1,31 @@
+//UADT016D JOB  ,'SMF DATA UNLOAD',CLASS=E,                             00010001
+//             MSGLEVEL=(1,1),NOTIFY=&SYSUID                            00020001
+//SMFDUMP  EXEC PGM=IFASMFDP                                            00030001
+//SYSPRINT DD  SYSOUT=A                                                 00040001
+//OUTDD    DD  DSN=&&OUTD1,                                             00050001
+//             DISP=(NEW,PASS),                                         00060001
+//             LRECL=32760,BLKSIZE=4096,                                00070001
+//             RECFM=V,                                                 00080001
+//             SPACE=(CYL,(10,100),RLSE)                                00090001
+//SMFDATA  DD  DISP=SHR,DSN=SATYAM.ZOSA.SYSMAN1.G0624V00                00100005
+//SYSIN    DD  *                                                        00110001
+     INDD(SMFDATA,OPTIONS(DUMP))                                        00120001
+     OUTDD(OUTDD,TYPE(64))                                              00130001
+/*                                                                      00140001
+//*  DATE(2008311,2008311)                                              00150001
+//*  START(0900)                                                        00160001
+//*  END(1800)                                                          00170001
+//* ONLY FOR A WEEK                                                     00180001
+//SORT1 EXEC PGM=SORT                                                   00190001
+//SORTLIB DD DSN=SYS1.SORTLIB,DISP=SHR                                  00200001
+//SYSOUT DD SYSOUT=*                                                    00210001
+//SORTIN DD DSN=&&OUTD1,DISP=SHR                                        00220001
+//SORTOUT  DD  DSN=UADT016.SMF64.SORT,                                  00230008
+//             DISP=(NEW,CATLG),                                        00240001
+//             SPACE=(CYL,(10,100),RLSE)                                00250001
+//SORTWK01 DD UNIT=SYSDA,SPACE=(CYL,(4,2))                              00260001
+//SYSIN DD *                                                            00270001
+     SORT FIELDS=(291,44,CH,A,19,8,CH,A,31,4,PD,A,27,4,BI,A)            00280007
+     INCLUDE COND=(6,1,CH,EQ,X'40')                                     00290003
+     OPTION VLSHRT                                                      00310001
+/*                                                                      00320001

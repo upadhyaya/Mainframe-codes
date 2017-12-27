@@ -1,0 +1,17 @@
+000010       05 LS-OPT       PIC X(06).                                 00001000
+000010       05 LS-CART-ID   PIC 9(05).                                 00002000
+000030       05 LS-ORD-ID    PIC 9(10).                                 00003000
+000031       05 LS-CUST-ID   PIC 9(10).                                 00003100
+000032       05 LS-EMP-ID    PIC 9(10).                                 00003200
+000033       05 LS-PROD-ID   PIC 9(10).                                 00003300
+000034       05 LS-UNIT-PRC  PIC X(12).                                 00003400
+000035       05 LS-QUANTITY  PIC 9(5).                                  00003500
+000036       05 LS-ORD-DATE  PIC X(10).                                 00003600
+000037       05 LS-REQ-DATE  PIC X(10).                                 00003700
+000038       05 LS-SHP-DATE  PIC X(10).                                 00003800
+000039       05 LS-CARR-COST PIC X(12).                                 00003900
+000040       05 LS-TOT-COST  PIC X(18).                                 00004000
+000041       05 LS-TOKEN     PIC X(01).                                 00004100
+000042       05 LS-SCM       PIC X(03).                                 00004200
+000043       05 LS-CONFIRM   PIC X(01).                                 00004300
+000500       05 LS-MSG       PIC X(80).                                 00050000

@@ -1,0 +1,14 @@
+//UADT014R JOB NOTIFY=&SYSUID,REGION=0M                                 00010000
+//*                                                                     00020000
+//STEP1    EXEC PGM=TEST5                                               00030000
+//STEPLIB  DD DSN=UADT014.BASE.LOADLIB,DISP=SHR                         00040000
+//INFILE   DD DSN='UADT014.SORT.INPUT',DISP=SHR                         00050000
+//OUTFILE  DD DSN='UADT014.SORT.OUTPUT1',DISP=SHR                       00050100
+//SORTFILE DD UNIT=SYSDA,SPACE=(TRK,(4,2))                              00050200
+//*1       DD DSN='UADT014.XML.INPUT3',DISP=SHR                         00051000
+//*2       DD DSN='UADT014.XML.OUTPUT1',DISP=SHR                        00060000
+//*3       DD DSN='UADT014.XML.OUTPUT2',DISP=SHR                        00061000
+//SYSPRINT DD SYSOUT=*                                                  00070000
+//SYSTSPRT DD SYSOUT=*                                                  00080000
+//SYSUDUMP DD SYSOUT=*                                                  00090000
+//SYSOUT   DD SYSOUT=*                                                  00100000

@@ -1,0 +1,8 @@
+//UADT014J JOB 'IEBCOMPARE UTILITY',NOTIFY=&SYSUID                      00010000
+//STEP1    EXEC PGM=IEBCOMPR                                            00020001
+//SYSPRINT DD   SYSOUT=*                                                00040001
+//SYSUT1   DD   DSN='UADT014.BLR.ASM',DISP=SHR                          00050001
+//SYSUT2   DD   DSN='UADT014.ASM.ONLINE',DISP=SHR                       00060001
+//SYSIN    DD   *                                                       00070001
+           COMPARE TYPORG=PO                                            00080001
+/*                                                                      00090001

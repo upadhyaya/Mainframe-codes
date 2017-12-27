@@ -1,0 +1,154 @@
+//********************************************************************* 00600000
+//*                                                                   * 01200000
+//*  @BANNER_START                           01                       * 01800000
+//*  Licensed Materials - Property of IBM                             * 02400000
+//*                                                                   * 03000000
+//*  5655-M15              DFHLS2WS                                   * 03600000
+//*                                                                   * 04200000
+//*  (C) Copyright IBM Corp. 2004, 2005                               * 04800000
+//*                                                                   * 05400000
+//*  CICS                                                             * 06000000
+//*  (Element of CICS Transaction Server                              * 06600000
+//*  for z/OS, Version 3 Release 1)                                   * 07200000
+//*  @BANNER_END                                                      * 07800000
+//*                                                                   * 08400000
+//*                                                                   * 09000000
+//* STATUS = 6.4.0                                                    * 09600000
+//*                                                                   * 10200000
+//* CHANGE ACTIVITY :                                                 * 10800000
+//*                                                                   * 11400000
+//*   $MOD(DFHLS2WS),COMP(PI),PROD(CICS    ):                         * 12000000
+//*                                                                   * 12600000
+//*  PN= REASON REL YYMMDD HDXXIII : REMARKS                          * 13200000
+//* $L0= Base   APO 040701 HDHCPC  : Base                             * 13800000
+//* $L2= 855    640 040916 HDHCPC  : Fix the WS2LS and LS2WS JCL      * 14100000
+//* $P1= D11502 640 041010 HDHCPC  : Switch ICEGENER to IEBGENER      * 14200000
+//* $P2= D12323 640 041126 HDHCPC  : Add 'PATHPREF'                   * 14300000
+//* $P3= D13481 640 050208 HDHCPC  : Allow a further 6 chars for PARM * 14350000
+//********************************************************************* 14400000
+//********************************************************************* 15000000
+//*                    LANGUAGE STRUCTURE TO WSDL                     * 15600000
+//*                                                                   * 16200000
+//********************************************************************* 16800000
+//*                                                                   * 17400000
+//* LIBRARY  :                                                        * 18000000
+//*                                                                   * 18600000
+//* MEMBER   : DFHLS2WS                                               * 19200000
+//*                                                                   * 19800000
+//* FUNCTION : GENERATE WSDL FROM LANGUAGE STRUCTURES                 * 20400000
+//*                                                                   * 21000000
+//********************************************************************* 21600000
+//*                                                                     22200000
+//* What follows is a JCL procedure for launching a Java program running22800000
+//* under USS. It consists of three steps:                              23400000
+//*                                                                     24000000
+//*    STEP 1 :   Copy the input DD card to a tmp location on HFS       24600000
+//*                                                                     25200000
+//*    STEP 2 :   Run a java prog.                                      25800000
+//*                                                                     26400000
+//*    STEP 3 :   Copy the output from the java prog to the job log     27000000
+//*                                                                     27600000
+//*                                                                     28200000
+//********************************************************************* 28800000
+//*                                                                     29400000
+//DFHLS2WS PROC JAVADIR='@java_dir@',                                   30000000
+// PATHPREF='@pathprefix@',                                             30300001
+// USSDIR='@ussdir@',                                                   30600000
+// TMPDIR='/tmp',                                                       30900000
+// TMPFILE='LS2W1',                                                     31200003
+// SERVICE=':'                                                          31500000
+//*                                                                     31800000
+//* JCL TO RUN AN OE PROGRAM FROM BATCH                                 32400000
+//*                                                                     33000000
+//*     Note: JCL imposes a max parm length of 100 chars. The field     33600000
+//*           must be enclosed in apostrophes and must end at column 71 34200000
+//*           then must start again at column 16 on the next line with  34800000
+//*           double slashes at columns 1 and 2.                        35400000
+//*                                                                     36000000
+//*                                                                     36600000
+//*************************************************                     37200000
+//* STEP 1 - Copy the Java parameters to a HFS file                     37800000
+//*************************************************                     38400000
+//*                                                                     39000000
+//INPUT    EXEC PGM=IEBGENER                                            39600000
+//SYSPRINT DD DUMMY                                                     40200000
+//*                                                                     40800000
+//* The input DSNAME specifies the input for the Java program           41400000
+//*                                                                     42000000
+//SYSUT1   DD DUMMY,DISP=SHR                                            42600000
+//*                                                                     43200000
+//* The output DSNAME identifies where to store the input parms on HFS  43800000
+//*                                                                     44400000
+//SYSUT2   DD PATH='&TMPDIR./&TMPFILE..in',                             45000000
+// PATHOPTS=(OWRONLY,OCREAT,OTRUNC),                                    45600000
+// PATHMODE=SIRWXU,                                                     46200000
+// FILEDATA=TEXT,                                                       46800000
+// RECFM=VB,                                                            47400000
+// LRECL=137,                                                           48000000
+// BLKSIZE=32760                                                        48600000
+//SYSIN    DD DUMMY                                                     49200000
+//*                                                                     49800000
+//*                                                                     50400000
+//*******************************                                       51000000
+//* STEP 2 - Run the java program                                       51700000
+//*******************************                                       52400000
+//*                                                                     53100000
+//* PK19066 - PATHPREF now passed to DFHLS2WS script.                   53400000
+//*                                                                     53800000
+//JAVAPRG1 EXEC PGM=BPXBATCH,                                           54500000
+//  PARM='SH &PATHPREF/u/uadt011/uadt012/DFHLS2WS                       55200002
+//             &JAVADIR &USSDIR &TMPDIR./&TMPFILE. &SERVICE &PATHPREF'  55201001
+//* PARM='SH   /u/public/uada005/DFHLS2WS                              X55210001
+//*            &JAVADIR/usr/lpp/zWebSphere/V6R1/java/J5.0/bin          X60010001
+//*            &USSDIR &TMPDIR./&TMPFILE. &SERVICE'                     60020001
+//*                                                                     64300000
+//* The STDOUT DSNAME specifies the destination to use for System.out   65000000
+//*                                                                     65700000
+//STDOUT   DD PATH='&TMPDIR./&TMPFILE..out',                            66400000
+// PATHOPTS=(OWRONLY,OCREAT,OTRUNC),                                    67100000
+// PATHMODE=SIRWXU,                                                     67800000
+// FILEDATA=TEXT,                                                       68500000
+// RECFM=VB,                                                            69200000
+// LRECL=1024,                                                          69900000
+// BLKSIZE=32760                                                        70600000
+//*                                                                     71300000
+//* The STDERR DSNAME specifies the destination to use for System.err   72000000
+//*                                                                     72700000
+//STDERR   DD PATH='&TMPDIR./&TMPFILE..err',                            73400000
+// PATHOPTS=(OWRONLY,OCREAT,OTRUNC),                                    74100000
+// PATHMODE=SIRWXU,                                                     74800000
+// FILEDATA=TEXT,                                                       75500000
+// RECFM=VB,                                                            76200000
+// LRECL=1024,                                                          76900000
+// BLKSIZE=32760                                                        77600000
+//*                                                                     78300000
+//*                                                                     79000000
+//*******************************************                           79700000
+//* STEP 3 - Copy Stdout/Stderr to the joblog                           80400000
+//*******************************************                           81100000
+//*                                                                     81800000
+//COPYOUT  EXEC PGM=IEBGENER                                            82500000
+//SYSPRINT DD DUMMY                                                     83200000
+//SYSUT1   DD PATH='&TMPDIR./&TMPFILE..out',                            83900000
+// PATHDISP=DELETE,                                                     84600000
+// PATHOPTS=(ORDONLY),                                                  85300000
+// PATHMODE=SIRWXU,                                                     86000000
+// FILEDATA=TEXT,                                                       86700000
+// RECFM=VB,                                                            87400000
+// LRECL=1024,                                                          88100000
+// BLKSIZE=32760                                                        88800000
+//SYSUT2   DD SYSOUT=*,DCB=(RECFM=VB,LRECL=1024,BLKSIZE=1029)           89500000
+//SYSIN    DD DUMMY                                                     90200000
+//*                                                                     90900000
+//COPYERR  EXEC PGM=IEBGENER                                            91600000
+//SYSPRINT DD DUMMY                                                     92300000
+//SYSUT1   DD PATH='&TMPDIR./&TMPFILE..err',                            93000000
+// PATHDISP=DELETE,                                                     93700000
+// PATHOPTS=(ORDONLY),                                                  94400000
+// PATHMODE=SIRWXU,                                                     95100000
+// FILEDATA=TEXT,                                                       95800000
+// RECFM=VB,                                                            96500000
+// LRECL=1024,                                                          97200000
+// BLKSIZE=32760                                                        97900000
+//SYSUT2   DD SYSOUT=*,DCB=(RECFM=VB,LRECL=1024,BLKSIZE=1029)           98600000
+//SYSIN    DD DUMMY                                                     99300000

@@ -1,0 +1,74 @@
+//COBDB2P  PROC SPC=10,MEM=TEMPNAME,INLIB='UADT014.BLR.COBOL'           00010037
+//***************************************************************       00020001
+//*            PRECOMPILE THE IBM COBOL PROGRAM                         00030001
+//***************************************************************       00040001
+//PC       EXEC PGM=DSNHPC,PARM='HOST(IBMCOB),SOURCE',REGION=4096K      00050024
+//DBRMLIB  DD DSN=UADT014.BASE.DBRMLIB(&MEM),DISP=SHR                   00060040
+//STEPLIB  DD DISP=SHR,DSN=SYS1.DSN810.SDSNEXIT                         00080012
+//         DD DISP=SHR,DSN=DSN810.SDSNLOAD                              00090012
+//SYSIN    DD DSN=&INLIB(&MEM),DISP=SHR                                 00100016
+//SYSCIN   DD DSN=&&DSNHOUT,DISP=(MOD,PASS),UNIT=SYSDA,                 00110012
+//       SPACE=(TRK,(&SPC,&SPC))                                        00120021
+//SYSLIB   DD DSN='UADT014.BLR.COBOL',DISP=SHR       <==> DB2 DCL       00130039
+//SYSPRINT DD SYSOUT=*                                                  00150001
+//SYSTERM  DD SYSOUT=*                                                  00160001
+//SYSUDUMP DD SYSOUT=*                                                  00170001
+//SYSUT1   DD SPACE=(TRK,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00180009
+//SYSUT2   DD SPACE=(TRK,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00190009
+//***************************************************************       00200001
+//*   COMPILE THE IBM COBOL PROGRAM IF THE PRECOMPILE                   00210001
+//*   RETURN CODE IS 4 OR LESS.                                         00220002
+//***************************************************************       00230001
+//COB      EXEC PGM=IGYCRCTL,REGION=2048K,PARM=(LIST,TEST(SYM),LIB),    00240032
+//             COND=(4,LT,PC)                                           00250001
+//STEPLIB  DD DSN=IGY.SIGYCOMP,DISP=SHR                                 00260001
+//SYSPRINT DD SYSOUT=*                                                  00270001
+//SYSTERM  DD SYSOUT=*                                                  00280001
+//SYSLIN   DD DSN=&&LOADSET,DISP=(MOD,PASS),UNIT=SYSDA,                 00290009
+//            SPACE=(TRK,(&SPC,&SPC))                                   00300009
+//SYSLIB   DD DSN='UADT014.BLR.COBOL',DISP=SHR                          00301039
+//SYSIN    DD DSN=&&DSNHOUT,DISP=(OLD,DELETE)                           00310004
+//SYSUT1   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00320009
+//SYSUT2   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00330009
+//SYSUT3   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00340009
+//SYSUT4   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00350009
+//SYSUT5   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00360009
+//SYSUT6   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00370009
+//SYSUT7   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00380009
+//***************************************************************       00540001
+//*         LINKEDIT IF THE PRECOMPILE AND COMPILE                      00550001
+//*        RETURN CODES ARE 4 OR LESS.                                  00560001
+//***************************************************************       00570001
+//LKED     EXEC PGM=IEWL,PARM='MAP',                                    00580012
+//            COND=((4,LT,PC),(4,LT,COB))                               00590026
+//SYSLIB   DD DSN=CEE.SCEELKED,DISP=SHR                                 00600012
+//         DD DISP=SHR,DSN=DSN810.SDSNLOAD                              00610012
+//         DD DISP=SHR,DSN=CICSTS31.CICS.SDFHLOAD                       00620012
+//         DD DISP=SHR,DSN=ISP.SISPLOAD                                 00630012
+//SYSLIN   DD DSN=&&LOADSET,DISP=(OLD,DELETE)                           00640027
+//         DD DDNAME=SYSIN                                              00650012
+//**************************************************************        00660001
+//*                                                                     00670001
+//*     SYSMOD <== LOADLIB                                              00680001
+//*     MEM    <== MEM NAME                                             00690001
+//*     NOTE: PROGRAM NAME = DBRM NAME = LOAD MODULE                    00700001
+//*     DBRM IS CREATED BY DB2 PRECOMPILER WITH SAME                    00710001
+//*     NAME AS PROGRAM NAME (HERE MEM NAME)                            00720001
+//*     LOAD MODULE IS CREATED BY COBOL COMPILER                        00730001
+//*     WITH SAME NAME AS PROGRAM NAME                                  00740001
+//**************************************************************        00750001
+//SYSLMOD  DD DSN=UADT014.BASE.LOADLIB(&MEM),DISP=SHR   <==> LOAD LI    00760041
+//SYSPRINT DD SYSOUT=*                                                  00780001
+//SYSUT1   DD SPACE=(1024,(50,50)),UNIT=SYSDA                           00790009
+//**************************************************************        00800001
+//*      BIND PLAN                                             *        00810001
+//**************************************************************        00820001
+//BINDPLAN EXEC PGM=IKJEFT01,DYNAMNBR=20                                00830002
+//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR                              00850012
+//         DD DSN=SYS1.DSN810.SDSNEXIT,DISP=SHR                         00860012
+//         DD DSN=DSN810.RUNLIB.LOAD,DISP=SHR                           00870012
+//DBRMLIB  DD DSN=UADT014.BASE.DBRMLIB,DISP=SHR         <==> DBRM LIB   00880040
+//SYSTSPRT DD SYSOUT=A                                                  00890001
+//SYSPRINT DD SYSOUT=A                                                  00900001
+//SYSUDUMP DD SYSOUT=A                                                  00910001
+//SYSTSIN  DD DUMMY                                                     00920001

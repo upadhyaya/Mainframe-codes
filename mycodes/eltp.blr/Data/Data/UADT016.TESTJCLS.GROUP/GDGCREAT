@@ -1,0 +1,18 @@
+//UADT016G JOB 'CREATE GDG',RESTART=STEP2,NOTIFY=&SYSUID,REGION=0M      00010001
+//* RESTART STEP IS USED ONLY FOR CREATING DIFF VERSIONS                00011003
+//* AFTER CREATING BASE                                                 00012003
+//STEP1 EXEC PGM=IDCAMS                                                 00020000
+//SYSIN DD *                                                            00030000
+  DEFINE GDG(                        -                                  00040000
+         NAME(UADT016.TEST.SAMPGDG)  -                                  00050000
+         LIMIT(05)                   -                                  00060000
+         NOEMPTY                     -                                  00070000
+         SCRATCH)                                                       00080000
+/*                                                                      00090000
+//* CREATING VERSIONS OF GDG                                            00091003
+//SYSPRINT DD SYSOUT=*                                                  00100000
+//STEP2 EXEC PGM=IEFBR14                                                00110001
+//VERS1 DD DSN=UADT016.TEST.SAMPGDG(+1),                                00120001
+//         DISP=(NEW,CATLG,DELETE),                                     00130001
+//         SPACE=(TRK,(10,10),RLSE),UNIT=SYSDA,                         00140001
+//         DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)                          00150002

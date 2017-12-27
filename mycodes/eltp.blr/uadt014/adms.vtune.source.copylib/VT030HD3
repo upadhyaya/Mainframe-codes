@@ -1,0 +1,118 @@
+      *                                                                 00001000
+       01 SMF30-HEADER-DESCRIPTION1.                                    00010000
+          05 WS-DESC-SMF30SYN  PIC X(10) VALUE 'SYSTEM ID:'.            00010100
+          05 WS-SMF30SYN       PIC X(8).                                00010200
+          05 FILLER            PIC X(11) VALUE SPACES.                  00010302
+          05 WS-REPORT-HEADER  PIC X(45).                               00010402
+          05 FILLER            PIC X(10) VALUE SPACES.                  00010502
+          05 WS-DESC-DATE      PIC X(5) VALUE 'DATE:'.                  00010600
+          05 WS-DATE.                                                   00010700
+             10 WS-DAY   PIC 9(2).                                      00010800
+             10 FILLER   PIC X(1) VALUE '/'.                            00010900
+             10 WS-MONTH PIC 9(2).                                      00011000
+             10 FILLER   PIC X(1) VALUE '/'.                            00011100
+             10 WS-YEAR  PIC 9(4).                                      00011200
+      *                                                                 00011300
+       01 SMF30-HEADER-DESCRIPTION2.                                    00011400
+          05 WS-DESC-SMF30SYP  PIC X(10) VALUE 'SYSPLEX  :'.            00011500
+          05 WS-SMF30SYP       PIC X(8).                                00011600
+          05 FILLER            PIC X(18) VALUE SPACES.                  00011701
+          05 WS-DESC-SPACES    PIC X(30) VALUE '                  '.    00011801
+          05 FILLER            PIC X(18) VALUE SPACES.                  00011901
+          05 WS-DESC-TIME      PIC X(5) VALUE 'TIME:'.                  00012000
+          05 WS-TIME.                                                   00012100
+             10 WS-HOUR  PIC 9(2).                                      00012200
+             10 FILLER   PIC X(1) VALUE ':'.                            00012300
+             10 WS-MIN   PIC 9(2).                                      00012400
+             10 FILLER   PIC X(1) VALUE ':'.                            00012500
+             10 WS-SEC   PIC 9(2).                                      00012600
+      *                                                                 00012700
+       01 HEADER1.                                                      00012803
+          05 FILLER PIC X(01) VALUE ' '.                                00012903
+          05 FILLER PIC X(08) VALUE 'JOBNAME '.                         00013003
+          05 FILLER PIC X(01) VALUE ' '.                                00013103
+          05 FILLER PIC X(08) VALUE ' SUCCESS'.                         00013203
+          05 FILLER PIC X(01) VALUE ' '.                                00013303
+          05 FILLER PIC X(08) VALUE ' ABENDS '.                         00013403
+          05 FILLER PIC X(02) VALUE ' '.                                00013507
+          05 FILLER PIC X(11) VALUE 'MAX ELAPSED'.                      00013605
+          05 FILLER PIC X(02) VALUE ' '.                                00013707
+          05 FILLER PIC X(11) VALUE 'AVG ELAPSED'.                      00013805
+          05 FILLER PIC X(02) VALUE ' '.                                00013907
+          05 FILLER PIC X(11) VALUE 'MAX CPU'.                          00014005
+          05 FILLER PIC X(02) VALUE ' '.                                00014107
+          05 FILLER PIC X(11) VALUE 'AVG CPU '.                         00014205
+          05 FILLER PIC X(01) VALUE ' '.                                00014303
+          05 FILLER PIC X(08) VALUE 'MAXIMUM'.                          00014406
+          05 FILLER PIC X(01) VALUE ' '.                                00014503
+          05 FILLER PIC X(08) VALUE 'AVERAGE'.                          00014606
+          05 FILLER PIC X(01) VALUE ' '.                                00014703
+      *                                                                 00015003
+       01 HEADER2.                                                      00016003
+          05 FILLER PIC X(01) VALUE ' '.                                00017003
+          05 FILLER PIC X(08) VALUE '        '.                         00018008
+          05 FILLER PIC X(01) VALUE ' '.                                00019003
+          05 FILLER PIC X(08) VALUE ' RUNS   '.                         00020003
+          05 FILLER PIC X(01) VALUE ' '.                                00030003
+          05 FILLER PIC X(08) VALUE '        '.                         00040003
+          05 FILLER PIC X(02) VALUE ' '.                                00050007
+          05 FILLER PIC X(11) VALUE 'TIME'.                             00060005
+          05 FILLER PIC X(02) VALUE ' '.                                00070007
+          05 FILLER PIC X(11) VALUE 'TIME'.                             00080005
+          05 FILLER PIC X(02) VALUE ' '.                                00090007
+          05 FILLER PIC X(11) VALUE 'TIME'.                             00100005
+          05 FILLER PIC X(02) VALUE ' '.                                00110007
+          05 FILLER PIC X(11) VALUE 'TIME'.                             00120005
+          05 FILLER PIC X(01) VALUE ' '.                                00130003
+          05 FILLER PIC X(08) VALUE 'I/O'.                              00140005
+          05 FILLER PIC X(01) VALUE ' '.                                00150003
+          05 FILLER PIC X(08) VALUE 'I/O'.                              00160005
+          05 FILLER PIC X(01) VALUE ' '.                                00170003
+      *                                                                 00180003
+       01 HEADER3.                                                      00181008
+          05 FILLER PIC X(01) VALUE ' '.                                00182008
+          05 FILLER PIC X(08) VALUE '        '.                         00183008
+          05 FILLER PIC X(01) VALUE ' '.                                00184008
+          05 FILLER PIC X(08) VALUE '        '.                         00185008
+          05 FILLER PIC X(01) VALUE ' '.                                00186008
+          05 FILLER PIC X(08) VALUE '        '.                         00187008
+          05 FILLER PIC X(02) VALUE ' '.                                00188008
+          05 FILLER PIC X(11) VALUE 'HH:MM:SS.SS'.                      00189008
+          05 FILLER PIC X(02) VALUE ' '.                                00189108
+          05 FILLER PIC X(11) VALUE 'HH:MM:SS.SS'.                      00189208
+          05 FILLER PIC X(02) VALUE ' '.                                00189308
+          05 FILLER PIC X(11) VALUE 'HH:MM:SS.SS'.                      00189408
+          05 FILLER PIC X(02) VALUE ' '.                                00189508
+          05 FILLER PIC X(11) VALUE 'HH:MM:SS.SS'.                      00189608
+          05 FILLER PIC X(01) VALUE ' '.                                00189708
+          05 FILLER PIC X(08) VALUE '(BLOCKS)'.                         00189809
+          05 FILLER PIC X(01) VALUE ' '.                                00189908
+          05 FILLER PIC X(08) VALUE '(BLOCKS)'.                         00190009
+          05 FILLER PIC X(01) VALUE ' '.                                00190108
+      *                                                                 00190208
+       01 WS-REPORT-LINE.                                               00191003
+          05 FILLER PIC X(01) VALUE ' '.                                00200003
+          05 WS-JOBNAME PIC X(08).                                      00210003
+          05 FILLER PIC X(01) VALUE ' '.                                00220003
+          05 WS-SUCCESS-RUNS PIC ZZZZZZ99.                              00230003
+          05 FILLER PIC X(01) VALUE ' '.                                00240003
+          05 WS-ABEND-RUNS   PIC ZZZZZZ99.                              00250003
+          05 FILLER PIC X(02) VALUE ' '.                                00260007
+          05 WS-MAX-ELP PIC 9(11).                                      00270004
+          05 FILLER PIC X(02) VALUE ' '.                                00280007
+          05 WS-AVG-ELP PIC 9(11).                                      00281004
+          05 FILLER PIC X(02) VALUE ' '.                                00300007
+          05 WS-MAX-CPU PIC 9(11).                                      00301004
+          05 FILLER PIC X(02) VALUE ' '.                                00320007
+          05 WS-AVG-CPU PIC 9(11).                                      00321004
+          05 FILLER PIC X(01) VALUE ' '.                                00340003
+          05 WS-MAX-IO PIC ZZZZZZ99.                                    00350003
+          05 FILLER PIC X(01) VALUE ' '.                                00360003
+          05 WS-AVG-IO PIC ZZZZZZ99.                                    00361003
+          05 FILLER PIC X(01) VALUE ' '.                                00380003
+      *                                                                 00390003
+       01 NO-REPORT-LINE.                                               00391010
+          05 FILLER PIC X(40) VALUE ALL ' '.                            00392010
+          05 FILLER PIC X(20) VALUE '  NO RECORDS FOUND  '.             00393010
+          05 FILLER PIC X(40) VALUE ALL ' '.                            00394010
+      *                                                                 00400010

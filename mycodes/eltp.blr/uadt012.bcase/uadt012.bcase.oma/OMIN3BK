@@ -1,0 +1,203 @@
+000100 IDENTIFICATION DIVISION.                                         00002000
+000200 PROGRAM-ID. OMINPGM1.                                            00003000
+000300*                                                                 00004000
+000400 ENVIRONMENT DIVISION.                                            00005000
+000500*                                                                 00006000
+000600 DATA DIVISION.                                                   00007000
+000700*                                                                 00009200
+000800 WORKING-STORAGE SECTION.                                         00010000
+                EXEC SQL                                                00010100
+                     INCLUDE SQLCA                                      00010200
+                END-EXEC.                                               00010300
+                COPY VALIDDT.                                           00010800
+                EXEC SQL INCLUDE PROD  END-EXEC.                        00010900
+       01 RES1             PIC S9(8) COMP.                              00011000
+       01 RES22            PIC S9(8) COMP.                              00011100
+       01 WS-LENGTH PIC 9(2).                                           00011200
+       01 WS-SLASH1    PIC X(1) VALUE '-'.                              00011300
+       01 WS-SLASH2    PIC X(1) VALUE '-'.                              00011400
+       01 WS-QUOT     PIC 9(4)     VALUE 0.                             00011500
+       01 WS-REM      PIC 9(4)     VALUE 0.                             00011600
+       01 WS-RBA      PIC 9(10)    VALUE 1110110 COMP-3.                00011700
+       01    WS-DATE          PIC X(10).                                00011800
+      *                                                                 00011900
+       01 WK-DATE.                                                      00012000
+          05 WK-D-DD PIC 99.                                            00012100
+          05 FILLER  PIC X.                                             00012200
+          05 WK-D-MM PIC 99.                                            00012300
+          05 FILLER  PIC X.                                             00012400
+          05 WK-D-YY PIC 99.                                            00012500
+       01 WK-TIME.                                                      00012600
+          05 WK-T-HH PIC 99.                                            00012700
+          05 FILLER  PIC X.                                             00012800
+          05 WK-T-MM PIC 99.                                            00012900
+          05 FILLER  PIC X.                                             00013000
+          05 WK-T-SS PIC 99.                                            00013100
+       01 DT PIC S9(15) COMP-3.                                         00013200
+      *                                                                 00013300
+       01 OMTRANS-VARS.                                                 00013400
+                05    WS-ORDER-ID            PIC 9(10).                 00013500
+                05    WS-CUSTOMER-ID         PIC 9(10).                 00013600
+                05    WS-EMPLOYEE-ID         PIC 9(10).                 00013700
+                05    WS-PROD-ID             PIC 9(10).                 00013800
+                05    WS-UNIT-PRICE          PIC 9(10)V99.              00013900
+                05    WS-QUANTITY            PIC 9(05).                 00014000
+                05    WS-ORDER-DATE          PIC X(10).                 00014100
+                05    WS-REQUIRED-DATE       PIC X(10).                 00014200
+                05    WS-SHIPMENT-DATE       PIC X(10).                 00014300
+                05    WS-CARRIER-COST        PIC 9(10)V99.              00014400
+                05    WS-TOTAL-COST          PIC 9(16)V99.              00014500
+                05    WS-TOKEN               PIC X(1).                  00015000
+001810*                                                                 00170000
+001820 LINKAGE SECTION.                                                 00180000
+001830 01 DFHCOMMAREA.                                                  00181000
+            COPY OMINCPBK.                                              00182000
+            COPY OMDLC2.                                                00183000
+001870*                                                                 00184000
+001900 PROCEDURE DIVISION.                                              00185000
+       COPY VALDATE.                                                    00185100
+002000 0000-MAIN-PARA.                                                  00186000
+             IF EIBCALEN = 0                                            00221100
+                 MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG               00221200
+                 EXEC CICS RETURN                                       00221300
+                 END-EXEC                                               00221400
+             ELSE PERFORM 1000-PARA                                     00221500
+             END-IF.                                                    00221600
+       1000-PARA.                                                       00225000
+             MOVE 'READ' TO LS-OPT                                      00225100
+             MOVE LENGTH OF LS-OPT TO WS-LENGTH                         00225200
+             IF LENGTH OF LS-OPT < 7                                    00225400
+             EVALUATE TRUE                                              00226000
+             WHEN LS-OPT = 'READ'                                       00227000
+                  PERFORM 2000-READVSAM-PARA                            00228000
+             WHEN OTHER                                                 00243100
+                DISPLAY ' OTHER PARA'                                   00243200
+                  MOVE 'INVALID OPTION SELECTED' TO LS-MSG              00243400
+                  EXEC CICS RETURN END-EXEC                             00243500
+             END-EVALUATE                                               00244000
+             ELSE                                                       00244100
+                PERFORM 2000-CLEAR-PARA                                 00244200
+                  MOVE 'INVALID OPTION SELECTED' TO LS-MSG              00244300
+                  EXEC CICS RETURN END-EXEC                             00244400
+             END-IF.                                                    00244500
+       2000-CLEAR-PARA.                                                 00244600
+       2000-READVSAM-PARA.                                              00245000
+      *           PERFORM 3000-WRITE-PARA                               00245100
+                  MOVE 'I' TO WS-TOKEN                                  00245500
+                  EXEC CICS STARTBR FILE('OMTRANS')                     00245600
+                     RIDFLD(WS-TOKEN)                                   00245700
+                     RESP(RES1)                                         00245800
+                     RESP2(RES22)                                       00245900
+                  END-EXEC.                                             00246000
+                  DISPLAY 'RE1 'RES1                                    00246100
+                  DISPLAY 'RESP2 'RES22                                 00246200
+                  MOVE '2006-07-06' TO WS-DATE                          00246300
+                  PERFORM 3000-READNEXT-PARA                            00246400
+                  EXEC CICS RETURN END-EXEC.                            00251700
+       3000-READNEXT-PARA.                                              00251800
+                  EXEC CICS                                             00252000
+                     READNEXT FILE ('OMTRANS')                          00252100
+                     INTO (OMTRANS-VARS)                                00252200
+                     RIDFLD(WS-TOKEN)                                   00253000
+                     RESP(RES1)                                         00254000
+                     RESP2(RES22)                                       00255000
+                  END-EXEC.                                             00256000
+                  IF RES22 = 140                                        00256100
+                    DISPLAY WS-ORDER-ID                                 00256200
+                    PERFORM 3000-QNT-UPD-PARA                           00256300
+                    PERFORM 3000-READNEXT-PARA                          00256400
+                  ELSE IF RES22 = 0                                     00256600
+                    DISPLAY WS-ORDER-ID                                 00256700
+                    EXEC CICS RETURN END-EXEC                           00256800
+                  ELSE                                                  00256900
+                    EXEC CICS RETURN END-EXEC                           00257000
+                  END-IF.                                               00257100
+       3000-WRITE-PARA.                                                 00257200
+                MOVE '2006-06-06' TO WS-DATE                            00257300
+                DISPLAY WS-DATE                                         00257400
+                MOVE   63            TO  WS-ORDER-ID                    00257500
+                MOVE   82777         TO  WS-CUSTOMER-ID                 00257600
+                MOVE   82777         TO  WS-EMPLOYEE-ID                 00257700
+                MOVE   82777         TO  WS-PROD-ID                     00257800
+                MOVE   10            TO  WS-UNIT-PRICE                  00257900
+                MOVE   10            TO  WS-QUANTITY                    00258000
+                MOVE   '2006-08-06'  TO  WS-ORDER-DATE                  00258100
+                MOVE   '2006-06-06'  TO  WS-REQUIRED-DATE               00258200
+                MOVE   '2006-06-06'  TO  WS-SHIPMENT-DATE               00258300
+                MOVE   10            TO  WS-CARRIER-COST                00258400
+                MOVE   10            TO  WS-TOTAL-COST                  00258500
+                MOVE  'P'            TO  WS-TOKEN                       00258600
+                  EXEC CICS                                             00258700
+                     WRITE FILE ('OMTRANS')                             00258800
+                     FROM (OMTRANS-VARS)                                00258900
+                     RIDFLD(WS-TOKEN)                                   00259000
+                     RESP(RES1)                                         00259100
+                     RESP2(RES22)                                       00259200
+                  END-EXEC.                                             00259300
+                  DISPLAY 'RES22WRITE' RES22                            00259400
+                  DISPLAY WS-ORDER-ID.                                  00259500
+       3000-REWRITE-PARA.                                               00259600
+      *         MOVE '2006-06-06' TO WS-DATE                            00259700
+                MOVE  'P'         TO  WS-TOKEN                          00259800
+                DISPLAY '111111'                                        00259900
+      *           EXEC CICS                                             00260000
+      *              READ FILE ('OMTRANS')                              00260100
+      *              UPDATE TOKEN (OMTRANS-VARS)                        00260200
+      *              INTO (OMTRANS-VARS)                                00260300
+      *              RIDFLD(WS-ORDER-ID)                                00260400
+      *              RESP(RES1)                                         00260500
+      *              RESP2(RES22)                                       00260600
+      *           END-EXEC.                                             00260700
+                DISPLAY '111111'                                        00260800
+                  DISPLAY 'RES22REWRITE 'RES22                          00260900
+                  EXEC CICS                                             00261100
+                     REWRITE FILE ('OMTRANS')                           00261200
+      *              TOKEN(OMTRANS-VARS)                                00261300
+                     FROM (OMTRANS-VARS)                                00261400
+      *****          RIDFLD(WS-TOKEN)                                   00261500
+                     RESP(RES1)                                         00261600
+                     RESP2(RES22)                                       00261700
+                  END-EXEC.                                             00261800
+                  DISPLAY 'RES22WRITE' RES22                            00261900
+                  DISPLAY WS-ORDER-ID.                                  00262000
+       3000-DATE-TIME-PARA.                                             00262100
+                  EXEC CICS ASKTIME ABSTIME(DT) END-EXEC.               00262200
+                  EXEC CICS FORMATTIME                                  00262300
+                            ABSTIME(DT)                                 00262400
+                            MMDDYY(WK-DATE)                             00262500
+                            DATESEP                                     00262600
+                            TIME(WK-TIME)                               00263000
+                            TIMESEP                                     00270000
+                  END-EXEC.                                             00280000
+       3000-QNT-UPD-PARA.                                               00290000
+              DISPLAY 'WS-PROD-ID 'WS-PROD-ID                           00291000
+              MOVE WS-PROD-ID TO PROD-ID OF DCLT-PR-PRODUCT             00292000
+              EXEC SQL                                                  00293000
+                   SELECT PROD_ID,PROD_UNIT_STOCK                       00294000
+                   INTO :DCLT-PR-PRODUCT.PROD-ID,:PROD-UNIT-STOCK       00295000
+                   FROM ADMT.T_PR_PRODUCT                               00296000
+                   WHERE PROD_ID = :DCLT-PR-PRODUCT.PROD-ID             00297000
+              END-EXEC.                                                 00298000
+                 DISPLAY 'SQLCODE 'SQLCODE                              00299000
+                 EVALUATE SQLCODE                                       00299100
+                    WHEN +100                                           00299200
+                       MOVE 'PRODUCT DETAILS SHOULD BE ENTERED FOR UPDAT00299400
+      -                    'ING THE STOCKS IN QUANTITY' TO LS-MSG       00299500
+                       EXEC CICS RETURN                                 00299600
+                       END-EXEC                                         00299700
+                    WHEN 0                                              00299800
+                      SUBTRACT WS-QUANTITY FROM PROD-UNIT-STOCK         00300000
+                      GIVING PROD-UNIT-STOCK                            00310000
+                      EXEC SQL                                          00320000
+                       UPDATE ADMT.T_PR_PRODUCT                         00330000
+                       SET PROD_ID      = :DCLT-PR-PRODUCT.PROD-ID,     00340000
+                       PROD_UNIT_STOCK  = :PROD-UNIT-STOCK              00350000
+                       WHERE PROD_ID      = :DCLT-PR-PRODUCT.PROD-ID    00360000
+                      END-EXEC                                          00370000
+                    DISPLAY 'UPDSQLCODE 'SQLCODE                        00371000
+                 IF SQLCODE IS NOT = 0                                  00380000
+                   MOVE 'DATA UPDATION NOT SUCCESSFUL' TO LS-MSG        00390000
+                   EXEC CICS RETURN END-EXEC                            00400000
+                 ELSE                                                   00401000
+                           PERFORM 3000-REWRITE-PARA                    00402000
+                 END-IF.                                                00430000

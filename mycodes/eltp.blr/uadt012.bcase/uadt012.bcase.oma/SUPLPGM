@@ -1,0 +1,441 @@
+       IDENTIFICATION DIVISION.                                         00010001
+       PROGRAM-ID. SUPLPGM.                                             00020001
+       ENVIRONMENT DIVISION.                                            00040001
+       DATA DIVISION.                                                   00060001
+       WORKING-STORAGE SECTION.                                         00080001
+             EXEC SQL                                                   00090001
+                 INCLUDE SQLCA                                          00100001
+             END-EXEC.                                                  00110001
+             EXEC SQL                                                   00120001
+                 INCLUDE DLDTL                                          00130001
+             END-EXEC.                                                  00140001
+             EXEC SQL                                                   00150001
+                 INCLUDE PRODN                                          00151001
+             END-EXEC.                                                  00152001
+       COPY VALIDDT.                                                    00160001
+       01 WS-LENGTH    PIC 9(2).                                        00170001
+       01 WS-SLASH1    PIC X(1) VALUE '-'.                              00180001
+       01 WS-SLASH2    PIC X(1) VALUE '-'.                              00190001
+       01 WS-QUOT      PIC 9(4) VALUE 0.                                00200001
+       01 WS-REM       PIC 9(4) VALUE 0.                                00210001
+       LINKAGE SECTION.                                                 00220001
+       01 DFHCOMMAREA.                                                  00230001
+            COPY OMDLCPDL.                                              00240002
+      *                                                                 00250001
+       PROCEDURE DIVISION.                                              00260001
+       COPY VALDATE.                                                    00270001
+       0000-MAIN-PARA.                                                  00280001
+             IF EIBCALEN = 0                                            00290001
+                 MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG               00300001
+                 EXEC CICS RETURN                                       00310001
+                 END-EXEC                                               00320001
+             ELSE PERFORM 1000-PARA                                     00330001
+             END-IF.                                                    00340001
+       1000-PARA.                                                       00350002
+             MOVE LENGTH OF LS-OPT TO WS-LENGTH                         00360002
+      *      DISPLAY 'LENGTH ' WS-LENGTH                                00370008
+             IF LENGTH OF LS-OPT < 7                                    00380002
+             EVALUATE TRUE                                              00390002
+                WHEN LS-OPT = 'SELECT'                                  00391004
+                     PERFORM 2000-SELECT-PARA                           00392004
+                WHEN LS-OPT = 'INVN'                                    00400002
+                     PERFORM 2000-INSERT-PARA                           00410002
+                WHEN LS-OPT = 'SCM'                                     00420002
+                     PERFORM 2000-UPDATE-PARA                           00430004
+                WHEN LS-OPT = 'ADDSTK'                                  00460002
+                     PERFORM 2000-ADDSTK-PARA                           00470004
+                WHEN OTHER                                              00500002
+                     PERFORM 8000-CLEAR-PARA                            00520004
+                     MOVE 'INVALID OPTION SELECTED' TO LS-MSG           00530002
+                     EXEC CICS RETURN END-EXEC                          00540002
+             END-EVALUATE                                               00550002
+             ELSE                                                       00560002
+                PERFORM 8000-CLEAR-PARA                                 00570004
+                MOVE 'INVALID OPTION SELECTED' TO LS-MSG                00580002
+                EXEC CICS RETURN END-EXEC                               00590002
+             END-IF.                                                    00600002
+        2000-SELECT-PARA.                                               00601004
+                IF LENGTH OF LS-ORDER-ID = 0                            00602004
+                   MOVE 'ORDER ID IS NOT ENTERED' TO LS-MSG             00603004
+                   EXEC CICS RETURN END-EXEC                            00604004
+                ELSE IF LS-ORDER-ID IS NOT NUMERIC                      00605004
+                   MOVE 'ORDER ID SHOULD BE NUMERIC' TO LS-MSG          00606004
+                   EXEC CICS RETURN END-EXEC                            00607004
+                END-IF.                                                 00608006
+                MOVE LS-ORDER-ID     TO ORDER-ID.                       00609006
+                EXEC SQL                                                00609105
+                   SELECT DEALER_ID,                                    00609205
+                          ORDER_ID,                                     00609305
+                          PROD_ID,                                      00609405
+                          PROD_NAME,                                    00609505
+                          PROD_QUANTITY,                                00609605
+                          UNIT_PRICE,                                   00609705
+                          DDATE,                                        00609805
+                          CATEGORY_NAME,                                00609905
+                          CATEGORY_ID,                                  00610005
+                          DLR_STATUS                                    00610105
+                   INTO  :DEALER-ID,                                    00610305
+                         :ORDER-ID,                                     00610404
+                         :DCLDEALER-DTL.PROD-ID,                        00610504
+                         :DCLDEALER-DTL.PROD-NAME,                      00610604
+                         :PROD-QUANTITY,                                00610704
+                         :UNIT-PRICE,                                   00610804
+                         :DDATE,                                        00610904
+                         :CATEGORY-NAME,                                00611004
+                         :CATEGORY-ID,                                  00611105
+                         :DLR-STATUS                                    00611205
+                   FROM  ADMT.DEALER_DTL                                00611305
+                   WHERE ORDER_ID = :ORDER-ID                           00611405
+                END-EXEC.                                               00611505
+              EVALUATE SQLCODE                                          00611704
+                      WHEN 0                                            00611804
+                      PERFORM 2500-MOVEBACK-PARA                        00611904
+                      MOVE 'DATA RETRIEVED SUCCESSFULLY' TO LS-MSG      00612004
+                      WHEN 100                                          00612104
+                      MOVE 'ORDER ID IS NOT FOUND' TO LS-MSG            00612204
+                      WHEN OTHER                                        00612304
+                      MOVE 'INVALID DATA ENTERED' TO LS-MSG             00612404
+              END-EVALUATE.                                             00612506
+              EXEC CICS RETURN END-EXEC.                                00612604
+       2000-INSERT-PARA.                                                00613002
+             PERFORM 2500-VALIDATIONS-PARA.                             00620004
+             PERFORM 2000-PRD-CHECK-PARA.                               00630004
+      *                                                                 00631004
+             EXEC SQL SELECT ORDER_ID INTO :ORDER-ID                    00640002
+                  FROM ADMT.DEALER_DTL                                  00650002
+                  WHERE ORDER_ID > 0                                    00660002
+                  ORDER BY ORDER_ID DESC                                00670002
+                  FETCH FIRST ROW ONLY                                  00680002
+             END-EXEC.                                                  00690004
+            MOVE ZERO TO  DEALER-ID.                                    00691007
+            ADD  1    TO  ORDER-ID OF DCLDEALER-DTL GIVING              00692007
+                                  ORDER-ID OF DCLDEALER-DTL.            00693007
+            MOVE PROD-ID OF DCLT-PR-PRODUCT TO PROD-ID OF DCLDEALER-DTL.00700007
+            MOVE PROD-NAME OF DCLT-PR-PRODUCT TO                        00710006
+                              PROD-NAME OF DCLDEALER-DTL.               00720006
+            MOVE    LS-QUANT        TO PROD-QUANTITY                    00721007
+            MOVE PROD-UNIT-PRICE TO UNIT-PRICE.                         00722007
+            MOVE    LS-DATE         TO DDATE.                           00723007
+            MOVE PROD-CAT-ID   TO CATEGORY-ID.                          00730007
+            MOVE PROD-CAT-NAME TO CATEGORY-NAME.                        00731007
+            MOVE  'I'          TO DLR-STATUS.                           00841006
+             EXEC SQL INSERT INTO ADMT.DEALER_DTL VALUES                00900002
+                (     :DEALER-ID,                                       00910002
+                      :ORDER-ID,                                        00920002
+                      :DCLDEALER-DTL.PROD-ID,                           00930002
+                      :DCLDEALER-DTL.PROD-NAME,                         00940002
+                      :PROD-QUANTITY,                                   00950002
+                      :UNIT-PRICE,                                      00960002
+                      :DDATE,                                           00970002
+                      :CATEGORY-NAME,                                   00980002
+                      :CATEGORY-ID,                                     00990005
+                      :DLR-STATUS                                       00991005
+                 ) END-EXEC.                                            01000002
+             EVALUATE SQLCODE                                           01010002
+                WHEN 0                                                  01020002
+                  MOVE 'DATA SUCCESSFULLY ENTERED' TO LS-MSG            01040002
+                WHEN 100                                                01050002
+                  MOVE 'DEALER ID ALREADY EXISTS' TO LS-MSG             01060002
+                WHEN OTHER                                              01070002
+                  MOVE 'DATA INSERTION NOT SUCCESSFUL' TO LS-MSG        01080002
+             END-EVALUATE.                                              01090006
+             MOVE ORDER-ID TO LS-ORDER-ID.                              01100006
+             EXEC CICS RETURN END-EXEC.                                 01110002
+      *                                                                 01120002
+       2000-UPDATE-PARA.                                                01120106
+            IF LENGTH OF LS-ORDER-ID = 0                                01120306
+               MOVE 'ORDER ID IS NOT ENTERED' TO LS-MSG                 01120406
+               EXEC CICS RETURN END-EXEC                                01120506
+            ELSE IF LS-ORDER-ID IS NOT NUMERIC                          01120606
+               MOVE 'ORDER ID SHOULD BE NUMERIC' TO LS-MSG              01120706
+               EXEC CICS RETURN END-EXEC                                01120806
+            END-IF.                                                     01120906
+      *                                                                 01121006
+            IF LENGTH OF LS-DEALER-ID = 0                               01121106
+               PERFORM 8000-CLEAR-PARA                                  01121206
+               MOVE 'DEALER ID IS NOT ENTERED' TO LS-MSG                01121306
+               EXEC CICS RETURN END-EXEC                                01121406
+            ELSE IF LS-DEALER-ID IS NOT NUMERIC                         01121506
+               PERFORM 8000-CLEAR-PARA                                  01121606
+               MOVE 'DEALER ID SHOULD BE NUMERIC' TO LS-MSG             01121706
+               EXEC CICS RETURN END-EXEC                                01121806
+            ELSE IF LS-DEALER-ID IS ZERO                                01121906
+               PERFORM 8000-CLEAR-PARA                                  01122006
+               MOVE 'DEALER ID CANNOT BE ZERO' TO LS-MSG                01122106
+               EXEC CICS RETURN END-EXEC                                01122206
+            END-IF.                                                     01122306
+      *                                                                 01122406
+                MOVE LS-DEALER-ID TO DEALER-ID.                         01122506
+                MOVE LS-ORDER-ID  TO ORDER-ID.                          01122606
+                MOVE 'O'          TO DLR-STATUS.                        01122706
+                EXEC SQL UPDATE ADMT.DEALER_DTL                         01122804
+                     SET     DEALER_ID     =  :DEALER-ID,               01122904
+                             DLR_STATUS    =  :DLR-STATUS               01123005
+                     WHERE ORDER_ID    =  :ORDER-ID                     01123105
+                END-EXEC.                                               01123205
+                EVALUATE SQLCODE                                        01123306
+                    WHEN 0                                              01123406
+                       MOVE 'THE DATA IS SUCCESSFULLY UPDATED' TO LS-MSG01123506
+                       EXEC CICS RETURN END-EXEC                        01123606
+                    WHEN OTHER                                          01123806
+                       MOVE 'UPDATION NOT SUCCESSFUL' TO  LS-MSG        01123906
+                       EXEC CICS RETURN END-EXEC                        01124006
+                END-EVALUATE.                                           01124206
+        2000-ADDSTK-PARA.                                               01124305
+            IF LENGTH OF LS-ORDER-ID = 0                                01124406
+               MOVE 'ORDER ID IS NOT ENTERED' TO LS-MSG                 01124506
+               EXEC CICS RETURN END-EXEC                                01124606
+            ELSE IF LS-ORDER-ID IS NOT NUMERIC                          01124706
+               MOVE 'ORDER ID SHOULD BE NUMERIC' TO LS-MSG              01124806
+               EXEC CICS RETURN END-EXEC                                01124906
+            END-IF.                                                     01125006
+      *                                                                 01126706
+            MOVE LS-ORDER-ID TO ORDER-ID OF DCLDEALER-DTL.              01126806
+            EXEC SQL                                                    01126906
+                   SELECT PROD_ID,PROD_QUANTITY                         01127006
+                   INTO   :DCLDEALER-DTL.PROD-ID,                       01127106
+                          :DCLDEALER-DTL.PROD-QUANTITY                  01127206
+                   FROM   ADMT.DEALER_DTL                               01127306
+                   WHERE  ORDER_ID = :DCLDEALER-DTL.ORDER-ID            01127406
+            END-EXEC.                                                   01127506
+            EVALUATE SQLCODE                                            01127606
+                   WHEN 0                                               01127706
+                        CONTINUE                                        01127806
+                   WHEN +100                                            01127906
+                        MOVE ORDER-ID OF DCLDEALER-DTL TO LS-ORDER-ID   01128006
+                        MOVE 'ORDER-ID DOES NOT EXIST - PLZ TRY AGAIN'  01128106
+                                            TO LS-MSG                   01128206
+                        EXEC CICS RETURN END-EXEC                       01128306
+                   WHEN OTHER                                           01128406
+                        MOVE 'PROBLEM IN FETCHING DETAILS FROM ORDER-ID'01128506
+                                         TO LS-MSG                      01128606
+                        EXEC CICS RETURN END-EXEC                       01128706
+            END-EVALUATE.                                               01128806
+            MOVE PROD-ID OF DCLDEALER-DTL TO PROD-ID OF DCLT-PR-PRODUCT.01128906
+              EXEC SQL                                                  01129006
+                   SELECT PROD_ID,PROD_UNIT_STOCK                       01129106
+                   INTO :DCLT-PR-PRODUCT.PROD-ID,:PROD-UNIT-STOCK       01129206
+                   FROM ADMT.T_PR_PRODUCT                               01129306
+                   WHERE PROD_ID = :DCLDEALER-DTL.PROD-ID               01129406
+              END-EXEC.                                                 01129506
+      *                                                                 01129606
+                 EVALUATE SQLCODE                                       01129706
+                    WHEN +100                                           01129806
+                       MOVE PROD-ID OF DCLT-PR-PRODUCT TO LS-PROD-ID    01129906
+                       MOVE 'PRODUCT DETAILS SHOULD BE ENTERED FOR UPDAT01130006
+      -                    'ING THE STOCKS IN QUANTITY' TO LS-MSG       01130106
+                       EXEC CICS RETURN END-EXEC                        01130206
+                    WHEN 0                                              01130306
+                       ADD PROD-QUANTITY TO PROD-UNIT-STOCK             01130406
+                          GIVING PROD-UNIT-STOCK                        01130506
+                         EXEC SQL                                       01130606
+                           UPDATE ADMT.T_PR_PRODUCT                     01130706
+                        SET PROD_ID         = :DCLT-PR-PRODUCT.PROD-ID, 01130806
+                            PROD_UNIT_STOCK = :PROD-UNIT-STOCK          01130906
+                          WHERE PROD_ID      = :DCLDEALER-DTL.PROD-ID   01131006
+                         END-EXEC                                       01131106
+                      IF SQLCODE IS NOT = 0                             01131206
+                       MOVE 'DATA UPDATION NOT SUCCESSFUL' TO LS-MSG    01131306
+                       EXEC CICS RETURN END-EXEC                        01131406
+                      ELSE IF SQLCODE = 0                               01131506
+                         MOVE 'A' TO DLR-STATUS OF DCLDEALER-DTL        01131606
+                         MOVE LS-ORDER-ID TO ORDER-ID OF DCLDEALER-DTL  01131706
+                         EXEC SQL                                       01131806
+                             UPDATE ADMT.DEALER_DTL                     01131906
+                             SET DLR_STATUS = :DCLDEALER-DTL.DLR-STATUS 01132006
+                             WHERE ORDER_ID = :DCLDEALER-DTL.ORDER-ID   01132106
+                         END-EXEC                                       01132206
+                         EVALUATE SQLCODE                               01132306
+                              WHEN 0                                    01132406
+                                   MOVE 'DETAILS ADDED SUCCESSFULLY AND 01132506
+      -                                 'STATUS UPDATED' TO LS-MSG      01132606
+                                    EXEC CICS RETURN END-EXEC           01132706
+                              WHEN OTHER                                01132806
+                                  MOVE 'PROBLEM IN UPDATING THE STATUS' 01132906
+                                            TO LS-MSG                   01133006
+                                    EXEC CICS RETURN END-EXEC           01133106
+                         END-EVALUATE                                   01133206
+                         END-IF                                         01133308
+                      END-IF                                            01133406
+                   WHEN OTHER                                           01133506
+                       MOVE 'EXECUTION OF ORDER FAILED' TO LS-MSG       01133606
+                       EXEC CICS RETURN END-EXEC                        01133706
+                   END-EVALUATE.                                        01133806
+      *                                                                 01133906
+       2000-PRD-CHECK-PARA.                                             01134002
+             MOVE LS-PROD-ID TO PROD-ID OF DCLT-PR-PRODUCT              01134102
+              EXEC SQL                                                  01134202
+                   SELECT PROD_ID,PROD_UNIT_STOCK,PROD_NAME,            01134302
+                   PROD_CAT_ID,PROD_CAT_NAME,PROD_UNIT_PRICE            01134406
+                   INTO :DCLT-PR-PRODUCT.PROD-ID,:PROD-UNIT-STOCK,      01134502
+                        :DCLT-PR-PRODUCT.PROD-NAME,                     01134602
+                        :DCLT-PR-PRODUCT.PROD-CAT-ID,                   01134702
+                        :DCLT-PR-PRODUCT.PROD-CAT-NAME,                 01134806
+                        :DCLT-PR-PRODUCT.PROD-UNIT-PRICE                01134906
+                   FROM ADMT.T_PR_PRODUCT                               01135006
+                   WHERE PROD_ID = :DCLT-PR-PRODUCT.PROD-ID             01135106
+              END-EXEC.                                                 01135206
+      *                                                                 01135306
+                 EVALUATE SQLCODE                                       01135406
+                    WHEN +100                                           01135506
+                       MOVE PROD-ID OF DCLT-PR-PRODUCT TO LS-PROD-ID    01135606
+                       MOVE 'PRODUCT DETAILS SHOULD BE ENTERED FOR UPDAT01135706
+      -                    'ING THE STOCKS IN QUANTITY' TO LS-MSG       01135806
+                       EXEC CICS RETURN                                 01135906
+                       END-EXEC                                         01136006
+                    WHEN OTHER                                          01136106
+                       CONTINUE                                         01136206
+                 END-EVALUATE.                                          01136306
+      *                                                                 01137002
+        2500-MOVEBACK-PARA.                                             01142605
+               MOVE  DEALER-ID         TO  LS-DEALER-ID.                01142705
+               MOVE  ORDER-ID          TO  LS-ORDER-ID.                 01142805
+               MOVE  PROD-ID OF DCLDEALER-DTL TO  LS-PROD-ID.           01142905
+               MOVE  PROD-NAME OF DCLDEALER-DTL  TO  LS-PROD-NAME.      01143005
+               MOVE  PROD-QUANTITY     TO  LS-QUANT.                    01143105
+               MOVE  UNIT-PRICE        TO  LS-PRICE.                    01143205
+               MOVE  DDATE             TO  LS-DATE.                     01143305
+               MOVE  CATEGORY-NAME     TO  LS-CATEG-NAME.               01143405
+               MOVE  CATEGORY-ID       TO  LS-CATEG-ID.                 01143505
+               MOVE  DLR-STATUS        TO  LS-STATUS.                   01143608
+       2500-VALIDATIONS-PARA.                                           01143705
+             IF LENGTH OF LS-DEALER-ID = 0                              01144002
+                PERFORM 8000-CLEAR-PARA                                 01150004
+                MOVE 'DEALER ID IS NOT ENTERED' TO LS-MSG               01160002
+                EXEC CICS RETURN END-EXEC                               01170002
+             ELSE IF LS-DEALER-ID IS NOT NUMERIC                        01180002
+                PERFORM 8000-CLEAR-PARA                                 01190004
+                MOVE 'DEALER ID SHOULD BE NUMERIC' TO LS-MSG            01200002
+                EXEC CICS RETURN END-EXEC                               01210002
+             ELSE IF LS-DEALER-ID IS ZERO                               01220002
+                PERFORM 8000-CLEAR-PARA                                 01230004
+                MOVE 'DEALER ID CANNOT BE ZERO' TO LS-MSG               01240002
+                EXEC CICS RETURN END-EXEC                               01250002
+             END-IF.                                                    01260002
+      *                                                                 01270002
+             IF LENGTH OF LS-ORDER-ID = 0                               01280002
+                MOVE 'ORDER ID IS NOT ENTERED' TO LS-MSG                01290002
+                EXEC CICS RETURN END-EXEC                               01300002
+             ELSE IF LS-ORDER-ID IS NOT NUMERIC                         01310002
+                MOVE 'ORDER ID SHOULD BE NUMERIC' TO LS-MSG             01320002
+                EXEC CICS RETURN END-EXEC                               01330002
+             END-IF.                                                    01340008
+      *                                                                 01350002
+             IF LENGTH OF LS-PROD-ID = 0                                01360002
+                MOVE 'PRODUCT ID IS NOT ENTERED' TO LS-MSG              01370002
+                EXEC CICS RETURN END-EXEC                               01380002
+             ELSE IF LS-PROD-ID IS NOT NUMERIC                          01390002
+                MOVE 'PRODUCT ID SHOULD BE NUMERIC' TO LS-MSG           01400002
+                EXEC CICS RETURN END-EXEC                               01410002
+             END-IF.                                                    01420002
+      *                                                                 01430002
+             IF LENGTH OF LS-QUANT = 0                                  01440002
+                MOVE 'QUANTITY IS NOT ENTERED' TO LS-MSG                01450002
+                EXEC CICS RETURN END-EXEC                               01460002
+             ELSE IF LS-QUANT IS NOT NUMERIC                            01470002
+                MOVE 'QUANTITY SHOULD BE NUMERIC' TO LS-MSG             01480002
+                EXEC CICS RETURN END-EXEC                               01490002
+             END-IF.                                                    01500002
+      *                                                                 01510002
+             IF LENGTH OF LS-PRICE = 0                                  01520002
+                MOVE 'UNIT PRICE IS NOT ENTERED' TO LS-MSG              01530002
+                EXEC CICS RETURN END-EXEC                               01540002
+             ELSE IF LS-PRICE IS NOT NUMERIC                            01550002
+                MOVE 'UNIT PRICE SHOULD BE NUMERIC' TO LS-MSG           01560002
+                EXEC CICS RETURN END-EXEC                               01570002
+             END-IF.                                                    01580002
+      *                                                                 01590002
+             IF LENGTH OF LS-CATEG-ID = 0                               01600002
+                MOVE 'CATEGORY ID IS NOT ENTERED' TO LS-MSG             01610002
+                EXEC CICS RETURN END-EXEC                               01620002
+             ELSE IF LS-CATEG-ID IS NOT NUMERIC                         01630002
+                MOVE 'CATEGORY ID SHOULD BE NUMERIC' TO LS-MSG          01640002
+                EXEC CICS RETURN END-EXEC                               01650002
+             END-IF.                                                    01660002
+      *                                                                 01670002
+             IF LENGTH OF LS-PROD-NAME = 0                              01680002
+                MOVE 'PRODUCT NAME IS NOT ENTERED' TO LS-MSG            01690002
+                EXEC CICS RETURN END-EXEC                               01700002
+             ELSE IF LS-PROD-NAME IS NOT ALPHABETIC                     01710002
+                MOVE 'PRODUCT NAME SHOULD BE ALPHABETIC' TO LS-MSG      01720002
+                EXEC CICS RETURN END-EXEC                               01730002
+             END-IF.                                                    01740002
+      *                                                                 01750002
+             IF LENGTH OF LS-CATEG-NAME = 0                             01760002
+                MOVE 'CATEGORY NAME IS NOT ENTERED' TO LS-MSG           01770002
+                EXEC CICS RETURN END-EXEC                               01780002
+             ELSE IF LS-CATEG-NAME IS NOT ALPHABETIC                    01790002
+                MOVE 'CATEGORY NAME SHOULD BE ALPHABETIC' TO LS-MSG     01800002
+                EXEC CICS RETURN END-EXEC                               01810002
+             END-IF.                                                    01820002
+      *                                                                 01830002
+            IF LS-DATE = SPACES OR LENGTH OF LS-DATE = 0                01840002
+                 MOVE 'ORDER DATE NOT ENTERED - PLZ ENTER IT' TO LS-MSG 01850002
+                 EXEC CICS RETURN END-EXEC                              01860002
+            ELSE                                                        01870002
+                 MOVE LS-DATE      TO INPUTDATELA                       01880002
+                 MOVE LS-DATE(6:2) TO MONTHLA                           01890002
+                 MOVE LS-DATE(5:1) TO WS-SLASH1                         01900002
+                 MOVE LS-DATE(9:2) TO DAYLA                             01910002
+                 MOVE LS-DATE(8:1) TO WS-SLASH2                         01920002
+                 MOVE LS-DATE(1:4) TO YEARLA                            01930002
+      *          DISPLAY 'DAYLA' DAYLA                                  01940008
+      *          DISPLAY 'DAYLA' YEARLA                                 01950008
+      *          DISPLAY 'DAYLA' MONTHLA                                01960008
+                 DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM     01970002
+      *                                                                 01980002
+                 IF MONTHLA = 02 AND WS-SLASH1 = '-' AND DAYLA = 29     01990002
+                    AND WS-SLASH2 = '-' AND WS-REM NOT = 0              02000002
+                    MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ    02010002
+      -                 'R CORRECT FORMAT' TO LS-MSG                    02020002
+                   EXEC CICS RETURN END-EXEC                            02030002
+                ELSE                                                    02040002
+                   PERFORM 9400-BEGIN-PARA THRU 9400-EXIT               02050002
+      *                                                                 02060002
+                   EVALUATE TRUE                                        02070002
+                     WHEN DATENOTNUMERIC                                02080002
+                       MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT IN02090002
+      -                     ' YYYY-MM-DD FORMAT' TO LS-MSG              02100002
+                       EXEC CICS RETURN END-EXEC                        02110002
+                     WHEN MONTHCONTAINSZEROS                            02120002
+                       MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'02130002
+                            TO LS-MSG                                   02140002
+                       EXEC CICS RETURN END-EXEC                        02150002
+                     WHEN MONTHGREATERTHAN12                            02160002
+                       MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'02170002
+                               TO LS-MSG                                02180002
+                               EXEC CICS RETURN END-EXEC                02190002
+                     WHEN DAYCONTAINSZEROS                              02200002
+                       MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT' 02210002
+                            TO LS-MSG                                   02220002
+                               EXEC CICS RETURN END-EXEC                02230002
+                     WHEN DAYTOOGREATFORMONTH                           02240002
+                       MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ 02250002
+      -                     'ENTER CORRECT FORMAT' TO LS-MSG            02260002
+                               EXEC CICS RETURN END-EXEC                02270002
+                     WHEN YEARCONTAINSZEROS                             02280002
+                       MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT' 02290002
+                            TO LS-MSG                                   02300002
+                               EXEC CICS RETURN END-EXEC                02310002
+                 END-EVALUATE                                           02320002
+      *                                                                 02330002
+                 EVALUATE TRUE                                          02340002
+                     WHEN WS-SLASH1 NOT = '-'                           02350002
+                       MOVE 'DATE SEPERATOR IS INVALID, USE ONLY - AS A 02360002
+      -                     'SEPERATOR'  TO LS-MSG                      02370002
+                               EXEC CICS RETURN END-EXEC                02380002
+                     WHEN WS-SLASH2 NOT = '-'                           02390002
+                       MOVE 'DATE SEPERATOR IS INVALID, USE ONLY - AS A 02400002
+      -                     'SEPERATOR'  TO LS-MSG                      02410002
+                               EXEC CICS RETURN END-EXEC                02420002
+                 END-EVALUATE                                           02430002
+      *                                                                 02440002
+                END-IF                                                  02450002
+      *                                                                 02460002
+           END-IF.                                                      02470002
+      *                                                                 02480002
+       8000-CLEAR-PARA.                                                 02490004
+           MOVE ZEROS TO LS-DEALER-ID, LS-ORDER-ID, LS-PROD-ID,         02500008
+                         LS-QUANT, LS-PRICE, LS-CATEG-ID                02510008
+           MOVE LOW-VALUES TO LS-OPT, LS-PROD-NAME, LS-DATE,            02520008
+                         LS-CATEG-NAME, LS-MSG.                         02530008

@@ -1,0 +1,69 @@
+       IDENTIFICATION DIVISION.                                         00010001
+       PROGRAM-ID. DETAILS.                                             00020002
+       ENVIRONMENT DIVISION.                                            00030001
+       INPUT-OUTPUT SECTION.                                            00040001
+       DATA DIVISION.                                                   00050002
+       WORKING-STORAGE SECTION.                                         00060002
+           EXEC SQL                                                     00060102
+               INCLUDE PRODN1                                           00060203
+           END-EXEC.                                                    00060302
+           EXEC SQL                                                     00060402
+               INCLUDE SQLCA                                            00060502
+           END-EXEC.                                                    00060602
+       01 WS-DESCRIPTION PIC X(100).                                    00060702
+       01 WS-NAME        PIC X(40).                                     00060802
+              EXEC SQL                                                  00061002
+                DECLARE UPDT CURSOR FOR                                 00061102
+                SELECT  PROD_NAME                                       00062002
+                FROM    ADMT.T_PR_PRODUCT                               00064002
+                WHERE   PROD_CAT_ID = :PROD-CAT-ID                      00065002
+              END-EXEC.                                                 00066002
+       PROCEDURE DIVISION.                                              00070002
+       0000-MAIN-PARA.                                                  00080002
+            MOVE 'CT001' TO PROD-CAT-ID.                                00081002
+            MOVE 'NEW PRODUCT' TO WS-DESCRIPTION.                       00081103
+            EXEC SQL                                                    00081202
+                 OPEN UPDT                                              00081302
+            END-EXEC.                                                   00081402
+            DISPLAY 'OPENSQLCODE'SQLCODE                                00081505
+            PERFORM 0010-LOOP-PARA THRU 0010-EXIT.                      00081602
+       0000-EXIT.                                                       00081702
+           EXIT.                                                        00081802
+       0010-LOOP-PARA.                                                  00081902
+            PERFORM 1000-FETCH-PARA 30 TIMES.                           00082004
+      *     PERFORM 1000-FETCH-PARA THRU 1000-EXIT.                     00082104
+      *     MOVE PROD-NAME TO WS-NAME.                                  00082204
+            DISPLAY '30 DATA UPDATED'.                                  00082304
+      *     EVALUATE SQLCODE                                            00083004
+      *          WHEN 0                                                 00083104
+      *                 PERFORM 2000-UPDATE-PARA THRU 2000-EXIT         00084004
+      *                 DISPLAY 'DONE'                                  00084104
+      *          WHEN 100                                               00085004
+      *               DISPLAY 'UPDATED SUCCESSFULLY'                    00085104
+      *          WHEN OTHER                                             00086104
+      **              DISPLAY 'ERROR' SQLCODE                           00086204
+      *     END-EVALUATE.                                               00087004
+            STOP RUN.                                                   00088002
+       0010-EXIT.                                                       00090002
+           EXIT.                                                        00100002
+       1000-FETCH-PARA.                                                 00110002
+            EXEC SQL                                                    00111002
+                FETCH UPDT                                              00112002
+                INTO :PROD-NAME                                         00113002
+            END-EXEC.                                                   00114002
+            DISPLAY 'FETCHSQLCODE' SQLCODE                              00114105
+            MOVE PROD-NAME TO WS-NAME.                                  00115002
+            PERFORM 2000-UPDATE-PARA THRU 2000-EXIT.                    00116004
+       1000-EXIT.                                                       00120002
+           EXIT.                                                        00130002
+       2000-UPDATE-PARA.                                                00140002
+            EXEC SQL                                                    00141002
+                 UPDATE ADMT.T_PR_PRODUCT                               00142002
+                 SET PROD_DESCRIPTION = :WS-NAME                        00143002
+                 WHERE PROD_CAT_ID      = :PROD-CAT-ID AND              00144002
+                       PROD_DESCRIPTION = :WS-DESCRIPTION               00144102
+            END-EXEC.                                                   00145002
+            DISPLAY 'UPDSQLCODE' SQLCODE                                00145105
+      *     PERFORM 0010-LOOP-PARA THRU 0010-EXIT.                      00146004
+       2000-EXIT.                                                       00150002
+           EXIT.                                                        00160002

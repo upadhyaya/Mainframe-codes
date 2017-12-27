@@ -1,0 +1,42 @@
+003800 9400-BEGIN-PARA.                                                 00380003
+003900     EVALUATE TRUE                                                00390001
+004000      WHEN INPUTDATELA NOT NUMERIC  SET DATENOTNUMERIC     TO TRUE00400000
+004100      WHEN YEARLA EQUAL TO ZEROS    SET YEARCONTAINSZEROS  TO TRUE00410000
+004200      WHEN MONTHLA EQUAL TO ZEROS   SET MONTHCONTAINSZEROS TO TRUE00420000
+004300      WHEN DAYLA EQUAL TO ZEROS     SET DAYCONTAINSZEROS   TO TRUE00430000
+004400      WHEN MONTHINVALID             SET MONTHGREATERTHAN12 TO TRUE00440000
+004500      WHEN OTHER PERFORM 9500-CHECKFORVALIDDAY-PARA THRU 9500-EXIT00450004
+004600     END-EVALUATE.                                                00460002
+004700*                                                                 00470000
+004800 9400-EXIT.                                                       00480003
+004900     EXIT.                                                        00490002
+005000******************************************************************00500002
+005100 9500-CHECKFORVALIDDAY-PARA.                                      00510003
+005200*  YEARS EVENLY DIVISIBLE BY 4 ARE LEAP YEARS, BUT                00520000
+005300*  YEARS EVENLY DIVISIBLE BY 100 ARE NOT LEAP YEARS, BUT          00530000
+005400*  YEARS EVENLY DIVISIBLE BY 400 ARE LEAP YEARS.                  00540000
+005500*                                                                 00550000
+005600     DIVIDE YEARLA BY 400 GIVING LEAPQUOT REMAINDER LEAPREMAIN.   00560001
+005700     IF LEAPREMAIN = 0                                            00570001
+005800       SET LEAPYEAR TO TRUE                                       00580001
+005900     ELSE                                                         00590001
+006000       DIVIDE YEARLA BY 100 GIVING LEAPQUOT REMAINDER LEAPREMAIN  00600001
+006100       IF LEAPREMAIN NOT = 0                                      00610001
+006200         DIVIDE YEARLA BY 4 GIVING LEAPQUOT REMAINDER LEAPREMAIN  00620000
+006300         IF LEAPREMAIN = 0                                        00630000
+006400            SET LEAPYEAR TO TRUE                                  00640000
+006500         END-IF                                                   00650000
+006600       END-IF                                                     00660001
+006700     END-IF                                                       00670001
+006710*                                                                 00671000
+006711     IF LEAPYEAR AND MONTHISFEBRUARY                              00671113
+006712           MOVE 29 TO DAYSINMONTH(2)                              00671213
+006713     END-IF                                                       00671313
+006714     IF DAYLA GREATER THAN DAYSINMONTH(MONTHLA)                   00671413
+006715          SET DAYTOOGREATFORMONTH TO TRUE                         00671513
+006716     ELSE                                                         00671613
+006717         SET DATEISVALID TO TRUE                                  00671713
+006718     END-IF.                                                      00671813
+007693*                                                                 00769309
+007700 9500-EXIT.                                                       00770003
+007800     EXIT.                                                        00780002

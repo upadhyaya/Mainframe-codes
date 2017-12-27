@@ -1,0 +1,61 @@
+          05 LK1-FROM-ORD-DT   PIC X(10).                               00010001
+          05 LK1-TO-ORD-DT     PIC X(10).                               00020001
+          05 LK1-MSG           PIC X(65).                               00030001
+          05 LK1-FLAG          PIC X(4).                                00070201
+          05 LK1-COUNT         PIC 9(05).                               00070601
+      *                                                                 00072001
+          05 OUT-ORD-CUST-ID1    PIC 9(10).                             00090001
+          05 OUT-ORD-EMP-ID1     PIC 9(10).                             00100001
+          05 OUT-ORD-PROD-ID1    PIC 9(10).                             00110001
+          05 OUT-ORD-QUANT1      PIC 9(05).                             00130001
+          05 OUT-ORD-ID1         PIC 9(10).                             00150001
+          05 OUT-ORD-TOTAL-COST1 PIC 9(18).                             00190001
+      *                                                                 00200001
+          05 OUT-ORD-CUST-ID2    PIC 9(10).                             00210001
+          05 OUT-ORD-EMP-ID2     PIC 9(10).                             00220001
+          05 OUT-ORD-PROD-ID2    PIC 9(10).                             00230001
+          05 OUT-ORD-QUANT2      PIC 9(05).                             00240001
+          05 OUT-ORD-ID2         PIC 9(10).                             00250001
+          05 OUT-ORD-TOTAL-COST2 PIC 9(18).                             00260001
+      *                                                                 00270001
+          05 OUT-ORD-CUST-ID3    PIC 9(10).                             00280001
+          05 OUT-ORD-EMP-ID3     PIC 9(10).                             00290001
+          05 OUT-ORD-PROD-ID3    PIC 9(10).                             00300001
+          05 OUT-ORD-QUANT3      PIC 9(05).                             00310001
+          05 OUT-ORD-ID3         PIC 9(10).                             00320001
+          05 OUT-ORD-TOTAL-COST3 PIC 9(18).                             00330001
+      *                                                                 00340001
+          05 OUT-ORD-CUST-ID4    PIC 9(10).                             00350001
+          05 OUT-ORD-EMP-ID4     PIC 9(10).                             00360001
+          05 OUT-ORD-PROD-ID4    PIC 9(10).                             00370001
+          05 OUT-ORD-QUANT4      PIC 9(05).                             00380001
+          05 OUT-ORD-ID4         PIC 9(10).                             00390001
+          05 OUT-ORD-TOTAL-COST4 PIC 9(18).                             00400001
+      *                                                                 00410001
+          05 OUT-ORD-CUST-ID5    PIC 9(10).                             00420001
+          05 OUT-ORD-EMP-ID5     PIC 9(10).                             00430001
+          05 OUT-ORD-PROD-ID5    PIC 9(10).                             00440001
+          05 OUT-ORD-QUANT5      PIC 9(05).                             00450001
+          05 OUT-ORD-ID5         PIC 9(10).                             00460001
+          05 OUT-ORD-TOTAL-COST5 PIC 9(18).                             00470001
+      *                                                                 00480001
+          05 OUT-ORD-CUST-ID6    PIC 9(10).                             00490001
+          05 OUT-ORD-EMP-ID6     PIC 9(10).                             00500001
+          05 OUT-ORD-PROD-ID6    PIC 9(10).                             00510001
+          05 OUT-ORD-QUANT6      PIC 9(05).                             00520001
+          05 OUT-ORD-ID6         PIC 9(10).                             00530001
+          05 OUT-ORD-TOTAL-COST6 PIC 9(18).                             00540001
+      *                                                                 00550001
+          05 OUT-ORD-CUST-ID7    PIC 9(10).                             00560001
+          05 OUT-ORD-EMP-ID7     PIC 9(10).                             00570001
+          05 OUT-ORD-PROD-ID7    PIC 9(10).                             00580001
+          05 OUT-ORD-QUANT7      PIC 9(05).                             00590001
+          05 OUT-ORD-ID7         PIC 9(10).                             00600001
+          05 OUT-ORD-TOTAL-COST7 PIC 9(18).                             00610001
+      *                                                                 00620001
+          05 OUT-ORD-CUST-ID8    PIC 9(10).                             00630001
+          05 OUT-ORD-EMP-ID8     PIC 9(10).                             00640001
+          05 OUT-ORD-PROD-ID8    PIC 9(10).                             00650001
+          05 OUT-ORD-QUANT8      PIC 9(05).                             00660001
+          05 OUT-ORD-ID8         PIC 9(10).                             00670001
+          05 OUT-ORD-TOTAL-COST8 PIC 9(18).                             00680001

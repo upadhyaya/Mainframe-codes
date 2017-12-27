@@ -1,0 +1,15 @@
+           05 LS-OPT      PIC X(6).                                     00010008
+           05 LS-TRANS-ID PIC X(4).                                     00011008
+           05 LS-CURSOR-POS PIC 9(2).                                   00012011
+           05 LS-MSG      PIC X(70).                                    00020008
+           05 LS-ORDID    PIC 9(10).                                    00130008
+           05 LS-CUSTID   PIC 9(10).                                    00140008
+           05 LS-EMPID    PIC 9(10).                                    00150008
+           05 LS-PRDID    PIC 9(10).                                    00160008
+           05 LS-UNIPC    PIC 9(12).                                    00170008
+           05 LS-QUANTY   PIC 9(5).                                     00180008
+           05 LS-ORDDT    PIC X(10).                                    00190008
+           05 LS-REQDT    PIC X(10).                                    00200008
+           05 LS-SHPDT    PIC X(10).                                    00210008
+           05 LS-CARCST   PIC 9(12).                                    00220008
+           05 LS-TOTCST   PIC 9(18).                                    00221010

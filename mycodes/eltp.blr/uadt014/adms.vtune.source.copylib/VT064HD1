@@ -1,0 +1,29 @@
+      *                                                                 00001000
+       01 SMF30-HEADER-DESCRIPTION1.                                    00010005
+          05 WS-DESC-SMF30SYN  PIC X(10) VALUE 'SYSTEM ID:'.            00010100
+          05 WS-SMF30SYN       PIC X(8).                                00010200
+          05 FILLER            PIC X(18) VALUE SPACES.                  00010301
+          05 WS-REPORT-HEADER  PIC X(30).                               00010401
+          05 FILLER            PIC X(18) VALUE SPACES.                  00010501
+          05 WS-DESC-DATE      PIC X(5) VALUE 'DATE:'.                  00010600
+          05 WS-DATE.                                                   00010700
+             10 WS-DAY   PIC 9(2).                                      00010800
+             10 FILLER   PIC X(1) VALUE '/'.                            00010900
+             10 WS-MONTH PIC 9(2).                                      00011000
+             10 FILLER   PIC X(1) VALUE '/'.                            00011100
+             10 WS-YEAR  PIC 9(4).                                      00011200
+      *                                                                 00011300
+       01 SMF30-HEADER-DESCRIPTION2.                                    00011405
+          05 WS-DESC-SMF30SYP  PIC X(10) VALUE ALL SPACES.              00011502
+          05 WS-SMF30SYP       PIC X(8) VALUE ALL SPACES.               00011602
+          05 FILLER            PIC X(18) VALUE SPACES.                  00011701
+          05 WS-DESC-SPACES    PIC X(30) VALUE ALL SPACES.              00011803
+          05 FILLER            PIC X(18) VALUE SPACES.                  00011901
+          05 WS-DESC-TIME      PIC X(5) VALUE 'TIME:'.                  00012000
+          05 WS-TIME.                                                   00012100
+             10 WS-HOUR  PIC 9(2).                                      00012200
+             10 FILLER   PIC X(1) VALUE ':'.                            00012300
+             10 WS-MIN   PIC 9(2).                                      00012400
+             10 FILLER   PIC X(1) VALUE ':'.                            00012500
+             10 WS-SEC   PIC 9(2).                                      00012600
+      *                                                                 00012700

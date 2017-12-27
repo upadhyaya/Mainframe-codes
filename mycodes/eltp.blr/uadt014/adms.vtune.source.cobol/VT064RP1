@@ -1,0 +1,500 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. VT064RP1.                                            00020099
+000400*AUTHOR. UTHRA.                                                   00030000
+000500*DATE-WRITTEN. 04/11/08.                                          00040000
+000600*DATE-COMPILED. 04/11/08.                                         00050000
+000700*MODULE       : REPORT GENERATION MODULE.                         00060000
+000800*TITLE        : NA                                                00070000
+000900*MAPS USED    : NA.                                               00080000
+002000****************************************************************  00090000
+002010 ENVIRONMENT DIVISION.                                            00100000
+002020 INPUT-OUTPUT SECTION.                                            00110000
+002030 FILE-CONTROL.                                                    00120000
+002040     SELECT SMFDATA ASSIGN TO SMFDATA.                            00130000
+002040     SELECT SMFOUT  ASSIGN TO SMFOUT.                             00140000
+002042*                                                                 00150000
+002050 DATA DIVISION.                                                   00160000
+002060 FILE SECTION.                                                    00170000
+002061*                                                                 00180000
+002070 FD  SMFDATA                                                      00190000
+002071     RECORDING MODE IS S                                          00200000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00210000
+002081 01  SMF-RECORD                  PIC X(32756).                    00220000
+002090*                                                                 00230000
+002070 FD  SMFOUT                                                       00240000
+002071     RECORDING MODE IS F                                          00250000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00260000
+002081 01  SMF-OUTPUT                  PIC X(400).                      00280099
+002090*                                                                 00290000
+002100 WORKING-STORAGE SECTION.                                         00300000
+004200 01 WS-VARIABLES.                                                 00620000
+           05 CNT                   PIC 9(03) VALUE ZEROES.             00631000
+004340     05 WS-SMF64OFF           PIC S9(9) COMP-3.                   00670014
+004350     05 WS-SMF64LEN           PIC S9(8) BINARY.                   00680081
+           05 WS-TEMP08-NUM         PIC 9(08).                          00690099
+004350     05 WS-TEMP10-STR         PIC X(10).                          00700099
+004350     05 WS-TEMP10-NUM REDEFINES WS-TEMP10-STR PIC 9(10).          00720099
+           05 WS-TEMP09-NUM         PIC 9(09).                          00721099
+       01  WS-MACVAR.                                                   00726099
+               10  IND1                PIC  X(2) VALUE SPACES.          00727099
+               10  IND2                PIC  X(2) VALUE SPACES.          00728099
+               10  IND3                PIC  X(2) VALUE SPACES.          00729099
+               10  IND4                PIC  X(2) VALUE SPACES.          00729199
+               10  IND5                PIC  X(2) VALUE SPACES.          00729299
+               10  IND6                PIC  X(2) VALUE SPACES.          00729399
+               10  IND7                PIC  X(2) VALUE SPACES.          00729499
+               10  IND8                PIC  X(2) VALUE SPACES.          00729599
+       01 WS-MACVARIABLES.                                              00729699
+               05  TEMP                PIC  X(2) VALUE SPACES.          00729799
+               05  IND                 PIC  X(23) VALUE SPACES.         00729899
+               05  CNTMAC              PIC  9(01)  VALUE ZEROES.        00730099
+               05  CNTOFF              PIC  9(02)  VALUE ZEROES.        00730199
+               05  CNTOFF1             PIC  9(02)  VALUE ZEROES.        00730299
+       01 WS-ABBRVARS.                                                  00730399
+               05  WS-ABBR             PIC  X(400) VALUE SPACES.        00730499
+               05  WS-LINE             PIC  X(400) VALUE ALL '-'.       00730599
+               05  WS-FILLER           PIC  X(400) VALUE ALL SPACES.    00730699
+       01  DEC1                        PIC  9(03) VALUE ZEROES.         00730799
+004400 01 WS-FLAGS.                                                     00731014
+004500      05 WS-SMFDATA-FILE-FLAG  PIC X(01).                         00740000
+004600        88 SMFDATA-OVER       VALUE 'Y'.                          00750000
+004700        88 SMFDATA-NOT-OVER   VALUE 'N'.                          00760000
+                                                                        00761014
+004800 01 WS-PATTERN                     PIC X(400) VALUE ALL '*'.      00770099
+004400 01 WS-NEW-REPORT.                                                00780000
+                10  WS-SMF64RSD-NEW      PIC X(10).                     00790012
+                10  FILLER               PIC X(1) VALUE ' '.            00800012
+                10  WS-SMF64RST-NEW      PIC X(11).                     00810014
+                10  FILLER               PIC X(1) VALUE ' '.            00820012
+                10  WS-SMF64JBN-NEW      PIC X(08).                     00850086
+                10  FILLER               PIC X(2) VALUE ' '.            00860099
+                10  WS-SMF64DTY-NEW      PIC X(09).                     00910093
+                10  FILLER               PIC X(1) VALUE ' '.            00920012
+                10  WS-SMF64DNM-NEW      PIC X(44).                     00920178
+                10  FILLER               PIC X(1) VALUE ' '.            00920212
+                10  WS-SMF64VSN-NEW      PIC X(06).                     00921086
+                10  FILLER               PIC X(1) VALUE ' '.            00922012
+                10  WS-SMF64NEX-NEW      PIC ZZZZZZZZ9.                 00923099
+                10  FILLER               PIC X(1) VALUE ' '.            00924012
+                10  WS-SMF64DDE-NEW      PIC ZZZZZZZ9.                  00927099
+                10  FILLER               PIC X(1) VALUE ' '.            00928012
+                10  WS-SMF64DIN-NEW      PIC ZZZZZZZ9.                  00929099
+                10  FILLER               PIC X(1) VALUE ' '.            00929112
+                10  WS-SMF64DUP-NEW      PIC ZZZZZZZ9.                  00929299
+                10  FILLER               PIC X(1) VALUE ' '.            00929312
+                10  WS-SMF64DRE-NEW      PIC ZZZZZZZ9.                  00929499
+                10  FILLER               PIC X(1) VALUE ' '.            00929512
+                10  WS-SMF64NCS-NEW      PIC ZZZZZZZZ9.                 00929699
+                10  FILLER               PIC X(1) VALUE ' '.            00929799
+                10  WS-SMF64NAS-NEW      PIC ZZZZZZZZ9.                 00929899
+                10  FILLER               PIC X(1) VALUE ' '.            00929999
+                10  WS-SMF64DEP-NEW      PIC ZZZZZZZ9.                  00930099
+                10  FILLER               PIC X(1) VALUE ' '.            00940099
+                10  WS-SMF64BNO-NEW      PIC ZZZZZZZ9.                  00950099
+                10  FILLER               PIC X(1) VALUE ' '.            00960099
+                10  FILLER               PIC X(1) VALUE ' '.            00960199
+                10  WS-SMF64BSP-NEW      PIC ZZZZZZZZZ9.                00961099
+                10  FILLER               PIC X(2) VALUE '  '.           00962099
+                10  WS-SMF64BFD-NEW      PIC ZZZZZZZZZ9.                00963099
+                10  FILLER               PIC X(3) VALUE '  '.           00964099
+                10  WS-SMF64BFI-NEW      PIC ZZZZZZZZZ9.                00965099
+                10  FILLER               PIC X(1) VALUE ' '.            00966099
+                10  WS-SMF64NIL-NEW      PIC ZZZZZZZZ9.                 00967099
+                10  FILLER               PIC X(1) VALUE ' '.            00968099
+                10  WS-SMF64DCS-NEW      PIC ZZZZZZZZ9.                 00969299
+                10  FILLER               PIC X(1) VALUE ' '.            00969399
+                10  WS-SMF64DAS-NEW      PIC ZZZZZZZZ9.                 00969499
+                10  FILLER               PIC X(1) VALUE ' '.            00969599
+                10  WS-SMF64MC1-NEW      PIC X(23).                     00969699
+                10  FILLER               PIC X(1) VALUE ' '.            00969799
+                10  WS-SMF64MC2-NEW      PIC X(23).                     00969899
+                10  FILLER               PIC X(1) VALUE ' '.            00969999
+                10  WS-SMF64MC3-NEW      PIC X(23).                     00970099
+                10  FILLER               PIC X(1) VALUE ' '.            00971099
+                                                                        00980099
+005276                                                                  01200000
+      * SMF RECORD TYPE 64 LAYOUT                                       01210000
+005277      COPY VT064CPY.                                              01210199
+      * SMF RECORD TYPE 64 LAYOUT - DATE TIME FORMATTING                01211011
+005277      COPY VT030DAT.                                              01220015
+      * 01 SMF64-DESCRIPTION - DESCRIPTION FOR REPORT HEADER            01230000
+005277      COPY VT064DS1.                                              01240099
+      * 01 SMF64-VARIABLES - DESCRIPTION FOR REPORT MAIN HEADER         01241007
+005277      COPY VT064HD1.                                              01242099
+      * 01 SMF64-VARIABLES - REPORT VARIABLES                           01250000
+005277      COPY VT064VR1.                                              01260099
+      * 01 VARIABLES TO CONVERT BYTE TO BIT.                            01261032
+005277      COPY BY2BIDAT.                                              01262032
+005521******************************************************************01270000
+005522 PROCEDURE DIVISION.                                              01280000
+005523******************************************************************01290000
+005524 0000-MAIN.                                                       01300000
+           MOVE ZEROES TO CNT.                                          01301014
+005530     PERFORM 1000-INITIALIZE THRU 1000-INITIALIZE-EXIT.           01310077
+005600     PERFORM 2000-PROCESS THRU 2000-PROCESS-EXIT                  01320077
+                   UNTIL SMFDATA-OVER.                                  01320177
+           PERFORM 2600-ABBREV-PARA THRU 2600-ABBREV-EXIT.              01320299
+005700     PERFORM 3000-CLOSE THRU 3000-EXIT.                           01330099
+005800                                                                  01340000
+005900     STOP RUN.                                                    01350000
+006010 0000-EXIT.                                                       01360000
+006020     EXIT.                                                        01370000
+006030*                                                                 01380000
+006040 1000-INITIALIZE.                                                 01390000
+                                                                        01391000
+006050     OPEN INPUT SMFDATA.                                          01400000
+           OPEN OUTPUT SMFOUT.                                          01410000
+006051     SET SMFDATA-NOT-OVER TO TRUE.                                01630000
+006052     PERFORM 1100-READ-SMF.                                       01640000
+006060                                                                  01650000
+006070     CONTINUE.                                                    01660000
+006080 1000-INITIALIZE-EXIT.                                            01670077
+006090     EXIT.                                                        01680000
+006091*                                                                 01690000
+006092 1100-READ-SMF.                                                   01700000
+006093     READ SMFDATA                                                 01710000
+006094     AT END SET SMFDATA-OVER TO TRUE.                             01720000
+006100     CONTINUE.                                                    01780000
+006101 1100-EXIT.                                                       01790000
+006102     EXIT.                                                        01800000
+006103*                                                                 01810000
+006104 2000-PROCESS.                                                    01820000
+006109      ADD +1 TO CNT.                                              01830100
+006105     INITIALIZE SMF64-VARIABLES.                                  01840100
+006105     INITIALIZE SMF64-RECORD-FORMAT.                              01840214
+           MOVE SMF-RECORD ( 1:136 ) TO SMF64-RECORD-FORMAT.            01842014
+           MOVE SMF64RIN TO BTS-PASS-BITS                               01842299
+           PERFORM 9500-BYTE2BITS-PARA THRU                             01842499
+                   9500-BYTE2BITS-EXIT.                                 01842599
+      ******************************************************************01842699
+      **TO INCLUDE ONLY RECS WHERE SMF64RIN'S 0TH BIT IS SET            01842799
+      **                IE COMPONENT CLOSED                             01842899
+      ****************COMPONENT CLOSED**********************************01842999
+           IF BTS-PASS-BYTES(1:1) = 1                                   01843099
+            IF CNT = 1                                                  01843199
+               PERFORM 2100-HEADERV-PARA THRU                           01843299
+                       2100-HEADERV-EXIT                                01843399
+               WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONA                 01843499
+               WRITE SMF-OUTPUT FROM SMF64-DESCRIPTIONB                 01843599
+               WRITE SMF-OUTPUT FROM WS-PATTERN                         01843699
+            END-IF                                                      01843799
+            PERFORM 2101-MOVE-HEADER THRU                               01843899
+                   2101-MOVE-EXIT                                       01843999
+            IF SMF64RIN = X'01'                                         01844099
+               MOVE 137 TO WS-SMF64OFF                                  01844199
+            ELSE                                                        01844399
+               MOVE SMF-RECORD ( 137:SMF64ESL ) TO                      01844599
+                                EXTENT-INFORMATION-SECTION              01845099
+               MOVE SMF64VSN TO WS-SMF64VSN                             01846099
+               COMPUTE WS-SMF64OFF = 136 + SMF64ESL + 1                 01847099
+           END-IF                                                       01847299
+              PERFORM 2200-STATS-SECTION THRU                           01848014
+                      2200-STATS-EXIT                                   01849099
+              MOVE SMF64RST TO SMF30TIME-1                              01859499
+               PERFORM 9100-FORMATTIME-PARA THRU                        01859514
+                       9100-FORMATTIME-EXIT                             01859699
+               MOVE WS-TIME-DISPLAY TO WS-SMF64RST-NEW                  03520099
+               MOVE SMF64RSD     TO WS-JULIAN-N                         03690099
+               PERFORM 9000-JULIAN2GREGORIAN-PARA THRU                  03692014
+                       9000-JULIAN2GREGORIAN-EXIT                       03693099
+               MOVE WS-GREGORIAN         TO WS-SMF64RSD-NEW             03820099
+               PERFORM 2400-MOVEFILE-PARA THRU                          03822099
+                       2400-MOVEFILE-EXIT                               03823099
+           END-IF.                                                      05060099
+006294     PERFORM 1100-READ-SMF                                        05070000
+006295     CONTINUE.                                                    05080000
+006296 2000-PROCESS-EXIT.                                               05090077
+006102     EXIT.                                                        05091000
+006298*                                                                 05110000
+       2100-HEADERV-PARA.                                               05111014
+            MOVE SMF64SID TO WS-SMF30SYN.                               05112016
+            MOVE '*******  SMF64 REPORT  *******' TO                    05113016
+                 WS-REPORT-HEADER.                                      05114016
+            PERFORM 9200-GETDATETIME-PARA THRU                          05115016
+                    9200-GETDATETIME-EXIT.                              05116016
+      *     MOVE 'SATPLEX' TO WS-SMF30SYP.                              05119099
+            WRITE SMF-OUTPUT FROM WS-PATTERN.                           05119116
+            WRITE SMF-OUTPUT FROM SMF30-HEADER-DESCRIPTION1.            05119216
+            WRITE SMF-OUTPUT FROM SMF30-HEADER-DESCRIPTION2.            05119316
+            WRITE SMF-OUTPUT FROM WS-PATTERN.                           05119416
+006296 2100-HEADERV-EXIT.                                               05119614
+006102     EXIT.                                                        05119714
+      *                                                                 05119899
+006104 2101-MOVE-HEADER.                                                05120014
+           MOVE SMF64RSD TO WS-TEMP10-NUM                               05130014
+           MOVE WS-TEMP10-STR TO WS-SMF64RSD                            05131014
+           MOVE SMF64RST TO WS-TEMP10-NUM                               05150014
+           MOVE WS-TEMP10-STR TO WS-SMF64RST                            05151014
+           MOVE SMF64JBN TO WS-SMF64JBN                                 05210014
+           MOVE SMF64DNM TO WS-SMF64DNM                                 05230014
+           MOVE SMF64DTY TO BTS-PASS-BITS                               05242075
+           PERFORM 9500-BYTE2BITS-PARA THRU                             05243033
+                   9500-BYTE2BITS-EXIT.                                 05244033
+           IF BTS-PASS-BYTES(1:1) = 1                                   05245040
+              MOVE 'DATASET' TO WS-SMF64DTY                             05246078
+           ELSE                                                         05247078
+           IF BTS-PASS-BYTES(2:1) = 1                                   05248040
+              MOVE 'INDEX' TO WS-SMF64DTY                               05249178
+           END-IF.                                                      05249239
+  6295     CONTINUE.                                                    06860016
+006296 2101-MOVE-EXIT.                                                  06870016
+006297      EXIT.                                                       06880014
+006298*                                                                 06890000
+       2200-STATS-SECTION.                                              06900014
+                                                                        06910099
+      *     MOVE SMF-RECORD( WS-SMF64OFF:292)                           06930099
+      *          TO STATISTICS-SECTION.                                 06930199
+            MOVE SMF-RECORD( WS-SMF64OFF:4)                             06930299
+                 TO STATISTICS-SECTION-SLN.                             06930399
+            MOVE SMF-RECORD( WS-SMF64OFF:SMF64SLN)                      06930599
+                 TO STATISTICS-SECTION.                                 06930699
+            MOVE SMF64NIL TO WS-TEMP09-NUM.                             06930799
+            MOVE WS-TEMP09-NUM TO WS-SMF64NIL-NEW.                      06930899
+            MOVE SMF64NEX TO WS-TEMP09-NUM.                             06930999
+            MOVE WS-TEMP09-NUM TO WS-SMF64NEX-NEW.                      06931099
+            MOVE SMF64NCS TO WS-TEMP09-NUM.                             06931199
+            MOVE WS-TEMP09-NUM TO WS-SMF64NCS-NEW.                      06931299
+            MOVE SMF64NAS TO WS-TEMP09-NUM.                             06931399
+            MOVE WS-TEMP09-NUM TO WS-SMF64NAS-NEW.                      06932099
+            MOVE SMF64DDE TO WS-TEMP08-NUM.                             06970099
+            MOVE WS-TEMP08-NUM TO WS-SMF64DDE-NEW.                      06980099
+            MOVE SMF64DIN TO WS-TEMP08-NUM.                             06990099
+            MOVE WS-TEMP08-NUM TO WS-SMF64DIN-NEW.                      07000099
+            MOVE SMF64DUP TO WS-TEMP08-NUM.                             07010099
+            MOVE WS-TEMP08-NUM TO WS-SMF64DUP-NEW.                      07011099
+            MOVE SMF64DRE TO WS-TEMP08-NUM.                             07030099
+            MOVE WS-TEMP08-NUM TO WS-SMF64DRE-NEW.                      07040099
+            MOVE SMF64DEP TO WS-TEMP08-NUM.                             07041099
+            MOVE WS-TEMP08-NUM TO WS-SMF64DEP-NEW.                      07042099
+            MOVE SMF64DCS TO WS-TEMP09-NUM.                             07042199
+            MOVE WS-TEMP09-NUM TO WS-SMF64DCS-NEW.                      07042299
+            MOVE SMF64DAS TO WS-TEMP09-NUM.                             07042399
+            MOVE WS-TEMP09-NUM TO WS-SMF64DAS-NEW.                      07042499
+            PERFORM 2300-MACRF-CHK-PARA THRU                            07042599
+                    2300-MACRF-CHK-EXIT.                                07042699
+      ******************************************************************07042799
+      ***** TO CHK IF RLS BIT IS SET ,IF SET THEN BNO IS SET TO ZEROES  07042899
+      ******AND BSP,BFD,BFI ALL ARE IGNORED*****************************07042999
+            IF BTS-PASS-BYTES(1:1) = 1                                  07043099
+               MOVE ZEROES TO WS-SMF64BNO-NEW                           07043299
+            ELSE                                                        07043399
+               MOVE SMF64BNO TO BTS-PASS-BITS                           07043499
+               PERFORM 9500-BYTE2BITS-PARA THRU                         07043599
+                       9500-BYTE2BITS-EXIT                              07043699
+               MOVE ZEROES TO DEC1                                      07043799
+               PERFORM 9600-BINTODEC-PARA THRU                          07043899
+                       9600-BINTODEC-EXIT                               07043999
+               MOVE DEC1 TO WS-TEMP08-NUM                               07044099
+               MOVE WS-TEMP08-NUM TO WS-SMF64BNO-NEW                    07044299
+               MOVE SMF64BSP TO WS-TEMP10-NUM                           07045199
+               MOVE WS-TEMP10-NUM TO WS-SMF64BSP-NEW                    07045399
+               MOVE SMF64BFD TO WS-TEMP10-NUM                           07045599
+               MOVE WS-TEMP10-NUM TO WS-SMF64BFD-NEW                    07045799
+               MOVE SMF64BFI TO WS-TEMP10-NUM                           07045999
+               MOVE WS-TEMP10-NUM TO WS-SMF64BFI-NEW                    07046299
+            END-IF.                                                     07046499
+            PERFORM 2500-MAC1MOV-PARA THRU                              07046599
+                    2500-MAC1MOV-EXIT.                                  07046699
+            PERFORM 2510-MAC2MOV-PARA THRU                              07046799
+                    2510-MAC2MOV-EXIT.                                  07047099
+            PERFORM 2520-MAC3MOV-PARA THRU                              07048099
+                    2520-MAC3MOV-EXIT.                                  07049099
+006900 2200-STATS-EXIT.                                                 07050016
+007000     EXIT.                                                        07060016
+      *                                                                 07070019
+       2300-MACRF-CHK-PARA.                                             07071099
+            MOVE SMF64MC4 TO BTS-PASS-BITS.                             07073299
+            PERFORM 9500-BYTE2BITS-PARA THRU                            07073399
+                    9500-BYTE2BITS-EXIT.                                07073499
+       2300-MACRF-CHK-EXIT.                                             07073599
+            EXIT.                                                       07074099
+      *                                                                 07075099
+       2400-MOVEFILE-PARA.                                              07080099
+            MOVE WS-SMF64JBN TO  WS-SMF64JBN-NEW.                       07090099
+            MOVE WS-SMF64DTY TO  WS-SMF64DTY-NEW.                       07100099
+            MOVE WS-SMF64DNM TO  WS-SMF64DNM-NEW.                       07110099
+            MOVE WS-SMF64VSN TO  WS-SMF64VSN-NEW.                       07120099
+            MOVE WS-SMF64MC1 TO  WS-SMF64MC1-NEW.                       07130099
+            MOVE WS-SMF64MC2 TO  WS-SMF64MC2-NEW.                       07140099
+            MOVE WS-SMF64MC3 TO  WS-SMF64MC3-NEW.                       07150099
+            WRITE SMF-OUTPUT FROM WS-NEW-REPORT.                        07180120
+       2400-MOVEFILE-EXIT.                                              07190099
+007000       EXIT.                                                      07200019
+      *                                                                 07210042
+       2500-MAC1MOV-PARA.                                               07220099
+            MOVE SMF64MC1 TO BTS-PASS-BITS.                             07220199
+            PERFORM 9500-BYTE2BITS-PARA THRU                            07220299
+                    9500-BYTE2BITS-EXIT.                                07220399
+            IF BTS-PASS-BYTES(1:1) = 1                                  07220499
+               MOVE 'RK'  TO IND1                                       07220699
+            END-IF.                                                     07220799
+            IF BTS-PASS-BYTES(2:1) = 1                                  07220899
+               MOVE 'RB' TO IND2                                        07221099
+            END-IF.                                                     07221199
+            IF BTS-PASS-BYTES(3:1) = 1                                  07221299
+               MOVE 'CP' TO IND3                                        07221499
+            END-IF.                                                     07221599
+            IF BTS-PASS-BYTES(4:1) = 1                                  07221699
+               MOVE 'SP' TO IND4                                        07221899
+            END-IF.                                                     07221999
+            IF BTS-PASS-BYTES(5:1) = 1                                  07222099
+               MOVE 'DP' TO IND5                                        07222299
+            END-IF.                                                     07222399
+            IF BTS-PASS-BYTES(6:1) = 1                                  07222499
+               MOVE 'IP' TO IND6                                        07222699
+            END-IF.                                                     07222799
+            IF BTS-PASS-BYTES(7:1) = 1                                  07222899
+               MOVE 'OP' TO IND7                                        07223099
+            END-IF.                                                     07223199
+            IF BTS-PASS-BYTES(8:1) = 1                                  07223299
+               MOVE 'UB' TO IND8                                        07223499
+            END-IF.                                                     07223599
+            PERFORM 2550-MACPERFORM-PARA THRU                           07223799
+                    2550-MACPERFORM-EXIT.                               07223899
+      ******************************************************************07223999
+      *            IF NONE OF THE MACRF BITS ARE SET                   *07224099
+      ******************************************************************07224199
+            IF IND = SPACES                                             07224299
+               MOVE 'ALL FIELD BITS ARE ZERO' TO WS-SMF64MC1            07224399
+            ELSE                                                        07224499
+               MOVE IND TO WS-SMF64MC1                                  07224599
+            END-IF.                                                     07224699
+            MOVE ZEROES TO CNTOFF.                                      07224799
+            MOVE ZEROES TO CNTOFF1.                                     07225099
+            MOVE SPACES TO IND.                                         07226599
+            MOVE SPACES TO TEMP.                                        07226799
+            MOVE SPACES TO WS-MACVAR.                                   07226899
+            MOVE ZEROES TO CNTMAC.                                      07226999
+            CONTINUE.                                                   07227299
+       2500-MAC1MOV-EXIT.                                               07228099
+            EXIT.                                                       07230099
+      *                                                                 07230199
+       2510-MAC2MOV-PARA.                                               07230299
+            MOVE SMF64MC2 TO BTS-PASS-BITS.                             07230399
+            PERFORM 9500-BYTE2BITS-PARA THRU                            07230499
+                    9500-BYTE2BITS-EXIT.                                07230599
+            IF BTS-PASS-BYTES(1:1) = 1                                  07230699
+               MOVE 'JO'  TO IND1                                       07230899
+            END-IF.                                                     07230999
+            IF BTS-PASS-BYTES(2:1) = 1                                  07231099
+               MOVE 'CC' TO IND2                                        07231299
+            END-IF.                                                     07231399
+            IF BTS-PASS-BYTES(3:1) = 1                                  07231499
+               MOVE 'RS' TO IND3                                        07231699
+            END-IF.                                                     07231799
+            IF BTS-PASS-BYTES(4:1) = 1                                  07231899
+               MOVE 'SS' TO IND4                                        07232099
+            END-IF.                                                     07232199
+            IF BTS-PASS-BYTES(5:1) = 1                                  07232299
+               MOVE 'VL' TO IND5                                        07232499
+            END-IF.                                                     07232599
+            IF BTS-PASS-BYTES(6:1) = 1                                  07232699
+               MOVE 'EM' TO IND6                                        07232899
+            END-IF.                                                     07232999
+            IF BTS-PASS-BYTES(7:1) = 1                                  07233099
+               MOVE 'SC' TO IND7                                        07233299
+            END-IF.                                                     07233399
+            IF BTS-PASS-BYTES(8:1) = 1                                  07233499
+               MOVE 'AI' TO IND8                                        07233699
+            END-IF.                                                     07233799
+            PERFORM 2550-MACPERFORM-PARA THRU                           07233999
+                    2550-MACPERFORM-EXIT.                               07234099
+            IF IND = SPACES                                             07234199
+               MOVE 'ALL FIELD BITS ARE ZERO' TO WS-SMF64MC2            07234299
+            ELSE                                                        07234399
+               MOVE IND TO WS-SMF64MC2                                  07234499
+            END-IF.                                                     07234599
+            MOVE ZEROES TO CNTOFF.                                      07234799
+            MOVE ZEROES TO CNTOFF1.                                     07234899
+            MOVE SPACES TO IND.                                         07234999
+            MOVE SPACES TO TEMP.                                        07235099
+            MOVE SPACES TO WS-MACVAR.                                   07235199
+            MOVE ZEROES TO CNTMAC.                                      07235299
+            CONTINUE.                                                   07235399
+       2510-MAC2MOV-EXIT.                                               07235499
+            EXIT.                                                       07235599
+       2520-MAC3MOV-PARA.                                               07235699
+            MOVE SMF64MC3 TO BTS-PASS-BITS.                             07235799
+            PERFORM 9500-BYTE2BITS-PARA THRU                            07235899
+                    9500-BYTE2BITS-EXIT.                                07235999
+            IF BTS-PASS-BYTES(1:1) = 1                                  07236099
+               MOVE 'RS'  TO IND1                                       07236299
+            END-IF.                                                     07236399
+            IF BTS-PASS-BYTES(2:1) = 1                                  07236499
+               MOVE 'LS' TO IND2                                        07236699
+            END-IF.                                                     07236799
+            IF BTS-PASS-BYTES(3:1) = 1                                  07236899
+               MOVE 'GS' TO IND3                                        07237099
+            END-IF.                                                     07237199
+            IF BTS-PASS-BYTES(4:1) = 1                                  07237299
+               MOVE 'IC' TO IND4                                        07237499
+            END-IF.                                                     07237599
+            IF BTS-PASS-BYTES(5:1) = 1                                  07237699
+               MOVE 'DW' TO IND5                                        07237899
+            END-IF.                                                     07237999
+            IF BTS-PASS-BYTES(6:1) = 1                                  07238099
+               MOVE 'SI' TO IND6                                        07238299
+            END-IF.                                                     07238399
+            IF BTS-PASS-BYTES(7:1) = 1                                  07238499
+               MOVE 'CR' TO IND7                                        07238699
+            END-IF.                                                     07238799
+            IF BTS-PASS-BYTES(8:1) = 1                                  07238899
+               MOVE 'VS' TO IND8                                        07239099
+            END-IF.                                                     07239199
+            PERFORM 2550-MACPERFORM-PARA THRU                           07239399
+                    2550-MACPERFORM-EXIT.                               07239499
+            IF IND = SPACES                                             07239599
+               MOVE 'ALL FIELD BITS ARE ZERO' TO WS-SMF64MC3            07239699
+            ELSE                                                        07239799
+               MOVE IND TO WS-SMF64MC3                                  07239899
+            END-IF.                                                     07239999
+            MOVE ZEROES TO CNTOFF.                                      07240099
+            MOVE ZEROES TO CNTOFF1.                                     07240199
+            MOVE SPACES TO IND.                                         07240299
+            MOVE SPACES TO TEMP.                                        07240399
+            MOVE SPACES TO WS-MACVAR.                                   07240499
+            MOVE ZEROES TO CNTMAC.                                      07240599
+            CONTINUE.                                                   07240699
+       2520-MAC3MOV-EXIT.                                               07240799
+            EXIT.                                                       07240899
+       2550-MACPERFORM-PARA.                                            07240999
+            MOVE ZERO TO CNTMAC.                                        07241099
+            MOVE ZERO TO CNTOFF.                                        07241199
+            MOVE ZERO TO CNTOFF1.                                       07241299
+            PERFORM 8 TIMES                                             07242099
+                ADD 1 TO CNTMAC                                         07250099
+                IF CNTMAC = 1 AND IND1 NOT EQUAL TO SPACES              07270099
+                   MOVE IND1 TO IND                                     07280099
+                ELSE                                                    07310099
+                   COMPUTE CNTOFF = CNTOFF + 2                          07320099
+                   COMPUTE CNTOFF1 = CNTOFF + 1                         07330099
+                   MOVE WS-MACVAR(CNTOFF1:2) TO TEMP                    07360099
+                   IF TEMP NOT = SPACE                                  07380099
+                      IF IND NOT = SPACES                               07401099
+                         STRING IND DELIMITED BY SPACE                  07410099
+                                ',' DELIMITED BY SIZE                   07420099
+                                TEMP DELIMITED BY SIZE                  07430099
+                                INTO IND                                07440099
+                      ELSE                                              07441099
+                         MOVE TEMP TO IND                               07442099
+                      END-IF                                            07451099
+                   END-IF                                               07460099
+                END-IF                                                  07470099
+            END-PERFORM.                                                07480099
+       2550-MACPERFORM-EXIT.                                            07490099
+            EXIT.                                                       07500099
+      *                                                                 07510099
+006300 3000-CLOSE.                                                      11650000
+006400     CLOSE SMFDATA.                                               11660000
+           CLOSE SMFOUT.                                                11670000
+006800     CONTINUE.                                                    11690000
+006900 3000-EXIT.                                                       11700000
+007000     EXIT.                                                        11710000
+007100*                                                                 11720000
+       COPY VT030CVD.                                                   11730011
+      *TO CONVERT BYTE TO BITS                                          11731099
+       COPY BYTE2BIT.                                                   11740099
+      *TO INCLUDE THE ACRONYMS PARA                                     11741099
+       COPY VT064ABR.                                                   11750099
+      *TO CONVERT BINARY TO DECIMAL                                     11751099
+       COPY BIN2DEC.                                                    11760099

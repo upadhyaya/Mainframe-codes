@@ -1,0 +1,25 @@
+       01 WS-VARIABLES.                                                 00010000
+          05 WS-TOT-RESP           PIC 9(02)V999999 VALUE ZEROES.       00020000
+          05 WS-ALL-TIME-ARRAY OCCURS 07 TIMES INDEXED BY AWT.          00030000
+             10 WS-STR-TIME           PIC X(08).                        00040000
+             10 WS-NUM-TIME  REDEFINES WS-STR-TIME.                     00050000
+                15 WS-NUM-TIME1 PIC 9(08) COMP.                         00060000
+                15 WS-NUM-TIME2 PIC 9(08) COMP.                         00070000
+             10 WS-TOT-TIME           PIC 9(02)V999999 VALUE ZEROES.    00080000
+       01 WS-COUNT      PIC 9(16) VALUE ZEROES.                         00090000
+       01 WS-HEADER1    PIC X(30) VALUE                                 00100000
+                            'PERFORMANCE LIST EXTENDED'.                00110000
+       01 WS-FLAGS.                                                     00120000
+           05 WS-SMFDATA-FILE-FLAG  PIC X(01).                          00130000
+              88 SMFDATA-OVER       VALUE 'Y'.                          00140000
+              88 SMFDATA-NOT-OVER   VALUE 'N'.                          00150000
+       01 SMF110-TIMESTAMP   PIC X(8).                                  00160000
+       01 SMF110-PREV-APPLID PIC X(8) VALUE SPACES.                     00170001
+       01 WS-STOPTIME-DISPLAY.                                          00180001
+          05 WS-STOP-HOURS       PIC 9(02) VALUE ZEROES.                00190001
+          05 FILLER              PIC X(01) VALUE ':'.                   00200001
+          05 WS-STOP-MINS        PIC 9(02) VALUE ZEROES.                00210001
+          05 FILLER              PIC X(01) VALUE ':'.                   00220001
+          05 WS-STOP-SECS        PIC 9(02) VALUE ZEROES.                00230001
+          05 FILLER              PIC X(01) VALUE '.'.                   00240001
+          05 WS-STOP-MSECS       PIC 9(03).                             00250001

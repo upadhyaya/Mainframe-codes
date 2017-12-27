@@ -1,0 +1,109 @@
+//PLIDB2C PROC INLIB='ADMS.BASE.SOURCE',                                00010001
+//         SRCLIB='ADMS.BASE.DCLGEN',                                   00020000
+//         COPYLIB='ADMS.BASE.COPYLIB',                                 00030000
+//         DBRMLIB='ADMS.BASE.DBRMLIB',                                 00040000
+//         RPLLIB='ADMS.CICSA1.LOAD',                                   00050000
+//         MEM=,                                                        00060000
+//         DB2VER=DSN810,WKSPC=500,                                     00070000
+//*        LNGPRFX='IGY',SYSLBLK=3200,                                  00080002
+//         LIBPRFX='CEE',      <<LANGUAGE ENVIRONMENT>>                 00090000
+//         INDEX2='CICSTS31.CICS',SPC=10,                               00100003
+//        OUTC=*,REG=4096K,SUFFIX=1$                                    00110000
+//*                                                                     00120000
+//*                                                                     00130000
+//* - DB2 PRECOMPILE (PC),                                              00140000
+//* - CICS TRANSLATION STEP,                                            00150000
+//* - IBM COBOL COMPILE (COB),                                          00160000
+//* - REBLOCK CICS STUB,                                                00170000
+//* - PRELINK (PLKED),                                                  00180000
+//* - AND LINK EDIT (LKED) A DB2 SQL PROGRAM.                           00190000
+//*                                                                     00200000
+//********************************************************************  00210000
+//* DB2 PRECOMPILE OF THE IBM COBOL PROGRAM                          *  00220000
+//********************************************************************  00230000
+//PC EXEC PGM=DSNHPC,PARM='HOST(PLI),SOURCE,TWOPASS',REGION=4096K       00240007
+//DBRMLIB  DD DSN=&DBRMLIB(&MEM),DISP=SHR               <== DB2 ACESS   00250000
+//STEPLIB  DD DISP=SHR,DSN=SYS1.&DB2VER..SDSNEXIT                       00260000
+//         DD DISP=SHR,DSN=&DB2VER..SDSNLOAD                            00270000
+//SYSCIN   DD DSN=&&DSNHOUT,DISP=(MOD,PASS),            <==             00280000
+//            UNIT=SYSDA,SPACE=(800,(&WKSPC,&WKSPC))                    00290000
+//SYSLIB   DD DSN=&SRCLIB,DISP=SHR                      <== DCLGEN      00300000
+//         DD DSN=&COPYLIB,DISP=SHR                     <== COPYLIB     00310000
+//SYSPRINT DD SYSOUT=*                                                  00320000
+//SYSTERM  DD SYSOUT=*                                                  00330000
+//SYSUDUMP DD SYSOUT=*                                                  00340000
+//SYSUT1   DD SPACE=(800,(&WKSPC,&WKSPC),,,ROUND),UNIT=SYSDA            00350000
+//SYSUT2   DD SPACE=(800,(&WKSPC,&WKSPC),,,ROUND),UNIT=SYSDA            00360000
+//SYSUT3   DD SPACE=(800,(&WKSPC,&WKSPC),,,ROUND),UNIT=SYSDA            00370000
+//SYSUT4   DD SPACE=(800,(&WKSPC,&WKSPC),,,ROUND),UNIT=SYSDA            00380000
+//SYSUT5   DD SPACE=(800,(&WKSPC,&WKSPC),,,ROUND),UNIT=SYSDA            00390000
+//SYSIN    DD DSN=&INLIB(&MEM),DISP=SHR                                 00400000
+//*                                                                     00410000
+//********************************************************************  00420000
+//* PASS THE OUTPUT OF PRECOMPILE TO CICS TRANSLATOR                 *  00430000
+//********************************************************************  00440000
+//TRN EXEC PGM=DFHEPP&SUFFIX,REGION=&REG,COND=(4,LT,PC),                00450016
+//  PARM='XOPTS(CICS),SOURCE,OPTIONS'                                   00461032
+//STEPLIB  DD DSN=&INDEX2..SDFHLOAD,DISP=SHR                            00470000
+//SYSPRINT DD SYSOUT=&OUTC                                              00480000
+//SYSPUNCH DD DSN=&&SYSCIN,DISP=(,PASS),                                00490000
+//            UNIT=SYSDA,DCB=BLKSIZE=400,                               00500000
+//            SPACE=(400,(400,400))                                     00510000
+//SYSIN DD DSN=&&DSNHOUT,DISP=OLD                                       00520016
+//********************************************************************  00530000
+//* COMPILE THE NEW MODIFIED SOURCE FROM THE TRANSLATE STEP          *  00540000
+//********************************************************************  00550000
+//PLI      EXEC PGM=IBMZPLI,REGION=0M,                                  00560000
+//   PARM='COMPILE,INCLUDE,LIST,SOURCE',                                00570025
+//             COND=(4,LT,TRN)                                          00580006
+//STEPLIB  DD DSN=IBMZ.SIBMZCMP,DISP=SHR                                00590000
+//SYSLIB   DD DSN=&COPYLIB,DISP=SHR                                     00591023
+//         DD DSN=&INDEX2..SDFHMAC,DISP=SHR                             00592023
+//         DD DSN=&INDEX2..SDFHSAMP,DISP=SHR                            00593023
+//         DD DSN=&INDEX2..SDFHPL1,DISP=SHR                             00594029
+//SYSPRINT DD SYSOUT=*                                                  00600000
+//SYSTERM  DD SYSOUT=*                                                  00610000
+//SYSLIN   DD DSN=&&LOADSET,DISP=(MOD,PASS),UNIT=SYSDA,                 00620000
+//            SPACE=(TRK,(&SPC,&SPC))                                   00630000
+//SYSUT1   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00650000
+//SYSUT2   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00660000
+//SYSUT3   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00670000
+//SYSUT4   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00680000
+//SYSUT5   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00690000
+//SYSUT6   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00700000
+//SYSUT7   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00710000
+//SYSIN    DD DSN=&&SYSCIN,DISP=(OLD,DELETE)                            00720000
+//*                                                                     00730000
+//********************************************************************  00740000
+//* MAKE SURE THE SYSTEM CICS STUB IS BLOCKSIZE WE CAN USE           *  00750000
+//********************************************************************  00760000
+//CPY4LNK EXEC PGM=IEBGENER,COND=(7,LT,PLI)                             00770006
+//SYSUT1   DD DSN=&INDEX2..SDFHCOB(DFHEILIC),DISP=SHR                   00780000
+//SYSUT2   DD UNIT=SYSDA,DSN=&&EI1STUB,DISP=(,PASS),                    00790000
+//            DCB=(LRECL=80,BLKSIZE=400,RECFM=FB),SPACE=(400,(20,20))   00800000
+//SYSPRINT DD SYSOUT=*                                                  00810000
+//SYSIN    DD DUMMY                                                     00820000
+//*                                                                     00830000
+//********************************************************************  00840000
+//* LINKEDIT OUTPUT FROM CPY4LNK & SYSIN OVERRIDE                    *  00850000
+//********************************************************************  00860000
+//LKED EXEC PGM=IEWL,COND=(8,LT,PLI),REGION=1024K,                      00870006
+//   PARM='LIST,XREF,LET,MAP,RENT,RMODE=ANY,AMODE=31'                   00880000
+//SYSLIB   DD DSNAME=&INDEX2..SDFHLOAD,DISP=SHR                         00890000
+//         DD DSNAME=&LIBPRFX..SCEERUN,DISP=SHR                         00900000
+//         DD DSNAME=&LIBPRFX..SCEELKED,DISP=SHR                        00910000
+//         DD DSNAME=&LIBPRFX..SCEECICS,DISP=SHR                        00920000
+//         DD DSNAME=&DB2VER..SDSNLOAD,DISP=SHR                         00930000
+//*                                                                     00940000
+//SYSPRINT DD SYSOUT=*                                                  00950000
+//SYSLIN   DD DSNAME=&&EI1STUB,DISP=(OLD,DELETE)                        00960000
+//         DD DSN=&&LOADSET,DISP=(OLD,DELETE)                           00970000
+//         DD DDNAME=SYSIN                                              00980000
+//SYSUT1   DD UNIT=SYSDA,SPACE=(TRK,(10,10))                            00990000
+//SYSLMOD  DD DSNAME=&RPLLIB(&MEM),DISP=SHR                             01000000
+//*                                                                     01010000
+//*<= LKED.SYSIN SHOULD OVERLOAD DSNCLI & PGMNAME                       01020000
+//SYSIN    DD DUMMY                                                     01030000
+//*                                                                     01040000
+//  PEND                    <= END OF DB2CICSC PROC                     01050000
+//*                                                                     01060000

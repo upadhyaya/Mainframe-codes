@@ -1,0 +1,192 @@
+      * PROGRAMS MUST BE COMPILED WITH RENT OR RMODE(ANY) IF THEY WILL  00010000
+      * BE RUN WITH EXTENDED ADDRESSING IN VIRTUAL STORAGE ADDRESSES    00020000
+      * ABOVE 16 MEGABYTES.                                             00030000
+       IDENTIFICATION DIVISION.                                         00060000
+       PROGRAM-ID. LOBINS.                                              00080000
+      ****************************************************************  00110000
+      * PROGRAM : SAMPLE1B (BLOB)       MAIN PROGRAM                 *  00130000
+      *           INSERTING A LARGE OBJECT USING ONE LARGE           *  00170000
+      *           HOST VARIABLE                                      *  00180000
+      *           SOURCE DATA SET : VB 255                           *  00200000
+       ENVIRONMENT DIVISION.                                            00260000
+       INPUT-OUTPUT SECTION.                                            00320000
+      *      DATASET DECLARATIONS                                       00350000
+       FILE-CONTROL.                                                    00380000
+             SELECT LOBDATA                    ASSIGN TO LOBDATA.       00400000
+      *===============================================================  00430000
+       DATA DIVISION.                                                   00440000
+      *===============================================================  00450000
+       FILE SECTION.                                                    00490000
+      ****************************************************************  00500000
+      *            DATASET DECLARATIONS                                 00520000
+       FD LOBDATA                  RECORDING MODE IS V                  00560000
+                                   RECORD IS VARYING IN SIZE            00570000
+                                          FROM 1 TO 251 CHARACTERS      00581008
+                                          DEPENDING ON RECORD-LENGTH    00590000
+                                   BLOCK CONTAINS 0 RECORDS.            00600000
+       01 LOBDATA-RECORD.                                               00620000
+          05 LOB-ROW                          PIC X(251).               00631008
+      *---------------------------------------------------------------  00660000
+       WORKING-STORAGE SECTION.                                         00670000
+      *---------------------------------------------------------------  00680000
+       01 INTERNAL-VARIABLES.                                           00700000
+      * VARIABLE CONTAINING PLACE OF UNEXPECTED SQLCODE                 00730000
+             05 DB2-ERROR-MESSAGE              PIC X(20) VALUE SPACE.   00750000
+      * VARIABLE CONTAINING CURRENT RECORD-LENGTH                       00780000
+             05 RECORD-LENGTH                  PIC 9(03) VALUE 0.       00800008
+      * VARIABLE FOR END-OF-FILE CONDITION                              00830000
+             05 EOF-LOBDATA                    PIC 9(01) VALUE 0.       00850000
+               88 EOF-CONDITION-LOBDATA                  VALUE 1.       00860000
+       01 LO-PICTURE                   USAGE IS SQL TYPE                00890000
+                                             IS BLOB (100K).            00900015
+      ******************************************************************00920000
+      * DCLGEN TABLE(PAOLO.BLOB_BASE_TABLE)                            *00930000
+      *        LANGUAGE(COBOL)                                         *00940000
+      *        NAMES(LO-)                                              *00950000
+      *        QUOTE                                                   *00960000
+      *        COLSUFFIX(YES)                                          *00970000
+      ******************************************************************00980000
+           EXEC SQL DECLARE ADMT.PROD_PICTURES TABLE
+           ( PRODUCT_ID                     DECIMAL(10, 0) NOT NULL,
+             ROW_ID                          ROWID NOT NULL,
+             UPLOAD_ATTACH                  BLOB(102400)
+           ) END-EXEC.
+      *    EXEC SQL DECLARE PAOLO.BLOB_BASE_TABLE TABLE                 00991002
+      *    ( DOCUMENT_NR                    CHAR(10) NOT NULL,          00992002
+      *      DESCRIPTION                    CHAR(32) NOT NULL,          00993002
+      *      DOCUMENT                       BLOB(1572864000) NOT NULL   00994002
+      *    ) END-EXEC.                                                  00995002
+      ******************************************************************01070000
+      * COBOL DECLARATIONS FOR TABLE PAOLO.BLOB_BASE_TABLE             *01080000
+      ******************************************************************01090000
+        01 BASE-TABLE-AREA.                                             01110000
+          05 LO-PRODUCT-ID             PIC 9(10).                       01120000
+      *   05 LO-DESCRIPTION            PIC X(32).                       01130000
+      ******************************************************************01160000
+      * SQL DECLARATIONS                                               *01170000
+      ******************************************************************01180000
+             EXEC SQL                                                   01200000
+               INCLUDE SQLCA                                            01210000
+             END-EXEC                                                   01220000
+      *===============================================================  01250000
+       PROCEDURE DIVISION.                                              01260000
+      *===============================================================  01270000
+       MAIN-SECTION.                                                    01290000
+           PERFORM PROG-START                                           01310000
+           PERFORM PROG-PROCESS                                         01330000
+           PERFORM PROG-END                                             01350000
+           GOBACK.                                                      01370000
+      ****************************************************************  01410000
+       PROG-START SECTION.                                              01420000
+      ****************************************************************  01430000
+      *      INITIALIZATION OF USED VARIABLES                           01450000
+      *      OPEN INPUT FILE                                            01470000
+           INITIALIZE INTERNAL-VARIABLES                                01510000
+                      BASE-TABLE-AREA                                   01520000
+                      LO-PICTURE                                        01530000
+           OPEN INPUT LOBDATA                                           01550000
+           MOVE 82777                  TO LO-PRODUCT-ID                 01570000
+      *    MOVE 'FIRST LARGE OBJECT'   TO LO-DESCRIPTION                01580000
+           CONTINUE.                                                    01610000
+       END-PROG-START.                                                  01620000
+           EXIT.                                                        01630000
+      ****************************************************************  01660000
+       BUILD-HOST-VARIABLE SECTION.                                     01670000
+      ****************************************************************  01680000
+      *      APPEND CURRENT FILE RECORD TO THE CONTENT OF               01700000
+      *      LO-DOCUMENT-DATA                                           01710000
+           MOVE LOB-ROW         TO LO-PICTURE-DATA                      01750000
+                                  (LO-PICTURE-LENGTH + 1:RECORD-LENGTH) 01760000
+           ADD RECORD-LENGTH    TO LO-PICTURE-LENGTH                    01780000
+           CONTINUE.                                                    01810000
+       END-BUILD-HOST-VARIABLE.                                         01820000
+           EXIT.                                                        01830000
+      ****************************************************************  01860000
+       DB2-ERROR SECTION.                                               01870000
+      ****************************************************************  01880000
+      *      ISSUE ROLLBACK WHEN RECEIVING UNKNOWN SQLCODE              01900000
+           DISPLAY 'ROLLBACK BECAUSE OF SQLCODE : ' SQLCODE             01940000
+           DISPLAY 'PLACE OF ERROR              : ' DB2-ERROR-MESSAGE   01960000
+           DISPLAY 'SQLCA                       : ' SQLCA               01980000
+           EXEC SQL                                                     02000000
+             ROLLBACK                                                   02010000
+           END-EXEC                                                     02020000
+           IF SQLCODE NOT = 0 THEN                                      02040000
+             DISPLAY 'SQLCODE AT ROLLBACK       : ' SQLCODE             02050000
+           END-IF                                                       02060000
+           GOBACK                                                       02080000
+             CONTINUE.                                                  02110000
+         END-DB2-ERROR.                                                 02120000
+             EXIT.                                                      02130000
+      ****************************************************************  02160000
+       INSERT-BASE-TABLE SECTION.                                       02170000
+      ****************************************************************  02180000
+      *      INSERT ROW INTO BLOB_BASE_TABLE                            02200000
+           EXEC SQL                                                     02240000
+             INSERT INTO ADMT.PROD_PICTURES                             02250000
+                   (PRODUCT_ID                                          02260000
+                   ,UPLOAD_ATTACH)                                      02280000
+               VALUES                                                   02290000
+                  (:LO-PRODUCT-ID                                       02300000
+                  ,:LO-PICTURE)                                         02320000
+           END-EXEC                                                     02330000
+           EVALUATE SQLCODE                                             02350000
+             WHEN 0         CONTINUE                                    02360000
+             WHEN OTHER     MOVE 'INSERT BASE-TABLE'   TO               02380000
+                              DB2-ERROR-MESSAGE                         02390000
+                            PERFORM DB2-ERROR                           02410000
+           END-EVALUATE                                                 02420000
+           CONTINUE.                                                    02450000
+       END-INSERT-BASE-TABLE.                                           02460000
+           EXIT.                                                        02470000
+      ****************************************************************  02510000
+       DB2-COMMIT SECTION.                                              02520000
+      ****************************************************************  02530000
+      *      ISSUE DB2-COMMIT                                           02550000
+           EXEC SQL                                                     02590000
+             COMMIT                                                     02600000
+           END-EXEC                                                     02610000
+           IF SQLCODE NOT = 0 THEN                                      02630000
+             MOVE 'COMMIT'             TO DB2-ERROR-MESSAGE             02640000
+             PERFORM DB2-ERROR                                          02660000
+           END-IF                                                       02670000
+           CONTINUE.                                                    02700000
+       END-DB2-COMMIT.                                                  02710000
+           EXIT.                                                        02720000
+      ****************************************************************  02750000
+       USER-ABEND SECTION.                                              02760000
+      ****************************************************************  02770000
+      *      ABEND USING ABEND-ROUTINE (HERE : JUST STOP RUN)           02790000
+           DISPLAY 'STOP-RUN'                                           02830000
+           STOP RUN                                                     02850000
+           CONTINUE.                                                    02880000
+       END-USER-ABEND.                                                  02890000
+           EXIT.                                                        02900000
+      ****************************************************************  02940000
+       PROG-PROCESS SECTION.                                            02950000
+      ****************************************************************  02960000
+      *      PROCESSING ACTIONS                                         02980000
+      * READ FILE IN A LOOP UNTIL END-OF-FILE CONDITION                 03020000
+           PERFORM UNTIL EOF-CONDITION-LOBDATA                          03040000
+             READ LOBDATA                                               03050000
+               AT END MOVE 1                   TO EOF-LOBDATA           03060000
+             END-READ                                                   03070000
+             IF NOT EOF-CONDITION-LOBDATA THEN                          03090000
+               PERFORM BUILD-HOST-VARIABLE                              03100000
+             END-IF                                                     03110000
+           END-PERFORM                                                  03120000
+           PERFORM INSERT-BASE-TABLE                                    03140000
+      * COMMIT CURRENT UNIT OF WORK                                     03170000
+           PERFORM DB2-COMMIT                                           03190000
+           CONTINUE.                                                    03220000
+       END-PROG-PROCESS.                                                03230000
+           EXIT.                                                        03240000
+      ****************************************************************  03280000
+       PROG-END SECTION.                                                03290000
+      ****************************************************************  03300000
+      *                                                                 03310000
+      *      CLOSE INPUT DATASET                                        03320000
+           CLOSE LOBDATA                                                03360000
+           CONTINUE.                                                    03390000
+       END-PROG-END.                                                    03400000
+           EXIT.                                                        03410000

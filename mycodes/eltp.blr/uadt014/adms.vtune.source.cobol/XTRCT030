@@ -1,0 +1,373 @@
+                                                                        00001033
+000100 IDENTIFICATION DIVISION.                                         00010000
+                                                                        00011033
+000200 PROGRAM-ID.    XTRCT030.                                         00020033
+                                                                        00021033
+000400 AUTHOR.        RADHIKA.                                          00030033
+                                                                        00031033
+000500 DATE-WRITTEN.  28/11/08.                                         00040033
+                                                                        00041033
+000600 DATE-COMPILED. 28/11/08.                                         00050033
+                                                                        00051033
+002000******************************************************************00090133
+      ***                                                            ***00090233
+      *** PROGRAM NAME: XTRCT030.                                    ***00090333
+      ***                                                            ***00090433
+      *** INTRODUCTION:                                              ***00090533
+      ***                                                            ***00090633
+      *** THIS PROGRAM IS USED TO EXTRACT DATA FROM SMF30 RECORDS.   ***00090733
+      ***                                                            ***00090833
+      *** PROGRAM CALLED BY:                                         ***00090933
+      ***     NONE.                                                  ***00091033
+      ***                                                            ***00091133
+      *** PROGRAM CALLS:                                             ***00091233
+      ***     NONE.                                                  ***00091333
+      ***                                                            ***00091433
+      *** FUNCTION:-                                                 ***00091533
+      ***                                                            ***00091633
+      *** THE SMF30 COPYBOOK CONTAINS DIFFERENT SECTIONS AND EACH    ***00091733
+      *** SECTION CONTAINS VARIOUS FIELDS.                           ***00091833
+      *** THE LENGTH OF RECORD TYPE 30 IS VARIABLE.THE MAXIMUM LENGTH***00091933
+      *** OF THE TYPE 30 RECORD IS 32,756 BYTES.                     ***00092033
+      *** THE TYPE 30 RECORD CAN BE USED WITH SUBTYPE SELECTIVITY    ***00092133
+      *** FUNCTION.THERE ARE 6 SUBTYPES IN SMF30 RECORD.             ***00092233
+      ***                                                            ***00092333
+      *** SUBTYPE|MEANING                                            ***00092433
+      *** 1      |JOB START OR START OF OTHER WORK UNIT              ***00092533
+      *** 2      |ACTIVITY SINCE PREVIOUS INTERVAL ENDED             ***00092633
+      *** 3      |ACTIVITY FOR THE LAST INTERVAL BEFORE STEP         ***00092733
+      ***        |TERMINATION                                        ***00092833
+      *** 4      |STEP TOTAL                                         ***00092933
+      *** 5      |JOB TERMINATION OR TERMINATION OF OTHER WORK UNIT  ***00093033
+      *** 6      |SYSTEM ADDRESS SPACE, WHICH DID NOT GO THROUGH     ***00093133
+      ***        |FULL FUNCTION START.                               ***00093233
+      ***                                                            ***00093333
+      *** THE SUBTYPES REQUIRED TO GENERATE THE REPORTS ARE SELECTED ***00093433
+      *** AND ONLY SELECTED FIELDS OF SMF30 ARE WRITTEN TO THE       ***00093533
+      *** EXTRACT REPORT. THIS EXTRACT REPORT IS THEN USED AS INPUT  ***00093633
+      *** TO THE REPORT GENERATION PROGRAMS.                         ***00093733
+      ***                                                            ***00093833
+      *** THE EXTRACT REPORT WILL HAVE ONLY SELECTED FIELDS OF SMF30.***00093933
+      *** THESE FIELDS ARE FINALIZED BASED ON THE REPORT THAT HAS TO ***00094033
+      *** BE GENERATED.                                              ***00094133
+      ***                                                            ***00094233
+      *** THE SMF RECORDS ARE DOWNLOADED USING SMFDUMP PROGRAM       ***00094333
+      *** IFASMFDP. THESE RECORDS ARE USED AS INPUT TO THIS PROGRAM. ***00094433
+      ***                                                            ***00094533
+      ***  INCLUDE CODE FROM COPY LIBRARY-ADMS.VTUNE.SOURCE.COPYLIB  ***00094633
+      ***                                                            ***00094733
+      ***  VT030CPY:- SMF30 RECORD STRUCTURE.                        ***00094833
+      ***                                                            ***00094933
+      ***  VT030EXT:- SMF30 RECORD STRUCTURE FOR REPORT GENERATION.  ***00095033
+      ***             THIS HAS ONLY THE REQUIRED FIELDS OF SMF30.    ***00095133
+      ***             BASICALLY THE EXTRACT COPYBOOK.                ***00095233
+      ***                                                            ***00095333
+      ***  FILES USED:-                                              ***00095533
+      ***    SMFDATA - INPUT FILE.                                   ***00095633
+      ***    SMFOUT  - OUTPUT FILE.                                  ***00095733
+      ***                                                            ***00095833
+      ***  PROGRAM FORMAT:-                                          ***00095933
+      ***                                                            ***00096033
+      ***     0000-MAIN-PARA.                                        ***00096133
+      ***          PERFORM 1000-INITIALIZE-PARA.                     ***00096233
+      ***          PERFORM 2000-PROCESS-PARA.                        ***00096333
+      ***          PERFORM 3000-CLOSE-PARA.                          ***00096433
+      ***          STOP-RUN.                                         ***00096533
+      ***     1000-INITIALIZE-PARA.                                  ***00096633
+      ***          OPEN THE FILES FOR INPUT AND OUTPUT.              ***00096733
+      ***          PERFORM 1100-READ-SMF.                            ***00096833
+      ***     1100-READ-SMF.                                         ***00096933
+      ***          READ THE INPUT FILE TILL END.                     ***00097033
+      ***     2000-PROCESS-PARA.                                     ***00097133
+      ***          PERFORM 2100-READWRITE-PARA.                      ***00097233
+      ***          PROCESS THE SMF30 RECORDS.                        ***00097333
+      ***     3000-CLOSE-PARA.                                       ***00097433
+      ***          CLOSE THE INPUT AND OUTPUT FILES.                 ***00097533
+      ***                                                            ***00097633
+      ***     PROCESS THE SMF30 RECORDS:-                            ***00097733
+      ***      PROCESS THE HEADER/SELF-DEFINING SECTION.THIS SECTION ***00097833
+      ***      CONTAINS THE COMMON SMF RECORD HEADERS FIELDS AND THE ***00097933
+      ***      TRIPLET FIELDS (OFFSET/LENGTH/NUMBER) THAT LOCATE THE ***00098033
+      ***      OTHER SECTIONS ON THE RECORD.                         ***00098133
+      ***      THIS TRIPLET INFORMATION SHOULD BE CHECKED PRIOR TO   ***00098233
+      ***      ACCESSING A SECTION OF THE RECORD.ALL 3 FIELDS BEING  ***00098333
+      ***      NON-ZERO MEAN THAT THE SECTION EXISTS ON THE RECORD;  ***00098433
+      ***      CONVERSELY ANY OF THE FIELDS BEING ZERO INDICATES THAT***00098533
+      ***      THE SECTION DOES NOT EXIST ON THE RECORD. THE 'NUMBER'***00098633
+      ***      TRIPLET FIELD IS THE PRIMARY INDICATION OF THE        ***00098733
+      ***      EXISTENCE OF THE FIELD.                               ***00098833
+      ***      IF THE SECTION EXISTS MOVE THE VALUES TO REPORT AND   ***00098933
+      ***      WRITE THEM TILL THE END OF THE INPUT FILE.            ***00099033
+      ***                                                            ***00099133
+002000******************************************************************00100733
+002010 ENVIRONMENT DIVISION.                                            00101033
+002020 INPUT-OUTPUT SECTION.                                            00110000
+002030 FILE-CONTROL.                                                    00120000
+002040     SELECT SMFDATA ASSIGN TO SMFDATA.                            00130000
+002040     SELECT SMFOUT  ASSIGN TO SMFOUT.                             00140000
+002042*                                                                 00150000
+002050 DATA DIVISION.                                                   00160000
+002060 FILE SECTION.                                                    00170000
+002061*  *=============================================================*00180033
+      *  *SMF DUMP PROGRAM (IFASMFDP) IS USED TO DOWNLOAD THE SMFDATA.  00181033
+      *  *THE DATA IS DOWNLOADED INTO A FILE WHICH IS USED AS THE INPUT 00182033
+      *  *DATASET IN THIS PROGRAM.                                      00183033
+002061*  *=============================================================*00184033
+002070 FD  SMFDATA                                                      00190000
+002071     RECORDING MODE IS S                                          00200000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00210000
+002081 01  SMF-RECORD                  PIC X(32756).                    00220000
+002090*                                                                 00230000
+002061*  *=============================================================*00231033
+      *  *THE EXTRACTED DATA THAT CONTAINS ONLY SMF30 RECORDS WITH RQD  00232033
+      *  *FIELDS IS THE OUTPUT OF THE PROGRAM AND IS STORED IN THIS FILE00233033
+002061*  *=============================================================*00234033
+002070 FD  SMFOUT                                                       00240000
+002071     RECORDING MODE IS F                                          00250024
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00260000
+002081 01  SMF-OUTPUT                  PIC X(3700).                     00270002
+002090*                                                                 00280000
+002100 WORKING-STORAGE SECTION.                                         00290000
+002090*                                                                 00300000
+004200 01 WS-VARIABLES.                                                 00310000
+004340     05 WS-SMF30OFF           PIC S9(9) COMP-3.                   00350000
+004350     05 WS-SMF30LEN           PIC S9(9) COMP-3.                   00360000
+004350     05 K                     PIC 9(03) VALUE ZEROES.             00370006
+004350     05 WS-COUNT              PIC 9(03) VALUE ZEROES.             00380015
+002061*  *=============================================================*00411133
+002090*  *STATUS FLAGS FOR END-OF-FILE INDICATION.                      00412033
+002061*  *=============================================================*00413033
+004400 01 WS-FLAGS.                                                     00420000
+004500     05 WS-SMFDATA-FILE-FLAG  PIC X(01).                          00430000
+004600        88 SMFDATA-OVER       VALUE 'Y'.                          00440000
+004700        88 SMFDATA-NOT-OVER   VALUE 'N'.                          00450000
+002061*  *=============================================================*00470033
+      *  *SMF RECORD TYPE 30 LAYOUT                                     00840033
+002061*  *=============================================================*00841033
+005277      COPY VT030CPY.                                              00850000
+002061*  *=============================================================*00850133
+      *  *SMF RECORD TYPE 30 LAYOUT OF REQUIRED FIELDS.                 00851033
+002061*  *=============================================================*00852033
+005277      COPY VT030EXT.                                              00860001
+002061*  *=============================================================*00870033
+005521******************************************************************00900000
+005522 PROCEDURE DIVISION.                                              00910000
+005523******************************************************************00920000
+      *  *=============================================================*00921033
+      *  *                       MAIN-PARA                             *00922033
+      *  *=============================================================*00923033
+005524 0000-MAIN-PARA.                                                  00930000
+005530     PERFORM 1000-INITIALIZE-PARA THRU  1000-INITIALIZE-EXIT.     00940000
+005600     PERFORM 2000-PROCESS-PARA    THRU  2000-PROCESS-EXIT         00950000
+                                        UNTIL SMFDATA-OVER.             00960000
+005700     PERFORM 3000-CLOSE-PARA      THRU  3000-CLOSE-EXIT.          00970000
+006030*                                                                 00980000
+006010 0000-MAIN-EXIT.                                                  00990000
+005900     STOP RUN.                                                    01000000
+002061*  *=============================================================*01010133
+006030*  *THE INPUT AND THE OUTPUT FILES ARE OPENED AND THE STATUS FLAGS01011033
+      *  *ARE INITIALIZED.                                              01012033
+002061*  *=============================================================*01013033
+006040 1000-INITIALIZE-PARA.                                            01020000
+006050     OPEN INPUT  SMFDATA.                                         01030000
+           OPEN OUTPUT SMFOUT.                                          01040000
+006051     SET   SMFDATA-NOT-OVER TO TRUE                               01090000
+006052     PERFORM 1100-READ-SMF.                                       01100000
+006070     CONTINUE.                                                    01110000
+006091*                                                                 01120000
+006080 1000-INITIALIZE-EXIT.                                            01130000
+006090     EXIT.                                                        01140000
+002061*  *=============================================================*01150133
+006091*  *READ THE INPUT FILE AND AT END SET THE END-OF-FILE INDICATION 01151033
+      *  *FLAG.                                                         01152033
+002061*  *=============================================================*01153033
+006092 1100-READ-SMF.                                                   01160000
+006093     READ SMFDATA                                                 01170000
+006094     AT END SET SMFDATA-OVER TO TRUE.                             01180000
+006100     CONTINUE.                                                    01190000
+006103*                                                                 01200000
+006101 1100-EXIT.                                                       01210000
+006102     EXIT.                                                        01220000
+002061*  *=============================================================*01230133
+      *  *THE CONDITIONS FOR REPORT GENERATION ARE                      01231033
+      *  *A)RECORD-TYPE(FIELD-SMF30RTY)   = 30                          01232033
+      *  *B)RECORD-SUBTYPE(FIELD-SMF30STP)= 01,02,03,04,05              01233033
+      *  *THE RECORDS THAT SATISY THESE CONDITIONS ARE USED.            01234033
+      *  *ONLY PARTICULAR FIELDS ARE EXTRACTED AND WRITTEN ON TO        01235033
+      *  *OUTPUT.                                                       01236033
+002061*  *=============================================================*01237033
+104    2000-PROCESS-PARA.                                               01240030
+006106     MOVE SMF-RECORD (2:1) TO SMF30-RECORD-TYPE.                  01270001
+           IF RECORD-TYPE = X'1E'                                       01271012
+006106        MOVE SMF-RECORD (20:1) TO SMF30-SUBRECORD-TYPE            01271117
+              IF RECORD-SUB-TYPE = X'01' OR RECORD-SUB-TYPE = X'02' OR  01271329
+                 RECORD-SUB-TYPE = X'03' OR RECORD-SUB-TYPE = X'04' OR  01271429
+                 RECORD-SUB-TYPE = X'05'                                01271529
+      *       IF RECORD-SUB-TYPE = X'04'                                01271629
+                   MOVE 1 TO K                                          01272016
+                   PERFORM 2100-READWRITE-PARA                          01280016
+                   WRITE SMF-OUTPUT FROM SMF30-RECORD-FORMAT-EXT        01281016
+              END-IF                                                    01284016
+           END-IF                                                       01285016
+006294     PERFORM 1100-READ-SMF                                        01710000
+006295     CONTINUE.                                                    01720000
+006298*                                                                 01730000
+006296 2000-PROCESS-EXIT.                                               01740000
+006297     EXIT.                                                        01750000
+002061*  *=============================================================*01752033
+006298*  *THE HEADER SECTION CONTAINS THE SMF RECORD HEADERS FIELDS AND 01760033
+      *  *THE TRIPLET FIELDS(OFFSET/LENGTH/NUMBER) THAT LOCATE THE OTHER01760133
+      *  *SECTIONS ON THE RECORD. THIS TRIPLET INFORMATION SHOULD BE    01760233
+      *  *CHECKED PRIOR TO ACCESSING A SECTION OF THE RECORD.           01760333
+      *  *SO INITIALLY THE HEADER IS MOVED AND THEN THE FIELDS ARE CHKED01760433
+      *  *FOR THE EXISTENCE OF REMAINING SECTIONS.                      01760533
+002061*  *=============================================================*01760633
+       2100-READWRITE-PARA.                                             01760801
+           MOVE SMF-RECORD ( 1 :394 ) TO SMF30-RECORD-FORMAT.           01760911
+002061*  *=============================================================*01761033
+      *  *MOVE TIME AND DATE.                                           01761133
+002061*  *=============================================================*01761233
+           MOVE SMF30TME TO SMF30TME-EXT1.                              01761332
+           MOVE SMF30DTE TO SMF30DTE-EXT1.                              01761432
+      *                                                                 01761532
+           PERFORM 2101-MOVE-HEADER                                     01761601
+002061*  *=============================================================*01761733
+      *  *I-O-ACTIVITY-SECTION                                          01761833
+002061*  *=============================================================*01761933
+               IF SMF30UON > 0                                          01762001
+                   MOVE SMF30ULN TO WS-SMF30LEN                         01762101
+                   COMPUTE WS-SMF30OFF = SMF30UOF + 1 - 4               01762201
+                   MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)             01762301
+                     TO I-O-ACTIVITY-SECTION-GROUP                      01762401
+                   PERFORM 2102-MOVE-IO-ACTIVITY-SECTION                01762501
+               ELSE                                                     01762601
+                   MOVE ZEROES TO SMF30TEP-EXT1                         01762704
+               END-IF                                                   01762801
+002061*  *=============================================================*01762933
+      *  *COMPLETION-SECTION-GROUP                                      01763033
+002061*  *=============================================================*01763133
+               IF SMF30TON > 0                                          01763201
+                   MOVE SMF30TLN TO WS-SMF30LEN                         01763301
+                   COMPUTE WS-SMF30OFF = SMF30TOF + 1 - 4               01763401
+                   MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)             01763501
+                     TO COMPLETION-SECTION-GROUP                        01763601
+                   PERFORM 2103-MOVE-COMPLETION-SECTION                 01763701
+               ELSE                                                     01763801
+                   MOVE ZEROES TO SMF30SCC-EXT1                         01763905
+               END-IF                                                   01764001
+002061*  *=============================================================*01764133
+      *  *PROCESSOR-SECTION-GROUP                                       01764233
+002061*  *=============================================================*01764333
+               IF SMF30CON > 0                                          01764401
+                   MOVE SMF30CLN TO WS-SMF30LEN                         01764501
+                   COMPUTE WS-SMF30OFF = SMF30COF + 1 - 4               01764601
+                   MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)             01764701
+                     TO PROCESSOR-SECTION-GROUP                         01764801
+                   PERFORM 2104-MOVE-PROCESSOR-SECTION                  01764901
+               ELSE                                                     01765001
+                   MOVE SPACES TO PROCESSOR-SECTION                     01765101
+               END-IF                                                   01765201
+002061*  *=============================================================*01765333
+      *  *EXCP-AREA-IN-RECORD-GROUP                                     01765433
+002061*  *=============================================================*01765533
+               MOVE SMF30EON TO SMF30EON-EXT1                           01765602
+               IF SMF30EON > 0                                          01765701
+                   MOVE SMF30ELN TO WS-SMF30LEN                         01765801
+                   COMPUTE WS-SMF30OFF = SMF30EOF + 1 - 4               01765901
+                   MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)             01766001
+                     TO EXCP-AREA-IN-RECORD-GROUP                       01766101
+                   PERFORM 2105-MOVE-EXCP-SECTION                       01766201
+002061*  *=============================================================*01766333
+      *  *IF MULTIPLE EXCP SECTIONS ARE PRESENT THEN COMPUTE THE OFFSET 01766433
+      *  *OF EACH AND MOVE THEM TO THE OUTPUT REPORT.                   01766533
+002061*  *=============================================================*01766633
+                   PERFORM 2106-COMPUTEMOVE-PARA UNTIL SMF30EON = 1     01766701
+               END-IF                                                   01766801
+002061*  *=============================================================*01766933
+      *  *STORAGE-SECTION-GROUP                                         01767033
+002061*  *=============================================================*01767133
+               IF SMF30RON > 0                                          01767201
+                   MOVE SMF30RLN TO WS-SMF30LEN                         01767301
+                   COMPUTE WS-SMF30OFF = SMF30ROF + 1 - 4               01767401
+                   MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)             01767501
+                     TO STORAGE-SECTION-GROUP                           01767601
+                   PERFORM 2106-MOVE-STORAGE-SECTION                    01767701
+               ELSE                                                     01767801
+                   MOVE ZEROES TO SMF30RGN-EXT1                         01767904
+               END-IF.                                                  01768005
+      *                                                                 01769600
+006104 2101-MOVE-HEADER.                                                01770000
+           ADD +1 TO WS-COUNT                                           01770115
+           MOVE SMF30RTY TO SMF30RTY-EXT1                               01780019
+           MOVE SMF30WID TO SMF30WID-EXT1                               01780121
+           MOVE SMF30STP TO SMF30STP-EXT1                               01781019
+           MOVE SMF30TME TO SMF30TME-EXT1                               01790019
+           MOVE SMF30JBN TO SMF30JBN-EXT1                               01800001
+           MOVE SMF30PGM TO SMF30PGM-EXT1                               01810001
+           MOVE SMF30STM TO SMF30STM-EXT1                               01820001
+           MOVE SMF30JNM TO SMF30JNM-EXT1                               01830001
+           MOVE SMF30STN TO SMF30STN-EXT1                               01840001
+           MOVE SMF30SIT TO SMF30SIT-EXT1                               01860001
+           MOVE SMF30STD TO SMF30STD-EXT1                               01880001
+           MOVE SMF30SYN TO SMF30SYN-EXT1                               01891001
+           MOVE SMF30SYP TO SMF30SYP-EXT1                               01892001
+006295     CONTINUE.                                                    01900000
+006296 2101-EXIT.                                                       01910000
+006297     EXIT.                                                        01920000
+006298*                                                                 01930000
+006296 2102-MOVE-IO-ACTIVITY-SECTION.                                   01940000
+           MOVE SMF30TEP TO SMF30TEP-EXT1                               01950001
+           CONTINUE.                                                    01970000
+006300 2102-EXIT.                                                       01980000
+006297     EXIT.                                                        01990000
+006298*                                                                 02000000
+       2103-MOVE-COMPLETION-SECTION.                                    02010000
+            MOVE SMF30SCC TO SMF30SCC-EXT1                              02020001
+           CONTINUE.                                                    02040000
+       2103-EXIT.                                                       02050000
+           EXIT.                                                        02060000
+      *                                                                 02070000
+       2104-MOVE-PROCESSOR-SECTION.                                     02080000
+           MOVE SMF30CPT TO SMF30CPT-EXT1                               02090001
+           MOVE SMF30CPS TO SMF30CPS-EXT1                               02110001
+           MOVE SMF30ICU TO SMF30ICU-EXT1                               02130001
+           MOVE SMF30ISB TO SMF30ISB-EXT1                               02150001
+           MOVE SMF30IIP TO SMF30IIP-EXT1                               02170001
+           MOVE SMF30RCT TO SMF30RCT-EXT1                               02190001
+           MOVE SMF30HPT TO SMF30HPT-EXT1                               02210001
+           CONTINUE.                                                    02230000
+006300 2104-EXIT.                                                       02240000
+006297     EXIT.                                                        02250000
+006298*                                                                 02260000
+       2105-MOVE-EXCP-SECTION.                                          02270000
+           MOVE SMF30DDN TO SMF30DDN-EXT1(K)                            02280002
+           MOVE SMF30BLK TO SMF30BLK-EXT1(K)                            02290002
+           MOVE SMF30BSZ TO SMF30BSZ-EXT1(K).                           02310002
+           ADD  1 TO K.                                                 02320006
+006298*                                                                 02330000
+006300 2105-EXIT.                                                       02340000
+006297     EXIT.                                                        02350000
+006298*                                                                 02360000
+       2106-COMPUTEMOVE-PARA.                                           02361000
+           COMPUTE WS-SMF30OFF = WS-SMF30OFF + WS-SMF30LEN              02362000
+           MOVE SMF-RECORD(WS-SMF30OFF:WS-SMF30LEN)                     02363000
+             TO EXCP-AREA-IN-RECORD-GROUP                               02364000
+           PERFORM 2105-MOVE-EXCP-SECTION                               02365000
+           COMPUTE SMF30EON = SMF30EON - 1.                             02366000
+      *                                                                 02367000
+       2106-MOVE-STORAGE-SECTION.                                       02370000
+           MOVE SMF30RGN TO SMF30RGN-EXT1                               02380001
+           CONTINUE.                                                    02400000
+006298*                                                                 02410000
+006300 2106-EXIT.                                                       02420000
+006297     EXIT.                                                        02430000
+006298*                                                                 02440000
+006300 3000-CLOSE-PARA.                                                 02441000
+006400     CLOSE SMFDATA.                                               02448000
+           CLOSE SMFOUT.                                                02449000
+006800     CONTINUE.                                                    02449100
+007100*                                                                 02449200
+006900 3000-CLOSE-EXIT.                                                 02449300
+007000     EXIT.                                                        02449400
+002061*  *=============================================================*02449633
+006298*                                                                 02922200

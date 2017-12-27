@@ -1,0 +1,85 @@
+SET CURRENT SQLID='ADMSGP';                                             00001009
+--CREATE TABLE T_CU_CUSTOMER                                            00010008
+--            (CUS_ID          CHAR(05) NOT NULL PRIMARY KEY            00011008
+--             ,NAME            CHAR(30) NOT NULL WITH DEFAULT          00012008
+--             ,TITLE           CHAR(30) NOT NULL WITH DEFAULT          00013008
+--             ,ADDR_LN_1       CHAR(30) NOT NULL WITH DEFAULT          00014008
+--             ,ADDR_LN_2       CHAR(30) NOT NULL WITH DEFAULT          00015008
+--             ,CITY            CHAR(15) NOT NULL WITH DEFAULT          00016008
+--             ,STATE_CD        CHAR(15) NOT NULL WITH DEFAULT          00017008
+--             ,POSTAL_CD       CHAR(10) NOT NULL WITH DEFAULT          00018008
+--             ,CNTRY_CD        CHAR(15) NOT NULL WITH DEFAULT          00019008
+--             ,PHONE_NO        CHAR(15) NOT NULL WITH DEFAULT          00019108
+--             ,FAX_NO          CHAR(15) NOT NULL WITH DEFAULT)         00020008
+--IN ADMSDB1.ADMSTS1A;                                                  00030008
+                                                                        00040003
+CREATE TABLE T_EM_EMPLOYEE                                              00050003
+             ( EMP_ID            CHAR(08) NOT NULL PRIMARY KEY          00051003
+              ,LST_NAME          CHAR(20) NOT NULL WITH DEFAULT         00052003
+              ,FST_NAME          CHAR(20) NOT NULL WITH DEFAULT         00053003
+              ,TITLE             CHAR(30) NOT NULL WITH DEFAULT         00054003
+              ,TITLE_OF_COURTESY CHAR(25) NOT NULL WITH DEFAULT         00055003
+              ,BIRTH_DATE        DATE     NOT NULL WITH DEFAULT         00056003
+                                 '0001-01-01'                           00056104
+              ,HIRE_DATE         DATE     NOT NULL WITH DEFAULT         00057003
+                                 '0001-01-01'                           00057104
+              ,ADDR_LN_1         CHAR(30) NOT NULL WITH DEFAULT         00058003
+              ,ADDR_LN_2         CHAR(30) NOT NULL WITH DEFAULT         00059003
+              ,CITY              CHAR(15) NOT NULL WITH DEFAULT         00059103
+              ,STATE_CD          CHAR(15) NOT NULL WITH DEFAULT         00059203
+              ,POSTAL_CD         CHAR(10) NOT NULL WITH DEFAULT         00059303
+              ,CNTRY_CD          CHAR(15) NOT NULL WITH DEFAULT         00059403
+              ,HOME_PHONE_NO     CHAR(15) NOT NULL WITH DEFAULT         00059503
+              ,EXTN_NO           CHAR(04) NOT NULL WITH DEFAULT         00059603
+              ,RPTG_MGR          CHAR(08)                               00059707
+              ,NOTES             VARCHAR(255) NOT NULL WITH DEFAULT)    00059807
+ IN ADMSDB1.ADMSTS1B;                                                   00060006
+                                                                        00070003
+CREATE TABLE T_PR_PRODUCT                                               00080003
+        (PROD_ID        CHAR    (05)  NOT NULL PRIMARY KEY              00090003
+        ,NAME           CHAR    (40)  NOT NULL WITH DEFAULT             00100003
+        ,SUP_ID         CHAR    (05)  NOT NULL WITH DEFAULT             00110003
+        ,CAT_ID         CHAR    (05)  NOT NULL WITH DEFAULT             00120003
+        ,CAT_NAME       CHAR    (40)  NOT NULL WITH DEFAULT             00130003
+        ,QTY_PER_UNIT   SMALLINT      NOT NULL WITH DEFAULT             00140003
+        ,UNIT_PRICE     DECIMAL (7,2) NOT NULL WITH DEFAULT             00150003
+        ,UNITS_IN_STK   SMALLINT      NOT NULL WITH DEFAULT             00160003
+        ,UNITS_ON_ORDER SMALLINT      NOT NULL WITH DEFAULT             00170003
+        ,REORD_LVL      SMALLINT      NOT NULL WITH DEFAULT             00180003
+        ,DISCONT        CHAR    (01)  NOT NULL WITH DEFAULT)            00190003
+ IN ADMSDB1.ADMSTS1C;                                                   00200006
+                                                                        00210003
+CREATE TABLE T_SU_SUPPLIER                                              00220003
+         (SUP_ID      CHAR(05) NOT NULL PRIMARY KEY                     00230003
+         ,SU_CO_NAME  CHAR(40) NOT NULL WITH DEFAULT                    00240003
+         ,NAME        CHAR(30) NOT NULL WITH DEFAULT                    00250003
+         ,TITLE       CHAR(30) NOT NULL WITH DEFAULT                    00260003
+         ,ADDR_LN_1   CHAR(30) NOT NULL WITH DEFAULT                    00270003
+         ,ADDR_LN_2   CHAR(30) NOT NULL WITH DEFAULT                    00280003
+         ,CITY        CHAR(15) NOT NULL WITH DEFAULT                    00290003
+         ,STATE_CD    CHAR(15) NOT NULL WITH DEFAULT                    00300003
+         ,POSTAL_CD   CHAR(10) NOT NULL WITH DEFAULT                    00310003
+         ,CNTRY_CD    CHAR(15) NOT NULL WITH DEFAULT                    00320003
+         ,PHONE_NO    CHAR(15) NOT NULL WITH DEFAULT                    00330003
+         ,FAX_NO      CHAR(15) NOT NULL WITH DEFAULT)                   00340003
+IN ADMSDB1.ADMSTS1D;                                                    00350006
+                                                                        00360003
+CREATE TABLE T_OR_ORDER                                                 00370000
+       (ORDER_ID      CHAR(05) NOT NULL PRIMARY KEY                     00380003
+       ,CUS_ID        CHAR(05) NOT NULL                                 00381011
+       ,EMP_ID        CHAR(08) NOT NULL                                 00390011
+       ,ORDER_DATE    DATE     NOT NULL WITH DEFAULT '0001-01-01'       00400004
+       ,REQD_DATE     DATE     NOT NULL WITH DEFAULT '0001-01-01'       00410004
+       ,SHIP_DATE     DATE     NOT NULL WITH DEFAULT '0001-01-01'       00420004
+       ,CARRIER       CHAR(30) NOT NULL WITH DEFAULT                    00430003
+       ,FREIGHT_COST  DECIMAL(7,2) NOT NULL WITH DEFAULT)               00440003
+IN ADMSDB1.ADMSTS1E;                                                    00450006
+                                                                        00460003
+CREATE TABLE T_OL_ORDER_LN_ITEM                                         00470003
+            (ORDER_ID  CHAR(05)     NOT NULL                            00480005
+            ,PROD_ID   CHAR(05)     NOT NULL                            00490005
+            ,CUS_ID    CHAR(05)     NOT NULL                            00491011
+            ,ORDER_QTY DECIMAL(7,2) NOT NULL WITH DEFAULT               00500003
+            ,DISCOUNT  DECIMAL(7,2) NOT NULL WITH DEFAULT               00510005
+            ,PRIMARY KEY(ORDER_ID,PROD_ID))                             00511005
+IN ADMSDB1.ADMSTS1F;                                                    00520006

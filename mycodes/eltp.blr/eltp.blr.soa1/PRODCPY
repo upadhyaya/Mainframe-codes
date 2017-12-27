@@ -1,0 +1,11 @@
+000010     05 LS-OPT        PIC      X(6).                              00001004
+000020     05 LS-CURSOR-POS PIC      9(1).                              00002009
+000100     05 LS-PRODID     PIC      9(10).                             00010004
+000200     05 LS-PRODNM     PIC      X(40).                             00020004
+000300     05 LS-SUPID      PIC      X(5).                              00030004
+000400     05 LS-CATID      PIC      X(5).                              00040004
+000500     05 LS-CATNM      PIC      X(40).                             00050004
+000600     05 LS-UNIPRC     PIC      9(12).                             00060013
+000700     05 LS-UNISTK     PIC      9(5).                              00070004
+000800     05 LS-UNIORD     PIC      9(5).                              00080004
+000900     05 LS-MSG        PIC      X(70).                             00090004

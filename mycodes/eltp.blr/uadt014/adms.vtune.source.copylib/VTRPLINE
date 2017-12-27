@@ -1,0 +1,396 @@
+       6100-EVALUATE-ALL-PARA.                                          00010004
+           EVALUATE BWT                                                 00020004
+              WHEN 1                                                    00030001
+                 COMPUTE WS-RATIO-TIME(AWT) = (WS-TOT-TIME(AWT)         00031005
+                                               / WS-TOT-RESP) * 100     00033005
+                 MOVE WS-RATIO-TIME(AWT) TO WS-RATIO-TME(BWT)           00034005
+                 MOVE 'Dispatch Time' TO WS-ALL-RPTLINE(BWT)            00040008
+                 MOVE '% of Response' TO WS-RATIO-SX(BWT)               00041008
+                 WRITE SMF-OUTPUT     FROM ALL-TIME-DETAILS(BWT)        00050009
+              WHEN 2                                                    00060001
+                 COMPUTE WS-RATIO-TIME(AWT) = (WS-TOT-TIME(AWT)         00061005
+                                         / WS-TOT-TIME(1)) * 100        00062005
+                 MOVE WS-RATIO-TIME(AWT) TO WS-RATIO-TME(BWT)           00063005
+                 MOVE 'CPU Time' TO WS-ALL-RPTLINE(BWT)                 00070008
+                 MOVE '% of Dispatch' TO WS-RATIO-SX(BWT)               00080008
+                 WRITE SMF-OUTPUT     FROM ALL-TIME-DETAILS(BWT)        00080105
+                 WRITE SMF-OUTPUT     FROM DB2-TIME-DETAILS             00080306
+              WHEN 3                                                    00081001
+                 COMPUTE WS-RATIO-TIME(AWT) = (WS-TOT-TIME(AWT)         00081105
+                                         / WS-TOT-RESP) * 100           00081205
+                 MOVE WS-RATIO-TIME(AWT) TO WS-RATIO-TME(BWT)           00081305
+                 MOVE 'Suspend Wait Time' TO WS-ALL-RPTLINE(BWT)        00082008
+                 MOVE '% of Response' TO WS-RATIO-SX(BWT)               00082108
+                 WRITE SMF-OUTPUT     FROM ALL-TIME-DETAILS(BWT)        00082205
+              WHEN 4                                                    00084001
+                 COMPUTE WS-RATIO-TIME(AWT) = (WS-TOT-TIME(AWT)         00084105
+                                         / WS-TOT-TIME(3)) * 100        00084205
+                 MOVE WS-RATIO-TIME(AWT) TO WS-RATIO-TME(BWT)           00084305
+                 MOVE 'Dispatch Wait Time' TO WS-ALL-RPTLINE(BWT)       00085008
+                 MOVE '% of Suspend' TO WS-RATIO-SX(BWT)                00086008
+                 WRITE SMF-OUTPUT     FROM ALL-TIME-DETAILS(BWT)        00086105
+              WHEN 5                                                    00087001
+                 COMPUTE WS-RATIO-TIME(AWT) = (WS-TOT-TIME(AWT)         00087105
+                                         / WS-TOT-RESP) * 100           00087205
+                 MOVE WS-RATIO-TIME(AWT) TO WS-RATIO-TME(BWT)           00087305
+                 MOVE 'Resource Manager Interface (RMI) elapsed time'   00088004
+                               TO WS-ALL-RPTLINE(BWT)                   00089008
+                 MOVE '% of Response' TO WS-RATIO-SX(BWT)               00089108
+                 WRITE SMF-OUTPUT     FROM ALL-TIME-DETAILS(BWT)        00089205
+              WHEN 6                                                    00089301
+                 COMPUTE WS-RATIO-TIME(AWT) = (WS-TOT-TIME(AWT)         00089405
+                                         / WS-TOT-TIME(3)) * 100        00089505
+                 MOVE WS-RATIO-TIME(AWT) TO WS-RATIO-TME(BWT)           00089605
+                 MOVE 'Resource Manager Interface (RMI) suspend time'   00089704
+                               TO WS-ALL-RPTLINE(BWT)                   00089808
+                 MOVE '% of Suspend' TO WS-RATIO-SX(BWT)                00089908
+                 WRITE SMF-OUTPUT     FROM ALL-TIME-DETAILS(BWT)        00090005
+           END-EVALUATE.                                                00090104
+      *                                                                 00090204
+       6100-EXIT.                                                       00090304
+           EXIT.                                                        00090404
+      *                                                                 00090504
+       6200-EVALUATE-OTHER-PARA.                                        00090604
+           EVALUATE KWT                                                 00090704
+              WHEN 1                                                    00090804
+                 MOVE 'TCIOWTT  Terminal wait for input time'           00090904
+                               TO WS-RPTLINE(KWT)                       00091004
+              WHEN 2                                                    00091104
+                 MOVE 'DSCHMDLY Redispatch wait time caused by change-TC00091204
+      -               'B mode' TO WS-RPTLINE(KWT)                       00091304
+              WHEN 3                                                    00091404
+                 MOVE 'TSIOWTT  VSAM TS I/O wait time'                  00091504
+                               TO WS-RPTLINE(KWT)                       00091604
+              WHEN 4                                                    00091704
+                 MOVE 'SOIOWTT  Inbound Socket I/O wait time'           00091804
+                               TO WS-RPTLINE(KWT)                       00091904
+              WHEN 5                                                    00092004
+                 MOVE 'JCIOWTT  Journal I/O wait time'                  00092104
+                               TO WS-RPTLINE(KWT)                       00092204
+              WHEN 6                                                    00092304
+                 MOVE 'FCIOWTT  File I/O wait time'                     00092404
+                               TO WS-RPTLINE(KWT)                       00092504
+              WHEN 7                                                    00092604
+                 MOVE 'DSPDELAY First dispatch wait time'               00092704
+                               TO WS-RPTLINE(KWT)                       00092804
+              WHEN 8                                                    00092904
+                 MOVE 'MXTDELAY > First dispatch MXT wait time'         00093004
+                               TO WS-RPTLINE(KWT)                       00093104
+              WHEN 9                                                    00093204
+                 MOVE 'TCLDELAY > First dispatch TCLSNAME wait time'    00093304
+                               TO WS-RPTLINE(KWT)                       00093404
+              WHEN 10                                                   00093504
+                 MOVE 'LMDELAY  Lock Manager (LM) wait time'            00093604
+                               TO WS-RPTLINE(KWT)                       00093704
+              WHEN 11                                                   00093804
+                 MOVE 'GVUPWAIT Give up control wait time'              00093904
+                               TO WS-RPTLINE(KWT)                       00094004
+              WHEN 12                                                   00094104
+                 MOVE 'MAXXTDLY Maximum XPLink TCB delay time'          00094204
+                               TO WS-RPTLINE(KWT)                       00094304
+              WHEN 13                                                   00094404
+                 MOVE 'MAXSTDLY Maximum SSL TCB delay time'             00094504
+                               TO WS-RPTLINE(KWT)                       00094604
+              WHEN 14                                                   00094704
+                 MOVE 'DSMMSCWT DS storage constraint wait time'        00094804
+                               TO WS-RPTLINE(KWT)                       00094904
+              WHEN 15                                                   00095004
+                 MOVE 'DSTCBMWT Dispatcher TCB Mismatch wait time'      00095104
+                               TO WS-RPTLINE(KWT)                       00095204
+              WHEN 16                                                   00095304
+                 MOVE 'PTPWAIT  3270 Bridge Partner wait time'          00095404
+                               TO WS-RPTLINE(KWT)                       00095504
+              WHEN 17                                                   00095604
+                 MOVE 'MAXJTDLY Maximum JVM TCB delay time'             00095704
+                               TO WS-RPTLINE(KWT)                       00095804
+              WHEN 18                                                   00095904
+                 MOVE 'RQPWAIT  Request Processor Wait Time'            00096004
+                               TO WS-RPTLINE(KWT)                       00096104
+              WHEN 19                                                   00096204
+                 MOVE 'RQRWAIT  Request Receiver Wait Time'             00096304
+                               TO WS-RPTLINE(KWT)                       00096404
+              WHEN 20                                                   00096504
+                 MOVE 'SOOIOWTT Outbound Socket I/O Wait Time'          00096604
+                               TO WS-RPTLINE(KWT)                       00096704
+              WHEN 21                                                   00096804
+                 MOVE 'LU62WTT  LU6.2 wait time'                        00096904
+                               TO WS-RPTLINE(KWT)                       00097004
+              WHEN 22                                                   00097104
+                 MOVE 'LU61WTT  LU6.1 wait time'                        00097204
+                               TO WS-RPTLINE(KWT)                       00097304
+              WHEN 23                                                   00097404
+                 MOVE 'IRIOWTT  MRO link wait time'                     00097504
+                               TO WS-RPTLINE(KWT)                       00097604
+              WHEN 24                                                   00097704
+                 MOVE 'TSSHWAIT Asynchronous Shared TS wait time'       00097804
+                               TO WS-RPTLINE(KWT)                       00097904
+              WHEN 25                                                   00098004
+                 MOVE 'MAXOTDLY Maximum Open TCB delay time'            00098104
+                               TO WS-RPTLINE(KWT)                       00098204
+              WHEN 26                                                   00098304
+                 MOVE 'RUNTRWTT BTS run Process/Activity wait time'     00098404
+                               TO WS-RPTLINE(KWT)                       00098504
+              WHEN 27                                                   00098604
+                 MOVE 'RRMSWAIT Resource Recovery Services indoubt wait 00098704
+      -               'time' TO WS-RPTLINE(KWT)                         00098804
+              WHEN 28                                                   00098904
+                 MOVE 'ICDELAY  Interval Control (IC) wait time'        00099004
+                               TO WS-RPTLINE(KWT)                       00099104
+              WHEN 29                                                   00099204
+                 MOVE 'WTCEWAIT CICS ECB wait time'                     00099304
+                               TO WS-RPTLINE(KWT)                       00099404
+              WHEN 30                                                   00099504
+                 MOVE 'WTEXWAIT External ECB wait time'                 00099604
+                               TO WS-RPTLINE(KWT)                       00099704
+              WHEN 31                                                   00099804
+                 MOVE 'ENQDELAY Local Enqueue wait time'                00099904
+                               TO WS-RPTLINE(KWT)                       00100004
+              WHEN 32                                                   00100104
+                 MOVE 'GNQDELAY Global Enqueue wait time'               00100204
+                               TO WS-RPTLINE(KWT)                       00100304
+              WHEN 33                                                   00100404
+                 MOVE 'SYNCDLY  SYNCPOINT parent request wait time'     00100504
+                               TO WS-RPTLINE(KWT)                       00100604
+              WHEN 34                                                   00100704
+                 MOVE 'SRVSYWTT CF Data Table syncpoint wait time'      00100804
+                               TO WS-RPTLINE(KWT)                       00100904
+              WHEN 35                                                   00101004
+                 MOVE 'CFDTWAIT CF Data Table access requests wait time'00101104
+                               TO WS-RPTLINE(KWT)                       00101204
+              WHEN 36                                                   00101304
+                 MOVE 'RLSWAIT  RLS File I/O wait time'                 00101404
+                               TO WS-RPTLINE(KWT)                       00101504
+              WHEN 37                                                   00101604
+                 MOVE 'SZWAIT   FEPI services wait time'                00101704
+                               TO WS-RPTLINE(KWT)                       00101804
+              WHEN 38                                                   00101904
+                 MOVE 'TDIOWTT  VSAM transient data I/O wait time'      00102004
+                               TO WS-RPTLINE(KWT)                       00102104
+              WHEN 39                                                   00102204
+                 MOVE 'DB2WAIT  DB2 SQL/IFI wait time'                  00102304
+                               TO WS-RPTLINE(KWT)                       00102404
+              WHEN 40                                                   00102504
+                 MOVE 'DB2CONWT DB2 Connection wait time'               00102604
+                               TO WS-RPTLINE(KWT)                       00102704
+              WHEN 41                                                   00102804
+                 MOVE 'DB2RDYQW DB2 Thread wait time'                   00102904
+                               TO WS-RPTLINE(KWT)                       00103004
+              WHEN 42                                                   00103104
+                 MOVE 'IMSWAIT  IMS (DBCTL) wait time'                  00103204
+                               TO WS-RPTLINE(KWT)                       00103304
+           END-EVALUATE.                                                00103404
+      *                                                                 00103504
+       6200-EXIT.                                                       00104004
+           EXIT.                                                        00110000
+      *                                                                 00120000
+       6300-EVAL-FINAL-PARA.                                            00130011
+      *                                                                 00130111
+           MOVE WS-FINAL-ALLTIME(CWT) TO WS-FINAL-TOTRPT(DWT)           00131011
+           COMPUTE WS-FINAL-AVGTIME(CWT) = WS-FINAL-ALLTIME(CWT) /      00132011
+                                           WS-FINAL-TRAN-COUNT          00133011
+           MOVE WS-FINAL-AVGTIME(CWT) TO WS-FINAL-AVGRPT(DWT)           00134011
+      *                                                                 00135011
+           EVALUATE CWT                                                 00140010
+              WHEN 1                                                    00150010
+                 COMPUTE WS-FINAL-RATIOALL(CWT) = (WS-FINAL-ALLTIME(CWT)00160011
+                                              / WS-FINAL-TOT-RESP) * 10000170011
+                 MOVE WS-FINAL-RATIOALL(CWT) TO WS-FINAL-RATRPT(DWT)    00180011
+                 MOVE 'Dispatch Time' TO WS-FIN-RPTLINE(DWT)            00190011
+                 MOVE '% of Response' TO WS-RAT-SX(DWT)                 00200011
+                 WRITE SMF-OUTPUT     FROM FINAL-TIME-DETAILS1(DWT)     00210011
+              WHEN 2                                                    00220010
+                 COMPUTE WS-FINAL-RATIOALL(CWT) = (WS-FINAL-ALLTIME(CWT)00252011
+                                            / WS-FINAL-ALLTIME(1)) * 10000253011
+                 MOVE WS-FINAL-RATIOALL(CWT) TO WS-FINAL-RATRPT(DWT)    00254011
+                 MOVE 'CPU Time' TO WS-FIN-RPTLINE(DWT)                 00260011
+                 MOVE '% of Dispatch' TO WS-RAT-SX(DWT)                 00270011
+                 WRITE SMF-OUTPUT     FROM FINAL-TIME-DETAILS1(DWT)     00280011
+      ********************************DB2 COMPUTE********************** 00281011
+                 MOVE WS-FINAL-TOT-DB2 TO WS-FINAL-TOTDB2               00282011
+                 COMPUTE WS-FINAL-AVG-DB2 = WS-FINAL-TOT-DB2 /          00283011
+                                            WS-FINAL-TRAN-COUNT         00284011
+                 MOVE WS-FINAL-AVG-DB2 TO WS-FINAL-AVGDB2               00285011
+                 COMPUTE WS-FINAL-RATIODB2 = (WS-FINAL-TOT-DB2          00286011
+                                            / WS-FINAL-ALLTIME(3)) * 10000287011
+                 MOVE WS-FINAL-RATIODB2 TO WS-FINAL-RATDB2              00288011
+                 WRITE SMF-OUTPUT     FROM FINAL-DB2-TIME-DETAILS       00290011
+              WHEN 3                                                    00300010
+                 COMPUTE WS-FINAL-RATIOALL(CWT) = (WS-FINAL-ALLTIME(CWT)00332011
+                                              / WS-FINAL-TOT-RESP) * 10000333011
+                 MOVE WS-FINAL-RATIOALL(CWT) TO WS-FINAL-RATRPT(DWT)    00334011
+                 MOVE 'Suspend Wait Time' TO WS-FIN-RPTLINE(DWT)        00340011
+                 MOVE '% of Response' TO WS-RAT-SX(DWT)                 00350011
+                 WRITE SMF-OUTPUT     FROM FINAL-TIME-DETAILS1(DWT)     00360011
+              WHEN 4                                                    00370010
+                 COMPUTE WS-FINAL-RATIOALL(CWT) = (WS-FINAL-ALLTIME(CWT)00380011
+                                            / WS-FINAL-ALLTIME(3)) * 10000390011
+                 MOVE WS-FINAL-RATIOALL(CWT) TO WS-FINAL-RATRPT(DWT)    00400011
+                 MOVE 'Dispatch Wait Time' TO WS-FIN-RPTLINE(DWT)       00410011
+                 MOVE '% of Suspend' TO WS-RAT-SX(DWT)                  00420011
+                 WRITE SMF-OUTPUT     FROM FINAL-TIME-DETAILS1(DWT)     00430011
+              WHEN 5                                                    00440010
+                 COMPUTE WS-FINAL-RATIOALL(CWT) = (WS-FINAL-ALLTIME(CWT)00450011
+                                              / WS-FINAL-TOT-RESP) * 10000460011
+                 MOVE WS-FINAL-RATIOALL(CWT) TO WS-FINAL-RATRPT(DWT)    00470011
+                 MOVE 'Resource Manager Interface (RMI) elapsed time'   00480010
+                               TO WS-FIN-RPTLINE(DWT)                   00490011
+                 MOVE '% of Response' TO WS-RAT-SX(DWT)                 00500011
+                 WRITE SMF-OUTPUT     FROM FINAL-TIME-DETAILS1(DWT)     00510011
+              WHEN 6                                                    00520010
+                 COMPUTE WS-FINAL-RATIOALL(CWT) = (WS-FINAL-ALLTIME(CWT)00530011
+                                            / WS-FINAL-ALLTIME(3)) * 10000540011
+                 MOVE WS-FINAL-RATIOALL(CWT) TO WS-FINAL-RATRPT(DWT)    00550011
+                 MOVE 'Resource Manager Interface (RMI) suspend time'   00560010
+                               TO WS-FIN-RPTLINE(DWT)                   00570011
+                 MOVE '% of Suspend' TO WS-RAT-SX(DWT)                  00580011
+                 WRITE SMF-OUTPUT     FROM FINAL-TIME-DETAILS1(DWT)     00590011
+           END-EVALUATE.                                                00600010
+           SET CWT UP BY 1.                                             00601011
+           SET DWT UP BY 1.                                             00602011
+      *                                                                 00610010
+       6300-EXIT.                                                       00620012
+           EXIT.                                                        00630010
+      *                                                                 00640010
+       6400-EVAL-FINAL-PARA.                                            00650012
+           MOVE WS-FINAL-WAITTIME(EWT) TO WS-FINWT-TOTRPT(FWT)          00651012
+           COMPUTE WS-FINAL-AVGWTIME(EWT) = WS-FINAL-WAITTIME(EWT) /    00652012
+                                            WS-FINAL-TRAN-COUNT         00653012
+           MOVE WS-FINAL-AVGWTIME(EWT) TO WS-FINWT-AVGRPT(FWT)          00654012
+           COMPUTE WS-FINAL-RATIOWT(EWT) = (WS-FINAL-WAITTIME(EWT)      00655012
+                                      / WS-FINAL-ALLTIME(3)) * 100      00656012
+           MOVE WS-FINAL-RATIOWT(EWT) TO WS-FINWT-RATRPT(FWT)           00657012
+           EVALUATE FWT                                                 00660012
+              WHEN 1                                                    00670012
+                 MOVE 'TCIOWTT  Terminal wait for input time'           00680012
+                               TO WS-FINWT-RPTLINE(FWT)                 00690012
+              WHEN 2                                                    00700012
+                 MOVE 'DSCHMDLY Redispatch wait time caused by change-TC00710012
+      -               'B mode' TO WS-FINWT-RPTLINE(FWT)                 00720012
+              WHEN 3                                                    00730012
+                 MOVE 'TSIOWTT  VSAM TS I/O wait time'                  00740012
+                               TO WS-FINWT-RPTLINE(FWT)                 00750012
+              WHEN 4                                                    00760012
+                 MOVE 'SOIOWTT  Inbound Socket I/O wait time'           00770012
+                               TO WS-FINWT-RPTLINE(FWT)                 00780012
+              WHEN 5                                                    00790012
+                 MOVE 'JCIOWTT  Journal I/O wait time'                  00800012
+                               TO WS-FINWT-RPTLINE(FWT)                 00810012
+              WHEN 6                                                    00820012
+                 MOVE 'FCIOWTT  File I/O wait time'                     00830012
+                               TO WS-FINWT-RPTLINE(FWT)                 00840012
+              WHEN 7                                                    00850012
+                 MOVE 'DSPDELAY First dispatch wait time'               00860012
+                               TO WS-FINWT-RPTLINE(FWT)                 00870012
+              WHEN 8                                                    00880012
+                 MOVE 'MXTDELAY > First dispatch MXT wait time'         00890012
+                               TO WS-FINWT-RPTLINE(FWT)                 00900012
+              WHEN 9                                                    00910012
+                 MOVE 'TCLDELAY > First dispatch TCLSNAME wait time'    00920012
+                               TO WS-FINWT-RPTLINE(FWT)                 00930012
+              WHEN 10                                                   00940012
+                 MOVE 'LMDELAY  Lock Manager (LM) wait time'            00950012
+                               TO WS-FINWT-RPTLINE(FWT)                 00960012
+              WHEN 11                                                   00970012
+                 MOVE 'GVUPWAIT Give up control wait time'              00980012
+                               TO WS-FINWT-RPTLINE(FWT)                 00990012
+              WHEN 12                                                   01000012
+                 MOVE 'MAXXTDLY Maximum XPLink TCB delay time'          01010012
+                               TO WS-FINWT-RPTLINE(FWT)                 01020012
+              WHEN 13                                                   01030012
+                 MOVE 'MAXSTDLY Maximum SSL TCB delay time'             01040012
+                               TO WS-FINWT-RPTLINE(FWT)                 01050012
+              WHEN 14                                                   01060012
+                 MOVE 'DSMMSCWT DS storage constraint wait time'        01070012
+                               TO WS-FINWT-RPTLINE(FWT)                 01080012
+              WHEN 15                                                   01090012
+                 MOVE 'DSTCBMWT Dispatcher TCB Mismatch wait time'      01100012
+                               TO WS-FINWT-RPTLINE(FWT)                 01110012
+              WHEN 16                                                   01120012
+                 MOVE 'PTPWAIT  3270 Bridge Partner wait time'          01130012
+                               TO WS-FINWT-RPTLINE(FWT)                 01140012
+              WHEN 17                                                   01150012
+                 MOVE 'MAXJTDLY Maximum JVM TCB delay time'             01160012
+                               TO WS-FINWT-RPTLINE(FWT)                 01170012
+              WHEN 18                                                   01180012
+                 MOVE 'RQPWAIT  Request Processor Wait Time'            01190012
+                               TO WS-FINWT-RPTLINE(FWT)                 01200012
+              WHEN 19                                                   01210012
+                 MOVE 'RQRWAIT  Request Receiver Wait Time'             01220012
+                               TO WS-FINWT-RPTLINE(FWT)                 01230012
+              WHEN 20                                                   01240012
+                 MOVE 'SOOIOWTT Outbound Socket I/O Wait Time'          01250012
+                               TO WS-FINWT-RPTLINE(FWT)                 01260012
+              WHEN 21                                                   01270012
+                 MOVE 'LU62WTT  LU6.2 wait time'                        01280012
+                               TO WS-FINWT-RPTLINE(FWT)                 01290012
+              WHEN 22                                                   01300012
+                 MOVE 'LU61WTT  LU6.1 wait time'                        01310012
+                               TO WS-FINWT-RPTLINE(FWT)                 01320012
+              WHEN 23                                                   01330012
+                 MOVE 'IRIOWTT  MRO link wait time'                     01340012
+                               TO WS-FINWT-RPTLINE(FWT)                 01350012
+              WHEN 24                                                   01360012
+                 MOVE 'TSSHWAIT Asynchronous Shared TS wait time'       01370012
+                               TO WS-FINWT-RPTLINE(FWT)                 01380012
+              WHEN 25                                                   01390012
+                 MOVE 'MAXOTDLY Maximum Open TCB delay time'            01400012
+                               TO WS-FINWT-RPTLINE(FWT)                 01410012
+              WHEN 26                                                   01420012
+                 MOVE 'RUNTRWTT BTS run Process/Activity wait time'     01430012
+                               TO WS-FINWT-RPTLINE(FWT)                 01440012
+              WHEN 27                                                   01450012
+                 MOVE 'RRMSWAIT Resource Recovery Services indoubt wait 01460012
+      -               'time' TO WS-FINWT-RPTLINE(FWT)                   01470012
+              WHEN 28                                                   01480012
+                 MOVE 'ICDELAY  Interval Control (IC) wait time'        01490012
+                               TO WS-FINWT-RPTLINE(FWT)                 01500012
+              WHEN 29                                                   01510012
+                 MOVE 'WTCEWAIT CICS ECB wait time'                     01520012
+                               TO WS-FINWT-RPTLINE(FWT)                 01530012
+              WHEN 30                                                   01540012
+                 MOVE 'WTEXWAIT External ECB wait time'                 01550012
+                               TO WS-FINWT-RPTLINE(FWT)                 01560012
+              WHEN 31                                                   01570012
+                 MOVE 'ENQDELAY Local Enqueue wait time'                01580012
+                               TO WS-FINWT-RPTLINE(FWT)                 01590012
+              WHEN 32                                                   01600012
+                 MOVE 'GNQDELAY Global Enqueue wait time'               01610012
+                               TO WS-FINWT-RPTLINE(FWT)                 01620012
+              WHEN 33                                                   01630012
+                 MOVE 'SYNCDLY  SYNCPOINT parent request wait time'     01640012
+                               TO WS-FINWT-RPTLINE(FWT)                 01650012
+              WHEN 34                                                   01660012
+                 MOVE 'SRVSYWTT CF Data Table syncpoint wait time'      01670012
+                               TO WS-FINWT-RPTLINE(FWT)                 01680012
+              WHEN 35                                                   01690012
+                 MOVE 'CFDTWAIT CF Data Table access requests wait time'01700012
+                               TO WS-FINWT-RPTLINE(FWT)                 01710012
+              WHEN 36                                                   01720012
+                 MOVE 'RLSWAIT  RLS File I/O wait time'                 01730012
+                               TO WS-FINWT-RPTLINE(FWT)                 01740012
+              WHEN 37                                                   01750012
+                 MOVE 'SZWAIT   FEPI services wait time'                01760012
+                               TO WS-FINWT-RPTLINE(FWT)                 01770012
+              WHEN 38                                                   01780012
+                 MOVE 'TDIOWTT  VSAM transient data I/O wait time'      01790012
+                               TO WS-FINWT-RPTLINE(FWT)                 01800012
+              WHEN 39                                                   01810012
+                 MOVE 'DB2WAIT  DB2 SQL/IFI wait time'                  01820012
+                               TO WS-FINWT-RPTLINE(FWT)                 01830012
+              WHEN 40                                                   01840012
+                 MOVE 'DB2CONWT DB2 Connection wait time'               01850012
+                               TO WS-FINWT-RPTLINE(FWT)                 01860012
+              WHEN 41                                                   01870012
+                 MOVE 'DB2RDYQW DB2 Thread wait time'                   01880012
+                               TO WS-FINWT-RPTLINE(FWT)                 01890012
+              WHEN 42                                                   01900012
+                 MOVE 'IMSWAIT  IMS (DBCTL) wait time'                  01910012
+                               TO WS-FINWT-RPTLINE(FWT)                 01920012
+           END-EVALUATE.                                                01930012
+           WRITE SMF-OUTPUT FROM FINAL-TIME-DETAILS2(FWT)               01930113
+           SET EWT UP BY 1.                                             01931012
+           SET FWT UP BY 1.                                             01932012
+      *                                                                 01940012
+       6400-EXIT.                                                       01950012
+           EXIT.                                                        01960012
+      *                                                                 01970012

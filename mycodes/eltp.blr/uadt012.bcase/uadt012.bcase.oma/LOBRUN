@@ -1,0 +1,19 @@
+//UADT012I JOB NOTIFY=&SYSUID,REGION=0M,MSGLEVEL=(1,1)                  00001000
+/*JOBPARM LINES=99999                                                   00001100
+//*                                                                     00002000
+//STEP1    EXEC PGM=IKJEFT01,DYNAMNBR=30                                00003000
+//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR                              00004000
+//*         UNIT=SYSDA,DCB=(RECFM=FB,LRECL=130,BLKSIZE=13000,DSORG=PS), 00004400
+//*            SPACE=(TRK,(50,20))                                      00004500
+//LOBDATA   DD DISP=SHR,DSN='UBET515.RETAIL.PS'                         00004603
+//SYSPRINT DD SYSOUT=*                                                  00005000
+//SYSTSPRT DD SYSOUT=*                                                  00006000
+//SYSUDUMP DD SYSOUT=*                                                  00007000
+//SYSOUT   DD SYSOUT=*                                                  00008000
+//SYSTSIN  DD *                                                         00009000
+    DSN SYSTEM(DB2A)                                                    00009400
+        RUN PROGRAM(LOBINS) PLAN(ADMTPLN1) -                            00009500
+        LIBRARY('UADT014.BASE.LOADLIB')                                 00009700
+    END                                                                 00009800
+/*                                                                      00009900
+//*                                                                     00010000

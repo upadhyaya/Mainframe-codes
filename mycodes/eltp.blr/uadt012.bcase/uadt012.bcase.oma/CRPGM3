@@ -1,0 +1,163 @@
+000100 CBL CICS('COBOL3') APOST                                         00001000
+000100 IDENTIFICATION DIVISION.                                         00002000
+000200 PROGRAM-ID. CRPGM3.                                              00003099
+000300*                                                                 00004000
+000400 ENVIRONMENT DIVISION.                                            00005000
+      *INPUT-OUTPUT SECTION.                                            00005164
+      *FILE-CONTROL.                                                    00005264
+      *          SELECT CCAPP2 ASSIGN TO KSDS                           00005364
+      *          ORGANIZATION IS INDEXED                                00005464
+      *          ACCESS MODE IS SEQUENTIAL                              00005564
+      *          RECORD KEY IS FS-CC-NO.                                00005664
+      *          FILE STATUS IS CCRECORD-STAT.                          00005763
+000500*                                                                 00006000
+000600 DATA DIVISION.                                                   00007000
+      *FILE SECTION.                                                    00007164
+      *FD CCAPP2.                                                       00007264
+      *01 FS-CC-NO      PIC 9(16).                                      00007464
+      *01 FS-CS-NO      PIC 9(3).                                       00007564
+      *01 FS-EX-DT.                                                     00007664
+      *   07   WS-D-MM     PIC 99.                                      00007764
+      *   07   FILLER      PIC X.                                       00007864
+      *   07   WS-D-DD     PIC 99.                                      00007964
+      *   07   FILLER      PIC X.                                       00008064
+      *   07   WS-D-YY     PIC 9999.                                    00008164
+      *01 FS-CC-TYPE    PIC X(25).                                      00008264
+      *01 FS-CREDLIM    PIC 9(6)V99.                                    00008364
+000700*                                                                 00009200
+000800 WORKING-STORAGE SECTION.                                         00010000
+                 EXEC SQL                                               00020030
+                      INCLUDE SQLCA                                     00030030
+                 END-EXEC.                                              00040030
+                 EXEC SQL                                               00050030
+                      INCLUDE CCTAB                                     00060030
+                 END-EXEC.                                              00070030
+       77 WS-TXT           PIC X(50) VALUE SPACES.                      00131000
+       01 CCNO             PIC 9(16).                                   00131146
+       01 CCRECORD-STAT    PIC 9(2).                                    00131226
+       01 RES1             PIC S9(4) COMP.                              00131376
+       01 WS-CC-AMNT       PIC 9(6)V99.                                 00131499
+       01 WS-CC-LMT        PIC 9(6)V99.                                 00131599
+       01 LK-TRNID         PIC X(4).                                    00131684
+       01 ERR-FLAG         PIC X VALUE 'N'.                             00132008
+       01 WS-REC.                                                       00132116
+          05 WS-CC-NO      PIC 9(16).                                   00132346
+          05 WS-CS-NO      PIC 9(3).                                    00132599
+          05 WS-EX-DT.                                                  00132667
+              07   WS-D-YY     PIC 9999.                                00132899
+              07   FILLER      PIC X.                                   00132967
+              07   WS-D-MM     PIC 99.                                  00133099
+              07   FILLER      PIC X.                                   00133267
+              07   WS-D-DD     PIC 99.                                  00133399
+          05 WS-CC-TYPE    PIC X(25).                                   00133467
+          05 WS-CREDLIMR  PIC 9(6).                                     00133594
+          05 WS-CREDLIMP  PIC 9(2).                                     00133694
+       COPY DFHBMSCA.                                                   00140000
+       COPY DFHAID.                                                     00150000
+       COPY ADDAPO.                                                     00160096
+       01 WS-COMMAREA PIC X(20) VALUE SPACES.                           00161001
+001810*                                                                 00170000
+001820 LINKAGE SECTION.                                                 00180000
+001830 01 DFHCOMMAREA.                                                  00181000
+            COPY CCCOPY.                                                00182099
+      *     COPY CRCOPYS.                                               00183099
+001870*                                                                 00184000
+001900 PROCEDURE DIVISION.                                              00185000
+              MOVE LS-TRANSID TO LK-TRNID.                              00185186
+002000 0000-MAIN-PARA.                                                  00186000
+      *           OPEN I-O CCAPP2.                                      00187073
+                                                                        00221177
+                 IF LS-CC-NO < 5000000000000000                         00222078
+                       PERFORM 1000-DB2-PARA                            00223077
+                 ELSE IF LS-CC-NO > 5000000000000000                    00224078
+                       PERFORM 1000-VSAM-PARA                           00224177
+                 ELSE MOVE 'INVALID NUMBER' TO LS-MSG                   00224228
+                 END-IF.                                                00224336
+       1000-VSAM-PARA.                                                  00225032
+      *           MOVE LS-CC-NO TO LS-CC-NO                             00230086
+                  EXEC CICS                                             00247859
+                     READ FILE ('CCREC3')                               00247999
+                     INTO (WS-REC)                                      00248059
+                     RIDFLD(LS-CC-NO)                                   00248165
+                     RESP(RES1)                                         00248274
+                  END-EXEC.                                             00248359
+      *                                                                 00248418
+             IF RES1 NOT = DFHRESP(NORMAL)                              00248576
+                 MOVE 'RECORD DOES NOT EXIST - PLZ TRY AGAIN' TO LS-MSG 00248793
+                 MOVE 'SO03' TO LS-TRANSID                              00248886
+                EXEC CICS XCTL                                          00248974
+                      PROGRAM('CRPGM2')                                 00249099
+                      COMMAREA (DFHCOMMAREA)                            00249174
+                      LENGTH(127)                                       00249274
+                END-EXEC.                                               00249374
+                                                                        00249474
+             MOVE WS-CC-NO TO LS-CC-NO.                                 00249524
+      *      DISPLAY 'CCNOVSAM' WS-CC-NO                                00249686
+             MOVE WS-CS-NO TO LS-CS-NO.                                 00249724
+             MOVE WS-EX-DT TO LS-EX-DT.                                 00249824
+             MOVE WS-CC-TYPE TO LS-CC-TYPE.                             00249924
+             MOVE WS-CREDLIMR TO LS-CC-LTR.                             00250094
+             MOVE WS-CREDLIMP TO LS-CC-LTP.                             00250194
+             MOVE 'SO03' TO LS-TRANSID.                                 00250294
+      *                                                                 00250394
+             EXEC CICS XCTL                                             00250494
+                  PROGRAM('CRPGM2')                                     00250599
+                  COMMAREA (DFHCOMMAREA)                                00250694
+                  LENGTH(127)                                           00251059
+             END-EXEC.                                                  00260017
+      *                                                                 00270017
+       1000-DB2-PARA.                                                   00280028
+      *      DISPLAY 'CCNO' LS-CC-NO                                    00281086
+             MOVE LS-CC-NO TO CR-CARD-NO                                00290028
+      *      DISPLAY 'CCNO' CR-CARD-NO                                  00291086
+             EXEC SQL                                                   00300028
+             SELECT                                                     00310028
+                     CR_CARD_NO,                                        00321051
+                     CARD_SEC_NO,                                       00323028
+                     CR_CARD_TYPE,                                      00325028
+                     EXPRY_DT,                                          00325156
+                     CR_AMT,                                            00326097
+                     CR_LMT                                             00328097
+                     INTO                                               00330059
+                            :CR-CARD-NO,                                00330151
+                            :CARD-SEC-NO,                               00331028
+                            :CR-CARD-TYPE,                              00332028
+                            :EXPRY-DT,                                  00332128
+                            :CR-AMT,                                    00333097
+                            :CR-LMT                                     00336097
+                      FROM ADMT.CC_DTL                                  00350059
+                      WHERE  CR_CARD_NO  = :CR-CARD-NO                  00360028
+             END-EXEC.                                                  00370028
+             IF SQLCODE = 0                                             00380028
+                MOVE CR-CARD-NO    TO LS-CC-NO                          00381028
+                MOVE CARD-SEC-NO   TO LS-CS-NO                          00382028
+                MOVE CR-CARD-TYPE  TO LS-CC-TYPE                        00383028
+                MOVE CR-AMT       TO WS-CC-AMNT                         00384099
+                MOVE CR-LMT       TO WS-CC-LMT                          00385199
+                MOVE WS-CC-AMNT(1:6) TO LS-AMOUNTR                      00385299
+                MOVE WS-CC-AMNT(7:2) TO LS-AMOUNTP                      00385399
+                MOVE WS-CC-LMT (1:6) TO LS-CC-LTR                       00385499
+                MOVE WS-CC-LMT (7:2) TO LS-CC-LTP                       00385599
+      *         DISPLAY 'CCPGM3 ',CR-LMT,',',LS-CC-LT                   00385699
+                MOVE EXPRY-DT      TO LS-EX-DT                          00386028
+                MOVE 'SO03' TO LS-TRANSID                               00386187
+                EXEC CICS XCTL                                          00387087
+                      PROGRAM('CRPGM2')                                 00388099
+                      COMMAREA (DFHCOMMAREA)                            00389087
+                      LENGTH(127)                                       00390087
+                END-EXEC                                                00400087
+             ELSE IF SQLCODE = +100                                     00440080
+                MOVE 'RECORD DOES NOT EXIST - PLZ TRY AGAIN' TO LS-MSG  00450092
+                MOVE 'SO03' TO LS-TRANSID                               00451087
+                EXEC CICS XCTL                                          00452087
+                      PROGRAM('CRPGM2')                                 00453099
+                      COMMAREA (DFHCOMMAREA)                            00454087
+                      LENGTH(127)                                       00455087
+                END-EXEC                                                00456088
+             ELSE MOVE 'INVALID DETAILS' TO LS-MSG                      00460087
+                MOVE 'SO03' TO LS-TRANSID                               00460187
+                EXEC CICS XCTL                                          00470057
+                      PROGRAM('CRPGM2')                                 00480099
+                      COMMAREA (DFHCOMMAREA)                            00490057
+                      LENGTH(127)                                       00500057
+                END-EXEC.                                               00510058

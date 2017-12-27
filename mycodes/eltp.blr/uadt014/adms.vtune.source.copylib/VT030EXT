@@ -1,0 +1,36 @@
+005154 01 SMF30-RECORD-TYPE.                                            00010001
+005157    05 RECORD-TYPE PIC X(1).                                      00011001
+005154 01 SMF30-SUBRECORD-TYPE.                                         00012004
+005157    05 RECORD-SUB-TYPE PIC X(1).                                  00013004
+005154 01 SMF30-RECORD-FORMAT-EXT.                                      00020001
+          05 SMF30RTY-EXT1 PIC X(1).                                    00030005
+          05 SMF30TME-EXT1 PIC S9(8) BINARY.                            00030107
+          05 SMF30DTE-EXT1 PIC S9(7) PACKED-DECIMAL.                    00030207
+          05 SMF30WID-EXT1 PIC X(04).                                   00031006
+          05 SMF30STP-EXT1 PIC S9(4) BINARY.                            00040005
+005169    05 SEGMENT-TRIPLES-EXT1 BINARY.                               00160001
+005207      10 SMF30EON-EXT1 PIC S9(4).                                 00540001
+005240    05 SMF30SYN-EXT1 PIC X(08).                                   00870001
+005241    05 SMF30SYP-EXT1 PIC X(08).                                   00880001
+005243    05 SMF30JBN-EXT1 PIC X(08).                                   00900001
+005244    05 SMF30PGM-EXT1 PIC X(08).                                   00910001
+005245    05 SMF30STM-EXT1 PIC X(08).                                   00920001
+005247    05 SMF30JNM-EXT1 PIC X(08).                                   00940001
+005248    05 SMF30STN-EXT1 PIC S9(4) BINARY.                            00950001
+005255    05 SMF30SIT-EXT1 PIC S9(8) BINARY.                            01020001
+005256    05 SMF30STD-EXT1 PIC S9(7) PACKED-DECIMAL.                    01030001
+005282    05 SMF30TEP-EXT1 PIC S9(8) BINARY.                            01290001
+005302    05 SMF30SCC-EXT1 PIC S9(4) BINARY.                            01490001
+          05 PROCESSOR-SECTION.                                         01500002
+005311       10 SMF30CPT-EXT1 PIC S9(8) BINARY.                         01580002
+005312       10 SMF30CPS-EXT1 PIC S9(8) BINARY.                         01590002
+005313       10 SMF30ICU-EXT1 PIC S9(8) BINARY.                         01600002
+005314       10 SMF30ISB-EXT1 PIC S9(8) BINARY.                         01610002
+005321       10 SMF30IIP-EXT1 PIC S9(8) BINARY.                         01680002
+005322       10 SMF30RCT-EXT1 PIC S9(8) BINARY.                         01690002
+005323       10 SMF30HPT-EXT1 PIC S9(8) BINARY.                         01700002
+005386    05 SMF30RGN-EXT1 PIC S9(8) BINARY.                            01701001
+          05 SMF30-EXCP OCCURS 255 TIMES.                               01710003
+005338       10 SMF30DDN-EXT1 PIC X(08).                                01850001
+005339       10 SMF30BLK-EXT1 PIC S9(8) BINARY.                         01860001
+005340       10 SMF30BSZ-EXT1 PIC S9(4) BINARY.                         01870001

@@ -1,0 +1,38 @@
+      ******************************************************************
+      * DCLGEN TABLE(ADMT.T_DL_DEALER)                                 *
+      *        LIBRARY(UADT012.BCASE.OMA(DLRPRO))                      *
+      *        LANGUAGE(COBOL)                                         *
+      *        QUOTE                                                   *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE ADMT.T_DL_DEALER TABLE
+           ( DLR_ID                         DECIMAL(10, 0) NOT NULL,
+             DLR_NAME                       CHAR(40) NOT NULL,
+             DLR_ADR_LN_1                   CHAR(40) NOT NULL,
+             DLR_ADR_LN_2                   CHAR(40) NOT NULL,
+             DLR_CITY                       CHAR(15) NOT NULL,
+             DLR_STATE                      CHAR(15) NOT NULL,
+             DLR_POST_CD                    CHAR(10) NOT NULL,
+             DLR_COUNTRT                    CHAR(15) NOT NULL,
+             DLR_PHONE                      CHAR(24) NOT NULL,
+             DLR_FAX                        CHAR(24) NOT NULL,
+             DLR_CR_DATE                    DATE
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ADMT.T_DL_DEALER                   *
+      ******************************************************************
+       01  DCLT-DL-DEALER.
+           10 DLR-ID               PIC S9(10)V USAGE COMP-3.
+           10 DLR-NAME             PIC X(40).
+           10 DLR-ADR-LN-1         PIC X(40).
+           10 DLR-ADR-LN-2         PIC X(40).
+           10 DLR-CITY             PIC X(15).
+           10 DLR-STATE            PIC X(15).
+           10 DLR-POST-CD          PIC X(10).
+           10 DLR-COUNTRT          PIC X(15).
+           10 DLR-PHONE            PIC X(24).
+           10 DLR-FAX              PIC X(24).
+           10 DLR-CR-DATE          PIC X(10).
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 11      *
+      ******************************************************************

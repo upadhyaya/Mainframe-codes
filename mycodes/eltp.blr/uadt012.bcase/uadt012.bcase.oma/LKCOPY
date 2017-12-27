@@ -1,0 +1,7 @@
+              05 LK-CUST-ID   PIC 9(10).                                00010008
+              05 LK-FMDT      PIC X(10).                                00020008
+              05 LK-TODT      PIC X(10).                                00030008
+              05 LK-MSG1      PIC X(65).                                00040008
+              05 LK-MSG2      PIC X(65).                                00041008
+              05 LK-CURSOR    PIC 9(01).                                00042008
+              05 LK-OPTION    PIC X(10).                                00050008

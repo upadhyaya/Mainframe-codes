@@ -1,0 +1,45 @@
+ADDAP1   DFHMSD TYPE=&SYSPARM,MODE=INOUT,LANG=COBOL,                   X00010099
+               CTRL=(FREEKB,FRSET),TIOAPFX=YES,STORAGE=AUTO             00020099
+CCDMAP   DFHMDI SIZE=(24,80),LINE=1,COLUMN=1                            00030099
+         DFHMDF POS=(2,25),LENGTH=34,ATTRB=(ASKIP,PROT,BRT),           X00040099
+               INITIAL='CREDIT CARD APPLICATION'                        00050099
+         DFHMDF POS=(6,10),LENGTH=19,ATTRB=(ASKIP,PROT,BRT),           X00102099
+               INITIAL='CREDIT CARD NUMBER:'                            00103099
+CCNO     DFHMDF POS=(6,30),LENGTH=16,ATTRB=(UNPROT,IC,BRT,NUM,FSET),   X00104099
+               PICIN='9(16)',PICOUT='9(16)'                             00105099
+         DFHMDF POS=(6,47),LENGTH=23,ATTRB=(PROT,ASKIP,BRT)             00110099
+         DFHMDF POS=(7,10),LENGTH=19,ATTRB=(ASKIP,PROT,BRT),           X00110199
+               INITIAL='CSN NUMBER        :'                            00111099
+CSNO     DFHMDF POS=(7,30),LENGTH=3,ATTRB=(UNPROT,NUM,BRT,FSET),       X00120099
+               PICIN='9(3)',PICOUT='9(3)'                               00121099
+         DFHMDF POS=(7,34),LENGTH=36,ATTRB=(PROT,ASKIP,BRT)             00122099
+         DFHMDF POS=(8,10),LENGTH=19,ATTRB=(ASKIP,PROT,BRT),           X00122199
+               INITIAL='CREDIT CARD TYPE  :'                            00122299
+CCTYP    DFHMDF POS=(8,30),LENGTH=25,ATTRB=(UNPROT,BRT,FSET),          X00122399
+               PICIN='X(25)',PICOUT='X(25)'                             00122499
+         DFHMDF POS=(8,56),LENGTH=14,ATTRB=(PROT,ASKIP,BRT)             00122599
+         DFHMDF POS=(09,10),LENGTH=19,ATTRB=(ASKIP,PROT,BRT),          X00122699
+               INITIAL='AMOUNT            :'                            00122799
+AMNT     DFHMDF POS=(09,30),LENGTH=08,ATTRB=(UNPROT,NUM,BRT,FSET),     X00122899
+               PICIN='9(8)',PICOUT='9(8)'                               00122999
+         DFHMDF POS=(09,39),LENGTH=31,ATTRB=(PROT,ASKIP,BRT)            00123499
+         DFHMDF POS=(10,10),LENGTH=19,ATTRB=(ASKIP,PROT,BRT),          X00123599
+               INITIAL='EXPIRY DATE       :'                            00124099
+EXDT     DFHMDF POS=(10,30),LENGTH=10,ATTRB=(UNPROT,BRT,NUM,FSET),     X00125099
+               PICIN='9(10)',PICOUT='9(10)'                             00126099
+         DFHMDF POS=(10,41),LENGTH=12,ATTRB=(ASKIP,PROT,BRT),          X00126299
+               INITIAL='(YYYY-MM-DD)'                                   00126399
+         DFHMDF POS=(10,54),LENGTH=16,ATTRB=(PROT,ASKIP,BRT)            00126499
+         DFHMDF POS=(20,01),LENGTH=10,ATTRB=(ASKIP,PROT,BRT),          X00210099
+               INITIAL='RESPONSE :'                                     00220099
+MSG      DFHMDF POS=(20,12),LENGTH=50,ATTRB=(PROT,FSET),               X00230099
+               PICIN='X(50)',PICOUT='X(50)'                             00240099
+         DFHMDF POS=(20,63),LENGTH=07,ATTRB=(PROT,ASKIP,BRT)            00250099
+         DFHMDF POS=(22,01),LENGTH=37,ATTRB=(ASKIP,PROT,BRT),          X00260099
+               INITIAL='ENTER ALL THE DETAILS AND PRESS ENTER'          00270099
+         DFHMDF POS=(22,39),LENGTH=18,ATTRB=(ASKIP,PROT,BRT),          X00280099
+               INITIAL=',PRESS PF3 TO EXIT'                             00290099
+         DFHMDF POS=(23,01),LENGTH=21,ATTRB=(ASKIP,PROT,BRT),          X00300099
+               INITIAL='PRESS PF12 TO REFRESH'                          00310099
+         DFHMSD TYPE=FINAL                                              00430022
+               END                                                      00440099

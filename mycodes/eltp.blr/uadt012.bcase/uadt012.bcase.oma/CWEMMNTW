@@ -1,0 +1,718 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. CWEMMNTW.                                            00020099
+000400 AUTHOR. TEAM1.                                                   00040003
+000410 DATE-WRITTEN. 02/04/07.                                          00041099
+000420 DATE-COMPILED. 10/04/07.                                         00042099
+000421*                                                                 00042199
+000430*MODULE       : EMPLOYEE MODULE.                                  00043099
+000500*TITLE        : NA                                                00050004
+000700*MAPS USED    : MEMPY1 MAP.                                       00070099
+000701*                                                                 00070199
+000702*FUNCTIONALITY: THIS PROGRAM PERFORMS INSERTION OF ALL THE FIELDS 00070204
+000703*                INTO THE DATABASE AND RETRIEVES THE SAME USING   00070304
+000704*                SELECT AND PERFORMS UPDATION AND DELETION ALSO,  00070499
+000705*                VALIDATION FOR THE COUNTRIES HAS BEEN PERFORMED  00070599
+000706*                AT THE TIME OF INSERTION AND UPDATION.           00070699
+000707*                                                                 00070799
+000708*LOGIC        : EMBEDDED SQL'S HAVE BEEN USED FOR FETCHING RECORDS00070899
+000709*                FROM THE DATABASE, INSERTING RECORDS INTO THE    00070999
+000710*                DATABASE AND DELETION OF RECORDS FROM THE        00071099
+000711*                DATABASE.                                        00071199
+000712*                                                                 00071299
+000713*PROGRAM FUNCTION KEYS USED: PF1,PF2,PF3,PF4,PF5,PF6,PF12         00071399
+000714* MESSAGES     : 1. 'INVALID COUNTRY,PLEASE CHOOSE THE VALID      00071499
+000715*                    COUNTRY'                                     00071599
+000716*                2. 'NEW EMPLOYEE, CAN PERFORM INSERTION ONLY'    00071699
+000717*                3. 'NO DATA IS ENTERED - PLEASE ENTER THE DATA'  00071799
+000718******************************************************************00071899
+000719 DATA DIVISION.                                                   00071903
+000720 WORKING-STORAGE SECTION.                                         00072004
+000721 COPY DFHAID.                                                     00072119
+000722 COPY DFHBMSCA.                                                   00072219
+000723 COPY MEMPY1.                                                     00072399
+000724 COPY VCOUNTRY.                                                   00072470
+000725 COPY VALIDDT.                                                    00072699
+000726      EXEC SQL INCLUDE EMPLOY END-EXEC.                           00072799
+000727      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00072899
+000728*                                                                 00072999
+       01 WS-COMMAREA PIC 9.                                            00073099
+000728*                                                                 00073199
+000729 01 WK-DATE.                                                      00073299
+000730    05 WK-D-DD PIC 99.                                            00073399
+000731    05 FILLER  PIC X.                                             00073499
+000732    05 WK-D-MM PIC 99.                                            00073599
+000733    05 FILLER  PIC X.                                             00073699
+000740    05 WK-D-YY PIC 99.                                            00074039
+000900 01 WK-TIME.                                                      00090038
+001001    05 WK-T-HH PIC 99.                                            00100139
+001002    05 FILLER  PIC X.                                             00100239
+001003    05 WK-T-MM PIC 99.                                            00100339
+001004    05 FILLER  PIC X.                                             00100439
+001005    05 WK-T-SS PIC 99.                                            00100539
+001006 01 DT PIC S9(15) COMP-3.                                         00100639
+001007*                                                                 00100799
+001009 01 WS-SCR-DATE.                                                  00100999
+001010    05 WS-MONTH PIC X(2).                                         00101099
+001011    05 SLASH1   PIC X(1) VALUE '/'.                               00101199
+001012    05 WS-DATE  PIC X(2).                                         00101299
+001013    05 SLASH2   PIC X(1) VALUE '/'.                               00101399
+001015    05 WS-YEAR  PIC X(4).                                         00101599
+001022*                                                                 00102299
+001023 01 WS-SLASH1   PIC X(1) VALUE '/'.                               00102399
+001024 01 WS-SLASH2   PIC X(1) VALUE '/'.                               00102499
+001025*                                                                 00102599
+001026 01 WS-QUOT     PIC 9(4) VALUE 0.                                 00102699
+001027 01 WS-REM      PIC 9(4) VALUE 0.                                 00102799
+001028*                                                                 00102899
+001029 01 WS-STATUS-FIELDS.                                             00102999
+001030    05 STATUS-OF-RECEIVE PIC X   VALUE SPACE.                     00103099
+001031      88 GOOD-RECEIVE            VALUE 'G'.                       00103199
+001032      88 MAPFAIL-ON-RECEIVE      VALUE 'F'.                       00103299
+001033*                                                                 00103899
+001034 01 WS-TXT1  PIC X(80) VALUE 'SESSION COMPLETED'.                 00103999
+001035 01 WS-TXT2  PIC X(80) VALUE 'DIRECT ENTRY TO A003 IS RESTRICTED'.00104099
+001037*                                                                 00104199
+001038 01 I       PIC 9(3) VALUE 0.                                     00104299
+001039 01 WS-FLAG PIC X    VALUE 'N'.                                   00104399
+001028*                                                                 00106099
+001029*01 WS-REDEFINES-FIELDS.                                          00106199
+      *   05 TEMP-VAR1 PIC X(10).                                       00106299
+001030*   05 WS-EMP-POST-CD REDEFINES TEMP-VAR1 PIC 9(10).              00107099
+001040*                                                                 00107999
+001071 LINKAGE SECTION.                                                 00108099
+       01 DFHCOMMAREA.                                                  00108199
+001073    COPY EMPCOPY.                                                 00108299
+          05 FILLER          PIC X(01).                                 00108399
+001074******************************************************************00108499
+001075 PROCEDURE DIVISION USING DFHCOMMAREA.                            00108599
+001076******************************************************************00108699
+001077 COPY VALDATE.                                                    00108799
+001078 1000-MAINLINE-PARA.                                              00108899
+001079     IF EIBCALEN = 0                                              00108999
+001080        EXEC CICS SEND TEXT                                       00109099
+001081                  NOEDIT                                          00109199
+001082                  FROM(WS-TXT2)                                   00109299
+001083                  LENGTH(80)                                      00109399
+001084                  ERASE                                           00109499
+001085        END-EXEC                                                  00109599
+001086*                                                                 00109699
+001087        EXEC CICS RETURN                                          00109799
+001088        END-EXEC                                                  00109899
+001096*                                                                 00109999
+001097     ELSE                                                         00110099
+              MOVE 0 TO LS-CURSOR-POS                                   00110199
+      *       MOVE LS-EMP-POST-CD TO TEMP-VAR1                          00110299
+001099        PERFORM 2000-PROCESSING-PARA                              00110599
+001100     END-IF.                                                      00110699
+001101*                                                                 00110799
+001102     EXEC CICS RETURN                                             00110899
+001200     END-EXEC.                                                    00120099
+001340***************************************************************** 00134058
+001341 2000-PROCESSING-PARA.                                            00134199
+001346        EVALUATE TRUE                                             00134699
+001347           WHEN LS-OPT = 'INSERT'                                 00134799
+001348               PERFORM 3000-INSERTION-PARA THRU 3000-EXIT         00134899
+001347           WHEN LS-OPT = 'SELECT'                                 00134999
+001350               PERFORM 4000-SELECTION-PARA THRU 4000-EXIT         00135199
+001347           WHEN LS-OPT = 'UPDATE'                                 00135399
+001352               PERFORM 5000-UPDATION-PARA THRU 5000-EXIT          00135499
+001347           WHEN LS-OPT = 'DELETE'                                 00135599
+001352               PERFORM 6200-DELETION-PARA THRU 6200-EXIT          00135699
+001363           WHEN OTHER                                             00136599
+001364               PERFORM 9000-ERROR-PARA THRU 9000-EXIT             00136699
+001365        END-EVALUATE.                                             00136799
+      *                                                                 00136899
+001384 2000-EXIT.                                                       00138499
+001385     EXIT.                                                        00138599
+001435******************************************************************00143560
+001436 3000-INSERTION-PARA.                                             00143699
+001437     IF LENGTH OF LS-EMP-ID = 0                                   00143799
+001438        MOVE 'EMPLOYEE ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   00143899
+              MOVE 1 TO LS-CURSOR-POS                                   00143999
+001087        EXEC CICS RETURN                                          00144099
+001088        END-EXEC                                                  00144199
+001441*                                                                 00144399
+001442     ELSE IF LS-EMP-ID IS NOT NUMERIC                             00144499
+001443        MOVE 'EMPLOYEE ID SHOULD BE NUMERIC - PLZ ENTER IT'       00144599
+001444              TO LS-MSG                                           00144699
+              MOVE 1 TO LS-CURSOR-POS                                   00144799
+001087        EXEC CICS RETURN                                          00144899
+001088        END-EXEC                                                  00144999
+001447          END-IF                                                  00145199
+001448     END-IF.                                                      00145299
+001449*                                                                 00145399
+001450     MOVE LS-EMP-ID TO EMP-ID.                                    00145599
+001451     EXEC SQL                                                     00145699
+001452         SELECT EMP_ID                                            00145799
+001453         INTO :EMP-ID                                             00145899
+001454         FROM ADMT.T_EM_EMPLOYEE                                  00145999
+001455         WHERE EMP_ID = :EMP-ID                                   00146099
+001456     END-EXEC.                                                    00146199
+001457*                                                                 00146299
+001458        EVALUATE SQLCODE                                          00146399
+001459            WHEN +100                                             00146499
+001460                 PERFORM 9100-VALIDATION-PARA THRU 9100-EXIT      00146599
+001461                 MOVE 'N' TO WS-FLAG                              00146699
+001462                 PERFORM 3100-VALID-COUNTRY-PARA THRU 3100-EXIT   00146799
+001463                    VARYING I FROM 1 BY 1 UNTIL I > 120           00146899
+001464                    OR WS-FLAG = 'Y'                              00146999
+001465                 IF WS-FLAG = 'Y'                                 00147099
+001466              MOVE LS-EMP-NAME     TO EMP-NAME                    00147199
+001467              MOVE LS-EMP-BIRTH-DT TO EMP-BIRTH-DT                00147299
+001468              MOVE LS-EMP-HIRE-DT  TO EMP-HIRE-DT                 00147399
+001469              MOVE LS-EMP-ADR-LN-1 TO EMP-ADR-LN-1                00147499
+001470              MOVE LS-EMP-ADR-LN-2 TO EMP-ADR-LN-2                00147599
+001471              MOVE LS-EMP-CITY     TO EMP-CITY                    00147699
+001472              MOVE LS-EMP-STATE    TO EMP-STATE                   00147799
+001473              MOVE LS-EMP-POST-CD  TO EMP-POST-CD                 00147899
+001474              MOVE LS-EMP-COUNTRY  TO EMP-COUNTRY                 00147999
+001475              MOVE LS-EMP-PHONE    TO EMP-PHONE                   00148099
+001476              MOVE LS-EMP-FAX      TO EMP-FAX                     00148199
+001477                    EXEC SQL INSERT INTO                          00148299
+001478                         ADMT.T_EM_EMPLOYEE VALUES(:EMP-ID,       00148399
+001479                                       :EMP-NAME,:EMP-BIRTH-DT,   00148499
+001480                                       :EMP-HIRE-DT,:EMP-ADR-LN-1,00148599
+001481                                       :EMP-ADR-LN-2,:EMP-CITY,   00148699
+001482                                       :EMP-STATE,:EMP-POST-CD,   00148799
+001483                                       :EMP-COUNTRY,:EMP-PHONE,   00148899
+001484                                       :EMP-FAX,:EMP-USER-ID)     00148999
+001485                    END-EXEC                                      00149099
+001490*                                                                 00149199
+001493                      EVALUATE SQLCODE                            00149399
+001494                         WHEN 0                                   00149499
+001496                            MOVE 'SUCCESSFUL INSERTION - PRESS PF100149699
+001497-                                '2 TO CLEAR SCREEN' TO LS-MSG    00149799
+                                   MOVE 1 TO LS-CURSOR-POS              00149899
+001087                   EXEC CICS RETURN                               00149999
+001088                   END-EXEC                                       00150099
+001515                         WHEN OTHER                               00151599
+001516                            MOVE 'INSERTION NOT SUCCESSFUL'       00151699
+001518                                 TO LS-MSG                        00151899
+                                   MOVE 1 TO LS-CURSOR-POS              00151999
+001087                   EXEC CICS RETURN                               00152099
+001088                   END-EXEC                                       00152199
+001523                      END-EVALUATE                                00152499
+001524*                                                                 00152599
+001525                 ELSE                                             00152699
+001526                    MOVE 0 TO I                                   00152799
+001529                    MOVE 'INVALID COUNTRY,PLEASE CHOOSE THE VALID 00153099
+001530-                        'COUNTRY' TO LS-MSG                      00153199
+                                   MOVE 10 TO LS-CURSOR-POS             00153299
+001087                   EXEC CICS RETURN                               00153399
+001088                   END-EXEC                                       00153499
+001532                 END-IF                                           00153599
+001533*                                                                 00153699
+001534            WHEN 0                                                00153799
+001536                 MOVE 'EMPLOYEE ALREADY EXISTS' TO LS-MSG         00153999
+                       MOVE 1 TO LS-CURSOR-POS                          00154099
+001087                 EXEC CICS RETURN                                 00154199
+001088                 END-EXEC                                         00154299
+001538                                                                  00154399
+001539*                                                                 00154499
+001540          END-EVALUATE.                                           00154599
+      *                                                                 00155299
+001542 3000-EXIT.                                                       00155399
+001543     EXIT.                                                        00155499
+001544******************************************************************00155587
+001545 3100-VALID-COUNTRY-PARA.                                         00155699
+001546     IF LS-EMP-COUNTRY = WS-COUNTRY-NAME(I)                       00155799
+001547        MOVE 'Y' TO WS-FLAG                                       00155899
+001548     ELSE                                                         00155981
+001549        MOVE 'N' TO WS-FLAG                                       00156099
+001550     END-IF.                                                      00156199
+001551*                                                                 00156281
+001552 3100-EXIT.                                                       00156387
+001553     EXIT.                                                        00156481
+001554***************************************************************** 00156571
+001555 4000-SELECTION-PARA.                                             00156699
+001437     IF LENGTH OF LS-EMP-ID = 0                                   00156899
+001557        MOVE 'EMPLOYEE ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   00156999
+              MOVE 1 TO LS-CURSOR-POS                                   00157099
+001087        EXEC CICS RETURN                                          00157199
+001088        END-EXEC                                                  00157299
+001560*                                                                 00157399
+001561     ELSE IF LS-EMP-ID IS NOT NUMERIC                             00157499
+001562        MOVE 'EMPLOYEE ID SHOULD BE NUMERIC - PLZ ENTER IT'       00157599
+001563              TO LS-MSG                                           00157699
+              MOVE 1 TO LS-CURSOR-POS                                   00157799
+001087        EXEC CICS RETURN                                          00157899
+001088        END-EXEC                                                  00157999
+001566*                                                                 00158099
+001567          ELSE                                                    00158199
+001568            MOVE LS-EMP-ID TO EMP-ID                              00158399
+001569            EXEC SQL                                              00158599
+                                                                        00158699
+001570              SELECT EMP_ID,EMP_NAME,EMP_BIRTH_DT,EMP_HIRE_DT,    00158799
+001571                     EMP_ADR_LN_1,EMP_ADR_LN_2,EMP_CITY,          00158899
+001572                     EMP_STATE,EMP_POST_CD,EMP_COUNTRY,           00158999
+001573                     EMP_PHONE,EMP_FAX,EMP_USER_ID                00159099
+001574              INTO :EMP-ID,                                       00159199
+001575                   :EMP-NAME,:EMP-BIRTH-DT,                       00159299
+001576                   :EMP-HIRE-DT,:EMP-ADR-LN-1,                    00159399
+001577                   :EMP-ADR-LN-2,:EMP-CITY,                       00159499
+001578                   :EMP-STATE,:EMP-POST-CD,                       00159599
+001579                   :EMP-COUNTRY,:EMP-PHONE,                       00159699
+001580                   :EMP-FAX,:EMP-USER-ID                          00159799
+001581              FROM ADMT.T_EM_EMPLOYEE                             00159899
+001582              WHERE EMP_ID = :EMP-ID                              00159999
+001583            END-EXEC                                              00160099
+001584*                                                                 00160299
+001585            EVALUATE SQLCODE                                      00160399
+001586                 WHEN 0                                           00160499
+001587                    MOVE EMP-ID            TO LS-EMP-ID           00160599
+001588                    MOVE EMP-NAME          TO LS-EMP-NAME         00160699
+001589                    MOVE EMP-BIRTH-DT(1:4) TO WS-YEAR             00160799
+001590                    MOVE EMP-BIRTH-DT(6:2) TO WS-MONTH            00160899
+001591                    MOVE EMP-BIRTH-DT(9:2) TO WS-DATE             00160999
+001592                    MOVE WS-SCR-DATE       TO LS-EMP-BIRTH-DT     00161099
+001593                    MOVE EMP-HIRE-DT(1:4)  TO WS-YEAR             00161199
+001594                    MOVE EMP-HIRE-DT(6:2)  TO WS-MONTH            00161299
+001595                    MOVE EMP-HIRE-DT(9:2)  TO WS-DATE             00161399
+001596                    MOVE WS-SCR-DATE       TO LS-EMP-HIRE-DT      00161499
+001597                    MOVE EMP-ADR-LN-1      TO LS-EMP-ADR-LN-1     00161599
+001598                    MOVE EMP-ADR-LN-2      TO LS-EMP-ADR-LN-2     00161699
+001599                    MOVE EMP-CITY          TO LS-EMP-CITY         00161799
+001600                    MOVE EMP-STATE         TO LS-EMP-STATE        00161899
+001601                    MOVE EMP-POST-CD       TO LS-EMP-POST-CD      00161999
+001602                    MOVE EMP-COUNTRY       TO LS-EMP-COUNTRY      00162099
+001603                    MOVE EMP-PHONE         TO LS-EMP-PHONE        00162199
+001604                    MOVE EMP-FAX           TO LS-EMP-FAX          00162299
+001605*                                                                 00162399
+001606                    MOVE 'RECORDS SUCCESSFULLY RETRIEVED - PRESS  00162499
+001607-                        'PF12 TO CLEAR THE SCREEN' TO LS-MSG     00162599
+                          MOVE 1 TO LS-CURSOR-POS                       00162699
+001087                  EXEC CICS RETURN                                00162799
+001088                  END-EXEC                                        00162899
+001611                 WHEN OTHER                                       00162999
+001613                    MOVE EMP-ID TO LS-EMP-ID                      00163099
+001614                    MOVE 'NEW EMPLOYEE,CAN PERFORM INSERTION ONLY'00164299
+001615                          TO LS-MSG                               00164399
+                          MOVE 1 TO LS-CURSOR-POS                       00164599
+001087                  EXEC CICS RETURN                                00164699
+001088                  END-EXEC                                        00165099
+001619            END-EVALUATE                                          00165199
+001621*         END-IF                                                  00165399
+001622*                                                                 00165499
+001623     END-IF.                                                      00165599
+001624*                                                                 00165699
+001625 4000-EXIT.                                                       00165799
+001626     EXIT.                                                        00165899
+001627******************************************************************00165999
+001628 5000-UPDATION-PARA.                                              00166099
+001629     IF LENGTH OF LS-EMP-ID = 0                                   00166199
+001630        MOVE 'EMPLOYEE ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   00166299
+              MOVE 1 TO LS-CURSOR-POS                                   00166399
+001087        EXEC CICS RETURN                                          00166499
+001088        END-EXEC                                                  00166599
+001633*                                                                 00166699
+001634     ELSE IF LS-EMP-ID IS NOT NUMERIC                             00166799
+001635        MOVE 'EMPLOYEE ID SHOULD BE NUMERIC - PLZ ENTER IT'       00166899
+001636             TO LS-MSG                                            00166999
+              MOVE 1 TO LS-CURSOR-POS                                   00167099
+001087        EXEC CICS RETURN                                          00167199
+001088        END-EXEC                                                  00167299
+001639          END-IF                                                  00167399
+001640     END-IF.                                                      00167499
+001641*                                                                 00167599
+001642     MOVE LS-EMP-ID TO EMP-ID.                                    00167699
+001643     EXEC SQL                                                     00167799
+001644        SELECT EMP_ID                                             00167899
+001645        INTO :EMP-ID                                              00167999
+001646        FROM ADMT.T_EM_EMPLOYEE                                   00168099
+001647        WHERE EMP_ID = :EMP-ID                                    00168199
+001648     END-EXEC.                                                    00168299
+001649*                                                                 00168399
+001650     EVALUATE SQLCODE                                             00168499
+001651        WHEN +100                                                 00168599
+001653           MOVE EMP-ID TO LS-EMP-ID                               00168699
+001654           MOVE 'NEW EMPLOYEE, CAN PERFORM INSERTION ONLY'        00168799
+001655                 TO LS-MSG                                        00168899
+                 MOVE 1 TO LS-CURSOR-POS                                00168999
+001087        EXEC CICS RETURN                                          00169099
+001088        END-EXEC                                                  00169199
+001659        WHEN 0                                                    00169299
+001660           PERFORM 9100-VALIDATION-PARA THRU 9100-EXIT            00169399
+001661           MOVE 'N' TO WS-FLAG                                    00169499
+001662           PERFORM 3100-VALID-COUNTRY-PARA VARYING I              00169599
+001663           FROM 1 BY 1  UNTIL I > 120 OR WS-FLAG = 'Y'            00169699
+001664           IF WS-FLAG = 'Y'                                       00169799
+001665         MOVE LS-EMP-ID       TO EMP-ID                           00169899
+001666         MOVE LS-EMP-NAME     TO EMP-NAME                         00169999
+001667         MOVE LS-EMP-BIRTH-DT TO EMP-BIRTH-DT                     00170099
+001668         MOVE LS-EMP-HIRE-DT  TO EMP-HIRE-DT                      00170199
+001669         MOVE LS-EMP-ADR-LN-1 TO EMP-ADR-LN-1                     00170299
+001670         MOVE LS-EMP-ADR-LN-2 TO EMP-ADR-LN-2                     00170399
+001671         MOVE LS-EMP-CITY     TO EMP-CITY                         00170499
+001672         MOVE LS-EMP-STATE    TO EMP-STATE                        00170599
+001673         MOVE LS-EMP-POST-CD  TO EMP-POST-CD                      00170699
+001674         MOVE LS-EMP-COUNTRY  TO EMP-COUNTRY                      00170799
+001675         MOVE LS-EMP-PHONE    TO EMP-PHONE                        00170899
+001676         MOVE LS-EMP-FAX      TO EMP-FAX                          00170999
+001677         EXEC SQL                                                 00171099
+001678                   UPDATE ADMT.T_EM_EMPLOYEE                      00171199
+001679                   SET EMP_ID       = :EMP-ID,                    00171299
+001680                       EMP_NAME     = :EMP-NAME,                  00171399
+001681                       EMP_BIRTH_DT = :EMP-BIRTH-DT,              00171499
+001682                       EMP_HIRE_DT  = :EMP-HIRE-DT,               00171599
+001683                       EMP_ADR_LN_1 = :EMP-ADR-LN-1,              00171699
+001684                       EMP_ADR_LN_2 = :EMP-ADR-LN-2,              00171799
+001685                       EMP_CITY     = :EMP-CITY,                  00171899
+001686                       EMP_STATE    = :EMP-STATE,                 00171999
+001687                       EMP_POST_CD  = :EMP-POST-CD,               00172099
+001688                       EMP_COUNTRY  = :EMP-COUNTRY,               00172199
+001689                       EMP_PHONE    = :EMP-PHONE,                 00172299
+001690                       EMP_FAX      = :EMP-FAX,                   00172399
+001691                       EMP_USER_ID  = :EMP-USER-ID                00172499
+001692                   WHERE EMP_ID     = :EMP-ID                     00172599
+001693              END-EXEC                                            00172699
+001694*                                                                 00172799
+001695                   EVALUATE SQLCODE                               00172899
+001696                      WHEN 0                                      00172999
+001697                        MOVE 'SUCCESSFULLY UPDATED - PRESS PF12 TO00173099
+001698-                            ' CLEAR THE SCREEN' TO LS-MSG        00173199
+                              MOVE 1 TO LS-CURSOR-POS                   00173299
+001087                      EXEC CICS RETURN                            00173399
+001088                      END-EXEC                                    00173499
+001707                      WHEN OTHER                                  00173599
+001708                        MOVE 'UPDATION NOT SUCCESSFUL' TO LS-MSG  00173699
+                              MOVE 1 TO LS-CURSOR-POS                   00173799
+001087                      EXEC CICS RETURN                            00173899
+001088                      END-EXEC                                    00173999
+001714            END-EVALUATE                                          00174099
+001715*                                                                 00174199
+001716           ELSE                                                   00174299
+001717              MOVE 0 TO I                                         00174399
+001720              MOVE 'INVALID COUNTRY,PLEASE CHOOSE THE VALID COUNTR00174499
+001721-                  'Y' TO LS-MSG                                  00174599
+                              MOVE 10 TO LS-CURSOR-POS                  00174699
+001087                      EXEC CICS RETURN                            00174799
+001088                      END-EXEC                                    00174899
+001724           END-IF                                                 00174999
+001725*                                                                 00175099
+001726     END-EVALUATE.                                                00175199
+001727*                                                                 00175268
+001728 5000-EXIT.                                                       00175368
+001729     EXIT.                                                        00176068
+001806******************************************************************00183099
+001807 6200-DELETION-PARA.                                              00183199
+           MOVE LS-EMP-ID TO EMP-ID.                                    00183299
+001817     EXEC SQL                                                     00183399
+001818         DELETE FROM ADMT.T_EM_EMPLOYEE                           00183499
+001819         WHERE EMP_ID = :EMP-ID                                   00183599
+001820     END-EXEC.                                                    00183699
+001821*                                                                 00183799
+001822     EVALUATE SQLCODE                                             00183899
+001823          WHEN 0                                                  00183999
+001824             MOVE 'SUCCESSFULLY DELETED' TO LS-MSG                00184099
+                   MOVE 1 TO LS-CURSOR-POS                              00184199
+001087        EXEC CICS RETURN                                          00184299
+001088        END-EXEC                                                  00184399
+001828          WHEN OTHER                                              00184499
+001830             MOVE 'DELETION NOT SUCCESSFUL' TO LS-MSG             00184599
+                   MOVE 1 TO LS-CURSOR-POS                              00184699
+001087        EXEC CICS RETURN                                          00184799
+001088        END-EXEC                                                  00184899
+001843     END-EVALUATE.                                                00185099
+001848*                                                                 00185199
+001849 6200-EXIT.                                                       00185299
+001850     EXIT.                                                        00185369
+002100******************************************************************00185499
+001884 9000-ERROR-PARA.                                                 00188499
+001885     MOVE 'INVALID KEY PRESSED - PLZ TRY AGAIN' TO LS-MSG.        00188599
+           MOVE 1 TO LS-CURSOR-POS                                      00188699
+           EXEC CICS RETURN                                             00188799
+           END-EXEC.                                                    00188899
+001890*                                                                 00189095
+001900 9000-EXIT.                                                       00190095
+002000     EXIT.                                                        00200095
+002100******************************************************************00210099
+002200 9100-VALIDATION-PARA.                                            00220099
+002300     IF LS-EMP-ID = ZEROS                                         00230099
+002400          MOVE 'EMPLOYEE ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG 00240099
+                MOVE 1 TO LS-CURSOR-POS                                 00250099
+001087        EXEC CICS RETURN                                          00251099
+001088        END-EXEC                                                  00252099
+002610     ELSE IF LS-EMP-ID IS NOT NUMERIC                             00261099
+002700          MOVE 'EMPLOYEE ID SHOULD BE NUMERIC - PLZ ENTER IT'     00270099
+002800               TO LS-MSG                                          00280099
+                MOVE 1 TO LS-CURSOR-POS                                 00290099
+001087        EXEC CICS RETURN                                          00291099
+001088        END-EXEC                                                  00292099
+003010          END-IF                                                  00301099
+003020     END-IF.                                                      00302099
+003030*                                                                 00303099
+003100     IF LS-EMP-NAME = SPACES                                      00310099
+003200          MOVE 'NAME NOT ENTERED - PLZ ENTER IT' TO LS-MSG        00320099
+                MOVE 2 TO LS-CURSOR-POS                                 00330099
+001087        EXEC CICS RETURN                                          00331099
+001088        END-EXEC                                                  00332099
+003401     ELSE IF LS-EMP-NAME IS NOT ALPHABETIC                        00340199
+003402          MOVE 'NAME ENTERED IS INCORRECT - ENTER CORRECTLY'      00340299
+003403               TO LS-MSG                                          00340399
+                MOVE 2 TO LS-CURSOR-POS                                 00340499
+001087        EXEC CICS RETURN                                          00340599
+001088        END-EXEC                                                  00340699
+003406          END-IF                                                  00340899
+003410     END-IF.                                                      00341099
+003411*                                                                 00341199
+003412     IF LS-EMP-BIRTH-DT = SPACES                                  00341299
+003420          MOVE 'BIRTH DATE NOT ENTERED - PLZ ENTER IT' TO LS-MSG  00341399
+                MOVE 3 TO LS-CURSOR-POS                                 00341499
+001087        EXEC CICS RETURN                                          00341599
+001088        END-EXEC                                                  00341699
+003441     ELSE                                                         00341799
+003442          MOVE LS-EMP-BIRTH-DT TO INPUTDATELA                     00341899
+003443          MOVE LS-EMP-BIRTH-DT(1:2) TO MONTHLA                    00341999
+003444          MOVE LS-EMP-BIRTH-DT(3:1) TO WS-SLASH1                  00342099
+003445          MOVE LS-EMP-BIRTH-DT(4:2) TO DAYLA                      00342199
+003446          MOVE LS-EMP-BIRTH-DT(6:1) TO WS-SLASH2                  00342299
+003447          MOVE LS-EMP-BIRTH-DT(7:4) TO YEARLA                     00342399
+003448          DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM      00342499
+003449*                                                                 00342599
+003450          IF MONTHLA = 02 AND WS-SLASH1 = '/' AND DAYLA = 29      00342699
+003451             AND WS-SLASH2 = '/' AND WS-REM NOT = 0               00342799
+003452             MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENTE00342899
+003453-                 'R CORRECT FORMAT' TO LS-MSG                    00342999
+                MOVE 3 TO LS-CURSOR-POS                                 00343099
+001087        EXEC CICS RETURN                                          00343199
+001088        END-EXEC                                                  00343299
+003456          ELSE                                                    00343399
+003457             PERFORM 9400-BEGIN-PARA THRU 9400-EXIT               00343499
+003458*                                                                 00343599
+003459             EVALUATE TRUE                                        00343699
+003460               WHEN DATENOTNUMERIC                                00343799
+003461                 MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT'  00343899
+003462                      TO LS-MSG                                   00343999
+                       MOVE 3 TO LS-CURSOR-POS                          00344099
+001087                  EXEC CICS RETURN                                00344199
+001088                  END-EXEC                                        00344299
+003465               WHEN MONTHCONTAINSZEROS                            00344399
+003466                 MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'00344499
+003467                      TO LS-MSG                                   00344599
+                       MOVE 3 TO LS-CURSOR-POS                          00344699
+001087                  EXEC CICS RETURN                                00344799
+001088                  END-EXEC                                        00344899
+003470               WHEN MONTHGREATERTHAN12                            00344999
+003471                 MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'00345099
+003472                      TO LS-MSG                                   00345199
+                       MOVE 3 TO LS-CURSOR-POS                          00345299
+001087                  EXEC CICS RETURN                                00345399
+001088                  END-EXEC                                        00345499
+003477               WHEN DAYCONTAINSZEROS                              00345599
+003478                 MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT' 00345699
+003479                      TO LS-MSG                                   00345799
+                       MOVE 3 TO LS-CURSOR-POS                          00345899
+001087                  EXEC CICS RETURN                                00345999
+001088                  END-EXEC                                        00346099
+003482               WHEN DAYTOOGREATFORMONTH                           00346199
+003483                 MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ 00346299
+003484-                     'ENTER CORRECT FORMAT' TO LS-MSG            00346399
+                       MOVE 3 TO LS-CURSOR-POS                          00346499
+001087                  EXEC CICS RETURN                                00346599
+001088                  END-EXEC                                        00346699
+003487               WHEN YEARCONTAINSZEROS                             00346799
+003488                 MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT' 00346899
+003489                      TO LS-MSG                                   00346999
+                       MOVE 3 TO LS-CURSOR-POS                          00347099
+001087                  EXEC CICS RETURN                                00347199
+001088                  END-EXEC                                        00347299
+003492           END-EVALUATE                                           00347399
+003493*                                                                 00347499
+003494           EVALUATE TRUE                                          00347599
+003495               WHEN WS-SLASH1 NOT = '/'                           00347699
+003496                 MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A 00347799
+003497-                     'SEPERATOR'  TO LS-MSG                      00347899
+                       MOVE 3 TO LS-CURSOR-POS                          00347999
+001087                 EXEC CICS RETURN                                 00348099
+001088                 END-EXEC                                         00348199
+003500               WHEN WS-SLASH2 NOT = '/'                           00348299
+003501                 MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A 00348399
+003502-                     'SEPERATOR'  TO LS-MSG                      00348499
+                       MOVE 3 TO LS-CURSOR-POS                          00348599
+001087                 EXEC CICS RETURN                                 00348699
+001088                 END-EXEC                                         00348799
+003505           END-EVALUATE                                           00348899
+003506*                                                                 00348999
+003507          END-IF                                                  00349099
+003508*                                                                 00349199
+003509     END-IF.                                                      00349299
+003510*                                                                 00349399
+003412     IF LS-EMP-HIRE-DT = SPACES                                   00349499
+003512          MOVE 'HIRE DATE NOT ENTERED - PLZ ENTER IT' TO LS-MSG   00349599
+                MOVE 4 TO LS-CURSOR-POS                                 00349699
+001087        EXEC CICS RETURN                                          00349799
+001088        END-EXEC                                                  00349899
+003515     ELSE                                                         00349999
+003516          MOVE LS-EMP-HIRE-DT      TO INPUTDATELA                 00350099
+003517          MOVE LS-EMP-HIRE-DT(1:2) TO MONTHLA                     00350199
+003518          MOVE LS-EMP-HIRE-DT(3:1) TO WS-SLASH1                   00350299
+003519          MOVE LS-EMP-HIRE-DT(4:2) TO DAYLA                       00350399
+003520          MOVE LS-EMP-HIRE-DT(6:1) TO WS-SLASH2                   00350499
+003521          MOVE LS-EMP-HIRE-DT(7:4) TO YEARLA                      00350599
+003522          DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM      00350699
+003523*                                                                 00350799
+003524          IF MONTHLA = 02 AND WS-SLASH1 = '/' AND DAYLA = 29      00350899
+003525             AND WS-SLASH2 = '/' AND WS-REM NOT = 0               00350999
+003526             MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENTE00351099
+003527-                 'R CORRECT FORMAT' TO LS-MSG                    00351199
+                   MOVE 4 TO LS-CURSOR-POS                              00351299
+001087        EXEC CICS RETURN                                          00351399
+001088        END-EXEC                                                  00351499
+003530          ELSE                                                    00351599
+003531             PERFORM 9400-BEGIN-PARA THRU 9400-EXIT               00351699
+003532*                                                                 00351799
+003533             EVALUATE TRUE                                        00351899
+003534               WHEN DATENOTNUMERIC                                00351999
+003535                 MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT'  00352099
+003536                      TO LS-MSG                                   00352199
+                       MOVE 4 TO LS-CURSOR-POS                          00352299
+001087                 EXEC CICS RETURN                                 00352399
+001088                 END-EXEC                                         00352499
+003539               WHEN MONTHCONTAINSZEROS                            00352599
+003540                 MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'00352699
+003541                      TO LS-MSG                                   00352799
+                       MOVE 4 TO LS-CURSOR-POS                          00352899
+001087                 EXEC CICS RETURN                                 00352999
+001088                 END-EXEC                                         00353099
+003544               WHEN MONTHGREATERTHAN12                            00353199
+003545                 MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'00353299
+003546                      TO LS-MSG                                   00353399
+                       MOVE 4 TO LS-CURSOR-POS                          00353499
+001087                 EXEC CICS RETURN                                 00353599
+001088                 END-EXEC                                         00353699
+003550               WHEN DAYCONTAINSZEROS                              00353799
+003551                 MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT' 00353899
+003552                      TO LS-MSG                                   00353999
+                       MOVE 4 TO LS-CURSOR-POS                          00354099
+001087                 EXEC CICS RETURN                                 00354199
+001088                 END-EXEC                                         00354299
+003555               WHEN DAYTOOGREATFORMONTH                           00354399
+003556                 MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ 00354499
+003557-                     'ENTER CORRECT FORMAT' TO LS-MSG            00354599
+                       MOVE 4 TO LS-CURSOR-POS                          00354699
+001087                 EXEC CICS RETURN                                 00354799
+001088                 END-EXEC                                         00354899
+003560               WHEN YEARCONTAINSZEROS                             00354999
+003561                 MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT' 00355099
+003562                      TO LS-MSG                                   00355199
+                       MOVE 4 TO LS-CURSOR-POS                          00355299
+001087                 EXEC CICS RETURN                                 00355399
+001088                 END-EXEC                                         00355499
+003565             END-EVALUATE                                         00355599
+003566*                                                                 00355699
+003567             EVALUATE TRUE                                        00355799
+003568               WHEN WS-SLASH1 NOT = '/'                           00355899
+003569                 MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A 00355999
+003570-                     'SEPERATOR'  TO LS-MSG                      00356099
+                       MOVE 4 TO LS-CURSOR-POS                          00356199
+001087                  EXEC CICS RETURN                                00356299
+001088                  END-EXEC                                        00356399
+003573               WHEN WS-SLASH2 NOT = '/'                           00356499
+003574                 MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A 00356599
+003575-                     'SEPERATOR'  TO LS-MSG                      00356699
+                       MOVE 4 TO LS-CURSOR-POS                          00356799
+001087                  EXEC CICS RETURN                                00356899
+001088                  END-EXEC                                        00356999
+003578             END-EVALUATE                                         00357099
+003579*                                                                 00357199
+003580          END-IF                                                  00357299
+003581*                                                                 00357399
+003582     END-IF.                                                      00357499
+003581*                                                                 00357599
+003100     IF LS-EMP-ADR-LN-1 = SPACES                                  00357699
+003600          MOVE 'ADDRESS LN 1 NOT ENTERED - PLZ ENTER IT' TO LS-MSG00357799
+                MOVE 5 TO LS-CURSOR-POS                                 00357899
+001087        EXEC CICS RETURN                                          00357999
+001088        END-EXEC                                                  00358099
+003810     END-IF.                                                      00358199
+003820*                                                                 00358299
+003100     IF LS-EMP-ADR-LN-2 = SPACES                                  00358399
+004000          MOVE 'ADDRESS LN 2 NOT ENTERED - PLZ ENTER IT' TO LS-MSG00358499
+                MOVE 6 TO LS-CURSOR-POS                                 00358599
+001087        EXEC CICS RETURN                                          00358699
+001088        END-EXEC                                                  00358799
+004210     END-IF.                                                      00358899
+004220*                                                                 00358999
+003100     IF LS-EMP-CITY = SPACES                                      00359099
+004400          MOVE 'CITY NOT ENTERED - PLZ ENTER IT' TO LS-MSG        00359199
+                MOVE 7 TO LS-CURSOR-POS                                 00359299
+001087        EXEC CICS RETURN                                          00359399
+001088        END-EXEC                                                  00359499
+004606     END-IF.                                                      00359599
+004220*                                                                 00359699
+004601     IF LS-EMP-CITY IS NOT ALPHABETIC                             00359799
+004602          MOVE 'CITY ENTERED IS INCORRECT - ENTER CORRECTLY'      00359899
+004603               TO LS-MSG                                          00359999
+                MOVE 7 TO LS-CURSOR-POS                                 00360099
+001087        EXEC CICS RETURN                                          00360199
+001088        END-EXEC                                                  00360299
+004610     END-IF.                                                      00360399
+004620*                                                                 00360499
+003100     IF LS-EMP-STATE = SPACES                                     00360599
+004800          MOVE 'STATE NOT ENTERED - PLZ ENTER IT' TO LS-MSG       00360699
+                MOVE 8 TO LS-CURSOR-POS                                 00360799
+001087        EXEC CICS RETURN                                          00360899
+001088        END-EXEC                                                  00360999
+005001     ELSE IF LS-EMP-STATE IS NOT ALPHABETIC                       00361099
+005002          MOVE 'STATE ENTERED IS INCORRECT - ENTER CORRECTLY'     00361199
+005003               TO LS-MSG                                          00361299
+                MOVE 8 TO LS-CURSOR-POS                                 00361399
+001087        EXEC CICS RETURN                                          00361499
+001088        END-EXEC                                                  00361599
+005006          END-IF                                                  00361699
+005010     END-IF.                                                      00361799
+005020*                                                                 00361899
+002300     IF LS-EMP-POST-CD = SPACES                                   00361999
+005200          MOVE 'POSTCODE NOT ENTERED - PLZ ENTER IT' TO LS-MSG    00362099
+                MOVE 9 TO LS-CURSOR-POS                                 00362199
+001087        EXEC CICS RETURN                                          00362299
+001088        END-EXEC                                                  00362399
+005406     END-IF.                                                      00362499
+      *                                                                 00362599
+006601     IF LS-EMP-POST-CD IS NOT NUMERIC                             00362699
+006602          MOVE 'POSTCODE ENTERED IS INCORRECT - ENTER ALL DIGITS' 00362799
+006603               TO LS-MSG                                          00362899
+                MOVE 9 TO LS-CURSOR-POS                                 00362999
+001087        EXEC CICS RETURN                                          00363099
+001088        END-EXEC                                                  00364099
+006610     END-IF.                                                      00364199
+005420*                                                                 00364499
+003100     IF LS-EMP-COUNTRY = SPACES                                   00364599
+005600          MOVE 'COUNTRY NOT ENTERED - PLZ ENTER IT' TO LS-MSG     00364699
+                MOVE 10 TO LS-CURSOR-POS                                00364799
+001087        EXEC CICS RETURN                                          00364899
+001088        END-EXEC                                                  00364999
+005810     END-IF.                                                      00365099
+005820*                                                                 00365199
+006300     IF LS-EMP-PHONE = SPACES                                     00370599
+006400          MOVE 'PHONE NOT ENTERED - PLZ ENTER IT' TO LS-MSG       00370699
+                MOVE 11 TO LS-CURSOR-POS                                00370799
+001087        EXEC CICS RETURN                                          00370899
+001088        END-EXEC                                                  00370999
+006606      END-IF.                                                     00371099
+005820*                                                                 00371199
+006601     IF LS-EMP-PHONE IS NOT NUMERIC                               00371299
+006602          MOVE 'PHONE ENTERED IS INCORRECT - ENTER ALL DIGITS'    00371399
+006603               TO LS-MSG                                          00371499
+                MOVE 11 TO LS-CURSOR-POS                                00371599
+001087        EXEC CICS RETURN                                          00371699
+001088        END-EXEC                                                  00371799
+006610     END-IF.                                                      00380099
+006620*                                                                 00662099
+006300     IF LS-EMP-FAX = SPACES                                       00664099
+006400          MOVE 'FAX NOT ENTERED - PLZ ENTER IT' TO LS-MSG         00665099
+                MOVE 12 TO LS-CURSOR-POS                                00666099
+001087        EXEC CICS RETURN                                          00667099
+001088        END-EXEC                                                  00668099
+006606     END-IF.                                                      00668199
+006620*                                                                 00668299
+006601     IF LS-EMP-FAX IS NOT NUMERIC                                 00669099
+006602          MOVE 'FAX ENTERED IS INCORRECT - ENTER ALL DIGITS'      00670099
+006603               TO LS-MSG                                          00680099
+                MOVE 12 TO LS-CURSOR-POS                                00690099
+001087        EXEC CICS RETURN                                          00700099
+001088        END-EXEC                                                  00701099
+006610     END-IF.                                                      00703099
+006620*                                                                 00704099
+007100 9100-EXIT.                                                       00710099
+007200     EXIT.                                                        00720099

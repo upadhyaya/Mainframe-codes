@@ -1,0 +1,11 @@
+//UADT014R JOB NOTIFY=&SYSUID                                           00010084
+//* BMS MAP (CICS)                                                      00011005
+//PROCLIB JCLLIB ORDER=UADT014.BLR.ASM                                  00020096
+//*                                                                     00021000
+//MAPASEM EXEC DFHMAPS,                                                 00030000
+//   MAPLIB='ADMS.CICSA1.LOAD',      <==PHYS MAP                        00040067
+//   DSCTLIB='UADT014.BASE.COPYLIB',    <==SYMBOLIC MAP                 00050096
+//   MAPNAME='UTILM1'          <==MAPSET NAME                           00060098
+//*                                                                     00061002
+//COPY.SYSUT1 DD DISP=SHR,DSN=UADT014.BLR.ASM(UTILM1)                   00070098
+//                                                                      00080000

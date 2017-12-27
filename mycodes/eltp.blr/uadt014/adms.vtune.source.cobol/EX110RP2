@@ -1,0 +1,343 @@
+                                                                        00001026
+000100 IDENTIFICATION DIVISION.                                         00010000
+                                                                        00011026
+000200 PROGRAM-ID.    EX110RP2.                                         00020026
+                                                                        00021026
+000400 AUTHOR.        RADHIKA.                                          00030026
+                                                                        00031026
+000500 DATE-WRITTEN.  18/12/08.                                         00040026
+                                                                        00041026
+000600 DATE-COMPILED. 18/12/08.                                         00050026
+                                                                        00051026
+002000******************************************************************00090026
+      ***                                                            ***00090126
+      *** PROGRAM NAME: EX110RP2.                                    ***00090226
+      ***                                                            ***00090326
+      *** INTRODUCTION:                                              ***00090426
+      ***                                                            ***00090526
+      *** THIS PROGRAM IS USED TO ILLUSTRATE THE DETAILS OF THE      ***00090626
+      *** SINGLE RUN OF A CICS TRANSACTION USING SMF110 RECORDS.     ***00090726
+      ***                                                            ***00090926
+      *** THE PERFORMANCE LIST EXTENDED REPORT PROVIDES THE DETAILS  ***00091026
+      *** OF A TRANSACTION ID.                                       ***00091126
+      ***                                                            ***00091226
+      *** PROGRAM CALLED BY:                                         ***00091326
+      ***     NONE.                                                  ***00091426
+      ***                                                            ***00091526
+      *** PROGRAM CALLS:                                             ***00091626
+      ***     NONE.                                                  ***00091726
+      ***                                                            ***00091826
+      *** FUNCTION:-                                                 ***00091926
+      ***                                                            ***00092026
+      ***  THIS PROGRAM IS USED TO GENERATE THE PERFORMANCE LIST     ***00092126
+      ***  EXTENDED REPORT USING CICS RECORDS(SMF110).THE CICS       ***00092226
+      ***  PERFORMANCE RECORDS ARE EXTRACTED FROM THE SMF AND SORTED ***00092326
+      ***  BASED ON THE CICS APPLID AND TRANSACTION NAME.            ***00092426
+      ***                                                            ***00092626
+      ***  EXTRACTION PROGRAM FOR CICS PERFORMANCE RECORDS:XTRCT110  ***00092726
+      ***                                                            ***00092826
+      ***  THIS REPORT IS GENERATED USING THE EXTRACTED DATA.        ***00092926
+      ***  ALL THE DATA FOR A PARTICULAR TRANSACTION ARE PRINTED IN  ***00093026
+      ***  THE REPORT FOR EVERY RUN.                                 ***00093126
+      ***                                                            ***00093226
+      ***  THE INPUT FILE IS READ AND ALL THE INFORMATION IS GATHERED***00093326
+      ***  FOR A PARTICULAR TRANSACTION. WHEN THE APPLID CHANGES THE ***00093426
+      ***  REPORT IS GENERATED AGAIN FOR IT.IN THIS REPORT THE       ***00093726
+      ***  INFORMATION IS WRITTEN INTO THE REPORT FOR EACH RUN OF IT.***00093826
+      ***                                                            ***00094426
+      ***  PERFORMANCE LIST EXTENDED REPORT:-                        ***00094526
+      ***    THE PERFORMANCE LIST EXTENDED REPORT PROVIDES A DETAILED***00094626
+      ***    LIST OF THE CMF PERFORMANCE CLASS RECORDS.              ***00094726
+      ***    THE LIST GIVES IN DETAIL ABOUT EACH AND EVERY           ***00094826
+      ***    TRANSACTION PRESENT IN THE SMF DATA.                    ***00094926
+      ***                                                            ***00095026
+      ***  INCLUDE CODE FROM COPY LIBRARY-ADMS.VTUNE.SOURCE.COPYLIB  ***00095126
+      ***                                                            ***00095226
+      ***  VTDATE  : THIS CONTAINS THE CODE FOR:-                    ***00095326
+      ***          A. CONVERTING THE DATE FROM JULIAN FORMAT TO      ***00095426
+      ***             GREGORIAN FORMAT.                              ***00095526
+      ***          B. FORMATING THE TIME TO HH:MM:SS.SS.             ***00095626
+      ***          C. OBTAINING CURRENT DATE AND TIME.               ***00095726
+      ***                                                            ***00095826
+      ***  BYTE2BIT: THIS CONTAINS THE CODE FOR CONVERTING A BYTE TO ***00095926
+      ***            BITS.                                           ***00096026
+      ***                                                            ***00096126
+      ***  VTCONV  : THE START-TIME AND STOP-TIME IS IN THE UNIT OF  ***00096226
+      ***            TIMESTAMP. A TIME STAMP IS AN 8-BYTE COPY OF THE***00096326
+      ***            OUTPUT OF AN STCK INSTRUCTION. THIS IS CONVERTED***00096426
+      ***            TO EQUIVALENT DATE AND TIME FIELDS.             ***00096526
+      ***            STCK(STORE CLOCK) INSTRUCTION RETURNS TIME IN   ***00096626
+      ***            UNITS OF 1 MICROSECONDS IN BINARY SINCE         ***00096726
+      ***            1ST JANUARY 1900.THE TIME IS STORED AT THE 8    ***00096826
+      ***            BYTES SPECIFIED AND USES ONLY BITS 0-51 OF THE  ***00096926
+      ***            8-BYTE FIELD.                                   ***00097026
+      ***                                                            ***00097126
+      ***  FILES USED:-                                              ***00097526
+      ***    SMFDATA - INPUT FILE.                                   ***00097626
+      ***    SMFOUT  - OUTPUT FILE.                                  ***00097726
+      ***                                                            ***00097826
+      ***  PROGRAM FORMAT:-                                          ***00097926
+      ***                                                            ***00098026
+      ***     0000-MAIN-PARA.                                        ***00098126
+      ***          PERFORM 1000-INITIALIZE-PARA.                     ***00098226
+      ***          PERFORM 2000-PROCESS-PARA.                        ***00098326
+      ***          PERFORM 3000-CLOSE-PARA.                          ***00098426
+      ***          STOP-RUN.                                         ***00098526
+      ***     1000-INITIALIZE-PARA.                                  ***00098626
+      ***          OPEN THE FILES FOR INPUT AND OUTPUT.              ***00098726
+      ***          PERFORM 1100-READ-SMF.                            ***00098826
+      ***     1100-READ-SMF.                                         ***00098926
+      ***          READ THE INPUT FILE TILL END.                     ***00099026
+      ***     2000-PROCESS-PARA.                                     ***00099126
+      ***          PROCESS THE PERFORMANCE RECORDS.                  ***00099226
+      ***          PERFORM 1100-READ-SMF.                            ***00099326
+      ***     3000-CLOSE-PARA.                                       ***00099426
+      ***          CLOSE THE INPUT AND OUTPUT FILES.                 ***00099526
+      ***                                                            ***00099626
+      ***     PROCESSING THE PERFORMANCE RECORDS:-                   ***00099726
+      ***          READ THE RECORD FROM THE FILE. MOVE THE REQUIRED  ***00099826
+      ***          FIELDS FROM THE EXTRACT FILE TO WORKING STORAGE   ***00099926
+      ***          VARIABLES. PERFORM CALCULATIONS IF ANY AND WRITE  ***00100026
+      ***          IT INTO THE REPORT.CONTINUE THE SAME TILL THE END ***00100126
+      ***          OF THE FILE.                                      ***00100226
+      ***                                                            ***00100426
+002000****************************************************************  00102026
+002010 ENVIRONMENT DIVISION.                                            00103000
+002020 INPUT-OUTPUT SECTION.                                            00110000
+002030 FILE-CONTROL.                                                    00120000
+002040     SELECT SMFDATA ASSIGN TO SMFDATA.                            00130000
+002040     SELECT SMFOUT  ASSIGN TO SMFOUT.                             00140000
+002042*                                                                 00150000
+002050 DATA DIVISION.                                                   00160000
+002060 FILE SECTION.                                                    00170000
+002061*  *=============================================================*00180026
+      *  *INPUT FILE FOR REPORT GENERATION. THIS FILE CONTAINS ONLY THE 00180126
+      *  *PERF RECORDS EXTRACTED FROM THE SM110 RECORDS.THE FILE IS     00180226
+      *  *SORTED BY THE CICS APPLID AND TRANSACTION NAME.               00180326
+002061*  *=============================================================*00180426
+002070 FD  SMFDATA                                                      00190000
+002071     RECORDING MODE IS F                                          00200000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00210000
+002081 01  SMF-RECORD                  PIC X(1880).                     00220025
+002061*  *=============================================================*00230126
+      *  *REPORT GENERATED BY THIS PROGRAM--PERFORMANCE LIST EXTENDED.  00231026
+002061*  *=============================================================*00231126
+002070 FD  SMFOUT                                                       00240000
+002071     RECORDING MODE IS F                                          00250000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00260000
+002081 01  SMF-OUTPUT                  PIC X(150).                      00270000
+002090*                                                                 00280005
+002100 WORKING-STORAGE SECTION.                                         00290000
+002061*  *=============================================================*00291026
+      *  *WORKING-STORAGE VARIABLES FOR REPORT GENERATION.              00300026
+002061*  *=============================================================*00310026
+002090      COPY VT110VR2.                                              00311018
+002061*  *=============================================================*00312026
+      *  *SMF RECORD TYPE 110 LAYOUT OF THE EXTRACTED FILE.             00320026
+002061*  *=============================================================*00321026
+005277      COPY VT110EXT.                                              00330020
+002061*  *=============================================================*00330126
+      *  *SMF RECORD TYPE 110 LAYOUT OF THE PERFORMANCE RECORDS.        00331026
+002061*  *=============================================================*00332026
+005277      COPY VT110CP1.                                              00340020
+002061*  *=============================================================*00341026
+      *  *DESCRIPTION FOR REPORT HEADER AND OTHER REPORT LINES.         00350026
+002061*  *=============================================================*00351026
+005277      COPY VT110HD2.                                              00360001
+002061*  *=============================================================*00361026
+      *  *VARIABLES USED IN THE DATE CONVERSION PROGRAM.                00370026
+002061*  *=============================================================*00371026
+005277      COPY VTDATEVR.                                              00380000
+002061*  *=============================================================*00380126
+      *  *VARIABLES USED IN THE TIMESTAMP TO DATE CONVERSION PROGRAM.   00381026
+002061*  *=============================================================*00382026
+005277      COPY VTCONVVR.                                              00390000
+002061*  *=============================================================*00391026
+005521******************************************************************00400000
+005522 PROCEDURE DIVISION.                                              00410000
+005523******************************************************************00420000
+      *  *=============================================================*00421026
+      *  *                       MAIN-PARA                             *00422026
+      *  *=============================================================*00423026
+005524 0000-MAIN-PARA.                                                  00430000
+005530     PERFORM 1000-INITIALIZE-PARA THRU  1000-INITIALIZE-EXIT.     00440000
+005600     PERFORM 2000-PROCESS-PARA    THRU  2000-PROCESS-EXIT         00450000
+                                        UNTIL SMFDATA-OVER.             00460000
+005700     PERFORM 3000-CLOSE-PARA      THRU  3000-CLOSE-EXIT.          00470000
+006030*                                                                 00480000
+006010 0000-MAIN-EXIT.                                                  00490000
+005900     STOP RUN.                                                    00500000
+      *  *=============================================================*00510126
+      *  *OPEN THE FILES FOR INPUT AND OUTPUT AND INITIALIZE THE FILE   00511026
+      *  *INDICATOR FLAGS.                                              00512026
+      *  *=============================================================*00512126
+006040 1000-INITIALIZE-PARA.                                            00520000
+006050     OPEN INPUT  SMFDATA.                                         00530000
+           OPEN OUTPUT SMFOUT.                                          00540000
+006051     SET  SMFDATA-NOT-OVER TO TRUE                                00550000
+006052     PERFORM 1100-READ-SMF.                                       00560000
+006070     CONTINUE.                                                    00570000
+006091*                                                                 00580000
+006080 1000-INITIALIZE-EXIT.                                            00590000
+006090     EXIT.                                                        00600000
+      *  *=============================================================*00610126
+      *  *READ RECORDS FROM INPUT FILE.                                 00610226
+      *  *=============================================================*00610326
+006092 1100-READ-SMF.                                                   00620000
+006093     READ SMFDATA                                                 00630000
+006094     AT END SET SMFDATA-OVER TO TRUE.                             00640000
+006100     CONTINUE.                                                    00650000
+006103*                                                                 00660000
+006101 1100-EXIT.                                                       00670000
+006102     EXIT.                                                        00680000
+      *  *=============================================================*00690126
+      *  *PROCESS THE I/P RECORDS READ FROM THE FILE.CHK FOR THE APPLID.00691026
+      *  *IF THE APPLID CHANGES THEN PRINT THE HEADER AGAIN AND CONTINUE00692026
+      *  *WITH THE LIST REPORT FOR THE NEXT APPLID.                     00693026
+      *  *=============================================================*00693126
+006104 2000-PROCESS-PARA.                                               00700000
+           MOVE SMF-RECORD TO SMF110-PERF-DATA-CPY1                     00710000
+           IF SMF110-GEN-APPLID-CPY1 = SMF110-PREV-APPLID OR            00711011
+              SMF110-PREV-APPLID = SPACES                               00712011
+              CONTINUE                                                  00713011
+           ELSE                                                         00714011
+              PERFORM 3100-WRITE-HEADER-PARA THRU 3100-EXIT             00715011
+           END-IF.                                                      00716011
+           MOVE SMF110-GEN-APPLID-CPY1 TO SMF110-PREV-APPLID.           00717011
+           PERFORM 2100-PROCESS-PERFDATA THRU 2100-PROCESS-EXIT         00720000
+006294     PERFORM 1100-READ-SMF                                        00730000
+006295     CONTINUE.                                                    00740000
+006298*                                                                 00750000
+006296 2000-PROCESS-EXIT.                                               00760000
+006297     EXIT.                                                        00770000
+      *  *=============================================================*00771026
+      *  *PROCESS THE PERFORMANCE RECORDS.MOVE THE VALUES READ FROM THE 00780126
+      *  *I/P FILE TO WORKING STORAGE FIELDS,PROCESS AND WRITE IT TO THE00780226
+      *  *REPORT.                                                       00780326
+      *  *=============================================================*00780426
+       2100-PROCESS-PERFDATA.                                           00790000
+           ADD +1 TO WS-COUNT                                           00800000
+           IF WS-COUNT = 1                                              00810000
+              PERFORM 3100-WRITE-HEADER-PARA THRU 3100-EXIT             00820000
+           END-IF.                                                      00830000
+      *                                                                 00831005
+           MOVE SMF110-TRAN-CPY1 TO WS-TRANSACTION.                     00840000
+      *                                                                 00910000
+           MOVE SMF110-TTYPE-CPY1 TO WS-START-TYPE.                     00911005
+      *                                                                 00913005
+           MOVE SMF110-USERID-CPY1 TO WS-USER-ID.                       00914005
+      *                                                                 00915005
+           MOVE SMF110-RSYSID-CPY1 TO WS-RSYSID.                        00916005
+           IF WS-RSYSID = LOW-VALUES                                    00916113
+              MOVE SPACES TO WS-RSYSID                                  00916213
+           END-IF.                                                      00916313
+      *                                                                 00917005
+           MOVE SMF110-PGMNAME-CPY1 TO WS-PGMNAME.                      00918005
+      *                                                                 00919005
+           MOVE SMF110-TRANNUM-CPY1 TO WS-TASKNO.                       00919105
+      *                                                                 00919205
+           MOVE    SMF110-START-CPY1 TO SMF110-TIMESTAMP                00920004
+           PERFORM 9700-CONVERT-PARA THRU 9700-CONVERT-EXIT.            00930004
+           MOVE    WS-SECONDS TO WS-SECONDS-START                       00940004
+      *                                                                 00940121
+           MOVE    SMF110-STOP-CPY1  TO SMF110-TIMESTAMP                00941004
+           PERFORM 9700-CONVERT-PARA THRU 9700-CONVERT-EXIT.            00942004
+      *                                                                 00942121
+           MOVE    WS-SECONDS    TO WS-SECONDS-STOP                     00943011
+           MOVE    WS-HOURS      TO WS-STOP-HOURS                       00943111
+           MOVE    WS-MINS       TO WS-STOP-MINS                        00943211
+           MOVE    WS-SECS       TO WS-STOP-SECS                        00943311
+           MOVE    WS-MSECS(1:3) TO WS-STOP-MSECS.                      00943411
+           MOVE    WS-STOPTIME-DISPLAY TO WS-STOP-TIME.                 00943511
+      *  *=============================================================*00944126
+      *  *TOTAL RESPONSE TIME = START-TIME - STOP-TIME                  00944226
+      *  *=============================================================*00944326
+           COMPUTE WS-TOT-RESP = WS-SECONDS-STOP - WS-SECONDS-START.    00945004
+           MOVE WS-TOT-RESP TO WS-RESPONSE-TIME.                        00946005
+006298*                                                                 01140000
+           MOVE SMF110-FCAMCT-CPY1 TO WS-FCAM-REQ.                      01140105
+006298*                                                                 01140205
+           MOVE SMF110-USRDISPT-CPY1 TO WS-STR-TIME(01).                01140305
+           MOVE SMF110-USRCPUT-CPY1  TO WS-STR-TIME(02).                01140405
+           MOVE SMF110-L8CPUT-CPY1   TO WS-STR-TIME(03)                 01140617
+           MOVE SMF110-SUSPTIME-CPY1 TO WS-STR-TIME(04).                01141016
+           MOVE SMF110-DISPWTT-CPY1  TO WS-STR-TIME(05).                01141116
+           MOVE SMF110-FCIOWTT-CPY1  TO WS-STR-TIME(06).                01141216
+           MOVE SMF110-IRIOWTT-CPY1  TO WS-STR-TIME(07).                01141316
+           SET AWT TO 1.                                                01141416
+           PERFORM 2200-COMPUTE-MOVE-PARA THRU 2200-EXIT UNTIL AWT > 7. 01141516
+      *  *=============================================================*01141726
+006298*  *AFTER COMPUTING THE VALUES WRITE THE VALUES ON TO THE REPORT. 01141826
+      *  *=============================================================*01141926
+           WRITE SMF-OUTPUT FROM WS-REPORT-LINE.                        01142121
+           INITIALIZE WS-VARIABLES.                                     01142221
+006298*                                                                 01143021
+006296 2100-PROCESS-EXIT.                                               01150000
+006297     EXIT.                                                        01160000
+      *  *=============================================================*01170126
+      *  *A CLOCK IS A 32-BIT VALUE,EXPRESSED IN UNITS OF 16 MICROSECS  01170226
+      *  *SO THE VALUE OBTAINED FROM THE INPUT FILE IS MULTIPLIED BY    01170326
+      *  *(16*0.000001) TO GET THE VALUE IN SECONDS.                    01170426
+      *  *=============================================================*01170526
+       2200-COMPUTE-MOVE-PARA.                                          01170721
+           COMPUTE WS-TOT-TIME(AWT) = WS-NUM-TIME1(AWT) * 16 * 0.000001 01170821
+           MOVE WS-TOT-TIME(1) TO WS-DISPATCH-TIME.                     01170905
+           MOVE WS-TOT-TIME(2) TO WS-CPU-TIME.                          01171005
+           MOVE WS-TOT-TIME(3) TO WS-DB2-TIME.                          01171116
+           MOVE WS-TOT-TIME(4) TO WS-SUSPEND-TIME.                      01171216
+           MOVE WS-TOT-TIME(5) TO WS-DISPWAIT-TIME.                     01171316
+           MOVE WS-TOT-TIME(6) TO WS-FCWAIT-TIME.                       01171416
+           MOVE WS-TOT-TIME(7) TO WS-IRWAIT-TIME.                       01171516
+           SET AWT UP BY 1.                                             01171605
+006298*                                                                 01172005
+006296 2200-EXIT.                                                       01172105
+006297     EXIT.                                                        01172205
+      *  *=============================================================*01173126
+      *  *WRITE THE HEADER ON TO THE REPORT.                            01173226
+      *  *=============================================================*01173326
+       3100-WRITE-HEADER-PARA.                                          01180000
+           WRITE SMF-OUTPUT FROM PATTERN2.                              01190000
+           MOVE SMF110-SYSTEMID-CPY1   TO WS-SYSTEMID-RPT.              01190100
+           MOVE SMF110-SUBSYSID-CPY1   TO WS-SUBSYSID-RPT.              01190200
+           MOVE SMF110-GEN-APPLID-CPY1 TO WS-APPLID-RPT.                01190300
+           PERFORM 9200-GETDATETIME-PARA.                               01191000
+           MOVE  WS-HEADER1 TO WS-REPORT-HEADER                         01192000
+           WRITE SMF-OUTPUT FROM MAIN-HEADER-LINE1.                     01200000
+           WRITE SMF-OUTPUT FROM MAIN-HEADER-LINE2.                     01201000
+           WRITE SMF-OUTPUT FROM PATTERN2.                              01210000
+           WRITE SMF-OUTPUT FROM PATTERN1.                              01220000
+           WRITE SMF-OUTPUT FROM HEADER1.                               01221003
+           WRITE SMF-OUTPUT FROM HEADER2.                               01222003
+           WRITE SMF-OUTPUT FROM PATTERN1.                              01223003
+006298*                                                                 01230000
+006296 3100-EXIT.                                                       01240000
+006297     EXIT.                                                        01250000
+      *  *=============================================================*01261026
+006298*  *CLOSE THE FILES.                                              01270026
+      *  *=============================================================*01271026
+006300 3000-CLOSE-PARA.                                                 02953000
+           IF WS-COUNT = 0                                              02953123
+              WRITE SMF-OUTPUT FROM PATTERN2                            02953223
+              WRITE SMF-OUTPUT FROM NO-REPORT-LINE                      02953323
+              WRITE SMF-OUTPUT FROM PATTERN2                            02953423
+           ELSE                                                         02953523
+              WRITE SMF-OUTPUT FROM PATTERN1                            02954024
+           END-IF.                                                      02955023
+006400     CLOSE SMFDATA.                                               02970000
+           CLOSE SMFOUT.                                                02980000
+007100*                                                                 03000000
+006900 3000-CLOSE-EXIT.                                                 03010000
+007000     EXIT.                                                        03020000
+002090*  *=============================================================*03030026
+007100*  *DATE CONVERSION PROGRAM.                                      03040026
+002090*  *=============================================================*03050026
+005277      COPY VTDATE.                                                03060026
+002090*  *=============================================================*03070026
+007100*  *CONVERSION FROM BYTES TO BITS(02-->00000010)                  03080026
+002090*  *=============================================================*03090026
+005277      COPY BYTE2BIT.                                              03100026
+002090*  *=============================================================*03110026
+007100*  *CONVERSION FROM TIMESTAMP TO DATE AND TIME.                   03120026
+002090*  *=============================================================*03130026
+005277      COPY VTCONV.                                                03140026
+002090*  *=============================================================*03150026

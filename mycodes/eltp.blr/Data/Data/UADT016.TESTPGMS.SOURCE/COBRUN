@@ -1,0 +1,10 @@
+//UADT016X JOB NOTIFY=&SYSUID,REGION=0M                                 00010000
+//*                                                                     00020000
+//STEP1    EXEC PGM=COBPROG,PARM=03                                     00030001
+//STEPLIB  DD DSN=UADT016.BASE.LOADLIB,DISP=SHR                         00040000
+//*F1       DD DSN=UADT016.XML.INPUTV,DISP=SHR                          00041000
+//*F2       DD DSN=UADT016.XML.OUTPUT1,DISP=SHR                         00042000
+//SYSPRINT DD SYSOUT=*                                                  00050000
+//SYSTSPRT DD SYSOUT=*                                                  00060000
+//SYSUDUMP DD SYSOUT=*                                                  00070000
+//SYSOUT   DD SYSOUT=*                                                  00080000

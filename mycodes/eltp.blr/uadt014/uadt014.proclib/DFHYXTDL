@@ -1,0 +1,129 @@
+//DFHYXTDL PROC INLIB=,                                                 01400006
+//       MEM=,                                                          01401005
+//*      INDEX='CICSTS31.CICS',       Qualifier(s) for CICS libraries   01410002
+//*      PROGLIB='CICSTS31.CICS.SDFHEXCI', Name of o/p library@BA25137C 02100000
+//*      DSCTLIB='CICSTS31.CICS.SDFHC370', Private macro/dsect@BA25137C 02800000
+//       COMPILER=CCNDRVR,           C/C++ Compiler OS/390 2.6          03100000
+//       COMPHLQ='CBC',             Qualifier(s) for AD/Cycle compiler  03500000
+//       LE370HLQ='CEE',             QUALIFIER(S) FOR LE/370 LIBRARIES  04200000
+//       OUTC=A,                     Class for print output             04900005
+//       REG=4M,                     Region size for all steps          05600000
+//       WRKSPC='(3200,(30,30))',    Work SPACE parameter values        06300000
+//       DCB80='(RECFM=FB,LRECL=80,BLKSIZE=3200)',                      07000000
+//*                                  DCB for LRECL=80 datasets          07700000
+//       DCB3200='(RECFM=FB,LRECL=3200,BLKSIZE=12800)',                 08400000
+//*                                  DCB for LRECL=3200 datasets        09100000
+//       CPARM='RENT,SOURCE',        'C' compiler parameters            09800000
+//       LNKPARM='AMODE(31),RMODE(ANY),LIST,MAP,LET,XREF',              11200000
+//*                                  Link edit parameters               11700000
+//       WORK=SYSDA,                 Unit for work datasets             12200000
+//       SCBCCMP=SCCNCMP             Compiler Library                   12500000
+//*                                                                     12800000
+//*        This procedure is used to translate,compile and linkedit     12900000
+//*        C batch application programs using the external cics         13000000
+//*        interface (exci).                                            13200000
+//*                                                                     13400000
+//*        The procedure contains 5 steps                               13600000
+//*        1.   Exec the C translator (using the supplied suffix 1$)    14400000
+//*        2.   Exec the C compiler                                     15200000
+//*        3.   Reblock SDFHMAC(DFHEXLI) for use by the linkedit step   16000000
+//*        4.   Exec the C pre-linkedit                                 16800000
+//*        5.   Linkedit the output to dataset &PROGLIB                 17600000
+//*                                                                     18400000
+//*        The following JCL should be used                             19200000
+//*        to execute this procedure                                    20000000
+//*                                                                     20800000
+//*        //APPLPROG EXEC DFHYXTDL                                     21600000
+//*        //TRN.SYSIN  DD *                                            22400000
+//*           .                                                         23200000
+//*           . C application source program                            24000000
+//*           .                                                         24800000
+//*        /*                                                           25600000
+//*        //LKED.SYSIN DD *                                            26400000
+//*         NAME anyname(R)                                             27200000
+//*        /*                                                           28000000
+//*                                                                     28800000
+//*      Where   anyname   is the name of your application program.     29600000
+//*      (refer to the system definition guide for full details.)       30400000
+//*                                                                     32800000
+//*TRN      EXEC PGM=DFHEDP&SUFFIX,PARM='EXCI',                         33600000
+//*         REGION=&REG                                                 34400000
+//*STEPLIB  DD DSN=&INDEX..SDFHLOAD,DISP=SHR                            35200000
+//*SYSPRINT DD SYSOUT=&OUTC                                             36000000
+//*SYSPUNCH DD DSN=&&SYSCIN,                                            36800000
+//*         DISP=(,PASS),UNIT=&WORK,                                    37600000
+//*         DCB=BLKSIZE=400,                                            38400000
+//*         SPACE=(400,(400,100))                                       39200000
+//*                                                                     40000000
+//C        EXEC PGM=&COMPILER,                                          40800000
+//         REGION=&REG,                                                 41600000
+//         PARM=('&CPARM')                                              43200000
+//STEPLIB  DD DSN=&COMPHLQ..&SCBCCMP,DISP=SHR                           44000000
+//         DD DSN=&LE370HLQ..SCEERUN,DISP=SHR                           44800000
+//*SYSLIB   DD DSN=&DSCTLIB,DISP=SHR                                    46400000
+//*         DD DSN=&INDEX..SDFHC370,DISP=SHR                            47200000
+//*         DD DSN=&INDEX..SDFHMAC,DISP=SHR                             48000000
+//*         DD DSN=&INDEX..SDFHSAMP,DISP=SHR                            48200000
+//*         DD DSN=&LE370HLQ..SCEEH.H,DISP=SHR                          48500000
+//SYSIN    DD DSN=&INLIB(&MEM),DISP=SHR                                 48510000
+//SYSLIN   DD DSN=&&LOAD,DISP=(,PASS),                                  48800000
+//            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB80                       49600000
+//SYSPRINT DD SYSOUT=&OUTC                                              50400000
+//SYSCPRT  DD SYSOUT=&OUTC                                              51200000
+//SYSTERM  DD DUMMY                                                     52000000
+//SYSUT1   DD DSN=&&SYSUT1,DISP=(,PASS),                                52800000
+//            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB80                       53600000
+//SYSUT2   DD DSN=&&SYSUT2,DISP=(,PASS),                                54400000
+//            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB80                       55200000
+//SYSUT3   DD DSN=&&SYSUT3,DISP=(,PASS),                                56000000
+//            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB80                       56800000
+//SYSUT4   DD DSN=&&SYSUT4,DISP=(,PASS),                                57600000
+//            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB80                       58400000
+//SYSUT5   DD DSN=&&SYSUT5,DISP=(,PASS),                                59200000
+//            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB80                       60000000
+//SYSUT6   DD DSN=&&SYSUT6,DISP=(,PASS),                                60800000
+//            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB3200                     61600000
+//SYSUT7   DD DSN=&&SYSUT7,DISP=(,PASS),                                62400000
+//            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB3200                     63200000
+//SYSUT8   DD DSN=&&SYSUT8,DISP=(,PASS),                                64000000
+//            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB3200                     64800000
+//SYSUT9   DD DSN=&&SYSUT9,DISP=(,PASS),UNIT=&WORK,                     65600000
+//         SPACE=&WRKSPC,DCB=(RECFM=VB,LRECL=137,BLKSIZE=882)           66400000
+//SYSUT10  DD DUMMY                                                     67200000
+//SYSUT14  DD DSN=&&SYSUT14,DISP=(,PASS),UNIT=&WORK,                    67400000
+//            SPACE=&WRKSPC,DCB=&DCB3200                                67700000
+//*SYSIN    DD DSN=*.TRN.SYSPUNCH,DISP=(OLD,DELETE)                     68000000
+//*                                                                     68800000
+//*COPYLINK EXEC PGM=IEBGENER,COND=((7,LT,C),(7,LT,TRN))                69600000
+//*SYSUT1   DD DSN=&INDEX..SDFHMAC(DFHEXLI),DISP=SHR                    70400000
+//*SYSUT2   DD DSN=&&COPYLINK,DISP=(,PASS),                             71200000
+//*            DCB=&DCB80,                                              72100000
+//*            UNIT=&WORK,SPACE=(400,(20,20))                           73000000
+//*SYSPRINT DD SYSOUT=&OUTC                                             73900000
+//*SYSIN    DD DUMMY                                                    74800000
+//*                                                                     75700000
+//*PLKED    EXEC PGM=EDCPRLK,COND=((7,LT,C),(7,LT,TRN)),                76600000
+//*         REGION=&REG,PARM='&PPARM'                                   77500000
+//*STEPLIB  DD DSN=&LE370HLQ..SCEERUN,DISP=SHR                          79000000
+//*         DD DSN=&COMPHLQ..&SCBCCMP,DISP=SHR                          79500000
+//*SYSMSGS  DD DSN=&LE370HLQ..SCEEMSGP(EDCPMSGE),DISP=SHR               80000000
+//*SYSLIB   DD DUMMY                                                    82000000
+//*SYSIN    DD DSN=*.C.SYSLIN,DISP=(OLD,DELETE)                         82900000
+//*SYSMOD   DD DSN=&&PLNK,DISP=(,PASS),                                 83800000
+//*            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB80                      84700000
+//*SYSOUT   DD SYSOUT=&OUTC                                             85600000
+//*SYSPRINT DD SYSOUT=&OUTC                                             86500000
+//*                                                                     87400000
+//LKED     EXEC PGM=IEWL,REGION=&REG,                                   88300000
+//         PARM='&LNKPARM',                                             89200000
+//         COND=(7,LT,C)                                                90100000
+//SYSLIB   DD DSN=&LE370HLQ..SCEELKED,DISP=SHR                          91000000
+//         DD DSN=CEE.SCEERUN,DISP=SHR                                  92800009
+//         DD DSN=SYS1.CSSLIB,DISP=SHR                                  92810009
+//SYSLIN   DD DSN=&&LOAD,DISP=SHR                                       93700010
+//SYSLMOD  DD DSN=UADT014.BASE.LOADLIB(&MEM),DISP=SHR                   96400012
+//SYSUT1   DD DSN=&&SYSUT1L,DISP=(,PASS),                               97300000
+//            UNIT=&WORK,SPACE=&WRKSPC,DCB=&DCB80                       98200000
+//SYSPRINT DD SYSOUT=&OUTC                                              99100000
+//SYSIN    DD DUMMY                                                     99110001
+//  PEND                                                                99120010

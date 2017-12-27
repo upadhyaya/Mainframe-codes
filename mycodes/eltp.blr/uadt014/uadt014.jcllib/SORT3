@@ -1,0 +1,21 @@
+//UADT014S JOB 'SORT UTILITY',NOTIFY=&SYSUID,REGION=0M                  00010000
+//STEP1 EXEC PGM=SORT                                                   00020000
+//SORTLIB DD DSN=SYS1.SORTLIB,DISP=SHR                                  00030000
+//SYSOUT DD SYSOUT=*                                                    00040000
+//SORTIN DD DSN=UADT014.SMF110.EXTRACT1,DISP=SHR                        00050001
+//*SORTOUT DD DSN=UADT014.SORT.OUTPUT1,DISP=SHR                         00060000
+//SORTOUT DD DSN=UADT014.SMF110.EXTRACT1.SORT,                          00061001
+//           DISP=(,CATLG,DELETE),                                      00062000
+//           UNIT=(SYSDA,3),SPACE=(CYL,(10,100),RLSE)                   00070000
+//SORTWK01 DD UNIT=SYSDA,SPACE=(TRK,(100,200))                          00080000
+//SYSIN DD *                                                            00090000
+     SORT FIELDS=(17,8,CH,A,33,4,CH,A)                                  00100001
+     INCLUDE COND=(((05,4,BI,GE,X'0108001C'),AND,                       00101001
+                    (01,4,BI,GE,3600000)),AND,                          00102001
+                   ((05,4,BI,LE,X'0108365C'),AND,                       00103001
+                    (01,4,BI,LE,3690000)))                              00104001
+/*                                                                      00110000
+//*SORT FIELDS=(6,9,CH,A) --STARTING FROM 6,LENGTH=9,CHARACTER,ASCENDING00120000
+//*  SORT FIELDS=COPY --NO SORTING,JUST TO COPY THE RECS SATISFYING     00130000
+//*                     THE CONDITION                                   00131000
+//*  SUM FIELDS=NONE --TO ELIMINATE DUPLICATES                          00140000

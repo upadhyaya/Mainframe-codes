@@ -1,0 +1,720 @@
+       IDENTIFICATION DIVISION.                                         00010001
+       PROGRAM-ID. PRODISP.                                             00020042
+      *********************************************************         00030001
+      *MODULE        : PRODUCT DETAILS INPUT CATEGORY ID OR PROD_NAME   00040067
+      *TITLE         : RETAIL SOA POC                                   00050001
+      *TRANSACTION   : MN02                                             00060067
+      *MAPS          : PRODMP                                           00070001
+      *MAPSETS       : PRODMS                                           00080001
+      *FUNCTIONALITY : BY GIVING THE INPUT AS CATEGORY ID OR PROD_NAME  00090067
+      *                A LIST OF PRODUCTS WILL BE DISPLAYED             00100001
+      *DATABASE USED : ADMT.T_PR_PRODUCT                                00110001
+       DATA DIVISION.                                                   00120001
+      *********************************************************         00130001
+      ************** WORKING STORAGE SECTION ******************         00140001
+      *********************************************************         00150001
+       WORKING-STORAGE SECTION.                                         00160001
+      *                                                                 00170001
+       COPY DFHBMSCA.                                                   00180001
+       COPY DFHAID.                                                     00190001
+       COPY PRODMS.                                                     00200001
+      *                                                                 00210001
+           EXEC SQL                                                     00220001
+               INCLUDE PRODN1                                           00230090
+           END-EXEC.                                                    00240001
+           EXEC SQL                                                     00250001
+               INCLUDE SQLCA                                            00260001
+           END-EXEC.                                                    00270001
+      *                                                                 00280001
+       01 WS-PROD-NAME   PIC X(40).                                     00280187
+                                                                        00280368
+      *********************************************************         00281004
+      ****CURSOR DECLARATION FOR SELECTING THE LIST OF JOBS****         00282004
+      *********************************************************         00283004
+           EXEC SQL                                                     00284004
+               DECLARE CATCUR CURSOR FOR                                00285064
+               SELECT  PROD_ID,PROD_NAME,PROD_SUP_ID,PROD_CAT_NAME,     00286004
+                       PROD_UNIT_PRICE,PROD_UNIT_STOCK,PROD_UNIT_ORDER, 00287073
+                       PROD_ADD_DATE,PROD_TIMESTAMP,PROD_DESCRIPTION    00288090
+               FROM    ADMT.T_PR_PRODUCT                                00289004
+               WHERE   PROD_CAT_ID = :PROD-CAT-ID                       00289104
+                       ORDER BY PROD_UNIT_PRICE, PROD_ID                00289204
+           END-EXEC.                                                    00289387
+      *                                                                 00289466
+           EXEC SQL                                                     00289587
+               DECLARE NAMECR CURSOR FOR                                00289687
+               SELECT PROD_ID,PROD_NAME,PROD_SUP_ID,PROD_CAT_ID,        00289787
+                      PROD_CAT_NAME,PROD_UNIT_PRICE,PROD_UNIT_STOCK,    00289887
+                      PROD_UNIT_ORDER,PROD_ADD_DATE,PROD_TIMESTAMP,     00289990
+                      PROD_DESCRIPTION                                  00290090
+               FROM   ADMT.T_PR_PRODUCT                                 00290187
+               WHERE  UPPER(SUBSTR(PROD_NAME,1,3)) = UPPER(:PROD-NAME)  00290287
+                      ORDER BY PROD_UNIT_PRICE, PROD_ID                 00290387
+           END-EXEC.                                                    00290487
+      *                                                                 00290564
+       01 WK-DATE.                                                      00291064
+          05 WK-DD    PIC  X(2).                                        00300001
+          05 FILLER   PIC  X(1).                                        00310001
+          05 WK-MM    PIC  X(2).                                        00320001
+          05 FILLER   PIC  X(1).                                        00330001
+          05 WK-YY    PIC  X(4).                                        00340001
+      *                                                                 00350001
+       01 WK-TIME.                                                      00360001
+          05 WK-HH  PIC 99.                                             00370001
+          05 FILLER PIC X.                                              00380001
+          05 WK-MM  PIC 99.                                             00390001
+          05 FILLER PIC X.                                              00400001
+          05 WK-SS  PIC 99.                                             00410001
+      *                                                                 00420001
+       01  TSQ-NAME PIC X(08).                                          00420123
+       01  TSQ REDEFINES TSQ-NAME.                                      00420234
+           03 FIRST-PART    PIC X(4).                                   00420323
+           03 SECOND-PART   PIC 9(4).                                   00420423
+      *                                                                 00420617
+       01  Q-NM PIC X(08).                                              00420775
+       01  TSQ1 REDEFINES Q-NM.                                         00420875
+           03 FIRST-REF     PIC X(4).                                   00420974
+           03 SECOND-REF    PIC 9(4).                                   00421074
+      *                                                                 00421174
+       01 PRO-UNIT-PRICE.                                               00421274
+          02 WS-PROD-UNIT-PRICE PIC 9(10)V99.                           00421374
+          02 RE-PROD-UNIT-PRICE REDEFINES WS-PROD-UNIT-PRICE PIC X(12). 00421474
+                                                                        00421574
+       01 WS-TXT2  PIC X(80) VALUE 'DIRECT ENTRY TO MN03 IS RESTRICTED'.00421674
+       01 WS-TXT3  PIC X(80) VALUE 'SESSION COMPLETED'.                 00421774
+      *                                                                 00421874
+       01 DT PIC S9(15) COMP-3.                                         00421974
+      *                                                                 00422074
+       01 WS-TEMP     PIC 9(5).                                         00422174
+       01 WS-TEMP1    PIC 9(5).                                         00422274
+       01 WS-QRESP    PIC S9(8) COMP.                                   00422374
+       01 WS-Q-ITEM   PIC S9(4) COMP VALUE 0.                           00423057
+       01 WS-CUR-TEMP PIC 9(5).                                         00424005
+      *                                                                 00425017
+       01 Q-ITEM     PIC S9(4) COMP VALUE 0.                            00426074
+       01 RE         PIC S9(8) COMP.                                    00427074
+      *                                                                 00428074
+       01 WS-COMMAREA.                                                  00430031
+          02 WS-TOT-NO        PIC  9(5).                                00460057
+          02 WS-CUR-NO        PIC  9(5).                                00470057
+          02 WS-RESP-CODE     PIC  S9(08) COMP.                         00471084
+      *   02 WS-COUNT         PIC 9(04).                                00471184
+      *                                                                 00478323
+       01 WS-QUEUE-REC.                                                 00479002
+          02 WSQ-PROD-ID         PIC 9(10).                             00479102
+          02 WSQ-PROD-NAME       PIC X(40).                             00479202
+          02 WSQ-PROD-SUP-ID     PIC X(05).                             00479305
+          02 WSQ-PROD-CAT-ID     PIC X(05).                             00479402
+          02 WSQ-PROD-CAT-NAME   PIC X(40).                             00479502
+          02 WSQ-PROD-UNIT-PRICE PIC 9(10)V99.                          00479607
+          02 WSQ-PROD-UNIT-STOCK PIC 9(05).                             00479705
+          02 WSQ-PROD-UNIT-ORDER PIC 9(05).                             00479805
+          02 WSQ-PROD-ADD-DATE   PIC X(10).                             00479905
+          02 WSQ-PROD-TIMESTAMP  PIC X(26).                             00480005
+          02 WSQ-PROD-DESCRIPTION PIC X(26).                            00480190
+      *                                                                 00480290
+       01 WS-QUEUE-REC1.                                                00480390
+          02 WS1-PROD-ID         PIC 9(10).                             00480490
+          02 WS1-PROD-NAME       PIC X(40).                             00480590
+          02 WS1-PROD-SUP-ID     PIC X(05).                             00480690
+          02 WS1-PROD-CAT-ID     PIC X(05).                             00480790
+          02 WS1-PROD-CAT-NAME   PIC X(40).                             00480890
+          02 WS1-PROD-UNIT-PRICE PIC 9(10)V99.                          00480990
+          02 WS1-PROD-UNIT-STOCK PIC 9(05).                             00481090
+          02 WS1-PROD-UNIT-ORDER PIC 9(05).                             00481190
+          02 WS1-PROD-ADD-DATE   PIC X(10).                             00482048
+          02 WS1-PROD-TIMESTAMP  PIC X(26).                             00483048
+          02 WS1-PROD-DESCRIPTION PIC X(26).                            00483190
+      *                                                                 00483248
+      ********************************************************          00484001
+      ************** LINKAGE SECTION TO LINK *****************          00490001
+      **************** COMMUNICATION AREA ********************          00500001
+       LINKAGE SECTION.                                                 00510001
+       01 DFHCOMMAREA.                                                  00520001
+           COPY PRODLK.                                                 00530021
+      *********************************************************         00551002
+      ************* PROCEDURE DIVISION STARTS HERE ************         00552002
+      *********************************************************         00553002
+       PROCEDURE DIVISION.                                              00554005
+               EXEC CICS HANDLE CONDITION                               00555023
+                       MAPFAIL(3400-EXIT)                               00556023
+                       INVREQ(6000-RETURN-PARA)                         00557059
+               END-EXEC.                                                00558023
+               MOVE 'PROD'   TO FIRST-PART.                             00558174
+               MOVE EIBTRMID TO SECOND-PART.                            00558274
+               MOVE 'TIME'   TO FIRST-REF.                              00558374
+               MOVE EIBTRMID TO SECOND-REF.                             00558474
+               IF LK-FLAG = 'PGUP' OR 'PGDN'                            00559674
+                 MOVE 1 TO Q-ITEM                                       00559774
+                 PERFORM 8020-READ-QUEUE THRU 8020-EXIT                 00559874
+               ELSE IF LK-FLAG = 'FRST'                                 00560177
+                  PERFORM 9000-CHK-QUEUE-PARA THRU 9000-EXIT            00560277
+               END-IF.                                                  00560774
+               PERFORM 0000-MAIN-PARA.                                  00560877
+       0000-MAIN-PARA.                                                  00560902
+           IF EIBCALEN = 00                                             00570023
+              EXEC CICS SEND TEXT                                       00580023
+                        NOEDIT                                          00590023
+                        FROM(WS-TXT2)                                   00591023
+                        LENGTH(80)                                      00592023
+                        ERASE                                           00593023
+              END-EXEC                                                  00594023
+              EXEC CICS RETURN                                          00596023
+              END-EXEC                                                  00597023
+      *                                                                 00598023
+            ELSE                                                        00599023
+              PERFORM 2000-PROCESSING-PARA THRU 2000-EXIT               01056023
+           END-IF.                                                      01057023
+           EXEC CICS RETURN                                             01059023
+           END-EXEC.                                                    01059323
+      *                                                                 01059480
+       2000-PROCESSING-PARA.                                            01062123
+            EVALUATE TRUE                                               01062223
+                 WHEN EIBAID = DFHPF2 OR LK-FLAG = 'FRST'               01062326
+                   MOVE ZEROS TO WS-CUR-NO                              01062464
+                   MOVE ZEROS TO WS-TOT-NO                              01062564
+                   IF LK-OPT = 'CTID'                                   01062664
+                     PERFORM 3200-LIST-CATEID-PARA THRU 3200-EXIT       01062864
+                   ELSE IF LK-OPT = 'NAME'                              01062964
+                     PERFORM 3020-LIST-PROD-NAME-PARA THRU 3020-EXIT    01063064
+                   END-IF                                               01063164
+                  END-IF                                                01063264
+                 WHEN EIBAID = DFHPF7 OR LK-FLAG = 'PGUP'               01063324
+                      PERFORM 8000-PAGE-UP-PARA THRU 8000-PAGE-UP-EXIT  01063556
+                 WHEN EIBAID = DFHPF8 OR LK-FLAG = 'PGDN'               01064125
+                       PERFORM 9000-PAGE-DN-PARA THRU 9000-PAGE-DN-EXIT 01064465
+            END-EVALUATE.                                               01064934
+       2000-EXIT.                                                       01065023
+           EXIT.                                                        01065123
+      *****************************************************             01065226
+       3200-LIST-CATEID-PARA.                                           01065323
+            IF LENGTH OF LK-CAT-ID = 0                                  01065423
+              MOVE ZERO TO LK-COUNT                                     01065567
+              MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LK-MSG    01065668
+      *                                                                 01066563
+            ELSE IF LK-CAT-ID = SPACES                                  01066663
+              MOVE ZERO TO LK-COUNT                                     01066767
+              MOVE 'PRODUCT ID CONTAILS SPACES - PLZ ENTER IT' TO LK-MSG01066880
+      *                                                                 01067523
+            ELSE IF LK-CAT-ID = ZERO                                    01067680
+              MOVE 'CATEGORY ID CANNOT BE ZERO -PLEASE TRY AGAIN'       01067780
+                                     TO LK-MSG                          01067880
+            ELSE                                                        01067926
+              PERFORM 6000-DELETEQ-PARA THRU 6000-DELETEQ-EXIT          01068036
+              PERFORM 1000-SEARCH-SEND-PARA THRU 1000-EXIT              01068128
+            END-IF.                                                     01068223
+            PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.             01068380
+      *                                                                 01068423
+       3200-EXIT.                                                       01068523
+            EXIT.                                                       01068623
+      *                                                                 01068723
+      **********************************************************        01069002
+      *********** PARA FOR FETCHING AND WRITING INTI QUEUE*****         01070002
+      **********************************************************        01080002
+       1000-SEARCH-SEND-PARA.                                           01090002
+            MOVE LK-CAT-ID  TO PROD-CAT-ID.                             01100024
+            EXEC SQL                                                    01140002
+               OPEN CATCUR                                              01150064
+            END-EXEC.                                                   01160002
+            EVALUATE SQLCODE                                            01170002
+                WHEN ZERO                                               01180002
+                    PERFORM 20000-INITIALIZE-PARA THRU 20000-EXIT       01190002
+                    MOVE 0 TO WS-TOT-NO                                 01210035
+                    MOVE 0 TO WS-Q-ITEM                                 01220002
+                    PERFORM 8000-FETCH-PARA THRU 8000-FETCH-EXIT        01230002
+                    IF SQLCODE = 100                                    01240002
+                       PERFORM 1010-CLOSE-CURSOR-PARA THRU 1010-EXIT    01240116
+                       MOVE ZERO TO LK-COUNT                            01240260
+                       MOVE 'CATEGORY ID DOES NOT EXIST' TO LK-MSG      01250058
+                       PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT   01290002
+                    ELSE                                                01300002
+      *             MOVE 1 TO WS-COUNT                                  01301084
+                    PERFORM UNTIL SQLCODE = 100                         01310084
+              MOVE PROD-ID          TO WSQ-PROD-ID                      01320003
+              MOVE PROD-NAME        TO WSQ-PROD-NAME                    01330003
+              MOVE PROD-SUP-ID      TO WSQ-PROD-SUP-ID                  01340003
+              MOVE LK-CAT-ID        TO WSQ-PROD-CAT-ID                  01350027
+              MOVE PROD-CAT-NAME    TO WSQ-PROD-CAT-NAME                01360003
+              MOVE PROD-UNIT-PRICE  TO WSQ-PROD-UNIT-PRICE              01370003
+              MOVE PROD-UNIT-STOCK  TO WSQ-PROD-UNIT-STOCK              01380003
+              MOVE PROD-UNIT-ORDER  TO WSQ-PROD-UNIT-ORDER              01390003
+              MOVE PROD-ADD-DATE    TO WSQ-PROD-ADD-DATE                01391003
+              MOVE PROD-TIMESTAMP   TO WSQ-PROD-TIMESTAMP               01392003
+              MOVE PROD-DESCRIPTION TO WSQ-PROD-DESCRIPTION             01393090
+                 EXEC CICS WRITEQ TS                                    01400002
+                      QUEUE(TSQ-NAME)                                   01410027
+                      FROM(WS-QUEUE-REC)                                01420002
+                      LENGTH(LENGTH OF WS-QUEUE-REC)                    01430002
+                      ITEM(WS-Q-ITEM)                                   01440002
+                      RESP(WS-QRESP)                                    01450002
+                 END-EXEC                                               01460002
+           ADD 1 TO WS-TOT-NO                                           01470035
+      *    ADD 1 TO WS-COUNT                                            01471084
+               PERFORM 20000-INITIALIZE-PARA THRU 20000-EXIT            01480003
+           PERFORM 8000-FETCH-PARA THRU 8000-FETCH-EXIT                 01500002
+            END-PERFORM                                                 01510002
+            END-IF                                                      01520002
+           WHEN OTHER                                                   01530002
+             MOVE ZERO TO LK-COUNT                                      01535081
+             MOVE 'RESOURSES NOT AVAILABLE'  TO LK-MSG                  01550081
+             PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT             01560081
+           END-EVALUATE.                                                01580002
+      *    DIVIDE WS-TOT-NO BY 15 GIVING WS-QUOT REMAINDER WS-REM.      01580184
+           PERFORM 1010-CLOSE-CURSOR-PARA THRU 1010-EXIT.               01581081
+           PERFORM 12000-READ-TSQ-PARA THRU 12000-READ-TSQ-EXIT.        01620081
+       1000-EXIT.                                                       01630002
+           EXIT.                                                        01640002
+      *                                                                 01641016
+       1010-CLOSE-CURSOR-PARA.                                          01650016
+            EXEC SQL                                                    01660016
+                 CLOSE CATCUR                                           01670064
+            END-EXEC.                                                   01680016
+       1010-EXIT.                                                       01690016
+            EXIT.                                                       01700016
+      *                                                                 01710016
+       20000-INITIALIZE-PARA.                                           02220002
+                INITIALIZE    PROD-ID.                                  02230003
+                INITIALIZE    PROD-NAME.                                02240003
+                INITIALIZE    PROD-SUP-ID.                              02250003
+                INITIALIZE    PROD-CAT-ID.                              02260003
+                INITIALIZE    PROD-CAT-NAME.                            02270003
+                INITIALIZE    PROD-UNIT-PRICE.                          02280003
+                INITIALIZE    PROD-UNIT-STOCK.                          02281003
+                INITIALIZE    PROD-UNIT-ORDER.                          02282003
+                INITIALIZE    PROD-ADD-DATE.                            02283003
+                INITIALIZE    PROD-TIMESTAMP.                           02284003
+                INITIALIZE    PROD-DESCRIPTION.                         02285090
+       20000-EXIT.                                                      02290005
+            EXIT.                                                       02300002
+       8000-FETCH-PARA.                                                 02310002
+             EXEC SQL                                                   02320002
+                FETCH CATCUR                                            02330064
+                INTO :PROD-ID,                                          02340003
+                     :PROD-NAME,                                        02350003
+                     :PROD-SUP-ID,                                      02360003
+                     :PROD-CAT-NAME,                                    02380003
+                     :PROD-UNIT-PRICE,                                  02390003
+                     :PROD-UNIT-STOCK,                                  02400003
+                     :PROD-UNIT-ORDER,                                  02410003
+                     :PROD-ADD-DATE,                                    02411003
+                     :PROD-TIMESTAMP,                                   02412090
+                     :PROD-DESCRIPTION                                  02413090
+             END-EXEC.                                                  02420002
+       8000-FETCH-EXIT.                                                 02430002
+            EXIT.                                                       02440002
+      **********************************************************        02441003
+      *************** PARA TO READ THE QUEUE *******************        02442003
+      **********************************************************        02443003
+       12000-READ-TSQ-PARA.                                             02444003
+                SET K TO 1.                                             02445130
+                MOVE 1 TO LK-COUNT.                                     02445241
+                INITIALIZE WS-QUEUE-REC.                                02446057
+                MOVE 1 TO WS-CUR-NO , WS-CUR-TEMP.                      02449035
+                COMPUTE WS-TEMP = WS-CUR-NO + 15.                       02449135
+                MOVE 1 TO WS-Q-ITEM.                                    02449203
+                EXEC CICS READQ TS                                      02449303
+                   QUEUE(TSQ-NAME)                                      02449427
+                   INTO(WS-QUEUE-REC1)                                  02449548
+                   ITEM(WS-Q-ITEM)                                      02449603
+                   LENGTH(LENGTH OF WS-QUEUE-REC1)                      02449748
+                   RESP(WS-QRESP)                                       02449803
+                END-EXEC.                                               02449903
+               PERFORM UNTIL (WS-CUR-TEMP >= 16 OR                      02450015
+                              WS-QRESP = 26)                            02450160
+           MOVE WS1-PROD-ID          TO OUT-PROD-ID(K)                  02450448
+           MOVE WS1-PROD-NAME        TO OUT-PROD-NAME(K)                02450548
+           MOVE WS1-PROD-SUP-ID      TO OUT-PROD-SUP-ID(K)              02450648
+           MOVE WS1-PROD-CAT-ID      TO OUT-PROD-CAT-ID(K)              02450748
+           MOVE WS1-PROD-CAT-NAME    TO OUT-PROD-CAT-NAME(K)            02450848
+           MOVE WS1-PROD-UNIT-PRICE  TO WS-PROD-UNIT-PRICE              02450948
+           MOVE RE-PROD-UNIT-PRICE   TO OUT-PROD-UNIT-PRICE(K)          02451044
+           MOVE WS1-PROD-UNIT-STOCK  TO OUT-PROD-UNIT-STOCK(K)          02451148
+           MOVE WS1-PROD-UNIT-ORDER  TO OUT-PROD-UNIT-ORDER(K)          02451248
+           MOVE WS1-PROD-ADD-DATE    TO OUT-PROD-ADD-DATE(K)            02451348
+           MOVE WS1-PROD-TIMESTAMP   TO OUT-PROD-TIMESTAMP(K)           02451448
+           MOVE WS1-PROD-DESCRIPTION TO OUT-PROD-DESCRIPTION(K)         02451590
+                ADD 1 TO WS-CUR-TEMP                                    02455803
+                ADD 1 TO WS-Q-ITEM                                      02455903
+                SET K UP BY 1                                           02456030
+                ADD 1 TO LK-COUNT                                       02456141
+                    EXEC CICS                                           02456203
+                      READQ TS                                          02456303
+                      QUEUE(TSQ-NAME)                                   02456427
+                      INTO(WS-QUEUE-REC1)                               02456548
+                      ITEM(WS-Q-ITEM)                                   02456603
+                      LENGTH(LENGTH OF WS-QUEUE-REC1)                   02456748
+                      RESP(WS-QRESP)                                    02456803
+                    END-EXEC                                            02456903
+              END-PERFORM.                                              02457003
+              COMPUTE LK-COUNT = LK-COUNT - 1.                          02457156
+              MOVE 'THIS IS FIRST SCREEN' TO LK-MSG.                    02457275
+      *       MOVE WS-TOT-NO    TO LK-MSG.                              02457375
+              MOVE WS-QRESP     TO WS-RESP-CODE.                        02457561
+              PERFORM 8010-WRITE-QUEUE THRU 8010-EXIT.                  02458074
+              PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.           02458160
+       12000-READ-TSQ-EXIT.                                             02458260
+             EXIT.                                                      02459060
+      *****************************************************             02460064
+       3020-LIST-PROD-NAME-PARA.                                        02470064
+            IF LENGTH OF LK-PROD-NAME = 0                               02471064
+              MOVE 'PRODUCT NAME NOT ENTERED - PLZ ENTER IT' TO LK-MSG  02472064
+      *                                                                 02473664
+            ELSE IF LK-PROD-NAME = SPACES                               02473764
+              MOVE 'PRODUCT NAME  CONTAINS SPACES - PLZ ENTER IT'       02473864
+                                            TO LK-MSG                   02473964
+      *                                                                 02474664
+            ELSE                                                        02475064
+              PERFORM 6000-DELETEQ-PARA THRU 6000-DELETEQ-EXIT          02475164
+              PERFORM 1001-SEARCH-SEND-PARA THRU 1001-EXIT              02475264
+            END-IF.                                                     02475364
+            PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.             02475480
+      *                                                                 02475564
+       3020-EXIT.                                                       02475664
+            EXIT.                                                       02475764
+      *                                                                 02475864
+      **********************************************************        02475964
+      *********** PARA FOR FETCHING AND WRITING INTI QUEUE*****         02476064
+      **********************************************************        02476164
+       1001-SEARCH-SEND-PARA.                                           02476264
+            MOVE LK-PROD-NAME      TO WS-PROD-NAME.                     02476487
+            MOVE WS-PROD-NAME(1:3) TO PROD-NAME.                        02476587
+            EXEC SQL                                                    02476687
+               OPEN NAMECR                                              02476787
+            END-EXEC.                                                   02476887
+            EVALUATE SQLCODE                                            02476987
+                WHEN ZERO                                               02477087
+                    PERFORM 20001-INITIALIZE-PARA THRU 20001-EXIT       02477187
+                    MOVE 0 TO WS-TOT-NO                                 02477287
+                    MOVE 0 TO WS-Q-ITEM                                 02477387
+                    PERFORM 8001-FETCH-PARA THRU 8001-FETCH-EXIT        02477487
+                    IF SQLCODE = 100                                    02477587
+                       PERFORM 1011-CLOSE-CURSOR-PARA THRU 1011-EXIT    02477687
+                       MOVE ZERO TO LK-COUNT                            02477787
+                       MOVE 'PRODUCT NAME DOES NOT EXIST' TO LK-MSG     02477887
+                       PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT   02477964
+                    ELSE                                                02478064
+      *             MOVE 1 TO WS-COUNT                                  02478184
+                    PERFORM UNTIL SQLCODE = 100                         02478284
+              MOVE PROD-ID          TO WSQ-PROD-ID                      02478364
+              MOVE PROD-NAME        TO WSQ-PROD-NAME                    02478471
+              MOVE PROD-SUP-ID      TO WSQ-PROD-SUP-ID                  02478564
+              MOVE PROD-CAT-ID      TO WSQ-PROD-CAT-ID                  02478664
+              MOVE PROD-CAT-NAME    TO WSQ-PROD-CAT-NAME                02478764
+              MOVE PROD-UNIT-PRICE  TO WSQ-PROD-UNIT-PRICE              02478864
+              MOVE PROD-UNIT-STOCK  TO WSQ-PROD-UNIT-STOCK              02478964
+              MOVE PROD-UNIT-ORDER  TO WSQ-PROD-UNIT-ORDER              02479064
+              MOVE PROD-ADD-DATE    TO WSQ-PROD-ADD-DATE                02479164
+              MOVE PROD-TIMESTAMP   TO WSQ-PROD-TIMESTAMP               02479264
+              MOVE PROD-DESCRIPTION TO WSQ-PROD-DESCRIPTION             02479390
+                 EXEC CICS WRITEQ TS                                    02479490
+                      QUEUE(TSQ-NAME)                                   02479590
+                      FROM(WS-QUEUE-REC)                                02479690
+                      LENGTH(LENGTH OF WS-QUEUE-REC)                    02479790
+                      ITEM(WS-Q-ITEM)                                   02479890
+                      RESP(WS-QRESP)                                    02479990
+                 END-EXEC                                               02480090
+           ADD 1 TO WS-TOT-NO                                           02480190
+      *    ADD 1 TO WS-COUNT                                            02480290
+               PERFORM 20001-INITIALIZE-PARA THRU 20001-EXIT            02480390
+           PERFORM 8001-FETCH-PARA THRU 8001-FETCH-EXIT                 02480490
+            END-PERFORM                                                 02480590
+            END-IF                                                      02480690
+           WHEN OTHER                                                   02480790
+           PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT               02481164
+           END-EVALUATE.                                                02481264
+      *    DIVIDE WS-TOT-NO BY 15 GIVING WS-QUOT REMAINDER WS-REM.      02481384
+           PERFORM 1011-CLOSE-CURSOR-PARA THRU 1011-EXIT.               02481481
+           PERFORM 12001-READ-TSQ-PARA THRU 12001-READ-TSQ-EXIT.        02481581
+       1001-EXIT.                                                       02481664
+           EXIT.                                                        02481764
+      *                                                                 02481864
+       1011-CLOSE-CURSOR-PARA.                                          02481964
+            EXEC SQL                                                    02482064
+                 CLOSE NAMECR                                           02482164
+            END-EXEC.                                                   02482264
+       1011-EXIT.                                                       02482364
+            EXIT.                                                       02482464
+      *                                                                 02482564
+       20001-INITIALIZE-PARA.                                           02482664
+                INITIALIZE    PROD-ID.                                  02482764
+                INITIALIZE    PROD-NAME.                                02482864
+                INITIALIZE    PROD-SUP-ID.                              02482964
+                INITIALIZE    PROD-CAT-ID.                              02483064
+                INITIALIZE    PROD-CAT-NAME.                            02483164
+                INITIALIZE    PROD-UNIT-PRICE.                          02483264
+                INITIALIZE    PROD-UNIT-STOCK.                          02483364
+                INITIALIZE    PROD-UNIT-ORDER.                          02483464
+                INITIALIZE    PROD-ADD-DATE.                            02483564
+                INITIALIZE    PROD-TIMESTAMP.                           02483664
+                INITIALIZE    PROD-DESCRIPTION.                         02483790
+       20001-EXIT.                                                      02483890
+            EXIT.                                                       02483990
+       8001-FETCH-PARA.                                                 02484090
+             EXEC SQL                                                   02484190
+                FETCH NAMECR                                            02484290
+                INTO :PROD-ID,                                          02484390
+                     :PROD-NAME,                                        02484490
+                     :PROD-SUP-ID,                                      02484590
+                     :PROD-CAT-ID,                                      02484690
+                     :PROD-CAT-NAME,                                    02484790
+                     :PROD-UNIT-PRICE,                                  02484890
+                     :PROD-UNIT-STOCK,                                  02484990
+                     :PROD-UNIT-ORDER,                                  02485090
+                     :PROD-ADD-DATE,                                    02485190
+                     :PROD-TIMESTAMP,                                   02485290
+                     :PROD-DESCRIPTION                                  02485390
+             END-EXEC.                                                  02485490
+       8001-FETCH-EXIT.                                                 02485590
+            EXIT.                                                       02485690
+      **********************************************************        02485790
+      *************** PARA TO READ THE QUEUE *******************        02485890
+      **********************************************************        02485990
+       12001-READ-TSQ-PARA.                                             02486090
+                SET K TO 1.                                             02486190
+                MOVE 1 TO LK-COUNT.                                     02486290
+                INITIALIZE WS-QUEUE-REC.                                02486390
+                MOVE 1 TO WS-CUR-NO , WS-CUR-TEMP.                      02486490
+                COMPUTE WS-TEMP = WS-CUR-NO + 15.                       02486590
+                MOVE 1 TO WS-Q-ITEM.                                    02486690
+                EXEC CICS READQ TS                                      02486790
+                   QUEUE(TSQ-NAME)                                      02486890
+                   INTO(WS-QUEUE-REC1)                                  02486990
+                   ITEM(WS-Q-ITEM)                                      02487090
+                   LENGTH(LENGTH OF WS-QUEUE-REC1)                      02487190
+                   RESP(WS-QRESP)                                       02487290
+                END-EXEC.                                               02487390
+               PERFORM UNTIL (WS-CUR-TEMP >= 16 OR                      02487490
+                              WS-QRESP = 26)                            02487590
+           MOVE WS1-PROD-ID          TO OUT-PROD-ID(K)                  02487690
+           MOVE WS1-PROD-NAME        TO OUT-PROD-NAME(K)                02487790
+           MOVE WS1-PROD-SUP-ID      TO OUT-PROD-SUP-ID(K)              02487890
+           MOVE WS1-PROD-CAT-ID      TO OUT-PROD-CAT-ID(K)              02487990
+           MOVE WS1-PROD-CAT-NAME    TO OUT-PROD-CAT-NAME(K)            02488090
+           MOVE WS1-PROD-UNIT-PRICE  TO WS-PROD-UNIT-PRICE              02488190
+           MOVE RE-PROD-UNIT-PRICE   TO OUT-PROD-UNIT-PRICE(K)          02488290
+           MOVE WS1-PROD-UNIT-STOCK  TO OUT-PROD-UNIT-STOCK(K)          02488390
+           MOVE WS1-PROD-UNIT-ORDER  TO OUT-PROD-UNIT-ORDER(K)          02488490
+           MOVE WS1-PROD-ADD-DATE    TO OUT-PROD-ADD-DATE(K)            02488590
+           MOVE WS1-PROD-TIMESTAMP   TO OUT-PROD-TIMESTAMP(K)           02488690
+           MOVE WS1-PROD-DESCRIPTION TO OUT-PROD-DESCRIPTION(K)         02488790
+                ADD 1 TO WS-CUR-TEMP                                    02488890
+                ADD 1 TO WS-Q-ITEM                                      02488990
+                SET K UP BY 1                                           02489090
+                ADD 1 TO LK-COUNT                                       02489190
+                    EXEC CICS                                           02489290
+                      READQ TS                                          02489390
+                      QUEUE(TSQ-NAME)                                   02489490
+                      INTO(WS-QUEUE-REC1)                               02489590
+                      ITEM(WS-Q-ITEM)                                   02489690
+                      LENGTH(LENGTH OF WS-QUEUE-REC1)                   02489790
+                      RESP(WS-QRESP)                                    02489890
+                    END-EXEC                                            02489990
+              END-PERFORM.                                              02490090
+              COMPUTE LK-COUNT = LK-COUNT - 1.                          02490190
+              MOVE 'THIS IS FIRST SCREEN' TO LK-MSG.                    02490290
+      *       MOVE WS-TOT-NO TO LK-MSG.                                 02490390
+              MOVE WS-QRESP     TO WS-RESP-CODE.                        02490490
+              PERFORM 8010-WRITE-QUEUE THRU 8010-EXIT.                  02490574
+              PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.           02490671
+       12001-READ-TSQ-EXIT.                                             02490771
+            EXIT.                                                       02490871
+      **********************************************************        02490971
+       8000-PAGE-UP-PARA.                                               02491071
+             IF WS-CUR-NO IS EQUAL TO 1                                 02491171
+                MOVE 'YOU ARE AT BEGINNING' TO LK-MSG                   02491271
+             ELSE                                                       02491371
+               SUBTRACT 15 FROM WS-CUR-NO                               02491471
+             END-IF.                                                    02491585
+               MOVE WS-CUR-NO TO WS-Q-ITEM, WS-TEMP, WS-CUR-TEMP.       02491685
+             IF WS-TOT-NO < 15                                          02491788
+                MOVE WS-TOT-NO TO WS-TEMP                               02491888
+             ELSE                                                       02491988
+               ADD 15 TO WS-TEMP                                        02492088
+             END-IF.                                                    02492188
+               SET K TO 1.                                              02492285
+               MOVE 1 TO LK-COUNT.                                      02492385
+               PERFORM UNTIL (WS-CUR-TEMP > WS-TEMP)                    02492489
+               EXEC CICS READQ TS                                       02492571
+                  QUEUE(TSQ-NAME)                                       02492671
+                  INTO(WS-QUEUE-REC1)                                   02492771
+                  ITEM(WS-Q-ITEM)                                       02492871
+                  LENGTH(LENGTH OF WS-QUEUE-REC1)                       02492971
+                  RESP(WS-QRESP)                                        02493071
+               END-EXEC                                                 02493171
+           MOVE WS1-PROD-ID          TO OUT-PROD-ID(K)                  02493271
+           MOVE WS1-PROD-NAME        TO OUT-PROD-NAME(K)                02493371
+           MOVE WS1-PROD-SUP-ID      TO OUT-PROD-SUP-ID(K)              02493471
+           MOVE WS1-PROD-CAT-ID      TO OUT-PROD-CAT-ID(K)              02493571
+           MOVE WS1-PROD-CAT-NAME    TO OUT-PROD-CAT-NAME(K)            02493671
+           MOVE WS1-PROD-UNIT-PRICE  TO WS-PROD-UNIT-PRICE              02493771
+           MOVE RE-PROD-UNIT-PRICE   TO OUT-PROD-UNIT-PRICE(K)          02493871
+           MOVE WS1-PROD-UNIT-STOCK  TO OUT-PROD-UNIT-STOCK(K)          02493971
+           MOVE WS1-PROD-UNIT-ORDER  TO OUT-PROD-UNIT-ORDER(K)          02494071
+           MOVE WS1-PROD-ADD-DATE    TO OUT-PROD-ADD-DATE(K)            02494171
+           MOVE WS1-PROD-TIMESTAMP   TO OUT-PROD-TIMESTAMP(K)           02494271
+           MOVE WS1-PROD-DESCRIPTION TO OUT-PROD-DESCRIPTION(K)         02494390
+                  ADD 1 TO WS-Q-ITEM                                    02494490
+                  ADD 1 TO WS-CUR-TEMP                                  02494590
+                  SET K UP BY 1                                         02494690
+                  ADD 1 TO LK-COUNT                                     02494790
+                  END-PERFORM.                                          02494890
+      *         MOVE WS-CUR-NO TO LK-MSG                                02494990
+      *       END-IF.                                                   02495090
+              MOVE WS-QRESP     TO WS-RESP-CODE.                        02495190
+              PERFORM 8010-WRITE-QUEUE THRU 8010-EXIT.                  02495290
+              PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.           02495390
+       8000-PAGE-UP-EXIT.                                               02495490
+            EXIT.                                                       02496071
+       9000-PAGE-DN-PARA.                                               02498565
+             IF (WS-RESP-CODE NOT EQUAL TO 26   AND                     02498665
+                   WS-CUR-NO < WS-TOT-NO )                              02498765
+                 ADD 15 TO WS-CUR-NO                                    02498865
+                 SET K TO 1                                             02498965
+                 MOVE 1 TO LK-COUNT                                     02499065
+             END-IF.                                                    02499165
+             MOVE WS-CUR-NO TO WS-CUR-TEMP, WS-Q-ITEM , WS-TEMP.        02499465
+             ADD 15 TO WS-TEMP.                                         02499565
+             MOVE 1 TO WS-TEMP1.                                        02499665
+      *      IF (WS-RESP-CODE  NOT EQUAL TO 26)                         02499784
+             EXEC CICS READQ TS                                         02499865
+                QUEUE(TSQ-NAME)                                         02499965
+                INTO(WS-QUEUE-REC1)                                     02500065
+                ITEM(WS-Q-ITEM)                                         02500165
+                LENGTH(LENGTH OF WS-QUEUE-REC1)                         02500265
+                RESP(WS-QRESP)                                          02500365
+             END-EXEC.                                                  02500484
+           PERFORM UNTIL (WS-CUR-TEMP >= WS-TEMP OR                     02500565
+                          WS-QRESP = 26)                                02500665
+           MOVE WS1-PROD-ID          TO OUT-PROD-ID(K)                  02500765
+           MOVE WS1-PROD-NAME        TO OUT-PROD-NAME(K)                02500865
+           MOVE WS1-PROD-SUP-ID      TO OUT-PROD-SUP-ID(K)              02500965
+           MOVE WS1-PROD-CAT-ID      TO OUT-PROD-CAT-ID(K)              02501065
+           MOVE WS1-PROD-CAT-NAME    TO OUT-PROD-CAT-NAME(K)            02501165
+           MOVE WS1-PROD-UNIT-PRICE  TO WS-PROD-UNIT-PRICE              02501265
+           MOVE RE-PROD-UNIT-PRICE   TO OUT-PROD-UNIT-PRICE(K)          02501365
+           MOVE WS1-PROD-UNIT-STOCK  TO OUT-PROD-UNIT-STOCK(K)          02501465
+           MOVE WS1-PROD-UNIT-ORDER  TO OUT-PROD-UNIT-ORDER(K)          02501565
+           MOVE WS1-PROD-ADD-DATE    TO OUT-PROD-ADD-DATE(K)            02501665
+           MOVE WS1-PROD-TIMESTAMP   TO OUT-PROD-TIMESTAMP(K)           02501778
+           MOVE WS1-PROD-DESCRIPTION TO OUT-PROD-DESCRIPTION(K)         02501890
+                 ADD 1 TO WS-TEMP1                                      02501990
+                 ADD 1 TO WS-CUR-TEMP                                   02502090
+                 ADD 1 TO WS-Q-ITEM                                     02502190
+                 SET K UP BY 1                                          02502290
+                 ADD 1 TO LK-COUNT                                      02502390
+                 EXEC CICS READQ TS                                     02502490
+                      QUEUE(TSQ-NAME)                                   02502590
+                      INTO(WS-QUEUE-REC1)                               02502690
+                      ITEM(WS-Q-ITEM)                                   02502790
+                      LENGTH(LENGTH OF WS-QUEUE-REC1)                   02502890
+                      RESP(WS-QRESP)                                    02502990
+                 END-EXEC                                               02503090
+                 END-PERFORM.                                           02503190
+                 COMPUTE WS-TEMP1 = WS-TEMP1 - 1.                       02503290
+                 MOVE WS-TEMP1 TO LK-COUNT.                             02503390
+      *          MOVE WS-CUR-NO TO LK-MSG.                              02503490
+      *       END-IF.                                                   02503590
+                IF WS-CUR-NO + 15 > WS-TOT-NO                           02503690
+                    MOVE 'THIS IS LAST SCREEN' TO LK-MSG                02504181
+                END-IF.                                                 02504281
+                MOVE WS-QRESP     TO WS-RESP-CODE.                      02505083
+                PERFORM 8010-WRITE-QUEUE THRU 8010-EXIT.                02505183
+                PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.         02505365
+       9000-PAGE-DN-EXIT.                                               02505465
+            EXIT.                                                       02506065
+       FAILL-PARA.                                                      02512265
+            MOVE 'LISTING MAP FAILED' TO  LK-MSG.                       02512365
+            PERFORM 6000-DELETEQ-PARA THRU 6000-DELETEQ-EXIT.           02512465
+            MOVE WS-QRESP     TO WS-RESP-CODE.                          02512565
+            PERFORM 8010-WRITE-QUEUE THRU 8010-EXIT.                    02512676
+            PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.             02512765
+       8010-WRITE-QUEUE.                                                02512874
+            MOVE 1 TO Q-ITEM.                                           02512975
+            EXEC CICS WRITEQ TS                                         02513074
+                 QUEUE(Q-NM)                                            02513175
+                 FROM(WS-COMMAREA)                                      02513274
+                 LENGTH(LENGTH OF WS-COMMAREA)                          02513374
+                 ITEM(Q-ITEM)                                           02513474
+                 RESP(RE)                                               02513574
+                 REWRITE                                                02513677
+            END-EXEC.                                                   02513774
+       8010-EXIT.                                                       02513874
+           EXIT.                                                        02513974
+       8020-READ-QUEUE.                                                 02514074
+            EXEC CICS READQ                                             02514174
+                 QUEUE(Q-NM)                                            02514275
+                 INTO(WS-COMMAREA)                                      02514374
+                 LENGTH(LENGTH OF WS-COMMAREA)                          02514474
+                 ITEM(Q-ITEM)                                           02514574
+                 RESP(RE)                                               02514674
+            END-EXEC.                                                   02514774
+       8020-EXIT.                                                       02514874
+           EXIT.                                                        02514974
+       9000-CHK-QUEUE-PARA.                                             02515077
+            MOVE 1 TO Q-ITEM.                                           02515178
+            EXEC CICS READQ                                             02515277
+                 QUEUE(Q-NM)                                            02515377
+                 INTO(WS-COMMAREA)                                      02515477
+                 LENGTH(LENGTH OF WS-COMMAREA)                          02515577
+                 ITEM(Q-ITEM)                                           02515677
+                 RESP(RE)                                               02515777
+            END-EXEC.                                                   02515877
+            IF RE = 00                                                  02515977
+               CONTINUE                                                 02516077
+            ELSE IF RE = 44                                             02516177
+                 MOVE SPACES TO WS-COMMAREA                             02516277
+                 MOVE 1 TO Q-ITEM                                       02516377
+                 EXEC CICS WRITEQ TS                                    02516477
+                    QUEUE(Q-NM)                                         02516577
+                    FROM(WS-COMMAREA)                                   02516677
+                    LENGTH(LENGTH OF WS-COMMAREA)                       02516777
+                    ITEM(Q-ITEM)                                        02516877
+                    RESP(RE)                                            02516977
+                 END-EXEC                                               02517077
+            END-IF.                                                     02517177
+       9000-EXIT.                                                       02517277
+           EXIT.                                                        02517377
+      ****************DELETE QUEUE PARA*********************            02517474
+       6000-DELETEQ-PARA.                                               02517574
+               MOVE SPACES TO WS-QUEUE-REC.                             02517674
+               EXEC CICS WRITEQ TS                                      02517774
+                    QUEUE(TSQ-NAME)                                     02517874
+                    FROM(WS-QUEUE-REC)                                  02517974
+                    LENGTH(LENGTH OF WS-QUEUE-REC)                      02518074
+                    ITEM(WS-Q-ITEM)                                     02518174
+                    RESP(WS-QRESP)                                      02518274
+               END-EXEC.                                                02518374
+              EXEC CICS DELETEQ TS                                      02518474
+                   QUEUE(TSQ-NAME)                                      02518574
+              END-EXEC.                                                 02518674
+      *                                                                 02518774
+       6000-DELETEQ-EXIT.                                               02518874
+            EXIT.                                                       02518974
+      **********************************************************        02519074
+      ************ GET DATE PARA *******************************        02519174
+      **********************************************************        02519274
+       GET-DATE-PARA.                                                   02519374
+            EXEC CICS                                                   02519474
+               ASKTIME                                                  02519574
+               ABSTIME(WK-DATE)                                         02519674
+            END-EXEC.                                                   02519774
+            EXEC CICS FORMATTIME                                        02519874
+                  ABSTIME(WK-DATE)                                      02519974
+                  MMDDYYYY(WK-DATE)                                     02520074
+                  DATESEP                                               02520174
+                  TIME(WK-TIME)                                         02520274
+                  TIMESEP                                               02520374
+            END-EXEC.                                                   02520474
+      ***********************INVALID-PARA*******************************02520574
+       INVALID-KEY-PARA.                                                02520674
+            MOVE 'ENTER A VALID FUNCTION KEY' TO LK-MSG.                02520774
+            EXEC CICS RETURN END-EXEC.                                  02520874
+      ***********************RETURN-PARA********************************02520974
+       6000-RETURN-PARA.                                                02521074
+            EXEC CICS RETURN                                            02521174
+            END-EXEC.                                                   02521274
+       6000-RETURN-EXIT.                                                02521374
+            EXIT.                                                       02522003
+      *                                                                 02530023
+       3400-EXIT.                                                       02570023
+           EXIT.                                                        02580023

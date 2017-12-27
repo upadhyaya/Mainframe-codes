@@ -1,0 +1,181 @@
+000100 PROCESS XREF                                                     00010099
+000110 IDENTIFICATION DIVISION.                                         00011099
+000120 PROGRAM-ID. PRODSUM1.                                            00012099
+000130****************************************************************  00013099
+000140 ENVIRONMENT DIVISION.                                            00014099
+000141****************************************************************  00014199
+000150 INPUT-OUTPUT SECTION.                                            00015099
+000160 FILE-CONTROL.                                                    00016099
+000170     SELECT REPFILE ASSIGN TO OUTREP                              00017099
+000180                    FILE STATUS STAT-REP.                         00018099
+000181****************************************************************  00018199
+000190 DATA DIVISION.                                                   00019099
+000191****************************************************************  00019199
+000200 FILE SECTION.                                                    00020099
+000300 FD  REPFILE                                                      00030099
+000500     RECORD CONTAINS 104 CHARACTERS                               00050099
+000510     LABEL RECORDS ARE OMITTED.                                   00051099
+000600 01 REP-REC           PIC X(104).                                 00060099
+000610***************************************************************** 00061099
+001740 WORKING-STORAGE SECTION.                                         00174099
+001770*01 WS-FROM-DATE      PIC X(10).                                  00177099
+001780*01 WS-TO-DATE        PIC X(10).                                  00178099
+001790      EXEC SQL INCLUDE SQLCA    END-EXEC.                         00179099
+001800      EXEC SQL INCLUDE STATS    END-EXEC.                         00180099
+002420*********************************************************         00242099
+002430**CURSOR DECLARATION FOR SELECTING THE DETAILS OF ORDER**         00243099
+002440*********************************************************         00244099
+002450*    EXEC SQL                                                     00245099
+002460*        DECLARE C11 CURSOR FOR                                   00246099
+002470*        SELECT ST_PROD_ID,SUM(ST_PROD_QNT)                       00247099
+003000*        FROM ADMT.T_ST_STATUS                                    00300099
+003100*        WHERE ST_STATUS_ID = :ST-STATUS-ID                       00310099
+003200*        GROUP BY ST_PROD_ID                                      00320099
+003400*    END-EXEC.                                                    00340099
+003410*********************************************************         00341099
+003420     EXEC SQL                                                     00342099
+003430         DECLARE C11 CURSOR FOR                                   00343099
+003440         SELECT ST_PROD_ID,SUM(ST_PROD_QNT)                       00344099
+003450         FROM ADMT.T_ST_STATUS                                    00345099
+003460         WHERE ST_STATUS_ID = :ST-STATUS-ID                       00346099
+003470         GROUP BY ST_PROD_ID                                      00347099
+003480     END-EXEC.                                                    00348099
+003490*********************************************************         00349099
+003500 01 WS-LINE-HEADER.                                               00350099
+003510     05 FILLER PIC X(104) VALUE ALL '_'.                          00351099
+003520 01 WS-LINE2-HEADER.                                              00352099
+003530     05 FILLER PIC X(104) VALUE ALL '='.                          00353099
+003540 01 WS-SPACE-HEADER.                                              00354099
+003550     05 FILLER PIC X(104) VALUE ALL ' '.                          00355099
+003560 01 WS-STAR-HEADER.                                               00356099
+003570     05 FILLER PIC X(104) VALUE ALL '*'.                          00357099
+003580 01 WS-PLUS-HEADER.                                               00358099
+003590     05 FILLER PIC X(104) VALUE ALL '+'.                          00359099
+003591 01 WS-DOT-HEADER.                                                00359199
+003592     05 FILLER PIC X(104) VALUE ALL '-'.                          00359299
+003593 01 WS-SIG-HEADER.                                                00359399
+003594     05 FILLER PIC X(104) VALUE ALL '~'.                          00359499
+003595 01 WS-REP-HEADERD.                                               00359599
+003596     05 FILLER PIC X(22) VALUE ALL '*'.                           00359699
+003597     05 FILLER PIC X(28) VALUE IS 'DETAILS OF ORDERS WHICH ARE '. 00359799
+003598     05 FILLER PIC X(09) VALUE IS 'DELIVERED'.                    00359899
+003599     05 FILLER PIC X(45) VALUE ALL '*'.                           00359999
+003600 01 WS-REP-HEADERH.                                               00360099
+003700     05 FILLER PIC X(22) VALUE ALL '*'.                           00370099
+003800     05 FILLER PIC X(25) VALUE IS 'DETAILS OF ORDERS ON HOLD'.    00380099
+003901     05 FILLER PIC X(57) VALUE ALL '*'.                           00390199
+003902 01 WS-REP-HEADERO.                                               00390299
+003903     05 FILLER PIC X(22) VALUE ALL '*'.                           00390399
+003904     05 FILLER PIC X(28) VALUE IS 'DETAILS OF ORDERS WHICH ARE '. 00390499
+003905     05 FILLER PIC X(07) VALUE IS 'ORDERED'.                      00390599
+003906     05 FILLER PIC X(47) VALUE ALL '*'.                           00390699
+003907 01 WS-END-HEADER.                                                00390799
+003908     05 FILLER PIC X(22) VALUE ALL '*'.                           00390899
+003909     05 FILLER PIC X(29) VALUE IS '***********END OF THE RECORDS'.00390999
+003911     05 FILLER PIC X(53) VALUE ALL '*'.                           00391199
+003920 01 LIN1.                                                         00392099
+003930     05 FILLER        PIC X(22) VALUE '*'.                        00393099
+003931     05 FILLER        PIC X(20) VALUE 'PRODUCT ID          '.     00393199
+003932     05 FILLER        PIC X(20) VALUE 'SUM OF QUANTITY'.          00393299
+003933     05 FILLER        PIC X(42) VALUE '*'.                        00393399
+003934 01 LIN2.                                                         00393499
+003935     05 FILLER        PIC X(22) VALUE ' '.                        00393599
+003940     05 R1-PRODID     PIC 9(10).                                  00394099
+003950     05 FILLER        PIC X(15) VALUE ' '.                        00395099
+003960     05 R1-QUANTITY   PIC 9(05).                                  00396099
+003970     05 FILLER        PIC X(52) VALUE SPACES.                     00397099
+004000 01 STAT-REP          PIC X(02).                                  00400099
+004100    88 S-EXPIRYFILE-SUCCESS  VALUES   ARE  '00'.                  00410099
+008500 LINKAGE SECTION.                                                 00850099
+008600 01 DFHCOMMAREA.                                                  00860099
+008700    05 LS-PARM-LENGTH     PIC S9(4) COMP.                         00870099
+008800    05 LS-STATUS-ID     PIC X.                                    00880099
+009100 PROCEDURE DIVISION USING DFHCOMMAREA.                            00910099
+009200***************************************************************   00920099
+009300*                   0000-MAINLINE                             *   00930099
+009400*          CONTAINS THE MAIN FLOW OF THE PROGRAM              *   00940099
+009500***************************************************************   00950099
+009600 0000-MAINLINE.                                                   00960099
+009700     DISPLAY 'INITIALLY'.                                         00970099
+009800     MOVE LS-STATUS-ID   TO ST-STATUS-ID.                         00980099
+009810     DISPLAY 'LS-STATUS-ID', LS-STATUS-ID.                        00981099
+009811     DISPLAY 'ST-STATUS-ID', ST-STATUS-ID.                        00981199
+009900     OPEN OUTPUT REPFILE.                                         00990099
+009901      DISPLAY STAT-REP.                                           00990199
+009902      IF STAT-REP = 00                                            00990299
+009903          DISPLAY 'REPORT FILE OPENED'                            00990399
+009904          PERFORM 200-DESIGN-PARA THRU 200-EXIT                   00990499
+009905          CONTINUE                                                00990599
+009906      ELSE IF STAT-REP = 13                                       00990699
+009907         DISPLAY 'REPORT FILE NOT FOUND'                          00990799
+009908         STOP RUN                                                 00990899
+009909      ELSE IF STAT-REP = 41                                       00990999
+009910        DISPLAY 'REPORT FILE ALREADY OPENED'                      00991099
+009911        STOP RUN                                                  00991199
+009912      ELSE                                                        00991299
+009913       DISPLAY 'PROBLEM IN OPENING REPORT FILE STATUS =' STAT-REP 00991399
+009914       STOP RUN                                                   00991499
+009915      END-IF.                                                     00991599
+009920     EXEC SQL OPEN C11 END-EXEC.                                  00992099
+009930     EVALUATE SQLCODE                                             00993099
+009940       WHEN ZERO                                                  00994099
+009950         DISPLAY 'CURSOR OPENED'                                  00995099
+009960         CONTINUE                                                 00996099
+009970       WHEN OTHER                                                 00997099
+009980         DISPLAY 'UNABLE TO OPEN CURSOR ', SQLCODE                00998099
+009990         CLOSE REPFILE                                            00999099
+009991         STOP RUN                                                 00999199
+009992     END-EVALUATE.                                                00999299
+010000     PERFORM 100-PARA UNTIL SQLCODE = 100.                        01000099
+010001     EXEC SQL CLOSE C11 END-EXEC.                                 01000199
+010010     CLOSE REPFILE.                                               01001099
+010020     STOP RUN.                                                    01002099
+010100*                                                                 01010099
+010200 100-PARA.                                                        01020099
+010300     EXEC SQL FETCH                                               01030099
+010310          FROM C11                                                01031099
+010400          INTO :ST-PROD-ID,:ST-PROD-QNT                           01040099
+010500     END-EXEC.                                                    01050099
+010600     DISPLAY 'SQLCODE', SQLCODE.                                  01060099
+010700     EVALUATE SQLCODE                                             01070099
+010800       WHEN 0                                                     01080099
+010900          MOVE ST-PROD-ID TO R1-PRODID                            01090099
+011000          MOVE ST-PROD-QNT TO R1-QUANTITY                         01100099
+011010          WRITE REP-REC FROM WS-LINE-HEADER                       01101099
+011020          WRITE REP-REC FROM LIN1                                 01102099
+011030          WRITE REP-REC FROM WS-LINE-HEADER                       01103099
+011040          WRITE REP-REC FROM LIN2                                 01104099
+011050          WRITE REP-REC FROM WS-LINE2-HEADER                      01105099
+011060          WRITE REP-REC FROM WS-SPACE-HEADER                      01106099
+011100       WHEN 100                                                   01110099
+011110          EXEC SQL CLOSE C11 END-EXEC                             01111099
+011111          WRITE REP-REC FROM WS-END-HEADER                        01111199
+011120          CLOSE REPFILE                                           01112099
+011130          STOP RUN                                                01113099
+011210       WHEN OTHER                                                 01121099
+011211          EXEC SQL CLOSE C11 END-EXEC                             01121199
+011212          CLOSE REPFILE                                           01121299
+011213          STOP RUN                                                01121399
+011300     END-EVALUATE.                                                01130099
+011400*                                                                 01140099
+011500 100-EXIT.                                                        01150099
+011600     EXIT.                                                        01160099
+011700******************************************************************01170099
+011800 200-DESIGN-PARA.                                                 01180099
+011900     WRITE REP-REC FROM WS-SPACE-HEADER.                          01190099
+012000     WRITE REP-REC FROM WS-SPACE-HEADER.                          01200099
+012100     WRITE REP-REC FROM WS-STAR-HEADER.                           01210099
+012200     IF LS-STATUS-ID = 'D'                                        01220099
+012300      WRITE REP-REC FROM WS-REP-HEADERD                           01230099
+012400     ELSE IF LS-STATUS-ID = 'H'                                   01240099
+012500       WRITE REP-REC FROM WS-REP-HEADERH                          01250099
+012600     ELSE IF LS-STATUS-ID = 'O'                                   01260099
+012700       WRITE REP-REC FROM WS-REP-HEADERO                          01270099
+012800          END-IF                                                  01280099
+012810         END-IF                                                   01281099
+012900     END-IF.                                                      01290099
+012901     WRITE REP-REC FROM WS-STAR-HEADER.                           01290199
+012902     WRITE REP-REC FROM WS-SPACE-HEADER.                          01290299
+012910*                                                                 01291099
+013000 200-EXIT.                                                        01300099
+013100     EXIT.                                                        01310099

@@ -1,0 +1,10 @@
+//UADT014A JOB NOTIFY=&SYSUID,MSGLEVEL=(1,1)                            JOB08216
+//DEFPATH  EXEC PGM=IDCAMS
+//SYSPRINT DD   SYSOUT=*
+//SYSIN    DD   *
+ DEFINE    PATH                             -
+           (NAME (ELTP.BLR.OMA.AIX.PATH)    -
+            PATHENTRY (ELTP.BLR.OMA.AIX)    -
+            UPDATE                          -
+           )
+/*

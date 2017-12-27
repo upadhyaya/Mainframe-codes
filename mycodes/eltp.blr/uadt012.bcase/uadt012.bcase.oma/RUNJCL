@@ -1,0 +1,20 @@
+//UADT012I JOB NOTIFY=&SYSUID,REGION=0M,MSGLEVEL=(1,1)                  00001035
+/*JOBPARM LINES=99999                                                   00001105
+//*                                                                     00002000
+//STEP1    EXEC PGM=IKJEFT01,DYNAMNBR=30                                00003007
+//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR                              00004007
+//*         UNIT=SYSDA,DCB=(RECFM=FB,LRECL=130,BLKSIZE=13000,DSORG=PS), 00004418
+//*            SPACE=(TRK,(50,20))                                      00004518
+//LOBDATA  DD DSN=ELTP.BLR.BLOB(NOIMG),DISP=SHR                         00004646
+//SYSPRINT DD SYSOUT=*                                                  00005000
+//SYSTSPRT DD SYSOUT=*                                                  00006000
+//SYSUDUMP DD SYSOUT=*                                                  00007000
+//SYSOUT   DD SYSOUT=*                                                  00008000
+//SYSTSIN  DD *                                                         00009014
+    DSN SYSTEM(DB2A)                                                    00009414
+        RUN PROGRAM(LOBINS) PLAN(ADMTPLN1) -                            00009538
+        PARM('0001235659') -                                            00009647
+        LIBRARY('UADT012.BLR.LOAD')                                     00009737
+    END                                                                 00009800
+/*                                                                      00009900
+//*                                                                     00010000

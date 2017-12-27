@@ -1,0 +1,32 @@
+      ******************************************************************
+      * DCLGEN TABLE(ADMT.T_PR_PRODUCT)                                *
+      *        LIBRARY(ADMS.BASE.COPYLIB(PROD))                        *
+      *        LANGUAGE(COBOL)                                         *
+      *        QUOTE                                                   *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE ADMT.T_PR_PRODUCT TABLE
+           ( PROD_ID                        DECIMAL(10, 0) NOT NULL,
+             PROD_NAME                      CHAR(40) NOT NULL,
+             PROD_SUP_ID                    CHAR(5) NOT NULL,
+             PROD_CAT_ID                    CHAR(5) NOT NULL,
+             PROD_CAT_NAME                  CHAR(40) NOT NULL,
+             PROD_UNIT_PRICE                DECIMAL(12, 2) NOT NULL,
+             PROD_UNIT_STOCK                DECIMAL(5, 0) NOT NULL,
+             PROD_UNIT_ORDER                DECIMAL(5, 0) NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ADMT.T_PR_PRODUCT                  *
+      ******************************************************************
+       01  DCLT-PR-PRODUCT.
+           10 PROD-ID              PIC S9(10)V USAGE COMP-3.
+           10 PROD-NAME            PIC X(40).
+           10 PROD-SUP-ID          PIC X(5).
+           10 PROD-CAT-ID          PIC X(5).
+           10 PROD-CAT-NAME        PIC X(40).
+           10 PROD-UNIT-PRICE      PIC S9(10)V9(2) USAGE COMP-3.
+           10 PROD-UNIT-STOCK      PIC S9(5)V USAGE COMP-3.
+           10 PROD-UNIT-ORDER      PIC S9(5)V USAGE COMP-3.
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 8       *
+      ******************************************************************

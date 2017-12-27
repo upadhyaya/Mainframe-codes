@@ -1,0 +1,19 @@
+//UADT016F JOB 'CREATE TEST DATA',NOTIFY=&SYSUID,REGION=0M              00010000
+//STEP1 EXEC PGM=IEBDG                                                  00020000
+//SYSPRINT DD SYSOUT=*                                                  00030000
+//OUT DD DISP=(NEW,CATLG),DSN=UADT016.TEST.DATA,                        00040000
+//       UNIT=SYSDA,SPACE=(TRK,(20,20)),                                00050001
+//       DCB=(RECFM=FB,LRECL=80,BLKSIZE=800)                            00060000
+//SYSIN DD *                                                            00070000
+  DSD OUTPUT=(OUT)                                                      00080000
+  FD NAME=KEY,LENGTH=5,FORMAT=ZD,INDEX=1,CYCLE=5                        00090001
+  FD NAME=CUSTNAME,LENGTH=20,FORMAT=AN,ACTION=RP                        00100001
+  FD NAME=ADDRESS,LENGTH=20,FORMAT=AN,ACTION=RP                         00110001
+  FD NAME=CITY,LENGTH=15,FORMAT=AN,ACTION=RP                            00111001
+  FD NAME=STATEZIP,LENGTH=07,PICTURE=7,'CA93711'                        00112001
+  FD NAME=YTDSALES,LENGTH=05,PICTURE=5,P'00127'                         00113001
+  FD NAME=FILLER1,LENGTH=08,FILL=' '                                    00114001
+  CREATE QUANTITY=125,NAME=(KEY,CUSTNAME,ADDRESS,CITY,STATEZIP,        X00120001
+                YTDSALES,FILLER1)                                       00121001
+  END                                                                   00130000
+/*                                                                      00140000

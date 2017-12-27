@@ -1,0 +1,104 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. VSAMTEST.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT VSAMIP ASSIGN TO VSAMIN
+                  ORGANIZATION IS INDEXED
+                  ACCESS MODE IS SEQUENTIAL
+                  RECORD KEY IS ORDER-KEY
+                  FILE STATUS WS-FILE-VSAMSTAT.
+           SELECT SORTIP ASSIGN TO DISK.
+           SELECT VSAMOUT ASSIGN TO SORTOUT.
+       DATA DIVISION.
+       FILE SECTION.
+       FD VSAMIP.
+       01 VSAMREC.
+           02 ORDER-KEY            PIC 9(10).
+           02 CUSTOMER-ID          PIC 9(10).
+           02 EMPLOYEE-ID          PIC 9(10).
+           02 PROD-ID              PIC 9(10).
+           02 UNIT-PRICE           PIC 9(10)V99.
+           02 QUANTITY             PIC 9(05).
+           02 ORDER-DATE           PIC X(10).
+           02 REQUIRED-DATE        PIC X(10).
+           02 SHIPMENT-DATE        PIC X(10).
+           02 CARRIER-DATE         PIC 9(10)V99.
+           02 TOTAL-COST           PIC 9(16)V99.
+           02 TOKEN-KEY            PIC X(1).
+      *
+       FD VSAMOUT.
+       01 OUT-REC.
+           02 ORD-KEY            PIC 9(10).
+           02 CUST-ID          PIC 9(10).
+           02 EMP-ID          PIC 9(10).
+           02 PR-ID              PIC 9(10).
+           02 UN-PRICE           PIC 9(10)V99.
+           02 QTY              PIC 9(05).
+           02 ORD-DATE           PIC X(10).
+           02 REQ-DATE        PIC X(10).
+           02 SHIP-DATE        PIC X(10).
+           02 CARR-DATE         PIC 9(10)V99.
+           02 TOT-COST           PIC 9(16)V99.
+           02 TOK-KEY            PIC X(1).
+      *
+       SD SORTIP.
+       01 SORTREC.
+           02 SORT-KEY            PIC 9(10).
+           02 FILLER              PIC X(108).
+       WORKING-STORAGE SECTION.
+       01 WS-FILE-VSAMSTAT  PIC 9(2).
+       01 WS-EOF            PIC X(01) VALUE 'N'.
+       01 CNT1              PIC 9(02) VALUE ZEROES.
+       01 CNT2              PIC 9(02) VALUE ZEROES.
+       01 VSAM-FILE-DATA.
+           02 WSF-ORDER-ID         PIC 9(10).
+           02 WSF-CUSTOMER-ID      PIC 9(10).
+           02 WSF-EMPLOYEE-ID      PIC 9(10).
+           02 WSF-PROD-ID          PIC 9(10).
+           02 WSF-UNIT-PRICE       PIC 9(10)V99.
+           02 WSF-QUANTITY         PIC 9(05).
+           02 WSF-ORDER-DATE       PIC X(10).
+           02 WSF-REQUIRED-DATE    PIC X(10).
+           02 WSF-SHIPMENT-DATE    PIC X(10).
+           02 WSF-CARRIER-COST     PIC 9(10)V99.
+           02 WSF-TOTAL-COST       PIC 9(16)V99.
+           02 WSF-TOKEN            PIC X(1).
+       PROCEDURE DIVISION.
+      ***************************************************************
+      *                   0000-MAINLINE                             *
+      *          CONTAINS THE MAIN FLOW OF THE PROGRAM              *
+      ***************************************************************
+      ***************************************************************
+      * PROGRAM TO SORT A VSAM FILE (WHOSE KEY IS ORDERED IN
+      *ASCENDING) IN THE DESCENDING ORDER BY KEY WHERE THE SORTED FILE
+      * IS A SEQUENTIAL FILE AND NOT A VSAM FILE.
+      ***************************************************************
+       0000-MAINLINE.
+            SORT SORTIP ON DESCENDING KEY SORT-KEY
+                 USING VSAMIP
+                 GIVING VSAMOUT.
+            OPEN INPUT VSAMOUT.
+            MOVE 'N' TO WS-EOF.
+            PERFORM 1000-DISP-PARA UNTIL WS-EOF = 'Y'.
+            CLOSE VSAMOUT.
+            OPEN INPUT VSAMIP.
+            MOVE 'N' TO WS-EOF.
+            PERFORM 1500-DISP-PARA UNTIL WS-EOF = 'Y'.
+            CLOSE VSAMIP.
+            DISPLAY 'CNTIN:' CNT1.
+            DISPLAY 'CNTOUT:' CNT2.
+            STOP RUN.
+       1000-DISP-PARA.
+            READ VSAMOUT
+                 AT END MOVE 'Y' TO WS-EOF
+                 NOT AT END PERFORM 2000-PROCESS-PARA.
+       1500-DISP-PARA.
+            READ VSAMIP
+                 AT END MOVE 'Y' TO WS-EOF
+                 NOT AT END PERFORM 2500-PROCESS-PARA.
+       2000-PROCESS-PARA.
+            COMPUTE CNT2 = CNT2 + 1.
+            DISPLAY 'VSAMREC' OUT-REC.
+       2500-PROCESS-PARA.
+            COMPUTE CNT1 = CNT1 + 1.

@@ -1,0 +1,11 @@
+//UADT016Y JOB 'SATYAM',NOTIFY=&SYSUID,REGION=0M                        00010000
+//STEP1    EXEC PGM=IEBGENER                                            00020000
+//SYSUT1   DD   DSN=UADT016.XML.INPUT,DISP=SHR                          00040000
+//SYSPRINT DD   SYSOUT=*                                                00050000
+//SYSUT2 DD DSN=UADT016.PS2PDS.OUTPUT,DISP=SHR                          00060002
+//*            DCB=(RECFM=FB,LRECL=80,BLKSIZE=800),                     00070002
+//*            SPACE=(TRK,(2,2,3))                                      00080002
+//SYSIN    DD   *                                                       00081000
+  GENERATE MAXNAME=2                                                    00090002
+  MEMBER   NAME=TSTDATA1                                                00100002
+//                                                                      00110000

@@ -1,0 +1,13 @@
+//UADT014Z JOB NOTIFY=&SYSUID,REGION=0M                                 00010025
+//*  ASSEMBLER + CICS                                                   00020027
+//*                                                                     00040002
+//PROCLIB JCLLIB ORDER=UADT014.PROCLIB                                  00050073
+//*                                                                     00060002
+//STEP1 EXEC PROC=COB2CICS,                                             00070073
+//           INLIB='ELTP.BLR.UADT014.SOA',    <= INPUT PGM PATH INLIB   00080073
+//           RPLLIB='ADMS.CICSA1.LOAD',      <= CICS LOAD LIB           00110073
+//           COPYLIB='UADT014.SOA.COPYLIB',  <= CICS LOAD LIB           00111073
+//           MEM=NOMLINK               <= NAME OF IP & DBRM             00120078
+//LKED.SYSIN DD *                                                       00130002
+   NAME NOMLINK(R)                <= NAME OF LOAD MODULE                00150078
+//*                                                                     00160002

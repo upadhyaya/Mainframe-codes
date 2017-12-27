@@ -1,0 +1,10 @@
+                05  LS-OPT            PIC X(6).                         00010000
+                05  LS-DEALER-ID      PIC 9(10).                        00020000
+                05  LS-ORDER-ID       PIC 9(10).                        00030000
+                05  LS-PROD-ID        PIC 9(10).                        00040000
+                05  LS-PROD-NAME      PIC X(40).                        00050000
+                05  LS-QUANT          PIC 9(10).                        00060000
+                05  LS-PRICE          PIC 9(10).                        00070000
+                05  LS-DATE           PIC X(10).                        00080000
+                05  LS-CATEG-NAME     PIC X(40).                        00090000
+                05  LS-CATEG-ID       PIC 9(10).                        00100000

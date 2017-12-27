@@ -1,0 +1,14 @@
+//UADT012P JOB NOTIFY=&SYSUID,REGION=0M,LINES=(51,CANCEL),TIME=1440     00010089
+//*  COBOL + CICS                                                       00020003
+//*  ASSUMED THAT IPPGM = DBRM = LOAD MODULE NAME ARE SAME              00030002
+//*                                                                     00040002
+//PROCLIB JCLLIB ORDER='UADT012.BCASE.OMA'                              00050094
+//*                                                                     00060002
+//STEP1 EXEC PROC=COB2CICS,                                             00070063
+//           INLIB='UADT012.BCASE.OMA',         <= INPUT PGM PATH       00080094
+//           RPLLIB='ADMS.CICSA1.LOAD',      <= CICS LOAD LIB           00110084
+//           COPYLIB='UADT012.BCASE.OMA',    <= CICS LOAD LIB           00111094
+//           MEM=DLRCAL               <= NAME OF IP & DBRM              00120099
+//LKED.SYSIN DD *                                                       00130002
+   NAME DLRCAL(R)                            <= NAME OF LOAD MODULE     00150099
+//*                                                                     00160002

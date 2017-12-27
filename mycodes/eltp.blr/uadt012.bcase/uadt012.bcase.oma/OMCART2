@@ -1,0 +1,849 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. OMCART.                                              00020000
+000400 AUTHOR. DON.                                                     00040000
+000410 DATE-WRITTEN. 27/11/08.                                          00041000
+000420 DATE-COMPILED. 27/11/08.                                         00042000
+000717******************************************************************00071700
+000718 DATA DIVISION.                                                   00071800
+000719 WORKING-STORAGE SECTION.                                         00071900
+000726      EXEC SQL INCLUDE ORDR   END-EXEC.                           00072600
+000727      EXEC SQL INCLUDE EMPLOY END-EXEC.                           00072700
+000728      EXEC SQL INCLUDE PRODN  END-EXEC.                           00072800
+000729      EXEC SQL INCLUDE STATS  END-EXEC.                           00072900
+000730      EXEC SQL INCLUDE CARTDCL  END-EXEC.                         00073100
+000740      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00074000
+001007*                                                                 00100700
+001016 01 WK-DATE.                                                      00101600
+001017    05 WK-D-DD PIC 99.                                            00101700
+001018    05 FILLER  PIC X.                                             00101800
+001019    05 WK-D-MM PIC 99.                                            00101900
+001020    05 FILLER  PIC X.                                             00102000
+001021    05 WK-D-YY PIC 99.                                            00102100
+001022 01 WK-TIME.                                                      00102200
+001023    05 WK-T-HH PIC 99.                                            00102300
+001024    05 FILLER  PIC X.                                             00102400
+001025    05 WK-T-MM PIC 99.                                            00102500
+001026    05 FILLER  PIC X.                                             00102600
+001027    05 WK-T-SS PIC 99.                                            00102700
+001028 01 DT PIC S9(15) COMP-3.                                         00102800
+001029*                                                                 00102900
+001030 01 WS-SCR-DATE.                                                  00103000
+001031    05 WS-YEAR  PIC 9(4).                                         00103100
+001033    05 SLASH1   PIC X(1) VALUE '-'.                               00103300
+001034    05 WS-DATE  PIC 9(2).                                         00103400
+001035    05 SLASH2   PIC X(1) VALUE '-'.                               00103500
+001036    05 WS-MONTH PIC 9(2).                                         00103600
+001038*                                                                 00103800
+001039 01 WS-YEAR1  PIC 9(4) VALUE 0.                                   00103900
+001040*                                                                 00104000
+001041 01 WS-QUOT1    PIC 9(4)     VALUE 0.                             00104100
+001042 01 WS-REM1     PIC 9(4)     VALUE 0.                             00104200
+001043*                                                                 00104300
+001044 01 WS-ORDID    PIC 9(10) VALUE 0.                                00104400
+001045 01 WS-ORDID1   PIC 9(10) VALUE 0.                                00104500
+001047 01 WS-FLAGDB   PIC X VALUE 'N'.                                  00104700
+001048 01 WS-FLAGVM   PIC X VALUE 'N'.                                  00104800
+001049*                                                                 00104900
+001083 01 WS-QUANT   PIC S9(5) COMP VALUE 0.                            00108300
+001084*                                                                 00108400
+001085 01 WS-COMMAREA  PIC X(9).                                        00108500
+001086*                                                                 00108600
+001087 01 UNTPRC-REDEF.                                                 00108700
+001088   05 WS-UNTPRC            PIC 9(10)V99.                          00108800
+001089   05 RE-UNTPRC REDEFINES WS-UNTPRC PIC X(12).                    00108900
+001090*                                                                 00109000
+001091 01 CARCOS-REDEF.                                                 00109100
+001092   05 WS-CARCOS            PIC 9(10)V99.                          00109200
+001093   05 RE-CARCOS REDEFINES WS-CARCOS PIC X(12).                    00109300
+001094*                                                                 00109400
+001099 01 WS1-UNTPRC            PIC 9(12)V99.                           00109900
+001100 01 WS1-CARCOS            PIC 9(12)V99.                           00110000
+001102*                                                                 00110200
+001103 77 RAND-INT PIC 9(10).                                           00110300
+      *                                                                 00110500
+       01 WS-END-PARA PIC X VALUE 'N'.                                  00110600
+      *                                                                 00110700
+       01 WS-LIN-INVN.                                                  00110800
+      *                                                                 00110900
+       01 Q-NAME1     PIC X(8) VALUE 'QCART1'.                          00111000
+       01 Q-NAME2     PIC X(8) VALUE 'QCART2'.                          00111100
+       01 CHOICE1     PIC S9(4) COMP VALUE 1.                           00111200
+       01 RE1         PIC S9(4) COMP.                                   00111300
+       01 RE2         PIC S9(4) COMP.                                   00111400
+      *                                                                 00111500
+       01 P           PIC 9(01) VALUE ZEROES.                           00111600
+       01 WS-FLAG     PIC X(01) VALUE 'N'.                              00111700
+      *                                                                 00111800
+       01 CARTQ1.                                                       00111900
+          05 Q1-CART-ID  PIC 9(05).                                     00112000
+          05 Q8-CART-ID  PIC 9(05).                                     00112100
+      *                                                                 00112200
+       01 CARTQ2.                                                       00112300
+          05 Q-CUST-ID  PIC 9(10).                                      00112400
+      *                                                                 00112500
+       01 CARTARRAY1.                                                   00112600
+          05 CARTARR-WSN OCCURS 8 TIMES INDEXED BY J.                   00112700
+             06 WSN-CART-ID     PIC 9(05).                              00112800
+             06 WSN-CUST-ID     PIC 9(10).                              00112900
+             06 WSN-PROD-ID     PIC 9(10).                              00113000
+             06 WSN-UNIT-PR     PIC X(12).                              00113100
+             06 WSN-QNTY        PIC 9(5).                               00113200
+             06 WSN-ORD-DATE    PIC X(10).                              00113300
+             06 WSN-CARR-COST   PIC X(18).                              00113400
+      *                                                                 00113500
+001149******************************************************************00113600
+            EXEC SQL                                                    00113700
+                 DECLARE C11 SCROLL                                     00113800
+                 CURSOR FOR                                             00113900
+                 SELECT CART_CART_ID, CART_CUST_ID,                     00114000
+                        CART_PROD_ID, CART_UNIT_PR, CART_QNTY,          00114100
+                        CART_ORD_DATE, CART_CARR_COST                   00114200
+                   FROM ADMT.T_CUST_CART                                00114300
+                  WHERE CART_CUST_ID = :CART-CUST-ID                    00114400
+                    AND CART_CART_ID > :CART-CART-ID                    00114500
+                  ORDER BY CART_CART_ID ASC                             00114600
+            END-EXEC.                                                   00114700
+001149******************************************************************00114800
+            EXEC SQL                                                    00114900
+                 DECLARE C12 SCROLL                                     00115000
+                 CURSOR FOR                                             00115100
+                 SELECT CART_CART_ID, CART_CUST_ID,                     00115200
+                        CART_PROD_ID, CART_UNIT_PR, CART_QNTY,          00115300
+                        CART_ORD_DATE, CART_CARR_COST                   00115400
+                   FROM ADMT.T_CUST_CART                                00115500
+                  WHERE CART_CUST_ID = :CART-CUST-ID                    00115600
+                    AND CART_CART_ID >= :CART-CART-ID                   00115700
+                  ORDER BY CART_CART_ID ASC                             00115800
+            END-EXEC.                                                   00115900
+001149******************************************************************00116000
+            EXEC SQL                                                    00116100
+                 DECLARE D11 SCROLL                                     00116200
+                 CURSOR FOR                                             00116300
+                 SELECT CART_CART_ID, CART_CUST_ID,                     00116400
+                        CART_PROD_ID, CART_UNIT_PR, CART_QNTY,          00116500
+                        CART_ORD_DATE, CART_CARR_COST                   00116600
+                   FROM ADMT.T_CUST_CART                                00116700
+                  WHERE CART_CUST_ID = :CART-CUST-ID                    00116800
+                    AND CART_CART_ID < :CART-CART-ID                    00116900
+                  ORDER BY CART_CART_ID DESC                            00117000
+            END-EXEC.                                                   00117100
+001149******************************************************************00117200
+001105 LINKAGE SECTION.                                                 00117300
+001106 01 DFHCOMMAREA.                                                  00117400
+001110      COPY CARTCPY.                                               00117500
+001149******************************************************************00117600
+001150 PROCEDURE DIVISION USING DFHCOMMAREA.                            00117700
+001151******************************************************************00117800
+001161 1000-MAINLINE-PARA.                                              00117900
+001162     DISPLAY 'START 1000'.                                        00118000
+001163     IF EIBCALEN = 0                                              00118100
+001164         MOVE SPACES TO LS-OPT, LS-ORD-DATE,                      00118200
+001166                        LS-UNIT-PRC, LS-CARR-COST                 00118300
+001168         MOVE 0      TO LS-CUST-ID,                               00118400
+001169                        LS-PROD-ID, LS-QUANTITY                   00118500
+001170         MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG                 00118600
+001171         EXEC CICS RETURN                                         00118700
+001172         END-EXEC                                                 00118800
+001173     ELSE                                                         00118900
+001174         DISPLAY 'IN ELSE 1000'                                   00119000
+001184         PERFORM 2000-PROCESSING-PARA                             00119100
+001185*                                                                 00119200
+001190         EXEC CICS RETURN                                         00120000
+001301         END-EXEC                                                 00130100
+001302     END-IF.                                                      00130200
+001303******************************************************************00130300
+001340 2000-PROCESSING-PARA.                                            00134000
+001341      DISPLAY 'START 2000'.                                       00134100
+001345      EVALUATE TRUE                                               00134500
+               WHEN LS-OPT = 'INSERT'                                   00134600
+                   PERFORM 3500-INSERTION-PARA THRU 3500-EXIT           00134700
+               WHEN LS-OPT = 'UPDATE'                                   00134800
+                   PERFORM 4500-UPDATE-PARA THRU 4500-EXIT              00134900
+               WHEN LS-OPT = 'DELETE'                                   00135000
+                   PERFORM 5500-DELETE-PARA THRU 5500-EXIT              00135100
+001423*                                                                 00142300
+               WHEN LS-OPT = 'LIST'                                     00142400
+                   DISPLAY "INSIDE LIST"                                00142500
+                   MOVE LS-CUST-ID TO Q-CUST-ID                         00142700
+                   PERFORM 9700-WRITEQ-PARA THRU 9700-EXIT              00142800
+                   ADD 1 TO P                                           00142900
+                   PERFORM 3000-LIST-CART-PARA THRU 3000-EXIT           00143000
+               WHEN LS-OPT = 'PGDN'                                     00143100
+                      IF LS-CUST-ID = ZERO                              00143200
+                         PERFORM 2100-MESSAGE-PARA THRU 2100-EXIT       00143300
+                      END-IF                                            00143400
+                       MOVE 'N' TO WS-END-PARA                          00143500
+                        EXEC CICS READQ TS                              00143600
+                                  QUEUE(Q-NAME1)                        00143700
+                                  INTO(CARTQ1)                          00143800
+                                  ITEM(CHOICE1)                         00143900
+                        END-EXEC                                        00144000
+                        MOVE Q8-CART-ID  TO CART-CART-ID                00144100
+                         EXEC CICS READQ TS                             00144200
+                                   QUEUE(Q-NAME2)                       00144300
+                                   INTO(CARTQ2)                         00144400
+                                   ITEM(CHOICE1)                        00144500
+                         END-EXEC                                       00144600
+                        MOVE Q-CUST-ID  TO CART-CUST-ID                 00144700
+                        PERFORM 5000-PAGEDOWN-PROCESS1-PARA             00144800
+001423*                                                                 00144900
+                 WHEN LS-OPT = 'PGUP'                                   00145000
+                        IF LS-CUST-ID = ZERO                            00145100
+                           PERFORM 2100-MESSAGE-PARA THRU 2100-EXIT     00145200
+                        END-IF                                          00145300
+                         MOVE 'N' TO WS-END-PARA                        00145400
+                          EXEC CICS READQ TS                            00145500
+                                    QUEUE(Q-NAME1)                      00145600
+                                    INTO(CARTQ1)                        00145700
+                                    ITEM(CHOICE1)                       00145800
+                          END-EXEC                                      00145900
+                         MOVE Q1-CART-ID  TO CART-CART-ID               00146000
+                           EXEC CICS READQ TS                           00146100
+                                     QUEUE(Q-NAME2)                     00146200
+                                     INTO(CARTQ2)                       00146300
+                                     ITEM(CHOICE1)                      00146400
+                           END-EXEC                                     00146500
+                          MOVE Q-CUST-ID  TO CART-CUST-ID               00146600
+                          PERFORM 5500-PAGEUP-PROCESS1-PARA             00146700
+001423*                                                                 00146800
+001424         WHEN OTHER                                               00146900
+001425                MOVE SPACES TO LS-OPT, LS-ORD-DATE,               00147000
+001427                               LS-UNIT-PRC, LS-CARR-COST          00147200
+001429                MOVE 0      TO LS-CUST-ID,                        00147400
+001430                               LS-PROD-ID, LS-QUANTITY            00147500
+                      SET K TO 1                                        00147600
+                      PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 800147700
+001431                EXEC CICS RETURN END-EXEC                         00147800
+001432      END-EVALUATE.                                               00147900
+001433*                                                                 00148000
+001434 2000-EXIT.                                                       00148100
+001435     EXIT.                                                        00148200
+001436******************************************************************00148300
+       2100-MESSAGE-PARA.                                               00148400
+           MOVE SPACES TO LS-OPT.                                       00148500
+           MOVE 0 TO LS-CUST-ID.                                        00148600
+           SET K TO 1.                                                  00148700
+           PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8.          00148800
+           MOVE 'PERFORM SPECIFIC OPERATION BEFORE PAGE UP AND DOWN OPER00148900
+      -         'ATION' TO LS-MSG.                                      00149000
+           EXEC CICS RETURN                                             00149100
+           END-EXEC.                                                    00149200
+      *                                                                 00149300
+       2100-EXIT.                                                       00149400
+           EXIT.                                                        00149500
+      ***************************************************************** 00149600
+       3500-INSERTION-PARA.                                             00149700
+001437     IF LENGTH OF LS-CUST-ID = 0                                  00149800
+001438        MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   00149900
+001087        EXEC CICS RETURN                                          00150000
+001088        END-EXEC                                                  00150100
+001441*                                                                 00150200
+001442     ELSE IF LS-CUST-ID IS NOT NUMERIC                            00150300
+001443        MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'       00150400
+001444              TO LS-MSG                                           00150500
+001087        EXEC CICS RETURN                                          00150600
+001088        END-EXEC                                                  00150700
+001447          END-IF                                                  00150800
+001448     END-IF.                                                      00150900
+001449*                                                                 00151000
+001450     MOVE LS-CUST-ID TO CART-CUST-ID.                             00151100
+001460     PERFORM 9100-VALIDATION-PARA THRU 9100-EXIT.                 00152000
+           PERFORM 9200-AUTOGEN-PARA THRU 9200-EXIT.                    00152100
+                         MOVE LS-CUST-ID      TO CART-CUST-ID           00152200
+                         MOVE LS-PROD-ID      TO CART-PROD-ID           00152300
+                         MOVE LS-UNIT-PRC     TO CART-UNIT-PR           00152400
+                         MOVE LS-QUANTITY     TO CART-QNTY              00152500
+                         MOVE LS-ORD-DATE     TO CART-ORD-DATE          00152600
+                         MOVE '000000000100'  TO CART-CARR-COST         00152700
+                         MOVE 'O'             TO CART-STATUS.           00152800
+                 EXEC SQL INSERT INTO                                   00152900
+                   ADMT.T_CUST_CART VALUES(:CART-CART-ID, :CART-CUST-ID,00153000
+                                 :CART-PROD-ID,:CART-UNIT-PR,           00153100
+                                 :CART-QNTY,:CART-ORD-DATE,             00153200
+                                 :CART-CARR-COST, :CART-STATUS)         00153300
+                 END-EXEC.                                              00153400
+001493           EVALUATE SQLCODE                                       00153500
+001494              WHEN 0                                              00153600
+001496                 MOVE 'SUCCESSFUL INSERTION - PRESS PF1           00153700
+001497-                       '2 TO CLEAR SCREEN' TO LS-MSG             00153800
+001087                 EXEC CICS RETURN                                 00153900
+001088                 END-EXEC                                         00154000
+001515              WHEN OTHER                                          00154100
+001516                 MOVE 'INSERTION NOT SUCCESSFUL'                  00154200
+001518                         TO LS-MSG                                00154300
+001087                 EXEC CICS RETURN                                 00154400
+001088                 END-EXEC                                         00154500
+001523           END-EVALUATE.                                          00154600
+001524*                                                                 00154700
+      *                                                                 00154900
+       3500-EXIT.                                                       00155000
+           EXIT.                                                        00155100
+001436******************************************************************00155200
+039800 4500-UPDATE-PARA.                                                00155300
+039810     IF LS-CUST-ID = 0 OR LS-CUST-ID = SPACES                     00155400
+039820         MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  00155500
+039830         EXEC CICS RETURN END-EXEC                                00155600
+039840     ELSE IF LS-CUST-ID IS NOT NUMERIC                            00155700
+039850         MOVE 'CUSTOMER ID SHOULD BE NUMERIC' TO LS-MSG           00155800
+039870         EXEC CICS RETURN END-EXEC                                00155900
+039880          END-IF                                                  00156000
+039890     END-IF.                                                      00156100
+039891*                                                                 00156200
+039900     MOVE LS-CUST-ID TO CART-CUST-ID.                             00156300
+039900     MOVE LS-CART-ID TO CART-CART-ID.                             00156400
+039910*                                                                 00156500
+040000     EXEC SQL                                                     00156600
+040010         SELECT CART_CUST_ID                                      00156700
+040011            INTO :CART-CUST-ID                                    00156800
+040020            FROM ADMT.T_CUST_CART                                 00156900
+040040         WHERE CART_CUST_ID = :CART-CUST-ID                       00157000
+                  AND CART_CART_ID = :CART-CART-ID                      00157100
+040050     END-EXEC.                                                    00157200
+040060*                                                                 00157300
+040070     EVALUATE SQLCODE                                             00157400
+040080        WHEN 0                                                    00157500
+040100          PERFORM 9100-VALIDATION-PARA THRU 9100-EXIT             00157600
+                   MOVE LS-CUST-ID      TO CART-CUST-ID                 00157700
+                   MOVE LS-PROD-ID      TO CART-PROD-ID                 00157800
+                   MOVE LS-UNIT-PRC     TO CART-UNIT-PR                 00157900
+                   MOVE LS-QUANTITY     TO CART-QNTY                    00158000
+                   MOVE LS-ORD-DATE     TO CART-ORD-DATE                00158100
+                   MOVE '000000000100'  TO CART-CARR-COST               00158200
+                   MOVE 'O'             TO CART-STATUS                  00158300
+041900             EXEC SQL                                             00158400
+042000                  UPDATE ADMT.T_CUST_CART                         00158500
+042100                  SET CART_CUST_ID  = :CART-CUST-ID,              00158600
+042200                      CART_PROD_ID  = :CART-PROD-ID,              00158700
+042300                      CART_UNIT_PR  = :CART-UNIT-PR,              00158800
+042400                      CART_QNTY     = :CART-QNTY,                 00158900
+042500                      CART_ORD_DATE = :CART-ORD-DATE,             00159000
+042600                      CART_CARR_COST = :CART-CARR-COST,           00159100
+042610                      CART_STATUS    = :CART-STATUS               00159200
+042650                  WHERE CART_CUST_ID = :CART-CUST-ID              00159300
+                           AND CART_CART_ID = :CART-CART-ID             00159400
+042660             END-EXEC                                             00159500
+              DISPLAY ' SQLCODE: ' SQLCODE                              00159600
+042700             EVALUATE SQLCODE                                     00159800
+042800               WHEN 0                                             00159900
+042900                  MOVE 'SUCCESSFUL UPDATION' TO LS-MSG            00160000
+043000                  EXEC CICS RETURN END-EXEC                       00160100
+043100               WHEN OTHER                                         00160200
+043200                  MOVE 'UPDATION NOT SUCCESSFUL' TO LS-MSG        00160300
+043300                  EXEC CICS RETURN END-EXEC                       00160400
+043400             END-EVALUATE                                         00160500
+044210*                                                                 00160600
+044220        WHEN 100                                                  00160700
+044221           MOVE CART-CUST-ID TO LS-CUST-ID                        00160800
+044222           MOVE 'CUSTOMER ID DOES NOT EXIST' TO LS-MSG            00160900
+044223           EXEC CICS RETURN END-EXEC                              00161000
+              WHEN OTHER                                                00161100
+                 MOVE 'PROBLEM IN SELECTION' TO LS-MSG                  00161200
+                 EXEC CICS RETURN END-EXEC                              00161300
+044230     END-EVALUATE.                                                00161400
+044300*                                                                 00161500
+044400 4500-EXIT.                                                       00161600
+044500     EXIT.                                                        00161700
+044510****************************************************************  00161800
+044600 5500-DELETE-PARA.                                                00161900
+044700     IF LS-CUST-ID = 0 OR LS-CUST-ID = ZEROES                     00162000
+044800         MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  00162100
+044900         EXEC CICS RETURN END-EXEC                                00162200
+045000     ELSE IF LS-CUST-ID IS NOT NUMERIC                            00162300
+045100         MOVE 'CUSTOMER ID SHOULD BE NUMERIC' TO LS-MSG           00162400
+045200         EXEC CICS RETURN END-EXEC                                00162500
+045300          END-IF                                                  00162600
+045400     END-IF.                                                      00162700
+044700     IF LS-CART-ID = 0 OR LS-CART-ID = ZEROES                     00162800
+044800         MOVE 'CART ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG      00162900
+044900         EXEC CICS RETURN END-EXEC                                00163000
+045000     ELSE IF LS-CART-ID IS NOT NUMERIC                            00163100
+045100         MOVE 'CART ID SHOULD BE NUMERIC' TO LS-MSG               00163200
+045200         EXEC CICS RETURN END-EXEC                                00163300
+045300          END-IF                                                  00163400
+045400     END-IF.                                                      00163500
+045500*                                                                 00163600
+045600     MOVE LS-CUST-ID TO CART-CUST-ID.                             00163700
+045600     MOVE LS-CART-ID TO CART-CART-ID.                             00163800
+045700*                                                                 00163900
+045800     EXEC SQL                                                     00164000
+045900         SELECT CART_CUST_ID                                      00164100
+046000         INTO :CART-CUST-ID                                       00164200
+046100         FROM ADMT.T_CUST_CART                                    00164300
+046200         WHERE CART_CUST_ID = :CART-CUST-ID                       00164400
+      *              AND CART_CART_ID = :CART-CART-ID                   00164500
+046300     END-EXEC.                                                    00164600
+046400*                                                                 00164800
+046500     EVALUATE SQLCODE                                             00164900
+046600        WHEN 0                                                    00165000
+046700           EXEC SQL DELETE FROM ADMT.T_CUST_CART                  00165100
+046800           WHERE CART_CUST_ID = :CART-CUST-ID                     00165200
+                     AND CART_CART_ID = :CART-CART-ID                   00165300
+046900           END-EXEC                                               00165400
+047000           EVALUATE SQLCODE                                       00165500
+047100              WHEN 0                                              00165600
+047200                  MOVE 'SUCCESSFULLY DELETED' TO LS-MSG           00165700
+047300                  EXEC CICS RETURN                                00165800
+047400                  END-EXEC                                        00165900
+047500              WHEN OTHER                                          00166000
+047600                  MOVE 'DELETION NOT SUCCESSFULL' TO LS-MSG       00166100
+047700                  EXEC CICS RETURN                                00166200
+047800                  END-EXEC                                        00166300
+047900           END-EVALUATE                                           00166400
+048000*                                                                 00166500
+048100        WHEN 100                                                  00166600
+048110           MOVE 'CUSTOMER ID DOES NOT EXIST' TO LS-MSG            00166700
+048120           EXEC CICS RETURN                                       00166800
+048130           END-EXEC                                               00166900
+048100        WHEN OTHER                                                00167000
+048110           MOVE 'DELETION FAILED' TO LS-MSG                       00167100
+048120           EXEC CICS RETURN                                       00167200
+048130           END-EXEC                                               00167300
+048200     END-EVALUATE.                                                00167400
+048300*                                                                 00167500
+048400 5500-EXIT.                                                       00167600
+048500     EXIT.                                                        00167700
+044510****************************************************************  00168000
+002200 9100-VALIDATION-PARA.                                            03500000
+002300     IF LS-CUST-ID = ZEROS                                        03510000
+002400          MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG 03520000
+001087        EXEC CICS RETURN                                          03540000
+001088        END-EXEC                                                  03550000
+002610     ELSE IF LS-CUST-ID IS NOT NUMERIC                            03560000
+002700          MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'     03570000
+002800               TO LS-MSG                                          03580000
+001087        EXEC CICS RETURN                                          03600000
+001088        END-EXEC                                                  03610000
+003010          END-IF                                                  03620000
+003020     END-IF.                                                      03630000
+      *                                                                 03630100
+002300     IF LS-PROD-ID = ZEROS                                        03631000
+002400          MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  03632000
+001087        EXEC CICS RETURN                                          03634000
+001088        END-EXEC                                                  03635000
+002610     ELSE IF LS-PROD-ID IS NOT NUMERIC                            03636000
+002700          MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'      03637000
+002800               TO LS-MSG                                          03638000
+001087        EXEC CICS RETURN                                          03639100
+001088        END-EXEC                                                  03639200
+003010          END-IF                                                  03639300
+003020     END-IF.                                                      03639400
+003030*                                                                 03640000
+002300     IF LS-UNIT-PRC = LOW-VALUES                                  03641000
+002400          MOVE 'UNIT PRICE NOT ENTERED - PLZ ENTER IT' TO LS-MSG  03642000
+001087        EXEC CICS RETURN                                          03644000
+001088        END-EXEC                                                  03645000
+002610     ELSE IF LENGTH OF LS-UNIT-PRC = 0                            03646000
+002700          MOVE 'UNIT PRICE NOT ENTERED - PLZ ENTER IT'            03647000
+002800               TO LS-MSG                                          03648000
+001087        EXEC CICS RETURN                                          03649100
+001088        END-EXEC                                                  03649200
+003010          END-IF                                                  03649300
+003020     END-IF.                                                      03649400
+006620*                                                                 06370000
+002300     IF LS-QUANTITY = ZEROS                                       06370100
+002400          MOVE 'QUANTITY ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG 06370200
+001087        EXEC CICS RETURN                                          06370300
+001088        END-EXEC                                                  06370400
+002610     ELSE IF LS-QUANTITY IS NOT NUMERIC                           06370500
+002700          MOVE 'QUANTITY SHOULD BE NUMERIC - PLZ ENTER IT'        06370600
+002800               TO LS-MSG                                          06370700
+001087        EXEC CICS RETURN                                          06370800
+001088        END-EXEC                                                  06370900
+003010          END-IF                                                  06371000
+003020     END-IF.                                                      06371100
+      *                                                                 06371200
+032668     EXEC CICS ASKTIME ABSTIME(DT) END-EXEC.                      06372400
+032669     EXEC CICS FORMATTIME                                         06372500
+032670         ABSTIME(DT)                                              06373000
+032671         MMDDYY(WK-DATE)                                          06374000
+032672         DATESEP                                                  06375000
+032673         TIME(WK-TIME)                                            06376000
+032674         TIMESEP                                                  06377000
+032675     END-EXEC.                                                    06378000
+032676*                                                                 06379000
+032677     MOVE WK-D-YY TO WS-YEAR1.                                    06379100
+032678     ADD 2000 TO WS-YEAR1.                                        06379200
+032679     MOVE WS-YEAR1 TO WS-YEAR.                                    06379300
+032680     MOVE WK-D-MM TO WS-MONTH.                                    06379400
+032681     MOVE WK-D-DD TO WS-DATE.                                     06379500
+032682     MOVE WS-SCR-DATE TO LS-ORD-DATE.                             06379600
+032685*                                                                 06379700
+007100 9100-EXIT.                                                       06380000
+007200     EXIT.                                                        06390000
+032685*                                                                 06400000
+       9200-AUTOGEN-PARA.                                               06400100
+           EXEC SQL                                                     06400200
+            SELECT CART_CART_ID                                         06400300
+            INTO :CART-CART-ID                                          06400400
+            FROM ADMT.T_CUST_CART                                       06400500
+            ORDER BY CART_CART_ID DESC                                  06400600
+            FETCH FIRST 1 ROWS ONLY                                     06400700
+           END-EXEC.                                                    06400800
+           EVALUATE SQLCODE                                             06400900
+              WHEN 0                                                    06401000
+                ADD 1 TO CART-CART-ID                                   06401100
+                CONTINUE                                                06401300
+              WHEN OTHER                                                06401400
+                MOVE 'ERROR DURING SELECT' TO LS-MSG                    06401500
+                EXEC CICS RETURN                                        06401600
+                END-EXEC                                                06401700
+           END-EVALUATE.                                                06401800
+032685*                                                                 06402000
+007100 9200-EXIT.                                                       06410000
+007200     EXIT.                                                        06420000
+032685****************************************************************  06421000
+014400 3000-LIST-CART-PARA.                                             06430000
+014500*                                                                 06440000
+014501     DISPLAY "INSIDE LISTPARA 3000".                              06450000
+014510     IF LS-CUST-ID = 0                                            06460000
+014520        MOVE 'LIST' TO LS-OPT                                     06470000
+014530        PERFORM 9600-READQ-PARA THRU 9600-EXIT                    06480000
+014540        MOVE Q-CUST-ID TO LS-CUST-ID                              06490000
+014550        SET K TO 1                                                06500000
+014560        PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8        06510000
+014570        MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   06520000
+014590        EXEC CICS RETURN                                          06530000
+014591        END-EXEC                                                  06540000
+014592*                                                                 06550000
+014600     ELSE IF LS-CUST-ID IS NOT NUMERIC                            06560000
+014700        MOVE 'LIST' TO LS-OPT                                     06570000
+014800        PERFORM 9600-READQ-PARA THRU 9600-EXIT                    06580000
+014900        MOVE Q-CUST-ID TO LS-CUST-ID                              06590000
+015000        SET K TO 1                                                06600000
+015100        PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8        06610000
+015200        MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'       06620000
+015300             TO LS-MSG                                            06630000
+015400        EXEC CICS RETURN                                          06640000
+015500        END-EXEC                                                  06650000
+015600*                                                                 06660000
+015700     ELSE                                                         06670000
+015800       MOVE LS-CUST-ID  TO CART-CUST-ID                           06680000
+015810       DISPLAY CART-CUST-ID                                       06690000
+015900       EXEC SQL                                                   06700000
+016000          SELECT CART_CUST_ID                                     06710000
+016100          INTO :CART-CUST-ID                                      06720000
+016200          FROM ADMT.T_CUST_CART                                   06730000
+016300          WHERE CART_CUST_ID = :CART-CUST-ID                      06740000
+016400       END-EXEC                                                   06750000
+016500       EVALUATE SQLCODE                                           06770000
+016600         WHEN 0                                                   06780000
+016800            MOVE LS-CUST-ID  TO CART-CUST-ID                      06790000
+016810            MOVE 0           TO CART-CART-ID                      06800000
+016820            PERFORM 5000-PAGEDOWN-PROCESS1-PARA                   06810000
+016830         WHEN -811                                                06820000
+016840            MOVE LS-CUST-ID  TO CART-CUST-ID                      06830000
+016850            MOVE 0           TO CART-CART-ID                      06840000
+016860            PERFORM 5000-PAGEDOWN-PROCESS1-PARA                   06850000
+016900         WHEN +100                                                06860000
+016910            MOVE 'LIST' TO LS-OPT                                 06870000
+016920            MOVE CART-CUST-ID TO LS-CUST-ID                       06880000
+016930            SET K TO 1                                            06890000
+016940            PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL          06900000
+016950                K > 8                                             06910000
+016960            EXEC CICS RETURN                                      06920000
+016970            END-EXEC                                              06930000
+017000            MOVE "CUSTOMER DOES NOT EXIST" TO LS-MSG              06940000
+017010            EXEC CICS RETURN END-EXEC                             06950000
+017100       END-EVALUATE                                               06960000
+017500*                                                                 06970000
+017600     END-IF                                                       06980000
+017610*                                                                 06990000
+017620     END-IF.                                                      07000000
+017700*                                                                 07010000
+017800 3000-EXIT.                                                       07020000
+017900     EXIT.                                                        07030000
+018000******************************************************************07040000
+018100 5000-PAGEDOWN-PROCESS1-PARA.                                     07050000
+018200     EXEC SQL OPEN C11 END-EXEC.                                  07060000
+018300     SET K TO 1.                                                  07070000
+018400     PERFORM 9600-READQ-PARA THRU 9600-EXIT                       07080000
+018500     MOVE Q-CUST-ID TO LS-CUST-ID                                 07090000
+018600*                                                                 07100000
+018700     PERFORM 6000-FETCH-FORWARD1-PARA THRU 6000-EXIT UNTIL K > 8  07110000
+018800             OR WS-END-PARA = 'Y'.                                07120000
+018900*                                                                 07130000
+019000     IF WS-END-PARA = 'Y'                                         07140000
+019100        MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG           07150000
+019200        MOVE 'N' TO WS-FLAG                                       07160000
+019300     ELSE                                                         07170000
+019400        MOVE SPACES TO LS-MSG                                     07180000
+019500     END-IF.                                                      07190000
+019600*                                                                 07200000
+019700     PERFORM 9500-WRITEQ-PARA THRU 9500-EXIT.                     07210000
+019800*                                                                 07220000
+019900        EXEC SQL CLOSE C11 END-EXEC.                              07230000
+020000        PERFORM 9600-READQ-PARA THRU 9600-EXIT                    07240000
+020100        MOVE Q-CUST-ID TO LS-CUST-ID                              07250000
+020200              EXEC CICS RETURN                                    07260000
+020300              END-EXEC.                                           07270000
+020400******************************************************************07280000
+020500 5500-PAGEUP-PROCESS1-PARA.                                       07290000
+020600     EXEC SQL OPEN D11 END-EXEC.                                  07300000
+020700     SET K TO 1.                                                  07310000
+020800     SET J TO 1.                                                  07320000
+020900     PERFORM 9600-READQ-PARA THRU 9600-EXIT                       07330000
+021000     MOVE Q-CUST-ID TO LS-CUST-ID                                 07340000
+021100*                                                                 07350000
+021200     PERFORM 6600-FETCH-BACKWARD12-PARA THRU 6600-EXIT UNTIL J > 807360000
+021300             OR WS-END-PARA = 'Y'.                                07370000
+021400                                                                  07380000
+021500     IF LS-MSG = 'START OF THE PAGE'                              07390000
+021600        MOVE 'START OF THE PAGE' TO LS-MSG                        07400000
+021700     ELSE                                                         07410000
+021800      SET J TO 8                                                  07420000
+021900      SET K TO 1                                                  07430000
+022000      PERFORM 6310-MV-TEMP-TO-CPYFLD-PARA THRU 6310-EXIT          07440000
+022100             UNTIL K > 8                                          07450000
+022200     END-IF.                                                      07460000
+022300     PERFORM 9500-WRITEQ-PARA THRU 9500-EXIT.                     07470000
+022400*                                                                 07480000
+022500     IF WS-END-PARA = 'Y'                                         07490000
+022600        MOVE 'START OF THE PAGE' TO LS-MSG                        07500000
+022700        MOVE 'N' TO WS-FLAG                                       07510000
+022800     ELSE                                                         07520000
+022900        MOVE SPACES TO LS-MSG                                     07530000
+023000     END-IF.                                                      07540000
+023100                                                                  07550000
+023200        EXEC SQL CLOSE D11 END-EXEC.                              07560000
+023300                                                                  07570000
+023400        PERFORM 9600-READQ-PARA THRU 9600-EXIT                    07580000
+023500        MOVE Q-CUST-ID TO LS-CUST-ID                              07590000
+023600              EXEC CICS RETURN                                    07600000
+023700              END-EXEC.                                           07610000
+023800******************************************************************07620000
+023900 6000-FETCH-FORWARD1-PARA.                                        07630000
+024000      EXEC SQL FETCH NEXT                                         07640000
+024100          FROM C11                                                07650000
+024200          INTO :CART-CART-ID, :CART-CUST-ID,                      07660000
+024300               :CART-PROD-ID, :CART-UNIT-PR, :CART-QNTY,          07670000
+024400               :CART-ORD-DATE, :CART-CARR-COST                    07680000
+024500      END-EXEC.                                                   07690000
+024600*                                                                 07700000
+024700      IF SQLCODE = 100 AND P = 1                                  07780000
+024800         PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 8       07790000
+024900         MOVE 'Y' TO WS-END-PARA                                  07800000
+025000         MOVE 'END REACHED - NO RECORDS FOUND' TO LS-MSG          07810000
+025100         MOVE 'N' TO WS-FLAG                                      07820000
+025200         EXEC SQL CLOSE C11 END-EXEC                              07830000
+025300         PERFORM 9600-READQ-PARA THRU 9600-EXIT                   07840000
+025400         MOVE Q-CUST-ID TO LS-CUST-ID                             07850000
+025500         EXEC CICS RETURN END-EXEC                                07860000
+025600      END-IF.                                                     07870000
+025700*                                                                 07880000
+025800        EVALUATE SQLCODE                                          07890000
+025900            WHEN 0                                                07900000
+026000               ADD 1 TO P                                         07910000
+026100               PERFORM 6200-MV-DCLGEN-TO-MAPFLDS-PARA THRU        07920000
+026200                        6200-EXIT                                 07930000
+026300            WHEN +100                                             07940000
+026400               IF K = 1                                           07950000
+026500                PERFORM 9400-READQ-PARA THRU 9400-EXIT            07960000
+026600                EXEC SQL OPEN C12 END-EXEC                        07970000
+026700                SET K TO 1                                        07980000
+026800                PERFORM 6100-FETCH-FORWARD2-PARA THRU 6100-EXIT   07990000
+026900                        UNTIL K > 8 OR WS-END-PARA = 'Y'          08000000
+027000                EXEC SQL CLOSE C12 END-EXEC                       08010000
+027100                MOVE 'Y' TO WS-END-PARA                           08020000
+027200               ELSE                                               08030000
+027300                PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 808040000
+027400                MOVE 'Y' TO WS-END-PARA                           08050000
+027500               END-IF                                             08060000
+027600            WHEN OTHER                                            08070000
+027700               EXEC CICS RETURN END-EXEC                          08080000
+027800        END-EVALUATE.                                             08090000
+027900*                                                                 08100000
+028000 6000-EXIT.                                                       08110000
+028100     EXIT.                                                        08120000
+028200******************************************************************08130000
+028300 6100-FETCH-FORWARD2-PARA.                                        08140000
+028400      EXEC SQL FETCH NEXT                                         08150000
+028500          FROM C12                                                08160000
+028600          INTO :CART-CART-ID, :CART-CUST-ID,                      08170000
+028700               :CART-PROD-ID, :CART-UNIT-PR, :CART-QNTY,          08180000
+028800               :CART-ORD-DATE, :CART-CARR-COST                    08190000
+028900      END-EXEC.                                                   08200000
+029000*                                                                 08210000
+029100        EVALUATE SQLCODE                                          08220000
+029200            WHEN 0                                                08230000
+029300                PERFORM 6200-MV-DCLGEN-TO-MAPFLDS-PARA THRU       08240000
+029400                        6200-EXIT                                 08250000
+029500            WHEN +100                                             08260000
+029600              IF WS-FLAG = 'Y' AND K = 1                          08270000
+029700                MOVE 'Y' TO WS-END-PARA                           08280000
+029800              ELSE                                                08290000
+029900                PERFORM 6800-CLEAR-PARA THRU 6800-EXIT UNTIL K > 808300000
+030000                MOVE 'Y' TO WS-END-PARA                           08310000
+030100              END-IF                                              08320000
+030200            WHEN OTHER                                            08330000
+030300               EXEC CICS RETURN END-EXEC                          08340000
+030400        END-EVALUATE.                                             08350000
+030500*                                                                 08360000
+030600 6100-EXIT.                                                       08370000
+030700     EXIT.                                                        08380000
+030800******************************************************************08390000
+030900 6200-MV-DCLGEN-TO-MAPFLDS-PARA.                                  08400000
+031000     MOVE CART-CART-ID      TO LS-ARR-CART-ID(K).                 08410000
+031100     MOVE CART-CUST-ID      TO LS-ARR-CUST-ID(K).                 08420000
+031200     MOVE LS-ARR-CART-ID(1) TO Q1-CART-ID.                        08430000
+031300     MOVE CART-PROD-ID      TO LS-ARR-PROD-ID(K).                 08440000
+031400     MOVE CART-UNIT-PR      TO LS-ARR-UNIT-PRC(K).                08450000
+031500     MOVE CART-QNTY         TO LS-ARR-QUANTITY(K).                08500000
+031600     MOVE CART-ORD-DATE     TO LS-ARR-ORD-DATE(K).                08510000
+           MOVE CART-CARR-COST    TO LS-ARR-CARR-COST(K).               08512000
+031700*                                                                 08520000
+031800     SET K UP BY 1.                                               08530000
+031900*                                                                 08540000
+032000 6200-EXIT.                                                       08550000
+032100     EXIT.                                                        08560000
+032200***************************************************************** 08570000
+032300 6300-MV-DCLGN-TO-TMPFLD-PARA.                                    08580000
+032400     MOVE CART-CART-ID      TO WSN-CART-ID(J).                    08590000
+032500     MOVE CART-CUST-ID      TO WSN-CUST-ID(J).                    08600000
+032610     MOVE CART-PROD-ID      TO WSN-PROD-ID(J).                    08620000
+032620     MOVE CART-UNIT-PR      TO WSN-UNIT-PR(J).                    08630000
+032800     MOVE CART-QNTY         TO WSN-QNTY(J).                       08640000
+032900     MOVE CART-ORD-DATE     TO WSN-ORD-DATE(J).                   08650000
+03300      MOVE CART-CARR-COST    TO WSN-CARR-COST(J).                  08660000
+033100     SET J UP BY 1.                                               08670000
+033200*                                                                 08680000
+033300 6300-EXIT.                                                       08690000
+033400     EXIT.                                                        08700000
+033500***************************************************************** 08710000
+033600 6310-MV-TEMP-TO-CPYFLD-PARA.                                     08720000
+033700     MOVE WSN-CART-ID(J)     TO LS-ARR-CART-ID(K).                08730000
+033800     MOVE WSN-CUST-ID(J)     TO LS-ARR-CUST-ID(K).                08740000
+033900     MOVE WSN-PROD-ID(J)     TO LS-ARR-PROD-ID(K).                08750000
+033900     MOVE WSN-UNIT-PR(J)     TO LS-ARR-UNIT-PRC(K).               08751000
+033900     MOVE WSN-QNTY(J)        TO LS-ARR-QUANTITY(K).               08752000
+033900     MOVE WSN-ORD-DATE(J)    TO LS-ARR-ORD-DATE(K).               08753000
+033900     MOVE WSN-CARR-COST(J)   TO LS-ARR-CARR-COST(K).              08754000
+034000     MOVE LS-ARR-CART-ID(1)  TO Q1-CART-ID.                       08760000
+034100     MOVE LS-ARR-CART-ID(8)  TO Q8-CART-ID.                       08770000
+034500*                                                                 08850000
+034600     SET K UP BY 1.                                               08860000
+034700     SET J DOWN BY 1.                                             08870000
+034800*                                                                 08880000
+034900 6310-EXIT.                                                       08890000
+035000     EXIT.                                                        08900000
+035100***************************************************************** 08910000
+035200 6600-FETCH-BACKWARD12-PARA.                                      08920000
+035300     EXEC SQL FETCH NEXT                                          08930000
+035400         FROM D11                                                 08940000
+035500         INTO :CART-CART-ID, :CART-CUST-ID,                       08950000
+035600              :CART-PROD-ID, :CART-UNIT-PR, :CART-QNTY,           08960000
+035700              :CART-ORD-DATE, :CART-CARR-COST                     08970000
+035800     END-EXEC.                                                    08980000
+035900*                                                                 08990000
+036900        EVALUATE SQLCODE                                          09000000
+037000            WHEN 0                                                09010000
+037100                PERFORM 6300-MV-DCLGN-TO-TMPFLD-PARA THRU         09020000
+037200                        6300-EXIT                                 09030000
+037300            WHEN +100                                             09040000
+037400                SET K TO 1                                        09050000
+037500                EXEC SQL OPEN C12 END-EXEC                        09060000
+037600                PERFORM 6100-FETCH-FORWARD2-PARA THRU 6100-EXIT   09070000
+037700                        UNTIL K > 8                               09080000
+037800                MOVE 'Y' TO WS-END-PARA                           09090000
+037900                MOVE 'START OF THE PAGE' TO LS-MSG                09100000
+038000                EXEC SQL CLOSE C12 END-EXEC                       09110000
+038100            WHEN OTHER                                            09120000
+038200               EXEC CICS RETURN END-EXEC                          09130000
+038300        END-EVALUATE.                                             09140000
+038400*                                                                 09150000
+038500 6600-EXIT.                                                       09160000
+038600     EXIT.                                                        09170000
+038700******************************************************************09180000
+038800 6800-CLEAR-PARA.                                                 09190000
+038900     MOVE 0      TO LS-ARR-CART-ID(K).                            09200000
+039000     MOVE 0      TO LS-ARR-CUST-ID(K).                            09210000
+039100     MOVE 0      TO LS-ARR-PROD-ID(K).                            09220000
+039200     MOVE 0      TO LS-ARR-UNIT-PRC(K).                           09230000
+039300     MOVE 0      TO LS-ARR-QUANTITY(K).                           09240000
+039400     MOVE SPACES TO LS-ARR-ORD-DATE(K).                           09250000
+039500     MOVE SPACES TO LS-ARR-CARR-COST(K).                          09260000
+039500*                                                                 09261000
+039600     SET K UP BY 1.                                               09270000
+039700*                                                                 09280000
+039800 6800-EXIT.                                                       09290000
+039900     EXIT.                                                        09300000
+040000******************************************************************09310000
+040100 9300-EXIT-PARA.                                                  09320000
+040200     EXEC CICS RETURN                                             09330000
+040300     END-EXEC.                                                    09340000
+040400******************************************************************09350000
+040500 9400-READQ-PARA.                                                 09360000
+040600     EXEC CICS READQ TS                                           09370000
+040700                QUEUE(Q-NAME1)                                    09380000
+040800                INTO(CARTQ1)                                      09390000
+040900                ITEM(CHOICE1)                                     09400000
+041000     END-EXEC.                                                    09410000
+041100     MOVE Q1-CART-ID TO CART-CART-ID.                             09420000
+041200*                                                                 09430000
+041300 9400-EXIT.                                                       09440000
+041400     EXIT.                                                        09450000
+041500******************************************************************09460000
+041600 9500-WRITEQ-PARA.                                                09470000
+041700       IF LS-OPT = 'PGDN' OR LS-OPT = 'LIST'                      09480000
+041800        MOVE CART-CART-ID TO Q8-CART-ID                           09490000
+041900       END-IF.                                                    09500000
+042000*                                                                 09510000
+042100      EXEC CICS WRITEQ TS                                         09520000
+042200               QUEUE(Q-NAME1)                                     09530000
+042300               FROM(CARTQ1)                                       09540000
+042400               ITEM(CHOICE1)                                      09550000
+042500               REWRITE                                            09560000
+042600               MAIN                                               09570000
+042700               RESP(RE1)                                          09580000
+042800      END-EXEC.                                                   09590000
+042810      DISPLAY RE1.                                                09600000
+042900      IF RE1 = DFHRESP(NORMAL) CONTINUE                           09610000
+043000      ELSE                                                        09620000
+043100      EXEC CICS WRITEQ TS                                         09630000
+043200               QUEUE(Q-NAME1)                                     09640000
+043300               FROM(CARTQ1)                                       09650000
+043400               ITEM(CHOICE1)                                      09660000
+043500               MAIN                                               09670000
+043600               RESP(RE1)                                          09680000
+043700      END-EXEC                                                    09690000
+043710      DISPLAY RE1                                                 09700000
+043800      END-IF.                                                     09710000
+043900*                                                                 09720000
+044000 9500-EXIT.                                                       09730000
+044100     EXIT.                                                        09740000
+044200******************************************************************09750000
+044300 9600-READQ-PARA.                                                 09760000
+044400     EXEC CICS READQ TS                                           09770000
+044500                QUEUE(Q-NAME2)                                    09780000
+044600                INTO(CARTQ2)                                      09790000
+044700                ITEM(CHOICE1)                                     09800000
+044800     END-EXEC.                                                    09810000
+044900*                                                                 09820000
+045000 9600-EXIT.                                                       09830000
+045100     EXIT.                                                        09840000
+045200******************************************************************09850000
+045300 9700-WRITEQ-PARA.                                                09860000
+045400*                                                                 09870000
+045500      EXEC CICS WRITEQ TS                                         09880000
+045600               QUEUE(Q-NAME2)                                     09890000
+045700               FROM(CARTQ2)                                       09900000
+045800               ITEM(CHOICE1)                                      09910000
+045900               REWRITE                                            09920000
+046000               MAIN                                               09930000
+046100               RESP(RE2)                                          09940000
+046200      END-EXEC.                                                   09950000
+046300      DISPLAY "RE2:" RE2.                                         09960000
+046400      IF RE2 = DFHRESP(NORMAL) CONTINUE                           09970000
+046500      ELSE                                                        09980000
+046600      EXEC CICS WRITEQ TS                                         09990000
+046700               QUEUE(Q-NAME2)                                     10000000
+046800               FROM(CARTQ2)                                       10010000
+046900               ITEM(CHOICE1)                                      10020000
+047000               MAIN                                               10030000
+047100               RESP(RE2)                                          10040000
+047200      END-EXEC                                                    10050000
+047300      END-IF.                                                     10060000
+047310      DISPLAY "RE2:" RE2.                                         10070000
+047400*                                                                 10080000
+047500 9700-EXIT.                                                       10090000
+047600     EXIT.                                                        10100000
+045200******************************************************************10110000

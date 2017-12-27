@@ -1,0 +1,88 @@
+       01 WS-SMF110-VARIABLES.                                          00000132
+004350    05 WS-COUNT              PIC 9(08) VALUE ZEROES.              00001033
+004350    05 WS-TRANSACTION        PIC X(04) VALUE SPACES.              00002033
+004350    05 WS-PREV-TRAN          PIC X(04) VALUE SPACES.              00003033
+004350    05 SMF110-PREV-APPLID    PIC X(08) VALUE SPACES.              00003133
+002090*                                                                 00004018
+       01 WS-HEADER1            PIC X(30) VALUE                         00004131
+                                'WAIT ANALYSIS REPORT'.                 00004231
+       01 WS-HEADER2            PIC X(30) VALUE                         00004331
+                                'WAIT ANALYSIS RECAP REPORT'.           00004431
+002090*                                                                 00004531
+004400 01 WS-FLAGS.                                                     00005018
+004500     05 WS-SMFDATA-FILE-FLAG  PIC X(01).                          00006018
+004600        88 SMFDATA-OVER       VALUE 'Y'.                          00007018
+004700        88 SMFDATA-NOT-OVER   VALUE 'N'.                          00008018
+002090*                                                                 00009018
+       01 SMF110-TIMESTAMP PIC X(8).                                    00009118
+002090*                                                                 00009218
+       01 WS-FINAL-COUNT-VARIABLES.                                     00009329
+          05 WS-FINAL-TRAN-COUNT    PIC 9(16) VALUE ZEROES.             00009429
+          05 WS-FINAL-TOT-RESP      PIC 9(12)V999999 VALUE ZEROES.      00009529
+          05 WS-FINAL-AVG-RESP      PIC 9(12)V999999 VALUE ZEROES.      00009629
+          05 WS-FINAL-TOT-DB2       PIC 9(12)V999999 VALUE ZEROES.      00009729
+          05 WS-FINAL-AVG-DB2       PIC 9(12)V999999 VALUE ZEROES.      00009829
+          05 WS-FINAL-RATIODB2      PIC 9(03)V99 VALUE ZEROES.          00009930
+          05 WS-FINAL-TOT-OWAIT     PIC 9(12)V999999 VALUE ZEROES.      00010029
+          05 WS-FINAL-AVG-OWAIT     PIC 9(12)V999999 VALUE ZEROES.      00010129
+          05 WS-FINAL-RATIOOWT      PIC 9(03)V99 VALUE ZEROES.          00010230
+          05 WS-FINAL-ALL-ARR       OCCURS 06 TIMES INDEXED BY CWT.     00010329
+             10 WS-FINAL-ALLTIME  PIC 9(12)V999999 VALUE ZEROES.        00010430
+             10 WS-FINAL-AVGTIME  PIC 9(12)V999999 VALUE ZEROES.        00010530
+             10 WS-FINAL-RATIOALL PIC 9(03)V99 VALUE ZEROES.            00010630
+          05 WS-FINAL-WAIT-ARR      OCCURS 42 TIMES INDEXED BY EWT.     00010730
+             10 WS-FINAL-WAITTIME PIC 9(12)V999999 VALUE ZEROES.        00010830
+             10 WS-FINAL-AVGWTIME PIC 9(12)V999999 VALUE ZEROES.        00010930
+             10 WS-FINAL-RATIOWT  PIC 9(03)V99 VALUE ZEROES.            00011030
+002090*                                                                 00011130
+004200 01 WS-VARIABLES.                                                 00011230
+004350     05 WS-TRAN-COUNT         PIC 9(08) VALUE ZEROES.             00012010
+      *                                                                 00060005
+           05 WS-TOT-RESP           PIC 9(08)V999999 VALUE ZEROES.      00060116
+           05 WS-AVG-RESP           PIC 9(08)V999999 VALUE ZEROES.      00060217
+      *                                                                 00061016
+           05 WS-PERIOD-COUNT-DB2TME  PIC 9(08) VALUE ZEROES.           00062026
+           05 WS-PERIOD-AVG-DB2TME  PIC 9(08) VALUE ZEROES.             00063026
+           05 WS-STR-DB2TME     PIC X(08).                              00064026
+           05 WS-NUM-DB2TME REDEFINES WS-STR-DB2TME.                    00065026
+              10 WS-NUM-DB2TME1 PIC 9(08) COMP.                         00066026
+              10 WS-NUM-DB2TME2 PIC 9(08) COMP.                         00067026
+           05 WS-TOT-DB2TME         PIC 9(08)V999999 VALUE ZEROES.      00068026
+           05 WS-AVG-DB2TME         PIC 9(08)V999999 VALUE ZEROES.      00069026
+           05 WS-RATIO-DB2TME       PIC 9(03)V99 VALUE ZEROES.          00070026
+           05 WS-TOT-DB2CALLS       PIC 9(08) VALUE ZEROES.             00080026
+           05 WS-DB2CALL-COUNT      PIC 9(08) VALUE ZEROES.             00090026
+002090*                                                                 00272125
+004350     05 WS-PERIOD-COUNT-OWAIT  PIC 9(08) VALUE ZEROES.            00272225
+004350     05 WS-PERIOD-AVG-OWAIT    PIC 9(08) VALUE ZEROES.            00272325
+004350     05 WS-TOT-OWAIT           PIC 9(08)V999999 VALUE ZEROES.     00272425
+004350     05 WS-AVG-OWAIT           PIC 9(08)V999999 VALUE ZEROES.     00272525
+004350     05 WS-RATIO-OWAIT         PIC 9(03)V99 VALUE ZEROES.         00272625
+004350     05 WS-TOT-WTTIME-OTHER    PIC 9(08)V999999 VALUE ZEROES.     00272725
+004350     05 WS-TOT-PERIOD-OTHER    PIC 9(08)V999999 VALUE ZEROES.     00272825
+002090*                                                                 00272925
+004350     05 WS-PERIOD-COUNT-SUSP  PIC 9(08) VALUE ZEROES.             00273028
+004350     05 WS-TOT-SUSP           PIC 9(08)V999999 VALUE ZEROES.      00273128
+002090*                                                                 00273228
+           05 WS-ALL-TIME-ARRAY OCCURS 06 TIMES INDEXED BY AWT.         00273325
+004350        10 WS-PERIOD-COUNT-TIME  PIC 9(08) VALUE ZEROES.          00273427
+004350        10 WS-PERIOD-AVG-TIME    PIC 9(06)V99 VALUE ZEROES.       00274027
+004350        10 WS-STR-TIME           PIC X(08).                       00275027
+004350        10 WS-NUM-TIME  REDEFINES WS-STR-TIME.                    00276027
+                 15 WS-NUM-TIME1 PIC 9(08) COMP.                        00277027
+                 15 WS-NUM-TIME2 PIC 9(08) COMP.                        00278027
+004350        10 WS-TOT-TIME           PIC 9(08)V999999 VALUE ZEROES.   00279027
+004350        10 WS-AVG-TIME           PIC 9(08)V999999 VALUE ZEROES.   00279127
+004350        10 WS-RATIO-TIME         PIC 9(03)V99 VALUE ZEROES.       00279227
+002090*                                                                 00280019
+           05 WS-WAIT-TIME-ARRAY OCCURS 42 TIMES INDEXED BY IWT.        00282024
+004350        10 WS-PERIOD-COUNT-WTTIME PIC 9(08) VALUE ZEROES.         00290021
+004350        10 WS-PERIOD-AVG-WTTIME   PIC 9(08) VALUE ZEROES.         00300021
+004350        10 WS-STR-WTTIME          PIC X(08).                      00310021
+004350        10 WS-NUM-WTTIME REDEFINES WS-STR-WTTIME.                 00320023
+                 15 WS-NUM-WTTIME1 PIC 9(08) COMP.                      00330021
+                 15 WS-NUM-WTTIME2 PIC 9(08) COMP.                      00340021
+004350        10 WS-TOT-WTTIME          PIC 9(08)V999999 VALUE ZEROES.  00350021
+004350        10 WS-AVG-WTTIME          PIC 9(08)V999999 VALUE ZEROES.  00360021
+004350        10 WS-RATIO-WTTIME        PIC 9(03)V99 VALUE ZEROES.      00370021
+002090*                                                                 00380020

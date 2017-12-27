@@ -1,0 +1,209 @@
+             05   LS-CHOICE             PIC X.                          00001007
+             05   DL1-LS-OPT            PIC X(6).                       00010001
+             05   DL1-LS-DEALER-ID      PIC 9(10).                      00020001
+             05   DL1-LS-ORDER-ID       PIC 9(10).                      00030001
+             05   DL1-LS-PROD-ID        PIC 9(10).                      00040001
+             05   DL1-LS-PROD-NAME      PIC X(40).                      00050001
+             05   DL1-LS-QUANT          PIC 9(10).                      00060001
+             05   DL1-LS-PRICE          PIC 9(10).                      00070001
+             05   DL1-LS-DATE           PIC X(10).                      00080001
+             05   DL1-LS-CATEG-NAME     PIC X(40).                      00090001
+             05   DL1-LS-CATEG-ID       PIC 9(10).                      00100001
+             05   DL1-LS-MSG            PIC X(100).                     00110001
+      *                                                                 00120002
+             05   DL2-LS-OPT            PIC X(6).                       00130002
+             05   DL2-LS-INPUT-DEALER-ID      PIC 9(10).                00140002
+                   05 DL2-LS1-DEALER-ID      PIC 9(10).                 00160006
+                   05 DL2-LS1-ORDER-ID       PIC 9(10).                 00170006
+                   05 DL2-LS1-PROD-ID        PIC 9(10).                 00180006
+                   05 DL2-LS1-PROD-NAME      PIC X(40).                 00190006
+                   05 DL2-LS1-QUANT          PIC 9(10).                 00200006
+                   05 DL2-LS1-PRICE          PIC 9(10).                 00210006
+                   05 DL2-LS1-DATE           PIC X(10).                 00220006
+                   05 DL2-LS1-CATEG-NAME     PIC X(40).                 00230006
+                   05 DL2-LS1-CATEG-ID       PIC 9(10).                 00240006
+      *                                                                 00240106
+                   05 DL2-LS2-DEALER-ID      PIC 9(10).                 00241006
+                   05 DL2-LS2-ORDER-ID       PIC 9(10).                 00242006
+                   05 DL2-LS2-PROD-ID        PIC 9(10).                 00243006
+                   05 DL2-LS2-PROD-NAME      PIC X(40).                 00244006
+                   05 DL2-LS2-QUANT          PIC 9(10).                 00245006
+                   05 DL2-LS2-PRICE          PIC 9(10).                 00246006
+                   05 DL2-LS2-DATE           PIC X(10).                 00247006
+                   05 DL2-LS2-CATEG-NAME     PIC X(40).                 00248006
+                   05 DL2-LS2-CATEG-ID       PIC 9(10).                 00249006
+      *                                                                 00249106
+                   05 DL2-LS3-DEALER-ID      PIC 9(10).                 00249206
+                   05 DL2-LS3-ORDER-ID       PIC 9(10).                 00249306
+                   05 DL2-LS3-PROD-ID        PIC 9(10).                 00249406
+                   05 DL2-LS3-PROD-NAME      PIC X(40).                 00249506
+                   05 DL2-LS3-QUANT          PIC 9(10).                 00249606
+                   05 DL2-LS3-PRICE          PIC 9(10).                 00249706
+                   05 DL2-LS3-DATE           PIC X(10).                 00249806
+                   05 DL2-LS3-CATEG-NAME     PIC X(40).                 00249906
+                   05 DL2-LS3-CATEG-ID       PIC 9(10).                 00250006
+      *                                                                 00250106
+                   05 DL2-LS4-DEALER-ID      PIC 9(10).                 00250206
+                   05 DL2-LS4-ORDER-ID       PIC 9(10).                 00250306
+                   05 DL2-LS4-PROD-ID        PIC 9(10).                 00250406
+                   05 DL2-LS4-PROD-NAME      PIC X(40).                 00250506
+                   05 DL2-LS4-QUANT          PIC 9(10).                 00250606
+                   05 DL2-LS4-PRICE          PIC 9(10).                 00250706
+                   05 DL2-LS4-DATE           PIC X(10).                 00250806
+                   05 DL2-LS4-CATEG-NAME     PIC X(40).                 00250906
+                   05 DL2-LS4-CATEG-ID       PIC 9(10).                 00251006
+      *                                                                 00251106
+                   05 DL2-LS5-DEALER-ID      PIC 9(10).                 00251206
+                   05 DL2-LS5-ORDER-ID       PIC 9(10).                 00251306
+                   05 DL2-LS5-PROD-ID        PIC 9(10).                 00251406
+                   05 DL2-LS5-PROD-NAME      PIC X(40).                 00251506
+                   05 DL2-LS5-QUANT          PIC 9(10).                 00251606
+                   05 DL2-LS5-PRICE          PIC 9(10).                 00251706
+                   05 DL2-LS5-DATE           PIC X(10).                 00251806
+                   05 DL2-LS5-CATEG-NAME     PIC X(40).                 00251906
+                   05 DL2-LS5-CATEG-ID       PIC 9(10).                 00252006
+      *                                                                 00252106
+                   05 DL2-LS6-DEALER-ID      PIC 9(10).                 00252206
+                   05 DL2-LS6-ORDER-ID       PIC 9(10).                 00252306
+                   05 DL2-LS6-PROD-ID        PIC 9(10).                 00252406
+                   05 DL2-LS6-PROD-NAME      PIC X(40).                 00252506
+                   05 DL2-LS6-QUANT          PIC 9(10).                 00252606
+                   05 DL2-LS6-PRICE          PIC 9(10).                 00252706
+                   05 DL2-LS6-DATE           PIC X(10).                 00252806
+                   05 DL2-LS6-CATEG-NAME     PIC X(40).                 00252906
+                   05 DL2-LS6-CATEG-ID       PIC 9(10).                 00253006
+      *                                                                 00253106
+                   05 DL2-LS7-DEALER-ID      PIC 9(10).                 00253206
+                   05 DL2-LS7-ORDER-ID       PIC 9(10).                 00253306
+                   05 DL2-LS7-PROD-ID        PIC 9(10).                 00253406
+                   05 DL2-LS7-PROD-NAME      PIC X(40).                 00253506
+                   05 DL2-LS7-QUANT          PIC 9(10).                 00253606
+                   05 DL2-LS7-PRICE          PIC 9(10).                 00253706
+                   05 DL2-LS7-DATE           PIC X(10).                 00253806
+                   05 DL2-LS7-CATEG-NAME     PIC X(40).                 00253906
+                   05 DL2-LS7-CATEG-ID       PIC 9(10).                 00254006
+      *                                                                 00254106
+                   05 DL2-LS8-DEALER-ID      PIC 9(10).                 00254206
+                   05 DL2-LS8-ORDER-ID       PIC 9(10).                 00254306
+                   05 DL2-LS8-PROD-ID        PIC 9(10).                 00254406
+                   05 DL2-LS8-PROD-NAME      PIC X(40).                 00254506
+                   05 DL2-LS8-QUANT          PIC 9(10).                 00254606
+                   05 DL2-LS8-PRICE          PIC 9(10).                 00254706
+                   05 DL2-LS8-DATE           PIC X(10).                 00254806
+                   05 DL2-LS8-CATEG-NAME     PIC X(40).                 00254906
+                   05 DL2-LS8-CATEG-ID       PIC 9(10).                 00255006
+      *                                                                 00255106
+             05   DL2-LS-MSG            PIC X(100).                     00256006
+      *                                                                 00260002
+             05   PU-LS-OPT       PIC X(4).                             00270003
+             05    PU-LS-CUST-ID   PIC 9(10).                           00290003
+             05    PU-LS-ORD-ID    PIC 9(10).                           00300003
+      *                                                                 00321006
+                  05  PU-LS1-CUSTID    PIC 9(10).                       00330006
+                  05  PU-LS1-CUST-NAME PIC X(40).                       00340006
+                  05  PU-LS1-ORDID     PIC 9(10).                       00350006
+                  05  PU-LS1-PROD-ID   PIC 9(10).                       00360006
+                  05  PU-LS1-PROD-NAME PIC X(40).                       00370006
+                  05  PU-LS1-QNTY      PIC 9(5).                        00380006
+                  05  PU-LS1-ORD-DATE  PIC X(10).                       00390006
+                  05  PU-LS1-STATUS    PIC X(1).                        00400006
+      *                                                                 00400106
+                  05  PU-LS2-CUSTID    PIC 9(10).                       00400206
+                  05  PU-LS2-CUST-NAME PIC X(40).                       00400306
+                  05  PU-LS2-ORDID     PIC 9(10).                       00400406
+                  05  PU-LS2-PROD-ID   PIC 9(10).                       00400506
+                  05  PU-LS2-PROD-NAME PIC X(40).                       00400606
+                  05  PU-LS2-QNTY      PIC 9(5).                        00400706
+                  05  PU-LS2-ORD-DATE  PIC X(10).                       00400806
+                  05  PU-LS2-STATUS    PIC X(1).                        00400906
+      *                                                                 00401006
+                  05  PU-LS3-CUSTID    PIC 9(10).                       00401106
+                  05  PU-LS3-CUST-NAME PIC X(40).                       00401206
+                  05  PU-LS3-ORDID     PIC 9(10).                       00401306
+                  05  PU-LS3-PROD-ID   PIC 9(10).                       00401406
+                  05  PU-LS3-PROD-NAME PIC X(40).                       00401506
+                  05  PU-LS3-QNTY      PIC 9(5).                        00401606
+                  05  PU-LS3-ORD-DATE  PIC X(10).                       00401706
+                  05  PU-LS3-STATUS    PIC X(1).                        00401806
+      *                                                                 00401906
+                  05  PU-LS4-CUSTID    PIC 9(10).                       00402006
+                  05  PU-LS4-CUST-NAME PIC X(40).                       00402106
+                  05  PU-LS4-ORDID     PIC 9(10).                       00402206
+                  05  PU-LS4-PROD-ID   PIC 9(10).                       00402306
+                  05  PU-LS4-PROD-NAME PIC X(40).                       00402406
+                  05  PU-LS4-QNTY      PIC 9(5).                        00402506
+                  05  PU-LS4-ORD-DATE  PIC X(10).                       00402606
+                  05  PU-LS4-STATUS    PIC X(1).                        00402706
+      *                                                                 00403006
+                  05  PU-LS5-CUSTID    PIC 9(10).                       00404006
+                  05  PU-LS5-CUST-NAME PIC X(40).                       00405006
+                  05  PU-LS5-ORDID     PIC 9(10).                       00406006
+                  05  PU-LS5-PROD-ID   PIC 9(10).                       00407006
+                  05  PU-LS5-PROD-NAME PIC X(40).                       00408006
+                  05  PU-LS5-QNTY      PIC 9(5).                        00409006
+                  05  PU-LS5-ORD-DATE  PIC X(10).                       00409106
+                  05  PU-LS5-STATUS    PIC X(1).                        00409206
+      *                                                                 00409306
+                  05  PU-LS6-CUSTID    PIC 9(10).                       00409406
+                  05  PU-LS6-CUST-NAME PIC X(40).                       00409506
+                  05  PU-LS6-ORDID     PIC 9(10).                       00409606
+                  05  PU-LS6-PROD-ID   PIC 9(10).                       00409706
+                  05  PU-LS6-PROD-NAME PIC X(40).                       00409806
+                  05  PU-LS6-QNTY      PIC 9(5).                        00409906
+                  05  PU-LS6-ORD-DATE  PIC X(10).                       00410006
+                  05  PU-LS6-STATUS    PIC X(1).                        00410106
+      *                                                                 00410206
+                  05  PU-LS7-CUSTID    PIC 9(10).                       00410306
+                  05  PU-LS7-CUST-NAME PIC X(40).                       00410406
+                  05  PU-LS7-ORDID     PIC 9(10).                       00410506
+                  05  PU-LS7-PROD-ID   PIC 9(10).                       00410606
+                  05  PU-LS7-PROD-NAME PIC X(40).                       00410706
+                  05  PU-LS7-QNTY      PIC 9(5).                        00410806
+                  05  PU-LS7-ORD-DATE  PIC X(10).                       00410906
+                  05  PU-LS7-STATUS    PIC X(1).                        00411006
+      *                                                                 00411106
+                  05  PU-LS8-CUSTID    PIC 9(10).                       00411206
+                  05  PU-LS8-CUST-NAME PIC X(40).                       00411306
+                  05  PU-LS8-ORDID     PIC 9(10).                       00411406
+                  05  PU-LS8-PROD-ID   PIC 9(10).                       00411506
+                  05  PU-LS8-PROD-NAME PIC X(40).                       00411606
+                  05  PU-LS8-QNTY      PIC 9(5).                        00411706
+                  05  PU-LS8-ORD-DATE  PIC X(10).                       00411806
+                  05  PU-LS8-STATUS    PIC X(1).                        00411906
+      *                                                                 00412006
+             05    PU-LS-MSG          PIC X(80).                        00413006
+      *                                                                 00420003
+              05   ST-LS-OPT      PIC X(4).                             00430004
+              05   ST-LS-ORD-ID   PIC 9(10).                            00450004
+              05   ST-LS-DLR-ID   PIC 9(10).                            00460004
+              05   ST-LS-PROD-ID  PIC 9(10).                            00470004
+              05   ST-LS-PROD-QNT PIC 9(05).                            00480004
+              05   ST-LS-STS-ID   PIC X(1).                             00490004
+              05   ST-LS-MSG      PIC X(80).                            00500004
+      *                                                                 00510005
+               05   EM-LS-OPT          PIC X(6).                        00520005
+               05   EM-LS-TRANS-ID     PIC X(4).                        00530005
+               05   EM-LS-CURSOR-POS   PIC 9(2).                        00540005
+               05   EM-LS-MSG          PIC X(70).                       00550005
+               05   EM-LS-EMP-ID       PIC 9(10).                       00560005
+               05   EM-LS-EMP-NAME     PIC X(40).                       00570005
+               05   EM-LS-EMP-BIRTH-DT.                                 00580005
+                    07   EM-LS-D-MM PIC 99.                             00590005
+                    07      FILLER  PIC X.                              00600005
+                    07   EM-LS-D-DD PIC 99.                             00610005
+                    07      FILLER  PIC X.                              00620005
+                    07   EM-LS-D-YY PIC 9999.                           00630005
+               05   EM-LS-EMP-HIRE-DT.                                  00640005
+                    07   EM-LS-D-MM PIC 99.                             00650005
+                    07      FILLER  PIC X.                              00660005
+                    07   EM-LS-D-DD PIC 99.                             00670005
+                     07     FILLER  PIC X.                              00680005
+                     07  EM-LS-D-YY PIC 9999.                           00690005
+          05    EM-LS-EMP-ADR-LN-1 PIC X(40).                           00700005
+          05    EM-LS-EMP-ADR-LN-2 PIC X(40).                           00710005
+          05    EM-LS-EMP-CITY     PIC X(15).                           00720005
+          05    EM-LS-EMP-STATE    PIC X(15).                           00730005
+          05    EM-LS-EMP-POST-CD  PIC X(10).                           00740005
+          05    EM-LS-EMP-COUNTRY  PIC X(15).                           00750005
+          05    EM-LS-EMP-PHONE    PIC X(24).                           00760005
+          05    EM-LS-EMP-FAX      PIC X(24).                           00770005

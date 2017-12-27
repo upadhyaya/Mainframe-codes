@@ -1,0 +1,248 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. MATCLOS.                                             00020001
+000400 AUTHOR. SUJATHA.                                                 00040001
+000410 DATE-WRITTEN. 09/11/08.                                          00041000
+000420 DATE-COMPILED. 09/11/08.                                         00042000
+000717******************************************************************00071700
+000718 DATA DIVISION.                                                   00071800
+000719 WORKING-STORAGE SECTION.                                         00071900
+000724      EXEC SQL INCLUDE APPROVAL END-EXEC.                         00072400
+000725      EXEC SQL INCLUDE ENROLL   END-EXEC.                         00072500
+000726      EXEC SQL INCLUDE STATUS   END-EXEC.                         00072600
+000727      EXEC SQL INCLUDE CLAIM    END-EXEC.                         00072700
+000728      EXEC SQL INCLUDE SQLCA    END-EXEC.                         00072800
+001007*                                                                 00100700
+001141******************************************************************00114100
+001142 LINKAGE SECTION.                                                 00114200
+001143 01 DFHCOMMAREA.                                                  00114300
+001144      COPY PRECPY1.                                               00114400
+001149******************************************************************00114900
+001150 PROCEDURE DIVISION USING DFHCOMMAREA.                            00115000
+001151******************************************************************00115100
+001153         EXEC CICS HANDLE CONDITION                               00115300
+001154              MAPFAIL(2000-EXIT)                                  00115400
+001155              INVREQ(5000-EXIT-PARA)                              00115500
+001156         END-EXEC.                                                00115600
+001157*                                                                 00115700
+001158 1000-MAINLINE-PARA.                                              00115800
+001159     DISPLAY 'MAINLINE PARA'.                                     00115900
+001160     IF EIBCALEN = 0                                              00116000
+001161         MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG                 00116100
+001162         EXEC CICS RETURN                                         00116200
+001163         END-EXEC                                                 00116300
+001164     ELSE                                                         00116400
+001166         PERFORM 2000-PROCESSING-PARA                             00116600
+001167*                                                                 00116700
+001170         EXEC CICS RETURN                                         00117000
+001301         END-EXEC                                                 00130100
+001302     END-IF.                                                      00130200
+001303******************************************************************00130300
+001340 2000-PROCESSING-PARA.                                            00134000
+001341      DISPLAY 'PROCESS PARA'.                                     00134100
+001345      EVALUATE TRUE                                               00134500
+001346         WHEN LS-OPT = 'INS'                                      00134600
+001350             PERFORM 3000-ISRT-STATUS-PARA THRU 3000-EXIT         00135000
+001360         WHEN LS-OPT = 'SEL'                                      00136000
+001370             PERFORM 4000-RETRIEVAL-STATUS-PARA THRU 4000-EXIT    00137000
+001380         WHEN LS-OPT = 'SUB'                                      00138000
+001390             PERFORM 5000-SUBMIT-STATUS-PARA THRU 5000-EXIT       00139000
+001414         WHEN OTHER                                               00141400
+001416                MOVE SPACES TO LS-OPT                             00141600
+001417                MOVE 0 TO LS-PA-POLICY-ID                         00141700
+001421                MOVE 'INVALID OPTION SELECTED' TO LS-MSG          00142100
+001422                EXEC CICS RETURN END-EXEC                         00142200
+001423      END-EVALUATE .                                              00142300
+001424*                                                                 00142400
+001425 2000-EXIT.                                                       00142500
+001426     EXIT.                                                        00142600
+001427******************************************************************00142700
+001446 3000-ISRT-STATUS-PARA.                                           00144600
+001457*                                                                 00145700
+001460     PERFORM 3100-VALIDATION-PARA THRU 3100-EXIT.                 00146000
+001461*                                                                 00146100
+001462     PERFORM 3200-VALIDATION-PARA THRU 3200-EXIT.                 00146200
+001470*                                                                 00147000
+001471     MOVE LS-PA-POLICY-ID TO PA-POLICY-ID.                        00147100
+001472     MOVE 'PENDING' TO PA-APP-STAT.                               00147200
+001473*                                                                 00147300
+001474     EXEC SQL                                                     00147400
+001475          SELECT PA_POLICY_ID                                     00147500
+001476          INTO :PA-POLICY-ID                                      00147600
+001477          FROM ADMT.T_PA_APPROVAL                                 00147700
+001478          WHERE PA_POLICY_ID = :PA-POLICY-ID                      00147800
+001479     END-EXEC.                                                    00147900
+001480     EVALUATE SQLCODE                                             00148000
+001481      WHEN +100                                                   00148100
+001490*                                                                 00149000
+001491        EXEC SQL INSERT INTO                                      00149100
+001492           ADMT.T_PA_APPROVAL VALUES(:PA-POLICY-ID,               00149200
+001493                                     :PA-APP-STAT)                00149300
+001494        END-EXEC                                                  00149400
+001495*                                                                 00149500
+001496        EVALUATE SQLCODE                                          00149600
+001497          WHEN 0                                                  00149700
+001498             MOVE PA-POLICY-ID TO LS-PA-POLICY-ID                 00149800
+001499             MOVE PA-APP-STAT  TO LS-PA-APP-STAT                  00149900
+001500             MOVE 'SUCCESSFUL INSERTION' TO LS-MSG                00150000
+001501             EXEC CICS RETURN                                     00150100
+001502             END-EXEC                                             00150200
+001503          WHEN OTHER                                              00150300
+001504             MOVE 'INSERTION NOT SUCCESSFUL' TO LS-MSG            00150400
+001505             EXEC CICS RETURN                                     00150500
+001506             END-EXEC                                             00150600
+001507          END-EVALUATE                                            00150700
+001508*                                                                 00150800
+001509      WHEN 0                                                      00150900
+001510         MOVE 'POLICY ID ALREADY EXISTS' TO LS-MSG                00151000
+001511         EXEC CICS RETURN END-EXEC                                00151100
+001512     END-EVALUATE.                                                00151200
+001513*                                                                 00151300
+001514 3000-EXIT.                                                       00151400
+001515     EXIT.                                                        00151500
+001516*                                                                 00151600
+001517******************************************************************00151700
+001518 4000-SELECT-STATUS-PARA.                                         00151800
+001519*                                                                 00151900
+001520     PERFORM 3100-VALIDATION-PARA THRU 3100-EXIT.                 00152000
+001521*                                                                 00152100
+001522     MOVE LS-PA-POLICY-ID TO PA-POLICY-ID.                        00152200
+001523     EXEC SQL                                                     00152300
+001524          SELECT PA_POLICY_ID                                     00152400
+001525          INTO :PA-POLICY-ID                                      00152500
+001526          FROM ADMT.T_PA_APPROVAL                                 00152600
+001527          WHERE PA_POLICY_ID = :PA-POLICY-ID                      00152700
+001528     END-EXEC.                                                    00152800
+001529     EVALUATE SQLCODE                                             00152900
+001530        WHEN 0                                                    00153000
+001531           MOVE PA-POLICY-ID TO LS-PA-POLICY-ID                   00153100
+001532           MOVE PA-APP-STAT  TO LS-PA-APP-STAT                    00153200
+001533           MOVE 'RECORDS SUCCESSFULLY RETRIEVED' TO LS-MSG        00153300
+001534           EXEC CICS RETURN END-EXEC                              00153400
+001535        WHEN +100                                                 00153500
+001536           MOVE 'POLICY-ID DOES NOT EXIST' TO LS-MSG              00153600
+001537           EXEC CICS RETURN END-EXEC                              00153700
+001538     END-EVALUATE.                                                00153800
+001539*                                                                 00153900
+001540*                                                                 00154000
+001541 4000-EXIT.                                                       00154100
+001542     EXIT.                                                        00154200
+001543******************************************************************00154300
+001544 3100-VALIDATION-PARA.                                            00154400
+001545*                                                                 00154500
+001546     IF LS-PA-POLICY-ID = 0                                       00154600
+001547        MOVE 'POLICY-ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG     00154700
+001548        EXEC CICS RETURN END-EXEC                                 00154800
+001549*                                                                 00154900
+001550     ELSE IF LS-PA-POLICY-ID IS NOT NUMERIC                       00155000
+001551        MOVE 'POLICY-ID SHOULD BE NUMERIC - PLZ ENTER IT'         00155100
+001552             TO LS-MSG                                            00155200
+001553        EXEC CICS RETURN END-EXEC                                 00155300
+001554          END-IF                                                  00155400
+001555     END-IF.                                                      00155500
+001556*                                                                 00155600
+001557 3100-EXIT.                                                       00155700
+001558     EXIT.                                                        00155800
+001559******************************************************************00155900
+001560 3200-VALIDATION-PARA.                                            00156000
+001561*                                                                 00156100
+001562     MOVE LS-PA-POLICY-ID TO EN-POLICY-ID.                        00156200
+001563     EXEC SQL                                                     00156300
+001564          SELECT EN_POLICY_ID                                     00156400
+001565          INTO :EN-POLICY-ID                                      00156500
+001566          FROM ADMT.T_EN_ENROLL                                   00156600
+001567          WHERE EN_POLICY_ID = :EN-POLICY-ID                      00156700
+001568     END-EXEC.                                                    00156800
+001569     EVALUATE SQLCODE                                             00156900
+001570        WHEN 0                                                    00157000
+001571            MOVE EN-POLICY-ID TO PA-POLICY-ID                     00157100
+001572            CONTINUE                                              00157200
+001573        WHEN +100                                                 00157300
+001574            MOVE 'POLICY DOES NOT EXIST' TO LS-MSG                00157400
+001575            EXEC CICS RETURN END-EXEC                             00157500
+001576     END-EVALUATE.                                                00157600
+001580*                                                                 00158000
+001696 3200-EXIT.                                                       00169600
+001700     EXIT.                                                        00170000
+002202******************************************************************00220200
+002203 5000-SUBMIT-STATUS-PARA.                                         00220300
+002204*                                                                 00220400
+002205     PERFORM 3100-VALIDATION-PARA THRU 3100-EXIT.                 00220500
+002206*                                                                 00220600
+002207     MOVE LS-PA-POLICY-ID TO PA-POLICY-ID.                        00220700
+002208     EXEC SQL                                                     00220800
+002209          SELECT PA_POLICY_ID                                     00220900
+002210          INTO :PA-POLICY-ID                                      00221000
+002211          FROM ADMT.T_PA_APPROVAL                                 00221100
+002212          WHERE PA_POLICY_ID = :PA-POLICY-ID                      00221200
+002213     END-EXEC.                                                    00221300
+002214     EVALUATE SQLCODE                                             00221400
+002215        WHEN 0                                                    00221500
+002216          CONTINUE                                                00221600
+002217        WHEN +100                                                 00221700
+002218          MOVE 'POLICY-ID IS NOT PRESENT' TO LS-MSG               00221800
+002219          EXEC CICS RETURN END-EXEC                               00221900
+002220     END-EVALUATE.                                                00222000
+002221*                                                                 00222100
+002222     MOVE LS-PA-APP-STAT  TO PA-APP-STAT.                         00222200
+002223     EVALUATE LS-PA-APP-STAT                                      00222300
+002224          WHEN 'APPROVED'                                         00222400
+002225            PERFORM 5100-APPROVAL-PARA THRU 5100-EXIT             00222500
+002226            EXEC CICS RETURN END-EXEC                             00222600
+002227          WHEN 'REJECTED'                                         00222700
+002228            PERFORM 5200-REJECT-PARA THRU 5200-EXIT               00222800
+002229            EXEC CICS RETURN END-EXEC                             00222900
+002230     END-EVALUATE.                                                00223000
+002231*                                                                 00223100
+002232 5000-EXIT.                                                       00223200
+002233     EXIT.                                                        00223300
+002240******************************************************************00224000
+002241 5100-APPROVAL-PARA.                                              00224100
+002242*                                                                 00224200
+002243     EXEC SQL UPDATE ADMT.T_PA_APPROVAL                           00224300
+002244                 SET PA_APP_STAT = :PA-APP-STAT                   00224400
+002245               WHERE PA_POLICY_ID = :PA-POLICY-ID                 00224500
+002246     END-EXEC.                                                    00224600
+002250*                                                                 00225000
+002251     EVALUATE SQLCODE                                             00225100
+002252       WHEN 0                                                     00225200
+002253          CONTINUE                                                00225300
+002254       WHEN OTHER                                                 00225400
+002255          MOVE 'ERROR IN UPDATION' TO LS-MSG                      00225500
+002256          EXEC CICS RETURN END-EXEC                               00225600
+002257     END-EVALUATE.                                                00225700
+002258*                                                                 00225800
+002259     MOVE PA-POLICY-ID TO EN-POLICY-ID.                           00225900
+002260     EXEC SQL                                                     00226000
+002261          DELETE FROM ADMT.T_EN_ENROLL                            00226100
+002262          WHERE EN_POLICY_ID = :EN-POLICY-ID                      00226200
+002263     END-EXEC.                                                    00226300
+002264*                                                                 00226400
+002265     EVALUATE SQLCODE                                             00226500
+002266       WHEN 0                                                     00226600
+002267          CONTINUE                                                00226700
+002268       WHEN OTHER                                                 00226800
+002269          MOVE 'ERROR IN DELETION' TO LS-MSG                      00226900
+002270          EXEC CICS RETURN END-EXEC                               00227000
+002271     END-EVALUATE.                                                00227100
+002272*                                                                 00227200
+002273     MOVE PA-POLICY-ID TO ST-POLICY-ID.                           00227300
+002274     EXEC SQL                                                     00227400
+002275          DELETE FROM ADMT.T_PL_STATUS                            00227500
+002276          WHERE ST_POLICY_ID = :ST-POLICY-ID                      00227600
+002277     END-EXEC.                                                    00227700
+002278*                                                                 00227800
+002279     EVALUATE SQLCODE                                             00227900
+002280       WHEN 0                                                     00228000
+002281          CONTINUE                                                00228100
+002282       WHEN OTHER                                                 00228200
+002283          MOVE 'ERROR IN DELETION' TO LS-MSG                      00228300
+002284          EXEC CICS RETURN END-EXEC                               00228400
+002285     END-EVALUATE.                                                00228500
+002286*                                                                 00228600
+002287 5100-EXIT.                                                       00228700
+002288     EXIT.                                                        00228800
+002290******************************************************************00229000
+017200 5000-EXIT-PARA.                                                  01720000
+017300     EXEC CICS RETURN                                             01730000
+017400     END-EXEC.                                                    01740000
+017500******************************************************************01750000

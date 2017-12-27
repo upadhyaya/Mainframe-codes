@@ -1,0 +1,58 @@
+//UADT014D JOB  ,'SMF DATA UNLOAD',CLASS=E,                             JOB02891
+//             MSGLEVEL=(1,1),NOTIFY=&SYSUID,TIME=NOLIMIT               00020000
+/*JOBPARM LINES=999999
+//JOBLIB   DD DSN=ADMS.VTUNE.SOURCE.LOADLIB,DISP=SHR                    00020100
+//**********************************************************************00021000
+//* CHANGE THE FOLLOWING                                                00021100
+//* -- JOB     : JOBLIB-LOAD LIBRARY                                    00021200
+//* -- STEP001 : SMFDATA(DDNAME)-SMF INPUT DATASETS                     00021300
+//*              SMFOUT(DDNAME) -OUTPUT DATASET OF STEP001              00021300
+//* -- STEP002 : SORT THE DOWNLOADED SMF DATA BASED ON CICS APPLID AND  00021500
+//*              TRANSACTION NAME.THIS IS THE INPUT FOR REPORT          00021600
+//*              GENERATION.                                            00021600
+//* -- STEP003 : SMFDATA(DDNAME)-OUTPUT FILE OF SORT STEP               00021300
+//*              SMFOUT(DDNAME) -OUTPUT REPORT.                         00021300
+//*                                                                     00021800
+//**********************************************************************00021900
+//* STEP001                                                             00022000
+//* DOWNLOAD SMF DATA TO A FLAT FILE                                    00023000
+//STEP001  EXEC PGM=XTRCT110                                            00030000
+//SYSPRINT DD  SYSOUT=*                                                 00040000
+//SMFOUT   DD  DSN=&&OUTD1,
+//             DISP=(NEW,PASS),
+//             UNIT=(SYSDA,3),
+//* MODIFY THE SPACE PARAMETERS ACCCORDING TO THE EXPECTED SMF DATA
+//* VOLUME
+//             SPACE=(CYL,(10,100),RLSE)
+//SMFDATA  DD  DISP=SHR,DSN=SATYAM.ZOSA.SYSMAN1.G0695V00                00070003
+/*                                                                      00108100
+//* STEP002                                                             00108500
+//* (05,4,PD,A,01,4,BI,A) --- DATE AND TIME.
+//* SORT THE DATA BASED ON THE CICS APPLID NAME AND TRANSACTION NAME    00108600
+//* SORT FIELDS=(17,8,CH,A,33,4,CH,A)                                   00108800
+//* 17,8,CH,A --> CICS APPLID NAME                                      00109500
+//* 33,4,CH,A--> CICS TRANSACTION NAME                                  00109500
+//*                                                                     00109700
+//STEP002 EXEC PGM=SORT                                                 00109800
+//SORTLIB DD DSN=SYS1.SORTLIB,DISP=SHR                                  00110000
+//SYSOUT DD SYSOUT=*                                                    00140000
+//SORTIN DD DSN=&&OUTD1,DISP=SHR                                        00150000
+//SORTOUT DD DSN=UADT014.SMF110.EXTRACT1,
+//       DISP=(,CATLG,DELETE),
+//       UNIT=(SYSDA,3),
+//       SPACE=(CYL,(50,100),RLSE)
+//SORTWK01 DD UNIT=SYSDA,SPACE=(CYL,(50,50))                            00210000
+//SYSIN DD *                                                            00220000
+     SORT FIELDS=(17,8,CH,A,33,4,CH,A)                                  00230000
+     OPTION VLSHRT                                                      00240001
+/*                                                                      00270000
+//* STEP003                                                             00290000
+//* RUN THE REPORT PROGRAM                                              00291000
+//STEP003 EXEC PGM=EX110RP1                                             00300001
+//SMFDATA  DD DISP=SHR,DSN=UADT014.SMF110.EXTRACT1                      00310003
+//SYSPRINT DD SYSOUT=*                                                  00320000
+//SYSOUT   DD SYSOUT=*                                                  00330000
+//SMFOUT  DD DSN=UADT014.SMF110.EX110RP1,
+//       DISP=(,CATLG,DELETE),
+//       UNIT=(SYSDA,3),
+//       SPACE=(CYL,(10,100),RLSE)

@@ -1,0 +1,16 @@
+//UADA005R JOB 'RUNSTAT',REGION=0M,                                     00010000
+//         CLASS=A,MSGCLASS=X,MSGLEVEL=(1,1),                           00020000
+//         NOTIFY=&SYSUID                                               00030000
+//******************************************************************* */00040000
+//* RUNSTATS                                                          */00050000
+//******************************************************************* */00060000
+//DSNTICX  EXEC PGM=DSNUTILB,PARM='DB2A',REGION=1024K                   00070000
+//STEPLIB  DD  DISP=SHR,DSN=DSN810.SDSNLOAD                             00080000
+//         DD  DISP=SHR,DSN=SYS1.DSN810.SDSNEXIT                        00090000
+//SYSPRINT DD  SYSOUT=*                                                 00100000
+//SORTOUT  DD  UNIT=SYSDA,SPACE=(CYL,(10,10),RLSE)                      00110000
+//SYSUDUMP DD  SYSOUT=*                                                 00120000
+//SYSOUT   DD  SYSOUT=*                                                 00130000
+//SYSIN    DD  *                                                        00140000
+//SYSOUT   DD  *                                                        00141002
+  CHECK INDEX (ALL) TABLESPACE ADMTDB.ADMTTS1                           00150002

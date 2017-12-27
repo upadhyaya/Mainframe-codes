@@ -1,0 +1,269 @@
+                                                                        00001000
+000100 IDENTIFICATION DIVISION.                                         00010000
+                                                                        00011000
+000200 PROGRAM-ID.    XTRACT64.                                         00020000
+                                                                        00021000
+000400 AUTHOR.        UTHRA.                                            00030000
+                                                                        00031000
+000500 DATE-WRITTEN.  28/11/08.                                         00040000
+                                                                        00041000
+000600 DATE-COMPILED. 28/11/08.                                         00050000
+                                                                        00051000
+002000****************************************************************  00091000
+      *** PROGRAM NAME: XTRCT064.                                    ***00092000
+      ***                                                            ***00093000
+      *** INTRODUCTION:                                              ***00094000
+      ***                                                            ***00095000
+      ***   THIS IS A COBOL BATCH PROGRAM TO GENERATE AN EXTRACT     ***00096000
+      ***   FILE FROM SMF64 RECORD TYPE.THIS EXTRACT FILE IS USED    ***00097000
+      ***   AS INPUT TO THE REPORT PROGRAMS TO GENERATE THE OUTPUT   ***00098000
+      ***   REPORT OF SMF64 RECORD TYPE.                             ***00099000
+      ***                                                            ***00099400
+      *** PROGRAM CALLED BY:                                         ***00099500
+      ***     NONE.                                                  ***00099600
+      ***                                                            ***00099700
+      *** PROGRAM CALLS:                                             ***00099800
+      ***     NONE.                                                  ***00099900
+      ***                                                            ***00100000
+      *** FUNCTION:                                                  ***00100100
+      ***                                                            ***00100200
+      ***   THE PROGRAM GENERATES AN EXTRACT FILE FROM THE SMF64     ***00100300
+      ***   RECORD TYPE.THE EXTRACT FILE WILL CONTAIN ONLY THE       ***00100400
+      ***   REQUIRED FIELDS FROM SMF64 RECORD TYPE.THESE FIELDS ARE *** 00100500
+      ***   USED IN THE REPORT PROGRAM TO GENERATE THE REQUIRED      ***00100600
+      ***   REPORT.                                                  ***00100700
+      ***   SMF64 RECORD TYPE GIVES STATISTICS ABOUT THE VARIOUS     ***00100800
+      ***   VSAM PROCESSING EVENTS OF A VSAM FILE.SMF64 RECORD TYPE  ***00100900
+      ***   HAS DIFFERENT SECTIONS AND EACH SECTION HAS VARIOUS      ***00101000
+      ***   FIELDS.THIS PROGRAM READS EACH RECORD OF A SMF64 RECORD  ***00101100
+      ***   TYPE FILE(IE THE INPUT FILE) AND ACCESSES ONLY THE       ***00101200
+      ***   REQUIRED SECTIONS FROM IT AND ALSO PROCESSES ONLY THE    ***00101300
+      ***   THE REQUIRED FIELDS FROM THAT SECTION.THESE FIELDS ARE   ***00101400
+      ***   WRITTEN TO THE OUTPUT EXTRACT FILE.                      ***00101500
+      ***                                                            ***00102500
+      *** THE SMF RECORDS ARE DOWNLOADED USING SMFDUMP PROGRAM       ***00102600
+      *** IFASMFDP. THESE RECORDS ARE USED AS INPUT TO THIS PROGRAM. ***00102700
+      ***                                                            ***00104200
+      *** INCLUDE CODE: ADMS.VTUNE.SOURCE.COPYLIB                    ***00104300
+      ***  VT064CPY: SMF64 RECORD STRUCTURE.                         ***00104400
+      ***            THIS IS THE RECORD LAYOUT OF THE INPUT FILE     ***00104500
+      ***            USED IN THIS EXTRACTION PROGRAM.                ***00104600
+      ***                                                            ***00104900
+      ***  VT064EXT: THIS CONTAINS ONLY THOSE FIELDS OF SMF64        ***00106100
+      ***            RECORD TYPE THAT ARE REQUIRED FOR THE           ***00106200
+      ***            GENERATION OF SMF64 REPORTS.THE EXTRACT FILE    ***00106300
+      ***            RECORD STRUCTURE WILL EXACTLY HAVE THE SAME     ***00106400
+      ***            STRUCTURE AS THIS COPYBOOK.                     ***00106500
+      ***                                                            ***00106600
+      ***                                                            ***00107700
+      *** FILES USED:                                                ***00107800
+      ***  SMFDATA: INPUT FILE.                                      ***00107900
+      ***  SMFOUT : OUTPUT EXTRACT FILE.                             ***00108500
+      ***                                                            ***00108600
+      *** EXPECTED DISPLAY MESSAGES: NONE                            ***00108700
+      ***                                                            ***00108800
+      *** PROGRAM-FORMAT:                                            ***00108900
+      ***  0000-MAIN-PARA.                                           ***00109000
+      ***       PERFORM 1000-INITIALIZE-PARA.                        ***00109100
+      ***       PERFORM 2000-PROCESS-PARA TILL THE END OF FILE.      ***00109200
+      ***       PERFORM 3000-CLOSE-PARA.                             ***00109300
+      ***       STOP-RUN.                                            ***00109400
+      ***  1000-INITIALIZE-PARA.                                     ***00109500
+      ***       OPEN INPUT AND OUTPUT FILES .                        ***00109600
+      ***       PERFORM 1100-READ-SMF.                               ***00109700
+      ***  1100-READ-SMF.                                            ***00109800
+      ***        READ THE INPUT FILE.                                ***00109900
+      ***  2000-PROCESS-PARA.                                        ***00110000
+      ***        PROCESS THE INPUT FILE SMF30 RECORD.                ***00110100
+      ***        PERFORM 1100-READ-SMF.                              ***00110200
+      ***  3000-CLOSE-PARA.                                          ***00110300
+      ***       CLOSE THE INPUT AND OUTPUT FILE.                     ***00111100
+      ***                                                            ***00111200
+      *** PROCESSING THE INPUT FILE SMF30 RECORD:-                   ***00111300
+      ***        EACH RECORD FROM THE INPUT FILE IS READ AND         ***00111400
+      ***        THE OFFSET OF EACH OF THE REQUIRED SECTIONS ARE     ***00111500
+      ***        CALCULATED AND THE REQUIRED FIELDS FROM THESE       ***00111600
+      ***        SECTIONS ARE MOVED TO THE EXTRACT FIELD COPYBOOK    ***00111700
+      ***        VARIABLES.AFTER MOVING ALL THE REQUIRED FIELDS FROM ***00111800
+      ***        THE INPUT FILE TO THE EXTRACT COPYBOOK VARIABLES,   ***00111900
+      ***        THESE ARE WRITTEN ONTO THE OUTPUT EXTRACT FILE.THIS ***00112000
+      ***        PROCESS IS REPEATED TILL THE END OF FILE.           ***00112100
+      ***                                                            ***00113300
+      ******************************************************************00113400
+002010 ENVIRONMENT DIVISION.                                            00113500
+002020 INPUT-OUTPUT SECTION.                                            00114000
+002030 FILE-CONTROL.                                                    00120000
+002040     SELECT SMFDATA ASSIGN TO SMFDATA.                            00130000
+002040     SELECT SMFOUT  ASSIGN TO SMFOUT.                             00140000
+002042*                                                                 00150000
+002050 DATA DIVISION.                                                   00160000
+002060 FILE SECTION.                                                    00170000
+002061*                                                                 00180000
+002061*  *=============================================================*00181000
+002061*  *INPUT FILE FOR EXTRACT FILE GENERATION.THIS FILE CONTAINS     00182000
+002061*  *DATA DOWNLOADED DIRECTLY THROUGH THE SMF DUMP PROGRAM IFASMFDP00183000
+002061*  *=============================================================*00186000
+002070 FD  SMFDATA                                                      00190000
+002071     RECORDING MODE IS S                                          00200000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00210000
+002081 01  SMF-RECORD                  PIC X(32756).                    00220000
+002090*                                                                 00230000
+002061*  *=============================================================*00231000
+002061*  *OUTPUT EXTRACT FILE.THIS FILE CONTAINS ONLY THE REQUIRED      00232000
+002061*  *FIELDS EXTRACTED FROM SMF64 RECORD TYPE.                      00233000
+002061*  *=============================================================*00234000
+002070 FD  SMFOUT                                                       00240000
+002071     RECORDING MODE IS F                                          00250000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00260000
+002081 01  SMF-OUTPUT                  PIC X(250).                      00280000
+002090*                                                                 00290000
+002100 WORKING-STORAGE SECTION.                                         00300000
+004200 01 WS-VARIABLES.                                                 00620000
+           05 CNT                   PIC 9(03) VALUE ZEROES.             00631000
+004340     05 WS-SMF64OFF           PIC S9(9) COMP-3.                   00670000
+      *                                                                 00680000
+004400 01 WS-FLAGS.                                                     00731000
+004500      05 WS-SMFDATA-FILE-FLAG  PIC X(01).                         00740000
+004600        88 SMFDATA-OVER       VALUE 'Y'.                          00750000
+004700        88 SMFDATA-NOT-OVER   VALUE 'N'.                          00760000
+      *                                                                 00980000
+      *  *=============================================================*01201000
+      *             SMF RECORD TYPE 64 LAYOUT                           01210000
+      *  *=============================================================*01210100
+005277      COPY VT064CPY.                                              01210200
+      *  *=============================================================*01210300
+      * SMF RECORD TYPE 64 LAYOUT - EXTRACT COPYBOOK                    01211000
+005277      COPY VT064EXT.                                              01220000
+      *  *=============================================================*01230000
+005521******************************************************************01270000
+005522 PROCEDURE DIVISION.                                              01280000
+005523******************************************************************01290000
+      *  *=============================================================*01291000
+      *  *                       MAIN-PARA                             *01292000
+      *  *=============================================================*01293000
+005524 0000-MAIN.                                                       01300000
+005530     PERFORM 1000-INITIALIZE THRU 1000-INITIALIZE-EXIT.           01310000
+005600     PERFORM 2000-PROCESS THRU 2000-PROCESS-EXIT                  01320000
+                   UNTIL SMFDATA-OVER.                                  01320100
+005700     PERFORM 3000-CLOSE THRU 3000-EXIT.                           01330000
+005800                                                                  01340000
+005900     STOP RUN.                                                    01350000
+006010 0000-EXIT.                                                       01360000
+006020     EXIT.                                                        01370000
+006030*                                                                 01380000
+002090*  *=============================================================*01381000
+006030*  *OPEN THE FILES FOR INPUT AND OUTPUT AND INITIALIZE THE FILE   01382000
+      *  *INDICATOR FLAGS.                                              01383000
+002090*  *=============================================================*01384000
+006040 1000-INITIALIZE.                                                 01390000
+           MOVE ZEROES TO CNT.                                          01390100
+006050     OPEN INPUT SMFDATA.                                          01400000
+           OPEN OUTPUT SMFOUT.                                          01410000
+006051     SET SMFDATA-NOT-OVER TO TRUE.                                01630000
+006052     PERFORM 1100-READ-SMF.                                       01640000
+006060                                                                  01650000
+006070     CONTINUE.                                                    01660000
+006080 1000-INITIALIZE-EXIT.                                            01670000
+006090     EXIT.                                                        01680000
+006091*                                                                 01690000
+002090*  *=============================================================*01691000
+006091*  *READ A RECORD FROM THE INPUT FILE.                            01692000
+002090*  *=============================================================*01693000
+006092 1100-READ-SMF.                                                   01700000
+006093     READ SMFDATA                                                 01710000
+006094     AT END SET SMFDATA-OVER TO TRUE.                             01720000
+006100     CONTINUE.                                                    01780000
+006101 1100-EXIT.                                                       01790000
+006102     EXIT.                                                        01800000
+006103*                                                                 01810000
+002090*  *=============================================================*01811000
+      *  *OFFSETS OF THE REQUIRED SECTIONS ARE CALCULATED AND THE       01811100
+      *  *REQUIRED FIELDS FROM THESE SECTIONS ARE MOVED TO THE          01811200
+      *  *CORRESPONDING EXTRACT COPYBOOK FIELD VARIABLES.               01811300
+      *  *FINALLY THESE VARIABLES ARE WRITTEN TO THE OUTPUT EXTRACT FILE01811400
+002090*  *=============================================================*01817000
+006104 2000-PROCESS.                                                    01820000
+006105     INITIALIZE SMF64-RECORD-FORMAT.                              01840200
+           MOVE SMF-RECORD (2:1) TO SMF64-RTY.                          01842000
+002090*  *=============================================================*01842100
+      *  *CHECKING IF THE INPUT RECORD READ IS A SMF64 RECORD TYPE.IF   01842200
+      *  *YES,THE PROCESSING IS CONTINUED ELSE RECORD IS SKIPPED.       01842300
+002090*  *=============================================================*01842600
+           IF SMF64RTY  = X'40'                                         01842700
+              COMPUTE CNT = CNT + 1                                     01842800
+              PERFORM 2100-HEADER-MOVE                                  01842900
+002090*  *=============================================================*01843000
+      *  *CHECKING FOR THE PRESENCE OF EXTENT-INFORMATION-SECTION.      01843100
+      *  *IF SMF64RIN HOLDS THE HEX VALUE OF 1,THEN EXTENT INFORMATION  01843200
+      *  *SECTION IS NOT PRESENT,ELSE IT IS PRESENT AND APPROPRIATE     01843300
+      *  *OFFSET VALUES ARE CALCULATED AND MOVED FOR ACCESSING THE      01843400
+      *  *REMAINING SECTIONS.                                           01843500
+002090*  *=============================================================*01843600
+              IF SMF64RIN = X'01'                                       01843700
+                 MOVE 137 TO WS-SMF64OFF                                01843800
+              ELSE                                                      01843900
+                 MOVE SMF-RECORD ( 137:SMF64ESL ) TO                    01844000
+                                  EXTENT-INFORMATION-SECTION            01844100
+                 MOVE SMF64VSN TO SMF64VSNE                             01844200
+                 COMPUTE WS-SMF64OFF = 136 + SMF64ESL + 1               01844300
+              END-IF                                                    01844400
+              PERFORM 2200-EXTENT-STAT-MOVE                             01844500
+           END-IF.                                                      01845000
+006294     PERFORM 1100-READ-SMF                                        05070000
+006295     CONTINUE.                                                    05080000
+006296 2000-PROCESS-EXIT.                                               05090000
+006102     EXIT.                                                        05091000
+006298*                                                                 05110000
+002090*  *=============================================================*05110100
+      *  *ALL THE REQUIRED FIELDS PRESENT IN THE HEADER SECTION OF THE  05110200
+      *  *SMF64 RECORD INPUT FILE ARE MOVED TO THE CORRESPONDING EXTRACT05110300
+      *  *FIELD COPYBOOK VARIABLES.                                     05110400
+002090*  *=============================================================*05110700
+006104 2100-HEADER-MOVE.                                                05110800
+           MOVE SMF-RECORD(1:136) TO SMF64-RECORD-FORMAT.               05110900
+           MOVE SMF64RIN TO SMF64RINE.                                  05111000
+           MOVE SMF64ESL TO SMF64ESLE.                                  05111100
+           MOVE SMF64RST TO SMF64RSTE.                                  05111200
+           MOVE SMF64RSD TO SMF64RSDE.                                  05111300
+           MOVE SMF64SID TO SMF64SIDE.                                  05111600
+           MOVE SMF64JBN TO SMF64JBNE.                                  05111900
+           MOVE SMF64DNM TO SMF64DNME.                                  05112200
+           MOVE SMF64DTY TO SMF64DTYE.                                  05113000
+      *                                                                 05119800
+002090*  *=============================================================*05119900
+      *  *ALL THE REQUIRED FIELDS PRESENT IN THE EXTENT-INFORMATION     05120000
+      *  *SECTION OF THE SMF64 RECORD INPUT FILE ARE MOVED TO           05130000
+      *  *THE CORRESPONDING EXTRACT FIELD COPYBOOK VARIABLES.           05140000
+002090*  *=============================================================*05150000
+       2200-EXTENT-STAT-MOVE.                                           06900000
+            MOVE SMF-RECORD( WS-SMF64OFF:4)                             06930000
+                 TO STATISTICS-SECTION-SLN.                             06930100
+            MOVE SMF-RECORD( WS-SMF64OFF:SMF64SLN)                      06930300
+                 TO STATISTICS-SECTION.                                 06930400
+            MOVE SMF64NIL TO SMF64NILE.                                 06930700
+            MOVE SMF64NEX TO SMF64NEXE.                                 06931000
+            MOVE SMF64NCS TO SMF64NCSE.                                 06931300
+            MOVE SMF64NAS TO SMF64NASE.                                 06931600
+            MOVE SMF64DDE TO SMF64DDEE.                                 06970000
+            MOVE SMF64DIN TO SMF64DINE.                                 06990000
+            MOVE SMF64DUP TO SMF64DUPE.                                 07010000
+            MOVE SMF64DRE TO SMF64DREE.                                 07030000
+            MOVE SMF64DEP TO SMF64DEPE.                                 07041000
+            MOVE SMF64DCS TO SMF64DCSE.                                 07042200
+            MOVE SMF64DAS TO SMF64DASE.                                 07042500
+            MOVE SMF64BNO TO SMF64BNOE.                                 07042800
+            MOVE SMF64BFD TO SMF64BFDE.                                 07043100
+            MOVE SMF64BFI TO SMF64BFIE.                                 07043400
+            MOVE SMF64CLN TO SMF64CLNE.                                 07043700
+            MOVE SMF64MC1 TO SMF64MC1E.                                 07044000
+            MOVE SMF64MC2 TO SMF64MC2E.                                 07044300
+            MOVE SMF64MC3 TO SMF64MC3E.                                 07044600
+            MOVE SMF64MC4 TO SMF64MC4E.                                 07044900
+            WRITE SMF-OUTPUT FROM SMF64-EXTRACT-FORMAT.                 07045200
+006300 3000-CLOSE.                                                      11650000
+006400     CLOSE SMFDATA.                                               11660000
+           CLOSE SMFOUT.                                                11670000
+006800     CONTINUE.                                                    11690000
+006900 3000-EXIT.                                                       11700000
+007000     EXIT.                                                        11710000
+007100*                                                                 11720000

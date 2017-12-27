@@ -1,0 +1,29 @@
+       01 OM-DEALER.                                                    00000103
+       02 OMDLCPBK.                                                     00000203
+            05  LS-OPT            PIC X(6).                             00000304
+            05  LS-DEALER-ID      PIC 9(10).                            00000404
+            05  LS-ORDER-ID       PIC 9(10).                            00000504
+            05  LS-PROD-ID        PIC 9(10).                            00000604
+            05  LS-PROD-NAME      PIC X(40).                            00000704
+            05  LS-QUANT          PIC 9(10).                            00000804
+            05  LS-PRICE          PIC 9(10).                            00000904
+            05  LS-DATE           PIC X(10).                            00001004
+            05  LS-CATEG-NAME     PIC X(40).                            00001104
+            05  LS-CATEG-ID       PIC 9(10).                            00001204
+            05  LS-MSGA           PIC X(100).                           00001304
+            05  LS-FLAG1               PIC X(1).                        00004004
+       02 OMDLCPB2.                                                     00010003
+            05  LS-OPT                  PIC X(6).                       00020002
+            05  LS-INPUT-DEALER-ID      PIC 9(10).                      00030002
+            05  DLRLST OCCURS 8 TIMES INDEXED BY K.                     00040002
+               06  LS-DEALER-ID      PIC 9(10).                         00050001
+               06  LS-ORDER-ID       PIC 9(10).                         00060001
+               06  LS-PROD-ID        PIC 9(10).                         00070001
+               06  LS-PROD-NAME      PIC X(40).                         00080001
+               06  LS-QUANT          PIC 9(10).                         00090001
+               06  LS-PRICE          PIC 9(10).                         00100001
+               06  LS-DATE           PIC X(10).                         00110001
+               06  LS-CATEG-NAME     PIC X(40).                         00120001
+               06  LS-CATEG-ID       PIC 9(10).                         00130001
+            05  LS-MSGB           PIC X(100).                           00140002
+            05    LS-FLAG2               PIC X(1).                      00150002

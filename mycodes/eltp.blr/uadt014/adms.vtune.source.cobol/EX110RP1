@@ -1,0 +1,751 @@
+                                                                        00010099
+000100 IDENTIFICATION DIVISION.                                         00020000
+                                                                        00030099
+000200 PROGRAM-ID.    EX110RP1.                                         00040099
+                                                                        00050099
+000400 AUTHOR.        RADHIKA.                                          00060099
+                                                                        00070099
+000500 DATE-WRITTEN.  15/12/08.                                         00080099
+                                                                        00090099
+000600 DATE-COMPILED. 15/12/08.                                         00100099
+                                                                        00110099
+002000******************************************************************00150099
+      ***                                                            ***00150199
+      *** PROGRAM NAME: EX110RP1.                                    ***00150299
+      ***                                                            ***00150399
+      *** INTRODUCTION:                                              ***00150499
+      ***                                                            ***00150599
+      *** THIS PROGRAM IS USED TO ILLUSTRATE WAIT ANALYSIS           ***00150699
+      *** FOR CICS TRANSACTIONS USING SMF110 RECORDS.                ***00150799
+      ***                                                            ***00150899
+      *** THE WAIT ANALYSIS REPORT PROVIDES A BREAKDOWN OF WAIT      ***00150999
+      *** ACTIVITY BY CICS APPLID AND TRANSACTION ID.                ***00151099
+      ***                                                            ***00151199
+      *** PROGRAM CALLED BY:                                         ***00151299
+      ***     NONE.                                                  ***00151399
+      ***                                                            ***00151499
+      *** PROGRAM CALLS:                                             ***00151599
+      ***     NONE.                                                  ***00151699
+      ***                                                            ***00151799
+      *** FUNCTION:-                                                 ***00151899
+      ***                                                            ***00151999
+      ***  THIS PROGRAM IS USED TO GENERATE THE WAIT ANALYSIS REPORT ***00152099
+      ***  USING CICS RECORDS(SMF110). THE CICS PERFORMANCE RECORDS  ***00152199
+      ***  ARE EXTRACTED FROM THE SMF AND SORTED BASED ON THE CICS   ***00152299
+      ***  APPLID AND TRANSACTION NAME.                              ***00152399
+      ***                                                            ***00152699
+      ***  EXTRACTION PROGRAM FOR CICS PERFORMANCE RECORDS:XTRCT110  ***00152799
+      ***                                                            ***00152899
+      ***  THIS REPORT IS GENERATED USING THE EXTRACTED DATA.        ***00152999
+      ***  ALL THE DATA FOR A PARTICULAR TRANSACTION ARE AGGREGATED  ***00153199
+      ***  AND THE DETAILED INFORMATION IS WRITTEN TO THE REPORT.    ***00153299
+      ***                                                            ***00153399
+      ***  THE INPUT FILE IS READ AND ALL THE INFORMATION IS GATHERED***00153499
+      ***  FOR A PARTICULAR TRANSACTION. WHEN THE TRANSACTION NAME   ***00153599
+      ***  CHANGES THE INFORMATION ACCUMULATED FOR THE PREVIOUS      ***00153699
+      ***  TRANSACTION IS WRITTEN INTO THE REPORT AND THE PROCESSING ***00153799
+      ***  FOR THE NEXT TRANSACTION CONTINUES IN THE SAME WAY.       ***00153899
+      ***                                                            ***00153999
+      ***  THIS IS THE SAME FOR THE CHANGE IN APPLID ALSO. WHEN THE  ***00154099
+      ***  APPLID CHANGES THEN A RECAP REPORT FOR THE PREVIOUS APPLID***00154199
+      ***  IS WRITTEN AND THEN THE SAME PROCESS IS REPEATED FOR THE  ***00154299
+      ***  NEW APPLID.                                               ***00154399
+      ***                                                            ***00154499
+      ***  WAIT ANALYSIS REPORT:- SUMMARIZES TRANSACTION ACTIVITY BY ***00154599
+      ***  WAIT TIME.THIS REPORT GIVES A BREAKDOWN OF WAIT ACTIVITY  ***00154699
+      ***  BY APPLID & TRANSACTION ID.A RECAP REPORT, PRINTED AT THE ***00154799
+      ***  CONCLUSION OF THE DETAIL REPORT, PROVIDES AN OVERALL      ***00154999
+      ***  BREAKDOWN OF SUSPEND WAIT TIME.                           ***00155099
+      ***                                                            ***00155299
+      ***  THE WAIT ANALYSIS REPORT HAS TWO SECTIONS:                ***00155399
+      ***  1. THE FIRST SECTION PROVIDES A SUMMARY OF COMMON         ***00155499
+      ***     PERFORMANCE METRICS,INCLUDING:                         ***00155599
+      ***                            FIELD-NAME |OWNER   |FIELD-ID   ***00155699
+      ***     NUMBER OF TASKS                                        ***00155799
+      ***     RESPONSE TIME          STOP-TIME  |DFHCICS |006        ***00155899
+      ***                            START-TIME |DFHCICS |005        ***00155999
+      ***     DISPATCH TIME          USRDISPT   |DFHTASK |007        ***00156099
+      ***     CPU TIME               USRCPUT    |DFHTASK |008        ***00156199
+      ***     DB2 TIME               L8CPUT     |DFHTASK |259        ***00156299
+      ***     SUSPEND WAIT TIME      SUSPTIME   |DFHTASK |014        ***00156399
+      ***     DISPATCH WAIT TIME     DISPWTT    |DFHTASK |102        ***00156499
+      ***     RMI ELAPSED TIME       RMITIME    |DFHTASK |170        ***00156599
+      ***     RMI SUSPEND TIME       RMISUSP    |DFHTASK |171        ***00156699
+      ***                                                            ***00156799
+      ***  2. THE SECOND SECTION PROVIDES A DETAILED BREAKDOWN OF    ***00156899
+      ***     SUSPEND TIME BY COMPONENT, SUCH AS DISPATCH WAIT,      ***00156999
+      ***     FILE WAIT, AND SO ON.ONLY WAIT CLOCKS WITH NON-ZERO    ***00157199
+      ***     ELAPSED TIME ARE REPORTED.                             ***00157399
+      ***                                                            ***00157499
+      ***  INCLUDE CODE FROM COPY LIBRARY-ADMS.VTUNE.SOURCE.COPYLIB  ***00157599
+      ***                                                            ***00157699
+      ***  VTDATE  : THIS CONTAINS THE CODE FOR:-                    ***00157799
+      ***          A. CONVERTING THE DATE FROM JULIAN FORMAT TO      ***00157899
+      ***             GREGORIAN FORMAT.                              ***00157999
+      ***          B. FORMATING THE TIME TO HH:MM:SS.SS.             ***00158099
+      ***          C. OBTAINING CURRENT DATE AND TIME.               ***00158199
+      ***                                                            ***00158599
+      ***  BYTE2BIT: THIS CONTAINS THE CODE FOR CONVERTING A BYTE TO ***00158699
+      ***            BITS.                                           ***00158799
+      ***                                                            ***00158899
+      ***  VTCONV  : THE START-TIME AND STOP-TIME IS IN THE UNIT OF  ***00159199
+      ***            TIMESTAMP. A TIME STAMP IS AN 8-BYTE COPY OF THE***00159299
+      ***            OUTPUT OF AN STCK INSTRUCTION. THIS IS CONVERTED***00159399
+      ***            TO EQUIVALENT DATE AND TIME FIELDS.             ***00159499
+      ***            STCK(STORE CLOCK) INSTRUCTION RETURNS TIME IN   ***00159599
+      ***            UNITS OF 1 MICROSECONDS IN BINARY SINCE         ***00159699
+      ***            1ST JANUARY 1900.THE TIME IS STORED AT THE 8    ***00159799
+      ***            BYTES SPECIFIED AND USES ONLY BITS 0-51 OF THE  ***00159899
+      ***            8-BYTE FIELD.                                   ***00159999
+      ***                                                            ***00160099
+      ***  VTRPLINE: THIS CONTAINS THE CODE FOR MOVING THE MESSAGES  ***00160199
+      ***            FOR THE REPORT LINE FOR ALL THE TIME FIELDS.    ***00160299
+      ***                                                            ***00160399
+      ***  FILES USED:-                                              ***00160499
+      ***    SMFDATA - INPUT FILE.                                   ***00160599
+      ***    SMFOUT  - OUTPUT FILE.                                  ***00160699
+      ***                                                            ***00160799
+      ***  PROGRAM FORMAT:-                                          ***00160899
+      ***                                                            ***00160999
+      ***     0000-MAIN-PARA.                                        ***00161099
+      ***          PERFORM 1000-INITIALIZE-PARA.                     ***00161199
+      ***          PERFORM 2000-PROCESS-PARA.                        ***00161299
+      ***          PERFORM 3000-CLOSE-PARA.                          ***00161499
+      ***          STOP-RUN.                                         ***00161599
+      ***     1000-INITIALIZE-PARA.                                  ***00161699
+      ***          OPEN THE FILES FOR INPUT AND OUTPUT.              ***00161799
+      ***          PERFORM 1100-READ-SMF.                            ***00161899
+      ***     1100-READ-SMF.                                         ***00161999
+      ***          READ THE INPUT FILE TILL END.                     ***00162099
+      ***     2000-PROCESS-PARA.                                     ***00163099
+      ***          PROCESS THE PERFORMANCE RECORDS.                  ***00164099
+      ***          PERFORM 1100-READ-SMF.                            ***00165099
+      ***     3000-CLOSE-PARA.                                       ***00166099
+      ***          CLOSE THE INPUT AND OUTPUT FILES.                 ***00167099
+      ***                                                            ***00168099
+      ***     PROCESSING THE PERFORMANCE RECORDS:-                   ***00169099
+      ***          MOVE ALL THE FIELDS FROM INPUT FILE TO WORKING-   ***00169199
+      ***          STORAGE VARIABLES. PERFORM ALL THE CALCULATIONS   ***00169299
+      ***          FOR A PARTICULAR TRANSACTION.WHEN THE TRANSACTION ***00169399
+      ***          NAME CHANGES MOVE ALL THE AGGREGATED VALUES TO    ***00169499
+      ***          REPORT FIELDS AND WRITE THEM. CONTINUE THE SAME   ***00169599
+      ***          TILL THE END OF INPUT FILE.                       ***00169699
+      ***                                                            ***00169799
+002000****************************************************************  00390099
+002010 ENVIRONMENT DIVISION.                                            00400000
+002020 INPUT-OUTPUT SECTION.                                            00410000
+002030 FILE-CONTROL.                                                    00420000
+002040     SELECT SMFDATA ASSIGN TO SMFDATA.                            00430000
+002040     SELECT SMFOUT  ASSIGN TO SMFOUT.                             00440000
+002042*                                                                 00450000
+002050 DATA DIVISION.                                                   00460000
+002060 FILE SECTION.                                                    00470000
+002061*  *=============================================================*00480099
+002061*  *INPUT FILE FOR REPORT GENERATION. THIS FILE CONTAINS ONLY THE 00490099
+002061*  *PERFORMANCE RECORDS EXTRACTED FROM THE SM110 RECORDS.         00500099
+      *  *THE FILE IS SORTED BY THE CICS APPLID AND TRANSACTION NAME.   00510099
+002061*  *=============================================================*00511099
+002070 FD  SMFDATA                                                      00530000
+002071     RECORDING MODE IS F                                          00540078
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00550000
+002081 01  SMF-RECORD                  PIC X(1880).                     00560099
+002090*  *=============================================================*00570099
+002061*  *REPORT GENERATED BY THIS PROGRAM--WAIT ANALYSIS REPORT.       00580099
+002061*  *=============================================================*00590099
+002070 FD  SMFOUT                                                       00600000
+002071     RECORDING MODE IS F                                          00610000
+002072     BLOCK CONTAINS 0 CHARACTERS.                                 00620000
+002081 01  SMF-OUTPUT                  PIC X(150).                      00630099
+002090*                                                                 00640000
+002100 WORKING-STORAGE SECTION.                                         00650000
+002090*  *=============================================================*00651099
+      *  *WORKING-STORAGE VARIABLES FOR REPORT GENERATION.              00660099
+002090*  *=============================================================*00661099
+            COPY VT110VR1.                                              00670099
+002090*  *=============================================================*00671099
+      *  *SMF RECORD TYPE 110 LAYOUT OF THE EXTRACTED FILE.             00680099
+002090*  *=============================================================*00681099
+005277      COPY VT110EXT.                                              00690099
+002090*  *=============================================================*00691099
+      *  *SMF RECORD TYPE 110 LAYOUT OF THE PERFORMANCE RECORDS.        00700099
+002090*  *=============================================================*00701099
+005277      COPY VT110CP1.                                              00710099
+002090*  *=============================================================*00711099
+      *  *DESCRIPTION FOR REPORT HEADER AND OTHER REPORT LINES.         00720099
+002090*  *=============================================================*00721099
+005277      COPY VT110HD1.                                              00730083
+002090*  *=============================================================*00731099
+      *  *VARIABLES USED IN THE DATE CONVERSION PROGRAM.                00740099
+002090*  *=============================================================*00741099
+005277      COPY VTDATEVR.                                              00750099
+002090*  *=============================================================*00751099
+      *  *VARIABLES USED IN THE TIMESTAMP TO DATE CONVERSION PROGRAM.   00760099
+002090*  *=============================================================*00761099
+005277      COPY VTCONVVR.                                              00770099
+002090*  *=============================================================*00771099
+005521******************************************************************00780000
+005522 PROCEDURE DIVISION.                                              00790000
+005523******************************************************************00800000
+002090*  *=============================================================*00801099
+002090*  *                       MAIN-PARA                             *00801199
+002090*  *=============================================================*00802099
+005524 0000-MAIN-PARA.                                                  00810000
+005530     PERFORM 1000-INITIALIZE-PARA THRU  1000-INITIALIZE-EXIT.     00820000
+005600     PERFORM 2000-PROCESS-PARA    THRU  2000-PROCESS-EXIT         00830000
+                                        UNTIL SMFDATA-OVER.             00840000
+005700     PERFORM 3000-CLOSE-PARA      THRU  3000-CLOSE-EXIT.          00850000
+006030*                                                                 00860000
+006010 0000-MAIN-EXIT.                                                  00870000
+005900     STOP RUN.                                                    00880000
+002090*  *=============================================================*00891099
+006030*  *OPEN THE FILES FOR INPUT AND OUTPUT AND INITIALIZE THE FILE   00900099
+      *  *INDICATOR FLAGS.                                              00910099
+002090*  *=============================================================*00911099
+006040 1000-INITIALIZE-PARA.                                            00930000
+006050     OPEN INPUT  SMFDATA.                                         00940000
+           OPEN OUTPUT SMFOUT.                                          00950000
+006051     SET  SMFDATA-NOT-OVER TO TRUE                                00960005
+006052     PERFORM 1100-READ-SMF.                                       00970000
+006070     CONTINUE.                                                    00980000
+006091*                                                                 00990000
+006080 1000-INITIALIZE-EXIT.                                            01000000
+006090     EXIT.                                                        01010000
+002090*  *=============================================================*01021099
+006091*  *READ RECORDS FROM INPUT FILE.                                 01030099
+002090*  *=============================================================*01031099
+006092 1100-READ-SMF.                                                   01040000
+006093     READ SMFDATA                                                 01050000
+006094     AT END SET SMFDATA-OVER TO TRUE.                             01060000
+006100     CONTINUE.                                                    01070000
+006103*                                                                 01080000
+006101 1100-EXIT.                                                       01090000
+006102     EXIT.                                                        01100000
+002090*  *=============================================================*01111099
+      *  *PROCESS THE I/P RECORDS READ FROM THE FILE.CHK FOR THE APPLID 01120099
+      *  *IF THE APPLID CHANGES THEN PRINT THE RECAP REPORT AND CONTINUE01130099
+      *  *WITH THE ANALYSIS REPORT FOR THE NEXT APPLID.                 01140099
+002090*  *=============================================================*01141099
+006104 2000-PROCESS-PARA.                                               01150000
+           MOVE SMF-RECORD TO SMF110-PERF-DATA-CPY1                     01160081
+           IF SMF110-GEN-APPLID-CPY1 = SMF110-PREV-APPLID OR            01170099
+              SMF110-PREV-APPLID = SPACES                               01180099
+              CONTINUE                                                  01190099
+           ELSE                                                         01200099
+              PERFORM 5330-LAST-RECORD-WRITE-PARA THRU 5330-EXIT        01210099
+           END-IF.                                                      01220099
+           MOVE SMF110-GEN-APPLID-CPY1 TO SMF110-PREV-APPLID.           01230099
+           PERFORM 2100-PROCESS-PERFDATA THRU 2100-PROCESS-EXIT         01240099
+006294     PERFORM 1100-READ-SMF                                        01250000
+006295     CONTINUE.                                                    01260000
+006298*                                                                 01270000
+006296 2000-PROCESS-EXIT.                                               01280000
+006297     EXIT.                                                        01290000
+002090*  *=============================================================*01301099
+006298*  *PROCESS THE PERF RECORDS AND WRITE THE REPORT.A DETAILED      01310099
+006298*  *ANALYSIS IS WRITTEN FOR EACH TRANSACTION.                     01320099
+002090*  *=============================================================*01321099
+       2100-PROCESS-PERFDATA.                                           01330083
+           ADD +1 TO WS-COUNT                                           01340099
+002090*  *=============================================================*01351099
+      *  *WRITE THE HEADER ONLY AT THE BEGINNING.                       01352099
+002090*  *=============================================================*01361099
+           IF WS-COUNT = 1                                              01380099
+              PERFORM 3100-WRITE-HEADER-PARA THRU 3100-EXIT             01390099
+           END-IF.                                                      01400099
+           MOVE SMF110-TRAN-CPY1 TO WS-TRANSACTION.                     01410084
+002090*  *=============================================================*01421099
+      *  *WHEN THE TRANSACTION NAME CHANGES THEN WRITE THE COMPLETE     01430099
+      *  *OF THE FIRST TRANSACTION INTO THE REPORT AND CONTINUE WITH THE01440099
+      *  *NEXT TRANSACTION.                                             01450099
+002090*  *=============================================================*01451099
+           IF WS-TRANSACTION IS NOT EQUAL TO WS-PREV-TRAN               01470084
+                                         AND WS-COUNT > 1               01480084
+              PERFORM 5100-MOVE-TO-REPORT-PARA  THRU 5100-EXIT          01490099
+              PERFORM 5200-WRITE-TO-REPORT-PARA THRU 5200-EXIT          01500099
+           END-IF.                                                      01510099
+002090*  *=============================================================*01521099
+      *  *COUNT THE TOTAL NO OF TIMES A TRANSACTION IS PRESENT.         01530099
+002090*  *=============================================================*01531099
+           ADD 1 TO WS-TRAN-COUNT                                       01550099
+002090*  *=============================================================*01561099
+      *  *IN THE FOLLOWING CODE ALL THE FIELDS ARE MOVED TO WORKING     01570099
+      *  *STORAGE VARIABLES.                                            01580099
+002090*  *=============================================================*01590099
+           MOVE    SMF110-START-CPY1 TO SMF110-TIMESTAMP                01600099
+           PERFORM 9700-CONVERT-PARA THRU 9700-CONVERT-EXIT.            01610099
+           MOVE    WS-SECONDS TO WS-SECONDS-START                       01620099
+           MOVE    SMF110-STOP-CPY1  TO SMF110-TIMESTAMP                01630099
+           PERFORM 9700-CONVERT-PARA THRU 9700-CONVERT-EXIT.            01640099
+           MOVE    WS-SECONDS TO WS-SECONDS-STOP                        01650099
+           COMPUTE WS-TOT-RESP = WS-TOT-RESP +                          01660099
+                                 (WS-SECONDS-STOP - WS-SECONDS-START).  01670099
+      *                                                                 01680099
+           PERFORM 4100-MOVE-ALLTIMES-PARA  THRU 4100-EXIT.             01690099
+           PERFORM 4200-MOVE-WAITTIMES-PARA THRU 4200-EXIT.             01700099
+           SET AWT TO 1.                                                01710099
+           PERFORM 4300-COMPUTE-ALLTIMES-PARA THRU 4300-EXIT            01720099
+                                               UNTIL AWT > 06.          01730099
+           SET IWT TO 1.                                                01740099
+           PERFORM 4400-COMPUTE-WAITTIMES-PARA THRU 4400-EXIT           01750099
+                                               UNTIL IWT > 42.          01760099
+      *                                                                 01770099
+           PERFORM 4500-DB2TIME-PARA THRU 4500-EXIT.                    01780099
+      *                                                                 01790099
+           MOVE WS-TRANSACTION TO WS-PREV-TRAN.                         01800099
+006298*                                                                 01810099
+006296 2100-PROCESS-EXIT.                                               01820099
+006297     EXIT.                                                        01830099
+002090*  *=============================================================*01841099
+006298*  *THIS WRITES THE MAIN HEADER INTO THE REPORT.                  01850099
+002090*  *=============================================================*01860099
+       3100-WRITE-HEADER-PARA.                                          01870099
+           WRITE SMF-OUTPUT FROM PATTERN2.                              01880099
+           MOVE SMF110-SYSTEMID-CPY1   TO WS-SYSTEMID-RPT.              01890099
+           MOVE SMF110-SUBSYSID-CPY1   TO WS-SUBSYSID-RPT.              01900099
+           MOVE SMF110-GEN-APPLID-CPY1 TO WS-APPLID-RPT.                01910099
+           PERFORM 9200-GETDATETIME-PARA.                               01920099
+           MOVE  WS-HEADER1 TO WS-REPORT-HEADER                         01930099
+           WRITE SMF-OUTPUT FROM MAIN-HEADER-LINE1.                     01940099
+           WRITE SMF-OUTPUT FROM MAIN-HEADER-LINE2.                     01950099
+           WRITE SMF-OUTPUT FROM PATTERN2.                              01960099
+           WRITE SMF-OUTPUT FROM PATTERN1.                              01970099
+006298*                                                                 01980099
+006296 3100-EXIT.                                                       01990099
+006297     EXIT.                                                        02000099
+002090*  *=============================================================*02011099
+006298*  *MOVE ALL THE FIELDS OF THE FIRST SECTION OF THE REPORT INTO   02020099
+006298*  *WORKING STORAGE VARIABLES.                                    02030099
+002090*  *=============================================================*02031099
+       4100-MOVE-ALLTIMES-PARA.                                         02050099
+           MOVE SMF110-USRDISPT-CPY1 TO WS-STR-TIME(01).                02060099
+           MOVE SMF110-USRCPUT-CPY1  TO WS-STR-TIME(02).                02070099
+           MOVE SMF110-SUSPTIME-CPY1 TO WS-STR-TIME(03).                02080099
+           MOVE SMF110-DISPWTT-CPY1  TO WS-STR-TIME(04).                02090099
+           MOVE SMF110-RMITIME-CPY1  TO WS-STR-TIME(05).                02100099
+           MOVE SMF110-RMISUSP-CPY1  TO WS-STR-TIME(06).                02110099
+      *                                                                 02120099
+006296 4100-EXIT.                                                       02130099
+006297     EXIT.                                                        02140099
+002090*  *=============================================================*02151099
+006298*  *MOVE ALL THE FIELDS OF THE SECOND SECTION OF THE REPORT INTO  02160099
+006298*  *WORKING STORAGE VARIABLES.                                    02170099
+002090*  *=============================================================*02171099
+       4200-MOVE-WAITTIMES-PARA.                                        02190099
+           MOVE SMF110-TCIOWTT-CPY1  TO WS-STR-WTTIME(01).              02200099
+           MOVE SMF110-DSCHMDLY-CPY1 TO WS-STR-WTTIME(02).              02210099
+           MOVE SMF110-TSIOWTT-CPY1  TO WS-STR-WTTIME(03).              02220099
+           MOVE SMF110-SOIOWTT-CPY1  TO WS-STR-WTTIME(04).              02230099
+           MOVE SMF110-JCIOWTT-CPY1  TO WS-STR-WTTIME(05).              02240099
+           MOVE SMF110-FCIOWTT-CPY1  TO WS-STR-WTTIME(06).              02250099
+           MOVE SMF110-DSPDELAY-CPY1 TO WS-STR-WTTIME(07).              02260099
+           MOVE SMF110-MXTDELAY-CPY1 TO WS-STR-WTTIME(08).              02270099
+           MOVE SMF110-TCLDELAY-CPY1 TO WS-STR-WTTIME(09).              02280099
+           MOVE SMF110-LMDELAY-CPY1  TO WS-STR-WTTIME(10).              02290099
+           MOVE SMF110-GVUPWAIT-CPY1 TO WS-STR-WTTIME(11).              02300099
+           MOVE SMF110-MAXXTDLY-CPY1 TO WS-STR-WTTIME(12).              02310099
+           MOVE SMF110-MAXSTDLY-CPY1 TO WS-STR-WTTIME(13).              02320099
+           MOVE SMF110-DSMMSCWT-CPY1 TO WS-STR-WTTIME(14).              02330099
+           MOVE SMF110-DSTCBMWT-CPY1 TO WS-STR-WTTIME(15).              02340099
+           MOVE SMF110-PTPWAIT-CPY1  TO WS-STR-WTTIME(16).              02350099
+           MOVE SMF110-MAXJTDLY-CPY1 TO WS-STR-WTTIME(17).              02360099
+           MOVE SMF110-RQPWAIT-CPY1  TO WS-STR-WTTIME(18).              02370099
+           MOVE SMF110-RQRWAIT-CPY1  TO WS-STR-WTTIME(19).              02380099
+           MOVE SMF110-SOOIOWTT-CPY1 TO WS-STR-WTTIME(20).              02390099
+           MOVE SMF110-LU62WTT-CPY1  TO WS-STR-WTTIME(21).              02400099
+           MOVE SMF110-LU61WTT-CPY1  TO WS-STR-WTTIME(22).              02410099
+           MOVE SMF110-IRIOWTT-CPY1  TO WS-STR-WTTIME(23).              02420099
+           MOVE SMF110-TSSHWAIT-CPY1 TO WS-STR-WTTIME(24).              02430099
+           MOVE SMF110-MAXOTDLY-CPY1 TO WS-STR-WTTIME(25).              02440099
+           MOVE SMF110-RUNTRWTT-CPY1 TO WS-STR-WTTIME(26).              02450099
+           MOVE SMF110-RRMSWAIT-CPY1 TO WS-STR-WTTIME(27).              02460099
+           MOVE SMF110-ICDELAY-CPY1  TO WS-STR-WTTIME(28).              02470099
+           MOVE SMF110-WTCEWAIT-CPY1 TO WS-STR-WTTIME(29).              02480099
+           MOVE SMF110-WTEXWAIT-CPY1 TO WS-STR-WTTIME(30).              02490099
+           MOVE SMF110-ENQDELAY-CPY1 TO WS-STR-WTTIME(31).              02500099
+           MOVE SMF110-GNQDELAY-CPY1 TO WS-STR-WTTIME(32).              02510099
+           MOVE SMF110-SYNCDLY-CPY1  TO WS-STR-WTTIME(33).              02520099
+           MOVE SMF110-SRVSYWTT-CPY1 TO WS-STR-WTTIME(34).              02530099
+           MOVE SMF110-CFDTWAIT-CPY1 TO WS-STR-WTTIME(35).              02540099
+           MOVE SMF110-RLSWAIT-CPY1  TO WS-STR-WTTIME(36).              02550099
+           MOVE SMF110-SZWAIT-CPY1   TO WS-STR-WTTIME(37).              02560099
+           MOVE SMF110-TDIOWTT-CPY1  TO WS-STR-WTTIME(38).              02570099
+           MOVE SMF110-DB2WAIT-CPY1  TO WS-STR-WTTIME(39).              02580099
+           MOVE SMF110-DB2CONWT-CPY1 TO WS-STR-WTTIME(40).              02590099
+           MOVE SMF110-DB2RDYQW-CPY1 TO WS-STR-WTTIME(41).              02600099
+           MOVE SMF110-IMSWAIT-CPY1  TO WS-STR-WTTIME(42).              02610099
+006298*                                                                 02620099
+006296 4200-EXIT.                                                       02630099
+006297     EXIT.                                                        02640099
+002090*  *=============================================================*02651099
+006298*  *COMPUTE THE TOTAL TIME AND TOTAL COUNT FOR THE FIRST SECTION  02660099
+006298*  *FIELDS.                                                       02670099
+002090*  *=============================================================*02680099
+       4300-COMPUTE-ALLTIMES-PARA.                                      02690099
+           COMPUTE WS-TOT-TIME(AWT) = WS-TOT-TIME(AWT) +                02700099
+                                     (WS-NUM-TIME1(AWT) * 16 * 0.000001)02710099
+      *                                                                 02720099
+           COMPUTE WS-PERIOD-COUNT-TIME(AWT) = WS-PERIOD-COUNT-TIME(AWT)02730099
+                                               + WS-NUM-TIME2(AWT).     02740099
+           MOVE WS-TOT-TIME(3) TO WS-TOT-SUSP.                          02750099
+           MOVE WS-PERIOD-COUNT-TIME(3) TO WS-PERIOD-COUNT-SUSP.        02760099
+           SET AWT UP BY 1.                                             02770099
+      *                                                                 02780099
+006296 4300-EXIT.                                                       02790099
+006297     EXIT.                                                        02800099
+002090*  *=============================================================*02811099
+006298*  *COMPUTE THE TOTAL TIME AND TOTAL COUNT FOR THE SECOND SECTION 02820099
+006298*  *FIELDS.                                                       02830099
+002090*  *=============================================================*02831099
+       4400-COMPUTE-WAITTIMES-PARA.                                     02850099
+006298*                                                                 02860099
+           COMPUTE WS-TOT-WTTIME(IWT) = WS-TOT-WTTIME(IWT) +            02870099
+                                   (WS-NUM-WTTIME1(IWT) * 16 * 0.000001)02880099
+      *                                                                 02890099
+           COMPUTE WS-PERIOD-COUNT-WTTIME(IWT) =                        02900099
+                     WS-PERIOD-COUNT-WTTIME(IWT) + WS-NUM-WTTIME2(IWT). 02910099
+      *                                                                 02920099
+           SET IWT UP BY 1.                                             02930099
+006298*                                                                 02940099
+006296 4400-EXIT.                                                       02950099
+006297     EXIT.                                                        02960099
+002090*  *=============================================================*02971099
+006298*  *COMPUTE THE TOTAL TIME AND COUNT FOR THE DB2 TIME.THE TOTAL   02980099
+006298*  *IS CALCULATED ONLY IF THE TOTAL NUM OF DB2 EXEC SQL REQUESTS  02990099
+006298*  *(DB2REQCT) IS GREATER THAN 0.                                 03000099
+002090*  *=============================================================*03001099
+       4500-DB2TIME-PARA.                                               03020099
+           MOVE SMF110-L8CPUT-CPY1   TO WS-STR-DB2TME.                  03030099
+           MOVE SMF110-DB2REQCT-CPY1 TO WS-DB2CALL-COUNT                03040099
+           IF WS-DB2CALL-COUNT > 0                                      03050099
+            COMPUTE WS-TOT-DB2CALLS = WS-TOT-DB2CALLS + WS-DB2CALL-COUNT03060099
+            COMPUTE WS-TOT-DB2TME   = WS-TOT-DB2TME + (WS-NUM-DB2TME1 * 03070099
+                                                       16 * 0.000001)   03080099
+            COMPUTE WS-PERIOD-COUNT-DB2TME = WS-PERIOD-COUNT-DB2TME +   03090099
+                                            WS-NUM-DB2TME2              03100099
+           END-IF.                                                      03110099
+006298*                                                                 03120099
+006296 4500-EXIT.                                                       03130099
+006297     EXIT.                                                        03140099
+002090*  *=============================================================*03141099
+006298*  *COMPUTE THE AVG TIME FOR THE RESPONSE TIME AND MOVE THE VALUES03160099
+      *  *TO REPORT FIELDS.ALSO CALULATE THE TRANSACTION COUNT FOR THE  03170099
+      *  *WAIT ANALYSIS RECAP REPORT.                                   03180099
+002090*  *=============================================================*03181099
+       5100-MOVE-TO-REPORT-PARA.                                        03200099
+006298*                                                                 03210097
+              MOVE WS-TRAN-COUNT TO WS-TRAN-RPT.                        03220099
+              COMPUTE WS-FINAL-TRAN-COUNT = WS-FINAL-TRAN-COUNT +       03230099
+                                            WS-TRAN-COUNT               03240099
+              MOVE WS-PREV-TRAN  TO WS-TRAN.                            03250099
+006298*                                                                 03260099
+              MOVE WS-TOT-RESP TO WS-TOT-RSP.                           03270099
+              COMPUTE WS-AVG-RESP = WS-TOT-RESP / WS-TRAN-COUNT.        03280099
+              MOVE WS-AVG-RESP TO WS-AVG-RSP.                           03290099
+              COMPUTE WS-FINAL-TOT-RESP = WS-FINAL-TOT-RESP +           03300099
+                                          WS-TOT-RESP.                  03310099
+006298*                                                                 03320099
+              SET AWT TO 1.                                             03330099
+              SET BWT TO 1.                                             03340099
+              SET CWT TO 1.                                             03350099
+              PERFORM 5110-MOVE-ALLTIME-REPORT-PARA THRU 5110-EXIT      03360099
+                                                   UNTIL AWT > 06.      03370099
+006298*                                                                 03380099
+              PERFORM 5120-MOVE-DB2TIME-REPORT-PARA THRU 5120-EXIT.     03390099
+006298*                                                                 03400099
+              SET IWT TO 1.                                             03410099
+              SET KWT TO 1.                                             03420099
+              SET EWT TO 1.                                             03430099
+              PERFORM 5130-MOVE-WTTIME-REPORT-PARA THRU 5130-EXIT       03440099
+                                                   UNTIL IWT > 42.      03450099
+006298*                                                                 03460099
+006296 5100-EXIT.                                                       03470099
+006297     EXIT.                                                        03480099
+002090*  *=============================================================*03491099
+006298*  *COMPUTE THE AVG TIME AND AVG COUNT FOR THE FIELDS IN THE FIRST03500099
+      *  *SECTION OF THE REPORT AND MOVE THE VALUES TO REPORT FIELDS.   03510099
+      *  * COMPUTE THE FINAL OVERALL TIME OF ALL TRANSACTIONS FOR THE   03520099
+      *  *WAIT ANALYSIS RECAP REPORT.                                   03530099
+002090*  *=============================================================*03531099
+       5110-MOVE-ALLTIME-REPORT-PARA.                                   03550099
+006298*                                                                 03560099
+              MOVE WS-TOT-TIME(AWT) TO WS-TOT-RPTTME(BWT).              03570099
+              COMPUTE WS-AVG-TIME(AWT) = WS-TOT-TIME(AWT)               03580099
+                                         / WS-TRAN-COUNT.               03590099
+              MOVE WS-AVG-TIME(AWT) TO WS-AVG-RPTTME(BWT).              03600099
+006298*                                                                 03610099
+              MOVE WS-PERIOD-COUNT-TIME(AWT) TO WS-TOT-CNTRPT(BWT).     03620099
+              COMPUTE WS-PERIOD-AVG-TIME(AWT) =                         03630099
+                      WS-PERIOD-COUNT-TIME(AWT) / WS-TRAN-COUNT         03640099
+              MOVE WS-PERIOD-AVG-TIME(AWT) TO WS-AVG-CNTRPT(BWT).       03650099
+006298*                                                                 03660099
+              COMPUTE WS-FINAL-ALLTIME(CWT) = WS-FINAL-ALLTIME(CWT) +   03670099
+                                              WS-TOT-TIME(AWT)          03680099
+006298*                                                                 03690099
+              SET AWT UP BY 1.                                          03700099
+              SET BWT UP BY 1.                                          03710099
+              SET CWT UP BY 1.                                          03720099
+      *                                                                 03730099
+       5110-EXIT.                                                       03740099
+           EXIT.                                                        03750099
+002090*  *=============================================================*03761099
+006298*  *COMPUTE THE AVG TIME AND COUNT FOR THE DB2 TIME AND MOVE THE  03770099
+      *  *VALUES TO REPORT FIELDS.                                      03780099
+      *  *COMPUTE THE FINAL OVERALL TIME OF ALL TRANSACTIONS FOR THE    03790099
+      *  *WAIT ANALYSIS RECAP REPORT.                                   03800099
+002090*  *=============================================================*03801099
+       5120-MOVE-DB2TIME-REPORT-PARA.                                   03820099
+              MOVE WS-TOT-DB2TME TO WS-TOT-DB2T                         03830099
+              COMPUTE WS-AVG-DB2TME = WS-TOT-DB2TME / WS-TRAN-COUNT.    03840099
+              MOVE WS-AVG-DB2TME TO WS-AVG-DB2T.                        03850099
+006298*                                                                 03860099
+              MOVE WS-PERIOD-COUNT-DB2TME TO WS-TOT-CNTDB2.             03870099
+              COMPUTE WS-PERIOD-AVG-DB2TME = WS-PERIOD-COUNT-DB2TME /   03880099
+                                      WS-TRAN-COUNT                     03890099
+              MOVE WS-PERIOD-AVG-DB2TME TO WS-AVG-CNTDB2.               03900099
+006298*                                                                 03910099
+              COMPUTE WS-RATIO-DB2TME = (WS-TOT-DB2TME / WS-TOT-TIME(2))03920099
+                                         * 100                          03930099
+              MOVE WS-RATIO-DB2TME TO WS-RATIO-DB2T.                    03940099
+006298*                                                                 03950099
+              COMPUTE WS-FINAL-TOT-DB2 = WS-FINAL-TOT-DB2 +             03960099
+                                         WS-TOT-DB2TME.                 03970099
+006298*                                                                 03980099
+006296 5120-EXIT.                                                       03990099
+006297     EXIT.                                                        04000099
+002090*  *=============================================================*04011099
+006298*  *COMPUTE THE AVG TIME AND COUNT FOR THE FIELDS IN THE SECOND   04020099
+      *  *SECTION OF THE REPORT AND MOVE THE VALUES TO REPORT FIELDS.   04030099
+      *  *COMPUTE THE FINAL OVERALL TIME OF ALL TRANSACTIONS FOR THE    04040099
+      *  *WAIT ANALYSIS RECAP REPORT.                                   04050099
+002090*  *=============================================================*04051099
+       5130-MOVE-WTTIME-REPORT-PARA.                                    04070099
+           MOVE WS-TOT-WTTIME(IWT) TO WS-TOT-RPTWT(KWT).                04080099
+           COMPUTE WS-AVG-WTTIME(IWT) = WS-TOT-WTTIME(IWT)              04090099
+                                       / WS-TRAN-COUNT.                 04100099
+           MOVE WS-AVG-WTTIME(IWT) TO WS-AVG-RPTWT(KWT).                04110099
+      *                                                                 04120099
+           MOVE WS-PERIOD-COUNT-WTTIME(IWT) TO WS-TOT-RPTCNT(KWT).      04130099
+           COMPUTE WS-PERIOD-AVG-WTTIME(IWT) =                          04140099
+                             WS-PERIOD-COUNT-WTTIME(IWT) / WS-TRAN-COUNT04150099
+           MOVE WS-PERIOD-AVG-WTTIME(IWT) TO WS-AVG-RPTCNT(KWT).        04160099
+      *                                                                 04170099
+           COMPUTE WS-RATIO-WTTIME(IWT) =                               04180099
+                                (WS-TOT-WTTIME(IWT) / WS-TOT-SUSP) * 10004190099
+           MOVE WS-RATIO-WTTIME(IWT) TO WS-RATIO-RPTWT(KWT).            04200099
+      *                                                                 04210099
+           COMPUTE WS-FINAL-WAITTIME(EWT) = WS-FINAL-WAITTIME(EWT) +    04220099
+                                            WS-TOT-WTTIME(IWT)          04230099
+           SET IWT UP BY 1.                                             04240099
+           SET KWT UP BY 1.                                             04250099
+           SET EWT UP BY 1.                                             04260099
+006298*                                                                 04270099
+006296 5130-EXIT.                                                       04280099
+006297     EXIT.                                                        04290099
+002090*  *=============================================================*04301099
+006298*  *WRITE ALL THE VALUES ON TO THE REPORT IN ORDER.               04310099
+002090*  *=============================================================*04311099
+       5200-WRITE-TO-REPORT-PARA.                                       04330099
+              WRITE SMF-OUTPUT FROM HEADER2                             04340084
+              WRITE SMF-OUTPUT FROM HEADER3                             04350084
+              WRITE SMF-OUTPUT FROM HEADER4                             04360084
+              WRITE SMF-OUTPUT FROM HEADER5                             04370084
+              WRITE SMF-OUTPUT FROM RESPONSE-TIME-DETAILS.              04380099
+002090*  *=============================================================*04381099
+006298*  *WRITE ALL THE VALUES OF THE FIRST SECTION OF THE REPORT.      04390099
+002090*  *=============================================================*04391099
+              SET AWT TO 1.                                             04400099
+              SET BWT TO 1.                                             04410099
+              PERFORM 5210-WRITE-ALLTIME-PARA THRU 5210-EXIT            04420099
+                                            UNTIL AWT > 06.             04430099
+              WRITE SMF-OUTPUT FROM HEADER6                             04440099
+              WRITE SMF-OUTPUT FROM HEADER4                             04450099
+002090*  *=============================================================*04451099
+006298*  *WRITE ALL THE VALUES OF THE SECOND SECTION OF THE REPORT.     04460099
+002090*  *=============================================================*04461099
+              SET IWT TO 1.                                             04470099
+              SET KWT TO 1.                                             04480099
+              PERFORM 5220-WRITE-WTTME-PARA THRU 5220-EXIT              04490099
+                                            UNTIL IWT > 42.             04500099
+              PERFORM 5230-WRITE-LASTWT-PARA THRU 5230-EXIT.            04510099
+              WRITE SMF-OUTPUT FROM PATTERN1.                           04520099
+002090*  *=============================================================*04521099
+006298*  *INITIALIZE ALL THE VARIABLES FOR THE CALCULATIONS OF THE NEXT 04530099
+006298*  *TRANSACTION.                                                  04540099
+002090*  *=============================================================*04541099
+              INITIALIZE WS-VARIABLES.                                  04550099
+006298*                                                                 04560084
+006296 5200-EXIT.                                                       04570099
+006297     EXIT.                                                        04580084
+002090*  *=============================================================*04591099
+006298*  *WRITE ALL THE VALUES OF THE FIRST SECTION OF THE REPORT.      04600099
+002090*  *=============================================================*04601099
+       5210-WRITE-ALLTIME-PARA.                                         04620099
+           PERFORM 6100-EVALUATE-ALL-PARA THRU 6100-EXIT                04630099
+           SET AWT UP BY 1.                                             04640099
+           SET BWT UP BY 1.                                             04650099
+006298*                                                                 04660099
+006296 5210-EXIT.                                                       04670099
+006297     EXIT.                                                        04680099
+002090*  *=============================================================*04691099
+006298*  *WRITE ALL THE VALUES OF THE SECOND SECTION OF THE REPORT ONLY 04700099
+006298*  *IF THE TOTAL TIME IS GREATER THAN 0.                          04710099
+002090*  *=============================================================*04711099
+       5220-WRITE-WTTME-PARA.                                           04730099
+           IF WS-TOT-WTTIME(IWT) > 0                                    04740099
+              COMPUTE WS-TOT-WTTIME-OTHER = WS-TOT-WTTIME-OTHER +       04750099
+                                            WS-TOT-WTTIME(IWT)          04760099
+              COMPUTE WS-TOT-PERIOD-OTHER = WS-TOT-PERIOD-OTHER +       04770099
+                                            WS-PERIOD-COUNT-WTTIME(IWT) 04780099
+              PERFORM 6200-EVALUATE-OTHER-PARA THRU 6200-EXIT           04790099
+              WRITE SMF-OUTPUT FROM OTHER-WAIT-TIME-DETAILS(KWT)        04800099
+           END-IF.                                                      04810099
+           SET IWT UP BY 1.                                             04820099
+           SET KWT UP BY 1.                                             04830099
+006298*                                                                 04840099
+006296 5220-EXIT.                                                       04850099
+006297     EXIT.                                                        04860099
+002090*  *=============================================================*04871099
+006298*  *WRITE THE VALUES OF THE SECOND SECTION OF THE REPORT FOR OTHER04880099
+006298*  *WAIT TIME.                                                    04890099
+006298*  *THE TOTAL TASK SUSPEND TIME IS GREATER THAN THE SUM OF THE    04900099
+006298*  *COMPONENT SUSPEND TIMES.THIS UNACCOUNTED TIME IS REPORTED WITH04910099
+006298*  *FIELD NAME OF N/A AND A DESCRIPTION OF OTHER WAIT TIME. THIS  04920099
+006298*  *UNACCOUNTED TIME IS CALCULATED AS THE DIFFERENCE B/W SUSPEND  04930099
+006298*  *WAIT TIME (FROM THE SUMMARY DATA SECTION) MINUS THE SUM OF THE04940099
+006298*  *COMPONENT VALUES (FROM THE SUSPEND DETAIL SECTION). THE OTHER 04950099
+006298*  *WAIT TIME COUNT VALUE IS CALCULATED SIMILARLY.                04960099
+002090*  *=============================================================*04961099
+       5230-WRITE-LASTWT-PARA.                                          04980099
+           IF WS-TOT-WTTIME-OTHER < WS-TOT-SUSP                         04990099
+              COMPUTE WS-TOT-OWAIT = WS-TOT-SUSP -                      05000099
+                                     WS-TOT-WTTIME-OTHER                05010099
+              MOVE WS-TOT-OWAIT TO WS-TOT-OWT                           05020099
+              COMPUTE WS-AVG-OWAIT = WS-TOT-OWAIT / WS-TRAN-COUNT       05030099
+              MOVE WS-AVG-OWAIT TO WS-AVG-OWT                           05040099
+006298*                                                                 05050099
+              COMPUTE WS-PERIOD-COUNT-OWAIT = WS-PERIOD-COUNT-SUSP -    05060099
+                                              WS-TOT-PERIOD-OTHER       05070099
+              MOVE WS-PERIOD-COUNT-OWAIT TO WS-TOT-CNTOWT               05080099
+              COMPUTE WS-PERIOD-AVG-OWAIT = WS-PERIOD-COUNT-OWAIT /     05090099
+                                      WS-TRAN-COUNT                     05100099
+              MOVE WS-PERIOD-AVG-OWAIT TO WS-AVG-CNTOWT                 05110099
+              COMPUTE WS-RATIO-OWAIT =                                  05120099
+                              (WS-TOT-OWAIT / WS-TOT-SUSP) * 100        05130099
+              MOVE WS-RATIO-OWAIT TO WS-RATIO-OWT                       05140099
+              COMPUTE WS-FINAL-TOT-OWAIT = WS-FINAL-TOT-OWAIT +         05150099
+                                           WS-TOT-OWAIT                 05160099
+              WRITE SMF-OUTPUT FROM OWAIT-TIME-DETAILS                  05170099
+           END-IF.                                                      05180099
+006298*                                                                 05190099
+006296 5230-EXIT.                                                       05200099
+006297     EXIT.                                                        05210099
+002090*  *=============================================================*05221099
+006298*  *PRINT THE WAIT ANALYSIS RECAP REPORT.                         05230099
+006298*  *WAIT ANALYSIS REPORT IS ALWAYS FOLLOWED BY THE WAIT ANALYSIS  05240099
+006298*  *RECAP REPORT TO PROVIDE A BREAKDOWN OF THE CMF INPUT DATA.    05250099
+006298*  *IT PROVIDES AN OVERVIEW OF SYSTEM-WIDE WAIT TIME.             05260099
+002090*  *=============================================================*05261099
+       5300-RECAP-REPORT-PARA.                                          05280099
+           WRITE SMF-OUTPUT FROM PATTERN2.                              05290099
+           MOVE  WS-HEADER2 TO WS-REPORT-HEADER                         05300099
+           WRITE SMF-OUTPUT FROM MAIN-HEADER-LINE1.                     05310099
+           WRITE SMF-OUTPUT FROM MAIN-HEADER-LINE2.                     05320099
+           WRITE SMF-OUTPUT FROM PATTERN2.                              05330099
+           WRITE SMF-OUTPUT FROM FINAL-HEADER2.                         05340099
+           WRITE SMF-OUTPUT FROM FINAL-HEADER3.                         05350099
+           MOVE WS-FINAL-TRAN-COUNT TO WS-FINAL-TRAN-RPT.               05360099
+           WRITE SMF-OUTPUT FROM FINAL-HEADER4.                         05370099
+           PERFORM 5310-FINAL-RESPONSE-PARA THRU 5310-EXIT.             05380099
+           SET CWT TO 1.                                                05390099
+           SET DWT TO 1.                                                05400099
+           PERFORM 6300-EVAL-FINAL-PARA THRU 6300-EXIT UNTIL CWT > 06.  05410099
+           WRITE SMF-OUTPUT FROM FINAL-HEADER5.                         05420099
+           WRITE SMF-OUTPUT FROM FINAL-HEADER3.                         05430099
+           SET EWT TO 1.                                                05440099
+           SET FWT TO 1.                                                05450099
+           PERFORM 6400-EVAL-FINAL-PARA THRU 6400-EXIT UNTIL EWT > 42.  05460099
+           PERFORM 5320-FINAL-OTHERWAIT-PARA THRU 5320-EXIT.            05470099
+006298*                                                                 05480099
+006296 5300-EXIT.                                                       05490099
+006297     EXIT.                                                        05500099
+002090*  *=============================================================*05511099
+006298*  *CALCULATE THE FINAL RESPONSE TIME FOR RECAP REPORT,MOVE TO    05520099
+      *  *REPORT FIELDS AND WRITE THEVALUES INTO THE REPORT.            05530099
+002090*  *=============================================================*05531099
+       5310-FINAL-RESPONSE-PARA.                                        05550099
+           MOVE WS-FINAL-TOT-RESP TO WS-FINAL-TOTRESP.                  05560099
+           COMPUTE WS-FINAL-AVG-RESP = WS-FINAL-TOT-RESP /              05570099
+                                       WS-FINAL-TRAN-COUNT              05580099
+           MOVE WS-FINAL-AVG-RESP TO WS-FINAL-AVGRESP.                  05590099
+           WRITE SMF-OUTPUT FROM FINAL-RESPONSE-DETAILS.                05600099
+006298*                                                                 05610099
+006296 5310-EXIT.                                                       05620099
+006297     EXIT.                                                        05630099
+002090*  *=============================================================*05641099
+006298*  *CALCULATE THE FINAL N/A-OTHER WAIT TIME FOR THE RECAP REPORT, 05650099
+      *  *MOVE TO REPORT FIELDS AND WRITE THE VALUES INTO THE REPORT.   05660099
+002090*  *=============================================================*05661099
+       5320-FINAL-OTHERWAIT-PARA.                                       05680099
+           MOVE WS-FINAL-TOT-OWAIT TO WS-FINAL-TOTOWAIT                 05690099
+           COMPUTE WS-FINAL-AVG-OWAIT = WS-FINAL-TOT-OWAIT /            05700099
+                                       WS-FINAL-TRAN-COUNT              05710099
+           MOVE WS-FINAL-AVG-OWAIT TO WS-FINAL-AVGOWAIT.                05720099
+           COMPUTE WS-FINAL-RATIOOWT = (WS-FINAL-TOT-OWAIT              05730099
+                                      / WS-FINAL-ALLTIME(3)) * 100      05740099
+           MOVE WS-FINAL-RATIOOWT TO WS-FINOWT-RATRPT.                  05750099
+           WRITE SMF-OUTPUT FROM FINAL-OTHER-WAIT-DETAILS.              05760099
+006298*                                                                 05770099
+006296 5320-EXIT.                                                       05780099
+006297     EXIT.                                                        05790099
+002090*  *=============================================================*05801099
+006298*  *WHEN THE APPLID CHANGES MOVE THE LAST RECORD, WRITE THE LAST  05810099
+      *  *RECORD TO THE REPORT,RITE THE RECAP REPORT,INITIALIZE ALL THE 05820099
+      *  *VARIABLES AND CONTINUE WITH THE REPORT GENERATION FOR THE     05830099
+      *  *TRANSACTIONS OF THE NEW APPLID.                               05840099
+002090*  *=============================================================*05841099
+       5330-LAST-RECORD-WRITE-PARA.                                     05860099
+           PERFORM 5100-MOVE-TO-REPORT-PARA  THRU 5100-EXIT.            05870099
+           PERFORM 5200-WRITE-TO-REPORT-PARA THRU 5200-EXIT.            05880099
+           PERFORM 5300-RECAP-REPORT-PARA    THRU 5300-EXIT.            05890099
+           INITIALIZE WS-VARIABLES.                                     05900099
+           INITIALIZE WS-FINAL-COUNT-VARIABLES.                         05910099
+           INITIALIZE WS-SMF110-VARIABLES.                              05920099
+006298*                                                                 05930099
+006296 5330-EXIT.                                                       05940099
+006297     EXIT.                                                        05950099
+002090*  *=============================================================*05961099
+006298*  *WRITE LAST RECORD OF THE REPORT,WRITE THE RECAP REPORT AND    05970099
+006298*  *CLOSE THE FILES.                                              05980099
+002090*  *=============================================================*05981099
+006300 3000-CLOSE-PARA.                                                 06000099
+           IF WS-COUNT = 0                                              06010099
+              WRITE SMF-OUTPUT FROM PATTERN2                            06020099
+              WRITE SMF-OUTPUT FROM NO-REPORT-LINE                      06030099
+              WRITE SMF-OUTPUT FROM PATTERN2                            06040099
+           ELSE                                                         06050099
+              PERFORM 5100-MOVE-TO-REPORT-PARA  THRU 5100-EXIT          06060099
+              PERFORM 5200-WRITE-TO-REPORT-PARA THRU 5200-EXIT          06070099
+              PERFORM 5300-RECAP-REPORT-PARA    THRU 5300-EXIT          06080099
+           END-IF.                                                      06090099
+006400     CLOSE SMFDATA.                                               06100000
+           CLOSE SMFOUT.                                                06110000
+007100*                                                                 06120000
+006900 3000-CLOSE-EXIT.                                                 06130000
+007000     EXIT.                                                        06140000
+002090*  *=============================================================*06151099
+007100*  *DATE CONVERSION PROGRAM.                                      06160099
+002090*  *=============================================================*06161099
+005277      COPY VTDATE.                                                06170099
+002090*  *=============================================================*06171099
+007100*  *CONVERSION FROM BYTES TO BITS(02-->00000010)                  06180099
+002090*  *=============================================================*06181099
+005277      COPY BYTE2BIT.                                              06190076
+002090*  *=============================================================*06191099
+007100*  *CONVERSION FROM TIMESTAMP TO DATE AND TIME.                   06200099
+002090*  *=============================================================*06201099
+005277      COPY VTCONV.                                                06210099
+002090*  *=============================================================*06211099
+007100*  *REPORT LINES.                                                 06220099
+002090*  *=============================================================*06221099
+005277      COPY VTRPLINE.                                              06230099
+002090*  *=============================================================*06240099

@@ -1,0 +1,42 @@
+//**********************************************************************00010000
+//*  NAME = DSNTEJ1S                                                   *00020000
+//*                                                                    *00030000
+//*  DESCRIPTIVE NAME = DB2 SAMPLE APPLICATION                         *00040000
+//*                                                                    *00050000
+//*    LICENSED MATERIALS - PROPERTY OF IBM                            *00060000
+//*    5675-DB2                                                        *00070000
+//*    (C) COPYRIGHT 1982, 2000 IBM CORP.  ALL RIGHTS RESERVED.        *00080000
+//*                                                                    *00090000
+//*    STATUS = VERSION 7                                              *00100000
+//*                                                                    *00110000
+//*  FUNCTION = THIS JCL BINDS AND RUNS THE SCHEMA PROCESSOR.          *00120000
+//*                                                                    *00130000
+//*                                                                   */00140000
+//* CHANGE ACTIVITY =                                                 */00150000
+//**********************************************************************00160000
+//JOBLIB   DD  DSN=DSN810.SDSNLOAD,DISP=SHR                             00170000
+//*                                                                     00180000
+//*                                                                     00190000
+//*        STEP 1 : BIND AND RUN PROGRAM DSNHSP                         00200000
+//PH01SS01 EXEC PGM=IKJEFT01,DYNAMNBR=20                                00210000
+//DBRMLIB  DD  DSN=DSN810.SDSNDBRM,                                     00220000
+//             DISP=SHR                                                 00230000
+//SYSTSPRT DD  SYSOUT=*                                                 00240000
+//SYSPRINT DD  SYSOUT=*                                                 00250000
+//SYSUDUMP DD  SYSOUT=*                                                 00260000
+//SYSTSIN  DD  *                                                        00270000
+ DSN SYSTEM(DSN)                                                        00280000
+ BIND PLAN(DSNHSP!!) -                                                  00290000
+      MEMBER(DSNHSPMN) ACTION(REP) ISO(CS) ENCODING(EBCDIC)             00300000
+ RUN  PROGRAM(DSNHSP) PLAN(DSNHSP!!) -                                  00310000
+      LIB('DSN810.SDSNLOAD')                                            00320001
+ END                                                                    00330000
+//*                                                                     00340000
+//SYSIN    DD *                                                         00350000
+                                                                        00360000
+  -- SAMPLE SCHEMA                                                      00370000
+                                                                        00380000
+    CREATE SCHEMA ESUPPORT AUTHORIZATION DSN810SA                       00390001
+                                                                        00400000
+                                                                        00610000
+//*                                                                     00620000

@@ -1,0 +1,14 @@
+//UADT014B JOB 'SATYAM',CLASS=A,NOTIFY=&SYSUID,REGION=0M,TIME=30        00010000
+//******************************************************                00011000
+//*      IMS MESSAGE FORMAT COMPILE JCL                *                00012000
+//******************************************************                00013000
+//PROCLIB JCLLIB ORDER=UADT014.BLR.ASM.BATCH                            00020000
+//*                                                                     00024000
+//IMSPROC EXEC PROCBAT,                                                 00030000
+//             MBR=ENERGY02,                                            00040000
+//             PSB=ENERGY02                                             00060005
+//*NPS     DD DSN='ELTP.BLR.ENERGY',DISP=SHR                            00070008
+//OUTPS    DD DSN='UADT014.REPORT.OUT',DISP=SHR                         00070106
+//SYSPRINT DD SYSOUT=*                                                  00071000
+//SYSOUT   DD SYSOUT=*                                                  00072000
+/*EOF                                                                   00120007

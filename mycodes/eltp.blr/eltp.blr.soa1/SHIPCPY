@@ -1,0 +1,16 @@
+000010       05 LS-OPT       PIC X(4).                                  00001000
+000020*                                                                 00002000
+000030       05 LS-CUST-ID   PIC 9(10).                                 00003000
+000040       05 LS-ORD-ID    PIC 9(10).                                 00004000
+000050*                                                                 00005000
+000100       05 SHIPMENTDETL-ARRAY OCCURS 8 TIMES INDEXED BY K.         00010001
+000110          06 LS-CUSTID    PIC 9(10).                              00011000
+000130          06 LS-ORDID     PIC 9(10).                              00013000
+000140          06 LS-PROD-ID   PIC 9(10).                              00014000
+000160          06 LS-QNTY      PIC 9(5).                               00016000
+000170          06 LS-ORD-DATE  PIC X(10).                              00017000
+000180          06 LS-SHP-DATE  PIC X(10).                              00018001
+000190          06 LS-CAR-COST  PIC X(12).                              00019003
+000200          06 LS-TOT-COST  PIC X(18).                              00020003
+000300          06 LS-STATUS    PIC X(1).                               00030003
+000500       05 LS-MSG          PIC X(80).                              00050000

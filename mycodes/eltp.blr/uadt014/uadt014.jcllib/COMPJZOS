@@ -1,0 +1,38 @@
+//UADT014J JOB 43312,'JAVA JZOS PROGRAM',REGION=0M,
+//         CLASS=E,MSGCLASS=X,NOTIFY=&SYSUID,TIME=NOLIMIT
+//PROCLIB JCLLIB ORDER=(UADT014.JCLLIB)
+//**********************************************************************
+//*This JCL is used to pass parameters to the JAVA program
+//**********************************************************************
+//********************DELETING OUTPUT FILE******************************
+//STEP1 EXEC PGM=IEFBR14
+//STDOUT DD PATH='/adms/zportal/CusRep/CusRepFile.txt',
+//           PATHOPTS=(OWRONLY),
+//*          PATHMODE=SIRWXU,
+//           PATHDISP=(DELETE)
+//********************COMPILE JCL***************************************
+//STEP2  EXEC PGM=BPXBATCH,
+//        PARM='SH'
+//SYSPRINT DD SYSOUT=*
+//SYSOUT DD SYSOUT=*
+//STDIN DD PATH='/adms/zportal/CusRep/CusRep.stdin',
+//             PATHOPTS=(ORDONLY)
+//STDOUT DD PATH='/adms/zportal/CusRep/CusRep.stdout',
+//             PATHOPTS=(OWRONLY,OCREAT,OTRUNC),
+//             PATHMODE=(SIRWXU,SIRWXG,SIRWXO)
+//STDERR DD PATH='/adms/zportal/CusRep/CusRep.stderr',
+//             PATHOPTS=(OWRONLY,OCREAT,OTRUNC),
+//             PATHMODE=(SIRWXU,SIRWXG,SIRWXO)
+//**********************RUN JCL****************************************
+//JAVAJZOS EXEC PROC=JVMPRC14,
+//           JAVACLS='CusRep'
+//MAINARGS DD *
+2007-10-09 2008-10-09 2222222222
+//STDOUT DD PATH='/adms/zportal/CusRep/CusRep.stdout',
+//             PATHOPTS=(OWRONLY,OCREAT,OTRUNC),
+//             PATHMODE=(SIRWXU,SIRWXG,SIRWXO)
+//STDERR DD PATH='/adms/zportal/CusRep/CusRep.stderr',
+//             PATHOPTS=(OWRONLY,OCREAT,OTRUNC),
+//             PATHMODE=(SIRWXU,SIRWXG,SIRWXO)
+//STDENV DD PATH='/adms/zportal/CusRep/CusRep.env',
+//             PATHOPTS=(ORDONLY)

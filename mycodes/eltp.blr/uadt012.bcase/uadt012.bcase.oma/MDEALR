@@ -1,0 +1,95 @@
+       01  DLRMAPI.
+           02  FILLER PIC X(12).
+           02  DATE1L    COMP  PIC  S9(4).
+           02  DATE1F    PICTURE X.
+           02  FILLER REDEFINES DATE1F.
+             03 DATE1A    PICTURE X.
+           02  DATE1I  PIC X(10).
+           02  TIME1L    COMP  PIC  S9(4).
+           02  TIME1F    PICTURE X.
+           02  FILLER REDEFINES TIME1F.
+             03 TIME1A    PICTURE X.
+           02  TIME1I  PIC X(10).
+           02  DLRID1L    COMP  PIC  S9(4).
+           02  DLRID1F    PICTURE X.
+           02  FILLER REDEFINES DLRID1F.
+             03 DLRID1A    PICTURE X.
+           02  DLRID1I  PIC 9(10).
+           02  DLRNM1L    COMP  PIC  S9(4).
+           02  DLRNM1F    PICTURE X.
+           02  FILLER REDEFINES DLRNM1F.
+             03 DLRNM1A    PICTURE X.
+           02  DLRNM1I  PIC X(40).
+           02  ADDLN1L    COMP  PIC  S9(4).
+           02  ADDLN1F    PICTURE X.
+           02  FILLER REDEFINES ADDLN1F.
+             03 ADDLN1A    PICTURE X.
+           02  ADDLN1I  PIC X(40).
+           02  ADDLN2L    COMP  PIC  S9(4).
+           02  ADDLN2F    PICTURE X.
+           02  FILLER REDEFINES ADDLN2F.
+             03 ADDLN2A    PICTURE X.
+           02  ADDLN2I  PIC X(40).
+           02  CITY1L    COMP  PIC  S9(4).
+           02  CITY1F    PICTURE X.
+           02  FILLER REDEFINES CITY1F.
+             03 CITY1A    PICTURE X.
+           02  CITY1I  PIC X(15).
+           02  STATE1L    COMP  PIC  S9(4).
+           02  STATE1F    PICTURE X.
+           02  FILLER REDEFINES STATE1F.
+             03 STATE1A    PICTURE X.
+           02  STATE1I  PIC X(15).
+           02  POSTCOD1L    COMP  PIC  S9(4).
+           02  POSTCOD1F    PICTURE X.
+           02  FILLER REDEFINES POSTCOD1F.
+             03 POSTCOD1A    PICTURE X.
+           02  POSTCOD1I  PIC X(10).
+           02  CNTRY1L    COMP  PIC  S9(4).
+           02  CNTRY1F    PICTURE X.
+           02  FILLER REDEFINES CNTRY1F.
+             03 CNTRY1A    PICTURE X.
+           02  CNTRY1I  PIC X(15).
+           02  PHN1L    COMP  PIC  S9(4).
+           02  PHN1F    PICTURE X.
+           02  FILLER REDEFINES PHN1F.
+             03 PHN1A    PICTURE X.
+           02  PHN1I  PIC X(24).
+           02  FAX1L    COMP  PIC  S9(4).
+           02  FAX1F    PICTURE X.
+           02  FILLER REDEFINES FAX1F.
+             03 FAX1A    PICTURE X.
+           02  FAX1I  PIC X(24).
+           02  MSG1L    COMP  PIC  S9(4).
+           02  MSG1F    PICTURE X.
+           02  FILLER REDEFINES MSG1F.
+             03 MSG1A    PICTURE X.
+           02  MSG1I  PIC X(80).
+       01  DLRMAPO REDEFINES DLRMAPI.
+           02  FILLER PIC X(12).
+           02  FILLER PICTURE X(3).
+           02  DATE1O PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  TIME1O PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  DLRID1O PIC 9(10).
+           02  FILLER PICTURE X(3).
+           02  DLRNM1O PIC X(40).
+           02  FILLER PICTURE X(3).
+           02  ADDLN1O PIC X(40).
+           02  FILLER PICTURE X(3).
+           02  ADDLN2O PIC X(40).
+           02  FILLER PICTURE X(3).
+           02  CITY1O PIC X(15).
+           02  FILLER PICTURE X(3).
+           02  STATE1O PIC X(15).
+           02  FILLER PICTURE X(3).
+           02  POSTCOD1O PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  CNTRY1O PIC X(15).
+           02  FILLER PICTURE X(3).
+           02  PHN1O PIC X(24).
+           02  FILLER PICTURE X(3).
+           02  FAX1O PIC X(24).
+           02  FILLER PICTURE X(3).
+           02  MSG1O PIC X(80).

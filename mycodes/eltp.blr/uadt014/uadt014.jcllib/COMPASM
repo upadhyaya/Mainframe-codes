@@ -1,0 +1,59 @@
+//UADT014C JOB 'COMPILE ASM',CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID          00010018
+//*                                                                     00020006
+//COMPASM PROC INDEX='SYS1',        HLQ FOR MACRO LIBRARY               02000006
+//     LOAD='UADT014.LOAD',         LOAD LIBRARY                        04000007
+//     INSRC='UADT014.BATCH',       SOURCE LIBRARY WITH ASM DECK        04010018
+//     MEM=,                        ASM DECK                            04020006
+//     A=,                           A=A FOR ALIGNED MAP                10000006
+//     ASMBLR=ASMA90,                ASSEMBLER PROGRAM NAME             10600006
+//     REG=2048K,                    REGION FOR ASSEMBLY                10900006
+//     OUTC=*                        PRINT SYSOUT CLASS                 16000009
+//*                                                                     18100000
+//* THIS PROCEDURE ASSEMBLES ASSEMBLER LANGUAGE INSTRUCTIONS AND        18200006
+//* GENERATES A LOAD MODULE                                             18210006
+//* It consists of four steps, as follows.                              18400000
+//*                                                                     18500000
+//* COPY - THIS STEP COPIES THE ASSEMBLER SOURCE CODE                   18600006
+//*       (PROVIDED BY THE USER VIA A SYSUT1 DD STATEMENT) TO A         18700006
+//*        temporary dataset.                                           18800000
+//*                                                                     18900000
+//* ASM    - THIS STEP ASSEMBLES THE INPUT ASSEMBLER CODE TO OBJECT     19000006
+//*                                                                     19200000
+//* LINK    - THIS STEP EXECUTES THE BINDER TO CREATE A LOAD MODULE     19300006
+//*        FROM THE OBJECT CREATED BY THE ASM  STEP. BY DEFAULT         19400006
+//*        options AMODE(31) and RMODE(ANY) are specified.              19500000
+//*                                                                     19600000
+//COPY     EXEC PGM=IEBGENER                                            20000000
+//SYSPRINT DD SYSOUT=&OUTC                                              22000009
+//SYSUT2   DD DSN=&&TEMPM,DISP=(,PASS),                                 24000001
+//            DCB=(RECFM=FB,LRECL=80,BLKSIZE=400),                      26000000
+//            SPACE=(400,(50,50))                                       28000000
+//SYSIN    DD DUMMY                                                     30000000
+//SYSUT1   DD DSN=&INSRC(&MEM),DISP=SHR                                 32000006
+//*                                                                     32010006
+//ASM      EXEC PGM=&ASMBLR,REGION=&REG,                                34000006
+//* NOLOAD CHANGED TO NOOBJECT                                 @BA91512 35000000
+//  PARM='SYSPARM(&A.MAP),DECK,NOOBJECT'                                36000000
+//SYSPRINT DD SYSOUT=&OUTC                                              38000009
+//SYSLIB   DD DSN=&INDEX..MACLIB,DISP=SHR                               40000006
+//SYSUT1   DD SPACE=(TRK,(5,5))                                         44000005
+//SYSUT2   DD SPACE=(TRK,(5,5))                                         46000005
+//SYSUT3   DD SPACE=(TRK,(5,5))                                         48000005
+//SYSPUNCH DD DSN=&&MAP,DISP=(,PASS),                                   50000006
+//            DCB=(RECFM=FB,LRECL=80,BLKSIZE=400),                      52000000
+//            SPACE=(400,(50,50))                                       54000006
+//SYSIN    DD DSN=&&TEMPM,DISP=(OLD,PASS)                               56000000
+//*                                                                     56010006
+//LINK     EXEC PGM=IEWL,PARM=('LIST,LET,XREF'),COND=(4,LT,ASM)         58000006
+//SYSPRINT DD SYSOUT=&OUTC                                              60000009
+//SYSLMOD  DD DSN=&LOAD,DISP=SHR                                        62000006
+//SYSUT1   DD SPACE=(1024,(20,20))                                      64000001
+//OBJMOD1  DD DSN=&&MAP,DISP=(OLD,DELETE)                               67000006
+// PEND                                                                 97010006
+//*                                                                     97020006
+//STEP1    EXEC COMPASM,MEM=VSAMPROG                                    97030021
+//LINK.SYSLIN DD *                                                      97040006
+  INCLUDE OBJMOD1                                                       97050006
+  ENTRY VSAMPROG                                                        97070021
+  NAME VSAMPROG(R)                                                      97071021
+/*                                                                      97080006

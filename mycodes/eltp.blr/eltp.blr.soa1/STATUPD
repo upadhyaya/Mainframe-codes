@@ -1,0 +1,248 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. STATUPD.                                             00020001
+000400 AUTHOR. SOA TEAM.                                                00040000
+000410 DATE-WRITTEN. 17/09/08.                                          00041000
+000420 DATE-COMPILED. 17/09/08.                                         00042000
+000717******************************************************************00071700
+000718 DATA DIVISION.                                                   00071800
+000719 WORKING-STORAGE SECTION.                                         00071900
+000724      EXEC SQL INCLUDE ORDR   END-EXEC.                           00072400
+000727      EXEC SQL INCLUDE STATS  END-EXEC.                           00072713
+000728      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00072800
+001007*                                                                 00100700
+001041 01 WS-COMMAREA  PIC X(9).                                        00104100
+001042*                                                                 00104200
+001056 LINKAGE SECTION.                                                 00105600
+001057 01 DFHCOMMAREA.                                                  00105700
+001058      COPY STATCPY.                                               00105801
+001059******************************************************************00105900
+001150 PROCEDURE DIVISION USING DFHCOMMAREA.                            00115000
+001151******************************************************************00115100
+001152*        EXEC CICS HANDLE CONDITION                               00115218
+001153*             MAPFAIL(2200-EXIT)                                  00115318
+001154*             INVREQ(4100-EXIT-PARA)                              00115418
+001155*        END-EXEC.                                                00115518
+001156*                                                                 00115600
+001157 1000-MAINLINE-PARA.                                              00115700
+001158     DISPLAY 'MAINLINE PARA'.                                     00115819
+001159     IF EIBCALEN = 0                                              00115900
+001160         MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG                 00116000
+001161         EXEC CICS RETURN                                         00116100
+001162         END-EXEC                                                 00116200
+001163     ELSE                                                         00116300
+001165         PERFORM 2000-PROCESSING-PARA                             00116500
+001166*                                                                 00116600
+001170         EXEC CICS RETURN                                         00117000
+001301         END-EXEC                                                 00130100
+001302     END-IF.                                                      00130200
+001303******************************************************************00130300
+001340 2000-PROCESSING-PARA.                                            00134000
+001341      DISPLAY '2000-PARA'.                                        00134117
+001345      EVALUATE TRUE                                               00134500
+001346         WHEN LS-OPT = 'SLCT'                                     00134620
+001349             PERFORM 3000-SELECTION-PARA THRU 3000-EXIT           00134917
+001350             EXEC CICS RETURN                                     00135017
+001351             END-EXEC                                             00135117
+001352         WHEN LS-OPT = 'UPDT'                                     00135220
+001360             PERFORM 4000-UPDATION-PARA THRU 4000-EXIT            00136012
+001414         WHEN OTHER                                               00141400
+001416             MOVE SPACES TO LS-OPT                                00141612
+001417             MOVE 0 TO LS-ORD-ID                                  00141712
+001418             MOVE 0 TO LS-DLR-ID                                  00141812
+001419             MOVE 0 TO LS-PROD-ID                                 00141912
+001420             MOVE 0 TO LS-PROD-QNT                                00142012
+001421             MOVE SPACES TO LS-STS-ID                             00142112
+001422             MOVE 'INVALID OPTION SELECTED' TO LS-MSG             00142212
+001423             EXEC CICS RETURN END-EXEC                            00142312
+001424      END-EVALUATE.                                               00142412
+001425*                                                                 00142500
+001426 2000-EXIT.                                                       00142600
+001427     EXIT.                                                        00142700
+001428***************************************************************** 00142801
+001443*2200-EXIT.                                                       00144318
+001444*    EXIT.                                                        00144418
+001445***************************************************************** 00144500
+001446 3000-SELECTION-PARA.                                             00144610
+001447     DISPLAY 'SELECTION PAR'.                                     00144717
+001448     IF LS-ORD-ID = 0                                             00144810
+001449        MOVE SPACES TO LS-OPT                                     00144910
+001450        MOVE 0 TO LS-ORD-ID                                       00145010
+001451        MOVE 0 TO LS-DLR-ID                                       00145110
+001452        MOVE 0 TO LS-PROD-ID                                      00145210
+001453        MOVE 0 TO LS-PROD-QNT                                     00145310
+001454        MOVE SPACES TO LS-STS-ID                                  00145410
+001455        MOVE 'ENTER A VALID ORDER ID' TO LS-MSG                   00145524
+001456        EXEC CICS RETURN                                          00145610
+001457        END-EXEC                                                  00145710
+001458*                                                                 00145810
+001459     ELSE IF LS-ORD-ID IS NOT NUMERIC                             00145910
+001460        MOVE SPACES TO LS-OPT                                     00146010
+001461        MOVE 0 TO LS-ORD-ID                                       00146110
+001462        MOVE 0 TO LS-DLR-ID                                       00146210
+001463        MOVE 0 TO LS-PROD-ID                                      00146310
+001464        MOVE 0 TO LS-PROD-QNT                                     00146410
+001465        MOVE SPACES TO LS-STS-ID                                  00146510
+001466        MOVE 'ENTER A VALID ORDER ID'                             00146624
+001467             TO LS-MSG                                            00146710
+001468        EXEC CICS RETURN                                          00146810
+001469        END-EXEC                                                  00146910
+001470*                                                                 00147010
+001471          ELSE                                                    00147110
+001472             MOVE LS-ORD-ID TO ST-ORD-ID                          00147210
+001473             EXEC SQL                                             00147316
+001474                  SELECT ST_ORD_ID,ST_DLR_ID,ST_PROD_ID,          00147410
+001475                         ST_PROD_QNT,ST_STATUS_ID                 00147515
+001476                  INTO :ST-ORD-ID,:ST-DLR-ID,:ST-PROD-ID,         00147610
+001477                       :ST-PROD-QNT,:ST-STATUS-ID                 00147714
+001478                  FROM ADMT.T_ST_STATUS                           00147810
+001479                  WHERE ST_ORD_ID = :ST-ORD-ID                    00147910
+001480             END-EXEC                                             00148010
+001481*                                                                 00148110
+001482             DISPLAY 'SQLCODE', SQLCODE                           00148217
+001483             EVALUATE SQLCODE                                     00148310
+001484               WHEN 0                                             00148410
+001485                   MOVE 'SLCT' TO LS-OPT                          00148520
+001486                   MOVE ST-ORD-ID TO LS-ORD-ID                    00148610
+001487                   MOVE ST-DLR-ID TO LS-DLR-ID                    00148710
+001488                   MOVE ST-PROD-ID TO LS-PROD-ID                  00148810
+001489                   MOVE ST-PROD-QNT TO LS-PROD-QNT                00148910
+001490                   MOVE ST-STATUS-ID TO LS-STS-ID                 00149014
+001491                   MOVE 'CUSTOMER ORDER DETAILS RETRIEVED SUCCESFU00149125
+001492-                       'LLY'                                     00149225
+001493                         TO LS-MSG                                00149324
+001494                   EXEC CICS RETURN END-EXEC                      00149410
+001495               WHEN 100                                           00149510
+001496                   MOVE SPACES TO LS-OPT                          00149610
+001497                   MOVE 0 TO LS-ORD-ID                            00149710
+001498                   MOVE 0 TO LS-DLR-ID                            00149810
+001499                   MOVE 0 TO LS-PROD-ID                           00149910
+001500                   MOVE 0 TO LS-PROD-QNT                          00150010
+001501                   MOVE SPACES TO LS-STS-ID                       00150110
+001502                   MOVE 'PLEASE ENTER A VALID ORDER ID'           00150225
+001503                             TO LS-MSG                            00150325
+001504                   EXEC CICS RETURN                               00150410
+001505                   END-EXEC                                       00150510
+001506             END-EVALUATE                                         00150610
+001507          END-IF                                                  00150710
+001508*                                                                 00150810
+001509     END-IF.                                                      00150910
+001510*                                                                 00151010
+001511 3000-EXIT.                                                       00151110
+001512     EXIT.                                                        00151210
+001513***************************************************************** 00151310
+001514 4000-UPDATION-PARA.                                              00151412
+001515     IF LS-ORD-ID = 0                                             00151510
+001516        MOVE SPACES TO LS-OPT                                     00151611
+001517        MOVE 0 TO LS-ORD-ID                                       00151711
+001518        MOVE 0 TO LS-DLR-ID                                       00151811
+001519        MOVE 0 TO LS-PROD-ID                                      00151911
+001520        MOVE 0 TO LS-PROD-QNT                                     00152011
+001521        MOVE SPACES TO LS-STS-ID                                  00152111
+001522        MOVE 'ENTER A VALID ORDER-ID' TO LS-MSG                   00152224
+001523        EXEC CICS RETURN                                          00152310
+001524        END-EXEC                                                  00152410
+001525     END-IF.                                                      00152510
+001526*                                                                 00152610
+001527     IF LS-ORD-ID IS NOT NUMERIC                                  00152710
+001528        MOVE SPACES TO LS-OPT                                     00152810
+001529        MOVE 0 TO LS-ORD-ID                                       00152910
+001530        MOVE 0 TO LS-DLR-ID                                       00153011
+001531        MOVE 0 TO LS-PROD-ID                                      00153111
+001532        MOVE 0 TO LS-PROD-QNT                                     00153211
+001533        MOVE SPACES TO LS-STS-ID                                  00153311
+001534        MOVE 'ENTER A VALID ORDER-ID'                             00153424
+001535             TO LS-MSG                                            00153510
+001536        EXEC CICS RETURN                                          00153610
+001537        END-EXEC                                                  00153710
+001538     END-IF.                                                      00153810
+001539*                                                                 00153910
+001615     IF LS-STS-ID = 0 OR LS-STS-ID = SPACES                       00161511
+001616        MOVE SPACES TO LS-OPT                                     00161611
+001617        MOVE 0 TO LS-ORD-ID                                       00161711
+001618        MOVE 0 TO LS-DLR-ID                                       00161812
+001619        MOVE 0 TO LS-PROD-ID                                      00161912
+001620        MOVE 0 TO LS-PROD-QNT                                     00162012
+001621        MOVE SPACES TO LS-STS-ID                                  00162112
+001622        MOVE 'ENTER A VALID STATUS ID' TO LS-MSG                  00162224
+001623        EXEC CICS RETURN                                          00162311
+001624        END-EXEC                                                  00162411
+001625     END-IF.                                                      00162511
+001626*                                                                 00162611
+001627     IF LS-STS-ID NOT = 'D' AND 'H' AND 'O'                       00162721
+001628        MOVE SPACES TO LS-OPT                                     00162811
+001629        MOVE 0 TO LS-ORD-ID                                       00162911
+001630        MOVE 0 TO LS-DLR-ID                                       00163012
+001631        MOVE 0 TO LS-PROD-ID                                      00163112
+001632        MOVE 0 TO LS-PROD-QNT                                     00163212
+001633        MOVE SPACES TO LS-STS-ID                                  00163312
+001634        MOVE 'ENTER A VALID STATUS ID' TO LS-MSG                  00163424
+001635        EXEC CICS RETURN                                          00163511
+001636        END-EXEC                                                  00163611
+001637*                                                                 00163711
+001638     ELSE                                                         00163811
+001639        MOVE LS-ORD-ID  TO ST-ORD-ID                              00163912
+001640        MOVE LS-STS-ID  TO ST-STATUS-ID                           00164014
+001641*                                                                 00164112
+001642        EXEC SQL                                                  00164212
+001643             UPDATE ADMT.T_ST_STATUS                              00164312
+001644             SET ST_STATUS_ID = :ST-STATUS-ID                     00164415
+001645             WHERE ST_ORD_ID = :ST-ORD-ID                         00164512
+001646        END-EXEC                                                  00164612
+001653*                                                                 00165312
+001654        EVALUATE SQLCODE                                          00165412
+001655          WHEN 0                                                  00165512
+001656            EXEC SQL                                              00165616
+001657                SELECT ST_ORD_ID,ST_DLR_ID,ST_PROD_ID,            00165712
+001658                       ST_PROD_QNT,ST_STATUS_ID                   00165815
+001659                INTO :ST-ORD-ID,:ST-DLR-ID,:ST-PROD-ID,           00165912
+001660                     :ST-PROD-QNT,:ST-STATUS-ID                   00166014
+001661                FROM ADMT.T_ST_STATUS                             00166112
+001662                WHERE ST_ORD_ID = :ST-ORD-ID                      00166212
+001663            END-EXEC                                              00166312
+001664*                                                                 00166412
+001665            EVALUATE SQLCODE                                      00166512
+001666               WHEN 0                                             00166612
+001667                  MOVE ST-ORD-ID TO LS-ORD-ID                     00166712
+001668                  MOVE ST-DLR-ID TO LS-DLR-ID                     00166812
+001669                  MOVE ST-PROD-ID TO LS-PROD-ID                   00166912
+001670                  MOVE ST-PROD-QNT TO LS-PROD-QNT                 00167012
+001671                  MOVE ST-STATUS-ID TO LS-STS-ID                  00167114
+001672                  MOVE 'UPDT' TO LS-OPT                           00167220
+001675                  MOVE 'STATUS UPDATION SUCCESSFULL - THANK YOU'  00167513
+001676                       TO LS-MSG                                  00167613
+001677                  EXEC CICS RETURN                                00167713
+001678                  END-EXEC                                        00167813
+001679               WHEN +100                                          00167913
+001680                  MOVE SPACES TO LS-OPT                           00168013
+001681                  MOVE 0 TO LS-ORD-ID                             00168113
+001682                  MOVE 0 TO LS-DLR-ID                             00168213
+001683                  MOVE 0 TO LS-PROD-ID                            00168313
+001684                  MOVE 0 TO LS-PROD-QNT                           00168413
+001685                  MOVE SPACES TO LS-STS-ID                        00168513
+001692                  MOVE 'STATUS UPDATION FAILED - PLEASE TRY AGAIN'00169224
+001693                                  TO LS-MSG                       00169324
+001694                  EXEC CICS RETURN                                00169413
+001695                  END-EXEC                                        00169513
+001696            END-EVALUATE                                          00169613
+001697*                                                                 00169713
+001698          WHEN 100                                                00169813
+001699            MOVE SPACES TO LS-OPT                                 00169913
+001700            MOVE 0 TO LS-ORD-ID                                   00170013
+001701            MOVE 0 TO LS-DLR-ID                                   00170113
+001702            MOVE 0 TO LS-PROD-ID                                  00170213
+001703            MOVE 0 TO LS-PROD-QNT                                 00170313
+001704            MOVE SPACES TO LS-STS-ID                              00170413
+001705            MOVE 'STATUS UPDATION FAILED - PLEASE TRY AGAIN'      00170524
+001706                      TO LS-MSG                                   00170624
+001707            EXEC CICS RETURN                                      00170713
+001708            END-EXEC                                              00170813
+001710        END-EVALUATE                                              00171013
+001711*                                                                 00171112
+001712     END-IF.                                                      00171212
+001713*                                                                 00171312
+001714 4000-EXIT.                                                       00171412
+001720     EXIT.                                                        00172012
+001800******************************************************************00180012
+017260*4100-EXIT-PARA.                                                  01726018
+017300*    EXEC CICS RETURN                                             01730018
+017400*    END-EXEC.                                                    01740018

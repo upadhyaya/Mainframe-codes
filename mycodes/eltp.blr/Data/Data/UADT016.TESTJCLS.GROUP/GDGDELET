@@ -1,0 +1,7 @@
+//UADT016G JOB 'CREATE GDG',NOTIFY=&SYSUID,REGION=0M                    00010002
+//* DELETE BASE                                                         00011002
+//STEP1 EXEC PGM=IDCAMS                                                 00020000
+//SYSPRINT DD SYSOUT=*                                                  00021003
+//SYSIN DD *                                                            00030000
+  DELETE (UADT016.SMF110.BACKUP)                                        00040003
+/*                                                                      00090000

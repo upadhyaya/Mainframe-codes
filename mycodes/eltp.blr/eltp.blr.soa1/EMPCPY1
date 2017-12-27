@@ -1,0 +1,29 @@
+      *01 LS-EMPLOYEE-MAINT.                                            00001013
+           05 LS-OPT          PIC X(6).                                 00010000
+           05 LS-TRANS-ID     PIC X(4).                                 00010100
+           05 LS-CURSOR-POS   PIC 9(2).                                 00010215
+           05 LS-MSG          PIC X(70).                                00010314
+           05 LS-EMP-ID       PIC 9(10).                                00010414
+           05 LS-EMP-NAME     PIC X(40).                                00011000
+           05 LS-EMP-BIRTH-DT.                                          00020000
+                07 LS-D-MM PIC 99.                                      00021000
+                07 FILLER  PIC X.                                       00022000
+                07 LS-D-DD PIC 99.                                      00023000
+                07 FILLER  PIC X.                                       00024000
+                07 LS-D-YY PIC 9999.                                    00025000
+           05 LS-EMP-HIRE-DT.                                           00030000
+                07 LS-D-MM PIC 99.                                      00031000
+                07 FILLER  PIC X.                                       00032000
+                07 LS-D-DD PIC 99.                                      00033000
+                07 FILLER  PIC X.                                       00034000
+                07 LS-D-YY PIC 9999.                                    00035000
+           05 LS-EMP-ADR-LN-1 PIC X(40).                                00040000
+           05 LS-EMP-ADR-LN-2 PIC X(40).                                00050000
+           05 LS-EMP-CITY     PIC X(15).                                00060000
+           05 LS-EMP-STATE    PIC X(15).                                00070000
+           05 LS-EMP-POST-CD  PIC X(10).                                00080000
+           05 LS-EMP-COUNTRY  PIC X(15).                                00090000
+           05 LS-EMP-PHONE    PIC X(24).                                00100016
+           05 LS-EMP-FAX      PIC X(24).                                00110016
+           05 LS-ACC-TOKEN    PIC X(05).                                00120017
+           05 LS-PASSWORD     PIC X(14).                                00130018

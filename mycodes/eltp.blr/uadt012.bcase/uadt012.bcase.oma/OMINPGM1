@@ -1,0 +1,250 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. OMINPGM1.                                            00020000
+000300*                                                                 00030000
+000400 ENVIRONMENT DIVISION.                                            00040000
+000500*                                                                 00050000
+000600 DATA DIVISION.                                                   00060000
+000700*                                                                 00070000
+000800 WORKING-STORAGE SECTION.                                         00080000
+              EXEC SQL INCLUDE SQLCA END-EXEC.                          00090099
+              EXEC SQL INCLUDE PRODN END-EXEC.                          00110099
+              EXEC SQL INCLUDE ORDR1 END-EXEC.                          00120099
+001810*                                                                 00140000
+       01 END-RECORDS          PIC X VALUE 'N'.                         00140199
+       01 END-ORD-RECORDS      PIC X VALUE 'N'.                         00140299
+001810*                                                                 00141099
+       01 TEMP-ORD-ID          PIC S9(10)V USAGE COMP-3.                00141199
+       01 TEMP-ORD-ITEM-ID     PIC S9(10)V USAGE COMP-3.                00141499
+       01 TEMP-ORD-PROD-ID     PIC S9(10)V USAGE COMP-3.                00141799
+       01 TEMP-ORD-QUANT       PIC S9(5)V USAGE COMP-3.                 00141899
+       01 TEMP-ORD-STATUS-ID   PIC X(1).                                00142599
+       01 TEMP-ORD-STATUS-TEMP PIC X(1).                                00142699
+       01 TEMP-ORD-TYPE        PIC X(1).                                00142899
+001810*                                                                 00143099
+       01 WS-ORD-ID            PIC S9(10)V USAGE COMP-3 VALUE ZEROES.   00143199
+       01 PREV-ORD-ID          PIC S9(10)V USAGE COMP-3 VALUE ZEROES.   00143299
+       01 WS-UNIT-STOCK        PIC S9(5)V USAGE COMP-3.                 00143399
+       01 WS-QUANTITY          PIC S9(5)V USAGE COMP-3.                 00143499
+       01 WS-ORD-TYPE          PIC X(1).                                00143599
+       01 WS-STATUS-TEMP       PIC X(1).                                00143699
+001810*                                                                 00144099
+              EXEC SQL                                                  00150099
+                 DECLARE C11 CURSOR FOR                                 00160099
+                 SELECT ORD_ITEM_ID, ORD_ID, ORD_PROD_ID, ORD_QUANT,    00170099
+                        ORD_STATUS_ID, ORD_STATUS_TEMP, ORD_TYPE        00180099
+                   FROM ADMT.T_OR_ORDER1                                00190099
+                  WHERE ORD_TYPE = :ORD-TYPE                            00200099
+              END-EXEC.                                                 00210099
+001810*                                                                 00220099
+              EXEC SQL                                                  00221099
+                 DECLARE D11 CURSOR FOR                                 00222099
+                 SELECT ORD_ITEM_ID                                     00223099
+                   FROM ADMT.T_OR_ORDER1                                00225099
+                  WHERE ORD_ID = :ORD-ID                                00226099
+              END-EXEC.                                                 00227099
+001810*                                                                 00228099
+001820 LINKAGE SECTION.                                                 00230000
+001830 01 DFHCOMMAREA.                                                  00240000
+            COPY OMINCPBK.                                              00250000
+001870*                                                                 00260000
+001900 PROCEDURE DIVISION.                                              00270000
+002000 0000-MAIN-PARA.                                                  00280000
+             IF EIBCALEN = 0                                            00290000
+                 MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG               00300000
+                 EXEC CICS RETURN END-EXEC                              00310099
+             ELSE                                                       00320099
+                 PERFORM 2000-PROCESSING-PARA                           00330099
+             END-IF.                                                    00340099
+001870*                                                                 00350099
+       2000-PROCESSING-PARA.                                            00360099
+                  DISPLAY 'IN PROCESSING'.                              00361099
+                  MOVE LS-TOKEN TO ORD-TYPE.                            00370099
+                  EVALUATE LS-TOKEN                                     00380099
+                     WHEN 'I'                                           00390099
+                        DISPLAY 'IN I PROCESSING'                       00391099
+                        EXEC SQL OPEN C11 END-EXEC                      00400099
+                        PERFORM 2100-FETCH-PARA UNTIL END-RECORDS = 'Y' 00410099
+                        EXEC SQL CLOSE C11 END-EXEC                     00420099
+                     WHEN 'D'                                           00430099
+                        DISPLAY 'IN D PROCESSING'                       00431099
+                        EXEC SQL OPEN C11 END-EXEC                      00440099
+                        PERFORM 2100-FETCH-PARA UNTIL END-RECORDS = 'Y' 00450099
+                        EXEC SQL CLOSE C11 END-EXEC                     00460099
+                     WHEN OTHER                                         00470099
+                        DISPLAY 'IN OTHER PROCESSING'                   00471099
+                        MOVE 'ORDER TYPE IS INVALID' TO LS-MSG          00480099
+                        EXEC CICS RETURN END-EXEC                       00490099
+                  END-EVALUATE.                                         00500099
+      *                                                                 00510099
+       2100-FETCH-PARA.                                                 00520099
+            DISPLAY 'IN 2100-FETCH-PARA'.                               00521099
+            EXEC SQL                                                    00530099
+                 FETCH NEXT                                             00540099
+                 FROM C11                                               00550099
+                 INTO :ORD-ITEM-ID,                                     00560099
+                      :ORD-ID,                                          00570099
+                      :ORD-PROD-ID,                                     00580099
+                      :ORD-QUANT,                                       00590099
+                      :ORD-STATUS-ID,                                   00600099
+                      :ORD-STATUS-TEMP,                                 00610099
+                      :ORD-TYPE                                         00620099
+            END-EXEC.                                                   00630099
+            DISPLAY 'SQL 2100-FETCH-PARA' SQLCODE.                      00631099
+            EVALUATE SQLCODE                                            00640099
+               WHEN 0                                                   00650099
+                  DISPLAY '0 SQLCODE'                                   00651099
+                  IF PREV-ORD-ID = ZEROES OR ORD-ID = PREV-ORD-ID       00660099
+                     CONTINUE                                           00670099
+                  ELSE                                                  00680099
+                     PERFORM 2300-UPDATE-STATUS-PARA                    00690099
+                  END-IF                                                00700099
+                  PERFORM 2200-FETCH-PRODUCT-PARA                       00710099
+                  MOVE ORD-ID TO PREV-ORD-ID                            00720099
+               WHEN 100                                                 00730099
+                  DISPLAY '100 SQLCODE'                                 00731099
+                  MOVE 'Y' TO END-RECORDS                               00740099
+                  IF PREV-ORD-ID = ZEROES                               00741099
+                     CONTINUE                                           00742099
+                  ELSE                                                  00743099
+                     PERFORM 2300-UPDATE-STATUS-PARA                    00744099
+                  END-IF                                                00745099
+            END-EVALUATE.                                               00750099
+      *                                                                 00760099
+       2200-FETCH-PRODUCT-PARA.                                         00770099
+            EXEC SQL                                                    00780099
+                SELECT PROD_ID, PROD_UNIT_STOCK                         00790099
+                INTO   :PROD-ID, :PROD-UNIT-STOCK                       00800099
+                FROM   ADMT.T_PR_PRODUCT                                00810099
+                WHERE  PROD_ID = :ORD-PROD-ID                           00820099
+            END-EXEC.                                                   00830099
+            EVALUATE SQLCODE                                            00840099
+                WHEN 0                                                  00850099
+                    PERFORM 2250-CALCULATE-PARA                         00860099
+                WHEN OTHER                                              00870099
+                    MOVE 'ERROR IN SELECT' TO LS-MSG                    00880099
+                    EXEC CICS RETURN END-EXEC                           00890099
+            END-EVALUATE.                                               00900099
+      *                                                                 00910099
+       2250-CALCULATE-PARA.                                             00920099
+            MOVE PROD-UNIT-STOCK TO WS-UNIT-STOCK.                      00930099
+            MOVE ORD-QUANT       TO WS-QUANTITY.                        00940099
+            COMPUTE WS-UNIT-STOCK = WS-UNIT-STOCK - WS-QUANTITY.        00950099
+            MOVE ORD-STATUS-TEMP TO WS-STATUS-TEMP.                     00951099
+            MOVE ORD-TYPE        TO WS-ORD-TYPE.                        00952099
+            IF WS-UNIT-STOCK < 0                                        00960099
+               MOVE 'H' TO ORD-STATUS-TEMP                              00961099
+               EXEC SQL                                                 00970099
+                   UPDATE ADMT.T_OR_ORDER1                              00980099
+                      SET ORD_STATUS_TEMP = :ORD-STATUS-TEMP            00990099
+                    WHERE ORD_ITEM_ID = :ORD-ITEM-ID                    01000099
+               END-EXEC                                                 01010099
+               EVALUATE SQLCODE                                         01020099
+                  WHEN 0                                                01030099
+                     CONTINUE                                           01040099
+                  WHEN OTHER                                            01050099
+                     MOVE 'ERROR IN UPDATE' TO LS-MSG                   01060099
+                     EXEC CICS RETURN END-EXEC                          01070099
+               END-EVALUATE                                             01080099
+            ELSE                                                        01090099
+               MOVE 'D' TO ORD-STATUS-TEMP                              01091099
+               MOVE 'P' TO ORD-TYPE                                     01092099
+               EXEC SQL                                                 01100099
+                   UPDATE ADMT.T_OR_ORDER1                              01110099
+                      SET ORD_STATUS_TEMP = :ORD-STATUS-TEMP,           01120099
+                          ORD_TYPE        = :ORD-TYPE                   01130099
+                    WHERE ORD_ITEM_ID = :ORD-ITEM-ID                    01140099
+               END-EXEC                                                 01150099
+               EVALUATE SQLCODE                                         01160099
+                  WHEN 0                                                01170099
+                     MOVE WS-UNIT-STOCK TO PROD-UNIT-STOCK              01171099
+                     EXEC SQL                                           01172099
+                         UPDATE ADMT.T_PR_PRODUCT                       01173099
+                            SET PROD_UNIT_STOCK = :PROD-UNIT-STOCK      01174099
+                          WHERE PROD_ID = :PROD-ID                      01175099
+                     END-EXEC                                           01176099
+                     EVALUATE SQLCODE                                   01177099
+                        WHEN 0                                          01178099
+                           CONTINUE                                     01179099
+                        WHEN OTHER                                      01179199
+                           MOVE 'ERROR IN UPDATE' TO LS-MSG             01179299
+                           EXEC CICS RETURN END-EXEC                    01179399
+                     END-EVALUATE                                       01179499
+                  WHEN OTHER                                            01190099
+                     MOVE 'ERROR IN UPDATE' TO LS-MSG                   01200099
+                     EXEC CICS RETURN END-EXEC                          01210099
+               END-EVALUATE                                             01220099
+            END-IF.                                                     01360099
+            MOVE WS-STATUS-TEMP TO ORD-STATUS-TEMP.                     01361099
+            MOVE WS-ORD-TYPE    TO ORD-TYPE.                            01362099
+      *                                                                 01370099
+       2300-UPDATE-STATUS-PARA.                                         01380099
+           MOVE ORD-ITEM-ID     TO TEMP-ORD-ITEM-ID.                    01381099
+           MOVE ORD-ID          TO TEMP-ORD-ID.                         01382099
+           MOVE ORD-PROD-ID     TO TEMP-ORD-PROD-ID.                    01383099
+           MOVE ORD-QUANT       TO TEMP-ORD-QUANT.                      01384099
+           MOVE ORD-STATUS-ID   TO TEMP-ORD-STATUS-ID.                  01385099
+           MOVE ORD-STATUS-TEMP TO TEMP-ORD-STATUS-TEMP.                01386099
+           MOVE ORD-TYPE        TO TEMP-ORD-TYPE.                       01387099
+      *                                                                 01388099
+           MOVE PREV-ORD-ID TO WS-ORD-ID.                               01390099
+           MOVE WS-ORD-ID   TO ORD-ID.                                  01391099
+           MOVE 'H'         TO ORD-STATUS-TEMP.                         01391199
+      *                                                                 01392099
+           EXEC SQL                                                     01400099
+               SELECT ORD_STATUS_TEMP,ORD_STATUS_ID                     01410099
+                 INTO :ORD-STATUS-TEMP, :ORD-STATUS-ID                  01420099
+                 FROM ADMT.T_OR_ORDER1                                  01430099
+                WHERE ORD_ID = :ORD-ID AND                              01440099
+                ORD_STATUS_TEMP = :ORD-STATUS-TEMP                      01441099
+           END-EXEC.                                                    01450099
+      *                                                                 01451099
+           EVALUATE SQLCODE                                             01460099
+               WHEN 0                                                   01470099
+                  MOVE 'H' TO ORD-STATUS-ID                             01470199
+                  EXEC SQL OPEN D11 END-EXEC                            01471099
+                  PERFORM 2350-PROCESS-PARA UNTIL END-ORD-RECORDS = 'Y' 01480099
+                  EXEC SQL CLOSE D11 END-EXEC                           01481099
+               WHEN -811                                                01481199
+                  MOVE 'H' TO ORD-STATUS-ID                             01481299
+                  EXEC SQL OPEN D11 END-EXEC                            01481399
+                  PERFORM 2350-PROCESS-PARA UNTIL END-ORD-RECORDS = 'Y' 01481499
+                  EXEC SQL CLOSE D11 END-EXEC                           01481599
+               WHEN 100                                                 01482099
+                  MOVE 'D' TO ORD-STATUS-ID                             01483099
+                  EXEC SQL OPEN D11 END-EXEC                            01484099
+                  PERFORM 2350-PROCESS-PARA UNTIL END-ORD-RECORDS = 'Y' 01485099
+                  EXEC SQL CLOSE D11 END-EXEC                           01486099
+           END-EVALUATE.                                                01487099
+      *                                                                 01490099
+           MOVE TEMP-ORD-ITEM-ID     TO ORD-ITEM-ID                     01491099
+           MOVE TEMP-ORD-ID          TO ORD-ID                          01492099
+           MOVE TEMP-ORD-PROD-ID     TO ORD-PROD-ID                     01493099
+           MOVE TEMP-ORD-QUANT       TO ORD-QUANT                       01494099
+           MOVE TEMP-ORD-STATUS-ID   TO ORD-STATUS-ID                   01495099
+           MOVE TEMP-ORD-STATUS-TEMP TO ORD-STATUS-TEMP                 01496099
+           MOVE TEMP-ORD-TYPE        TO ORD-TYPE.                       01497099
+      *                                                                 01500099
+       2350-PROCESS-PARA.                                               01501099
+           EXEC SQL                                                     01502099
+               FETCH NEXT                                               01503099
+                FROM D11                                                01504099
+                INTO :ORD-ITEM-ID                                       01505099
+           END-EXEC.                                                    01506099
+           EVALUATE SQLCODE                                             01507099
+              WHEN 0                                                    01508099
+                EXEC SQL                                                01508199
+                   UPDATE ADMT.T_OR_ORDER1                              01508299
+                      SET ORD_STATUS_ID = :ORD-STATUS-ID                01508399
+                    WHERE ORD_ITEM_ID = :ORD-ITEM-ID                    01508499
+                END-EXEC                                                01508599
+                EVALUATE SQLCODE                                        01508699
+                   WHEN 0                                               01508799
+                     CONTINUE                                           01508899
+                   WHEN OTHER                                           01508999
+                     MOVE 'ERROR IN UPDATION' TO LS-MSG                 01509099
+                     EXEC CICS RETURN END-EXEC                          01509199
+                END-EVALUATE                                            01509299
+              WHEN 100                                                  01509499
+                 MOVE 'Y' TO END-ORD-RECORDS                            01509599
+           END-EVALUATE.                                                01509699
+      *                                                                 01511099

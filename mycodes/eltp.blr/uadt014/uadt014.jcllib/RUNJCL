@@ -1,0 +1,12 @@
+//UADT014R JOB NOTIFY=&SYSUID,REGION=0M                                 00010001
+//*                                                                     00020000
+//STEP1    EXEC PGM=TEST9                                               00030028
+//STEPLIB  DD DSN=UADT014.BASE.LOADLIB,DISP=SHR                         00040001
+//*SAMIN   DD DSN=ELTP.BLR.OMA,DISP=SHR                                 00050028
+//*SAMIN1  DD DSN=ELTP.BLR.OMA.AIX.PATH,DISP=SHR                        00051028
+//*2       DD DSN='UADT014.XML.OUTPUT1',DISP=SHR                        00060021
+//*3       DD DSN='UADT014.XML.OUTPUT2',DISP=SHR                        00061021
+//SYSPRINT DD SYSOUT=*                                                  00070000
+//SYSTSPRT DD SYSOUT=*                                                  00080000
+//SYSUDUMP DD SYSOUT=*                                                  00090000
+//SYSOUT   DD SYSOUT=*                                                  00100000

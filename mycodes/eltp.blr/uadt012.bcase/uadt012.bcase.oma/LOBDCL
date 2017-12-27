@@ -1,0 +1,22 @@
+      ******************************************************************
+      * DCLGEN TABLE(ADMT.PROD_PICTURES)                               *
+      *        LIBRARY(UADT012.BCASE.OMA(LOBDCL))                      *
+      *        LANGUAGE(COBOL)                                         *
+      *        QUOTE                                                   *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE ADMT.PROD_PICTURES TABLE
+           ( PRODUCT_ID                     DECIMAL(10, 0) NOT NULL,
+             ROW_ID                          ROWID NOT NULL,
+             UPLOAD_ATTACH                  BLOB(102400)
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ADMT.PROD_PICTURES                 *
+      ******************************************************************
+       01  DCLPROD-PICTURES.
+           10 PRODUCT-ID           PIC S9(10)V USAGE COMP-3.
+           10 ROW-ID               USAGE SQL TYPE IS ROWID.
+           10 UPLOAD-ATTACH        USAGE SQL TYPE IS BLOB-LOCATOR.
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 3       *
+      ******************************************************************

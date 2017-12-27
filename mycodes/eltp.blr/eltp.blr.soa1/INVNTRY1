@@ -1,0 +1,695 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. INVNTRY.                                             00020000
+000400 AUTHOR. SOA TEAM.                                                00040000
+000410 DATE-WRITTEN. 26/09/08.                                          00041000
+000420 DATE-COMPILED. 26/09/08.                                         00042000
+000717******************************************************************00071700
+000718 DATA DIVISION.                                                   00071800
+000719 WORKING-STORAGE SECTION.                                         00071900
+000726      EXEC SQL INCLUDE PROD   END-EXEC.                           00072600
+000728      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00072800
+000729 COPY VALIDDT.                                                    00072900
+001007*                                                                 00100700
+001009 01 CHOICE1 PIC S9(4) COMP VALUE 1.                               00100900
+001010 01 RE      PIC S9(4) COMP.                                       00101000
+001011*                                                                 00101100
+001013 01 WS-SLASH1   PIC X(1) VALUE '/'.                               00101300
+001014 01 WS-SLASH2   PIC X(1) VALUE '/'.                               00101400
+001015*                                                                 00101500
+001016 01 WS-QUOT     PIC 9(4)     VALUE 0.                             00101600
+001017 01 WS-REM      PIC 9(4)     VALUE 0.                             00101700
+001018*                                                                 00101800
+001019 01 WS-ORDID    PIC 9(10) VALUE 0.                                00101900
+001020 01 WS-EMPID    PIC 9(10) VALUE 0.                                00102000
+001021 01 WS-FLAG     PIC X(1)  VALUE 'N'.                              00102100
+001022*                                                                 00102200
+001023 01 ORDERQ.                                                       00102300
+001024    05 Q-ORD-ID    PIC 9(10).                                     00102400
+001025    05 Q-CUST-ID   PIC 9(10).                                     00102500
+001026    05 Q-EMP-ID    PIC 9(10).                                     00102600
+001027    05 Q-PROD-ID   PIC 9(10).                                     00102700
+001028    05 Q-UNIT-PRC  PIC 9(10).                                     00102800
+001029    05 Q-QUANTITY  PIC 9(05).                                     00102900
+001030    05 Q-ORD-DATE  PIC X(10).                                     00103000
+001031    05 Q-REQ-DATE  PIC X(10).                                     00103100
+001032    05 Q-SHP-DATE  PIC X(10).                                     00103200
+001033    05 Q-CARR-COST PIC 9(10)V99.                                  00103300
+001034    05 Q-TOT-COST  PIC 9(16)V99.                                  00103400
+001035    05 Q-TOKEN     PIC X(01).                                     00103500
+001036*                                                                 00103600
+001037 01 ORDR-REC.                                                     00103700
+001038    05 ORD-ID    PIC 9(10).                                       00103800
+001039    05 CUST-ID   PIC 9(10).                                       00103900
+001040    05 EMP-ID    PIC 9(10).                                       00104000
+001041    05 PROD-ID   PIC 9(10).                                       00104100
+001042    05 UNIT-PRC  PIC 9(10)V99.                                    00104200
+001043    05 QUANTITY  PIC 9(05).                                       00104300
+001044    05 ORD-DATE  PIC X(10).                                       00104400
+001045    05 REQ-DATE  PIC X(10).                                       00104500
+001046    05 SHP-DATE  PIC X(10).                                       00104600
+001047    05 CARR-COST PIC 9(10)V99.                                    00104700
+001048    05 TOT-COST  PIC 9(16)V99.                                    00104800
+001049    05 TOKEN     PIC X(1).                                        00104900
+001050*                                                                 00105000
+001051 01 WS-QUANT   PIC S9(5) COMP VALUE 0.                            00105100
+001052*                                                                 00105200
+001053 01 WS-COMMAREA  PIC X(9).                                        00105300
+001054*                                                                 00105400
+001056 LINKAGE SECTION.                                                 00105600
+001057 01 DFHCOMMAREA.                                                  00105700
+001058      COPY ORDRCPY.                                               00105800
+001149******************************************************************00114900
+001150 PROCEDURE DIVISION USING DFHCOMMAREA.                            00115000
+001151******************************************************************00115100
+001152 COPY VALDATE.                                                    00115200
+001157 1000-MAINLINE-PARA.                                              00115700
+001159     IF EIBCALEN = 0                                              00115900
+001160         MOVE SPACES TO LS-CONFIRM, LS-ORD-DATE, LS-REQ-DATE,     00116000
+001161                        LS-SHP-DATE, LS-TOKEN, LS-OPT             00116100
+001163         MOVE 0      TO LS-ORD-ID, LS-CUST-ID, LS-EMP-ID,         00116300
+001164                        LS-PROD-ID,LS-UNIT-PRC, LS-QUANTITY,      00116400
+001166                        LS-CARR-COST, LS-TOT-COST                 00116600
+001167         MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG                 00116700
+001168         EXEC CICS RETURN                                         00116800
+001169         END-EXEC                                                 00116900
+001170     ELSE                                                         00117000
+001171         PERFORM 2000-PROCESSING-PARA                             00117100
+001172*                                                                 00117200
+001180         EXEC CICS RETURN                                         00118000
+001301         END-EXEC                                                 00130100
+001302     END-IF.                                                      00130200
+001303******************************************************************00130300
+001340 2000-PROCESSING-PARA.                                            00134000
+001345      EVALUATE TRUE                                               00134500
+001346         WHEN LS-OPT = 'STOC'                                     00134600
+001347             PERFORM 3000-STOCK-CHECK-PARA THRU 3000-EXIT         00134700
+001348             EXEC CICS RETURN END-EXEC                            00134800
+001350         WHEN LS-OPT = 'CONF'                                     00135000
+001351             EVALUATE TRUE                                        00135100
+001352                WHEN LS-CONFIRM = 'Y'                             00135200
+001353                     EXEC CICS READQ TS                           00135300
+001354                          QUEUE('Q-NAME')                         00135400
+001355                          INTO(STOCKQ)                            00135500
+001356                          ITEM(CHOICE1)                           00135600
+001357                     END-EXEC                                     00135700
+001358                     MOVE Q-ORD-ID     TO LS-ORD-ID               00135800
+001359                     MOVE Q-CUST-ID    TO LS-CUST-ID              00135900
+001360                     MOVE Q-EMP-ID     TO LS-EMP-ID               00136000
+001361                     MOVE Q-PROD-ID    TO LS-PROD-ID              00136100
+001362                     MOVE Q-UNIT-PRC   TO LS-UNIT-PRC             00136200
+001363                     MOVE Q-QUANTITY   TO LS-QUANTITY             00136300
+001364                     MOVE Q-ORD-DATE   TO LS-ORD-DATE             00136400
+001365                     MOVE Q-REQ-DATE   TO LS-REQ-DATE             00136500
+001366                     MOVE Q-SHP-DATE   TO LS-SHP-DATE             00136600
+001367                     MOVE Q-CARR-COST  TO LS-CARR-COST            00136700
+001368                     MOVE Q-TOT-COST   TO LS-TOT-COST             00136800
+001369                     MOVE Q-TOKEN      TO LS-TOKEN                00136900
+001370*                                                                 00137000
+001371                     MOVE SPACES TO LS-CONFIRM                    00137100
+001372                     MOVE 'YOUR ORDER IS UNDER PROCESS' TO LS-MSG 00137200
+001373                     PERFORM 7000-MOVE-TO-FILE-REC-PARA THRU      00137300
+001374                             7000-EXIT                            00137400
+001375                     PERFORM 8000-WRITE-FILE-PARA THRU 8000-EXIT  00137500
+001376                     EXEC CICS RETURN END-EXEC                    00137600
+001377                 WHEN LS-CONFIRM = 'N'                            00137700
+001378                     MOVE SPACES TO LS-CONFIRM                    00137800
+001396                     MOVE 'THANK YOU FOR USING THE SYSTEM'        00139600
+001397                          TO LS-MSG                               00139700
+001398                     EXEC CICS RETURN END-EXEC                    00139800
+001399                 WHEN OTHER                                       00139900
+001400                     MOVE SPACES TO LS-CONFIRM                    00140000
+001401*                    MOVE 0      TO LS-PROD-ID                    00140100
+001402*                    MOVE SPACES TO LS-ORD-DATE                   00140200
+001403*                    MOVE SPACES TO LS-REQ-DATE                   00140300
+001404*                    MOVE 0      TO LS-QUANTITY                   00140400
+001405*                    MOVE SPACES TO LS-TOKEN                      00140500
+001406                     MOVE 'INVALID OPTION - ENTER Y/N' TO LS-MSG  00140600
+001407                     EXEC CICS RETURN END-EXEC                    00140700
+001408             END-EVALUATE                                         00140800
+001410*                                                                 00141000
+001414         WHEN OTHER                                               00141400
+001416                MOVE SPACES TO LS-OPT, LS-CONFIRM, LS-ORD-DATE,   00141600
+001417                               LS-REQ-DATE, LS-SHP-DATE, LS-TOKEN 00141700
+001419                MOVE 0      TO LS-ORD-ID, LS-CUST-ID, LS-EMP-ID,  00141900
+001420                               LS-PROD-ID,LS-UNIT-PRC,            00142000
+001421                               LS-QUANTITY, LS-CARR-COST,         00142100
+001425                               LS-TOT-COST                        00142500
+001426                EXEC CICS RETURN END-EXEC                         00142600
+001427      END-EVALUATE.                                               00142700
+001428*                                                                 00142800
+001429 2000-EXIT.                                                       00142900
+001430     EXIT.                                                        00143000
+001431******************************************************************00143100
+001432 3000-STOCK-CHECK-PARA.                                           00143200
+001433     PERFORM 4000-FETCH-ORD-ID-PARA THRU 4000-EXIT.               00143300
+001434     PERFORM 4000-VALIDATION-PARA THRU 4000-EXIT.                 00143400
+001435     IF EMP-ID > 1                                                00143500
+001437        PERFORM 4000-FETCH-EMP-ID-PARA THRU 4000-EXIT             00143700
+001438     ELSE                                                         00143800
+001439        MOVE EMP-ID TO LS-EMP-ID                                  00143900
+001440     END-IF.                                                      00144000
+001441     PERFORM 4000-FETCH-UNIT-PRC-PARA THRU 4000-EXIT.             00144100
+001442     PERFORM 5000-VALIDATE-DATE-PARA THRU 5000-EXIT.              00144200
+001443     MOVE LS-PROD-ID TO PROD-ID.                                  00144300
+001444*                                                                 00144400
+001445     IF LS-ORD-DATE = LS-REQ-DATE                                 00144500
+001446        EXEC SQL                                                  00144600
+001447            SELECT PROD_UNIT_STOCK                                00144700
+001448            INTO :PROD-UNIT-STOCK                                 00144800
+001449            FROM ADMT.T_PR_PRODUCT                                00144900
+001450            WHERE PROD_ID = :PROD-ID                              00145000
+001451        END-EXEC                                                  00145100
+001452*                                                                 00145200
+001453        DISPLAY 'SQLCODE', SQLCODE                                00145300
+001454        DISPLAY 'PROD-UNIT-STOCK', PROD-UNIT-STOCK                00145400
+001455        DISPLAY 'LS-QUANTITY', LS-QUANTITY                        00145500
+001456        EVALUATE SQLCODE                                          00145600
+001457            WHEN 0                                                00145700
+001458                SUBTRACT LS-QUANTITY FROM PROD-UNIT-STOCK         00145800
+001459                         GIVING WS-QUANT                          00145900
+001460                DISPLAY 'WS-QUANT', WS-QUANT                      00146000
+001461                IF WS-QUANT < 0                                   00146100
+001462                   MOVE 'D' TO LS-TOKEN                           00146200
+001463                   MOVE 'INSUFFICIENT STOCK - ORDER WILL BE DELAYE00146300
+001464-                       'D. DO YOU WANT TO PROCESS?' TO LS-MSG    00146400
+001465                   PERFORM 6000-WRITEQ-PARA THRU 6000-EXIT        00146500
+001466                ELSE                                              00146600
+001467                   MOVE 'I' TO LS-TOKEN                           00146700
+001468                   MOVE 'STOCK SUFFICIENT - ORDER WILL BE PROCESSE00146800
+001469-                       'D IMMEDIATELY. DO YOU WANT TO PROCEED?'  00146900
+001470                         TO LS-MSG                                00147000
+001471                   PERFORM 6000-WRITEQ-PARA THRU 6000-EXIT        00147100
+001472                END-IF                                            00147200
+001473            WHEN OTHER                                            00147300
+001474                   MOVE 'STOC' TO LS-OPT                          00147400
+001475                   MOVE SPACES TO LS-CONFIRM                      00147500
+001476                   MOVE 0      TO LS-PROD-ID                      00147600
+001477                   MOVE SPACES TO LS-ORD-DATE                     00147700
+001478                   MOVE SPACES TO LS-REQ-DATE                     00147800
+001479                   MOVE 0      TO LS-QUANTITY                     00147900
+001480                   MOVE SPACES TO LS-TOKEN                        00148000
+001481                   MOVE 'PRODUCT ID DOES NOT EXISTS' TO LS-MSG    00148100
+001482                   EXEC CICS RETURN                               00148200
+001483                   END-EXEC                                       00148300
+001484        END-EVALUATE                                              00148400
+001485     ELSE                                                         00148500
+001486        MOVE 'D' TO LS-TOKEN                                      00148600
+001487        MOVE 'ORDER WILL BE PROCESSED ON THE REQUIRED DATE. DO YOU00148700
+001488-            ' WANT TO PROCESS?' TO LS-MSG                        00148800
+001489        PERFORM 6000-WRITEQ-PARA THRU 6000-EXIT                   00148900
+001490*                                                                 00149000
+001491     END-IF.                                                      00149100
+001492*                                                                 00149200
+001493 3000-EXIT.                                                       00149300
+001494     EXIT.                                                        00149400
+001495***************************************************************** 00149500
+001496 4000-FETCH-ORD-ID-PARA.                                          00149600
+001497*                                                                 00149700
+001500     EXEC SQL                                                     00150000
+001600         SELECT ORD_ID, EMP_ID                                    00160000
+001700         INTO :ORD-ID,:EMP-ID                                     00170000
+001710         FROM ADMT.T_OR_ORDER                                     00171000
+001720         ORDER BY ORD_ID DESC FETCH FIRST 1 ROWS ONLY             00172000
+001730     END-EXEC.                                                    00173000
+001740*                                                                 00174000
+001750     MOVE ORD-ID TO WS-ORDID.                                     00175000
+001760     COMPUTE LS-ORD-ID = WS-ORDID + 1.                            00176000
+001770*                                                                 00177000
+001780 4000-EXIT.                                                       00178000
+001790     EXIT.                                                        00179000
+001791******************************************************************00179100
+001800 4000-VALIDATION-PARA.                                            00180000
+001810     IF LS-CUST-ID = 0                                            00181000
+001811        MOVE 'STOC' TO LS-OPT                                     00181100
+001812        MOVE SPACES TO LS-CONFIRM                                 00181200
+001813        MOVE 0      TO LS-CUST-ID                                 00181300
+001814        MOVE SPACES TO LS-TOKEN                                   00181400
+001820        MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   00182000
+001830        EXEC CICS RETURN                                          00183000
+001840        END-EXEC                                                  00184000
+001850*                                                                 00185000
+001860     ELSE IF LS-CUST-ID IS NOT NUMERIC                            00186000
+001861        MOVE 'STOC' TO LS-OPT                                     00186100
+001862        MOVE SPACES TO LS-CONFIRM                                 00186200
+001863        MOVE 0      TO LS-CUST-ID                                 00186300
+001864        MOVE SPACES TO LS-TOKEN                                   00186400
+001870        MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'       00187000
+001880             TO LS-MSG                                            00188000
+001890        EXEC CICS RETURN                                          00189000
+001891        END-EXEC                                                  00189100
+001892          END-IF                                                  00189200
+001893     END-IF.                                                      00189300
+001894*                                                                 00189400
+001900     IF LS-PROD-ID = 0                                            00190000
+001910        MOVE 'STOC' TO LS-OPT                                     00191000
+001920        MOVE SPACES TO LS-CONFIRM                                 00192000
+001930        MOVE 0      TO LS-PROD-ID                                 00193000
+001970        MOVE SPACES TO LS-TOKEN                                   00197000
+002000        MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG    00200000
+002100        EXEC CICS RETURN                                          00210000
+002200        END-EXEC                                                  00220000
+002300                                                                  00230000
+002400     ELSE IF LS-PROD-ID IS NOT NUMERIC                            00240000
+002410        MOVE 'STOC' TO LS-OPT                                     00241000
+002420        MOVE SPACES TO LS-CONFIRM                                 00242000
+002430        MOVE 0      TO LS-PROD-ID                                 00243000
+002470        MOVE SPACES TO LS-TOKEN                                   00247000
+002500        MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'        00250000
+002600               TO LS-MSG                                          00260000
+002700        EXEC CICS RETURN                                          00270000
+002800        END-EXEC                                                  00280000
+002900          END-IF                                                  00290000
+003000     END-IF.                                                      00300000
+003100*                                                                 00310000
+003110     IF LS-QUANTITY = 0                                           00311000
+003120          MOVE 'STOC' TO LS-OPT                                   00312000
+003130          MOVE SPACES TO LS-CONFIRM                               00313000
+003140          MOVE 0      TO LS-QUANTITY                              00314000
+003150          MOVE SPACES TO LS-TOKEN                                 00315000
+003160          MOVE 'QUANTITY NOT ENTERED - PLZ ENTER IT' TO LS-MSG    00316000
+003170          EXEC CICS RETURN                                        00317000
+003180          END-EXEC                                                00318000
+003190     ELSE IF LS-QUANTITY IS NOT NUMERIC                           00319000
+003191          MOVE 'STOC' TO LS-OPT                                   00319100
+003192          MOVE SPACES TO LS-CONFIRM                               00319200
+003193          MOVE 0      TO LS-QUANTITY                              00319300
+003194          MOVE SPACES TO LS-TOKEN                                 00319400
+003195          MOVE 'QUANTITY SHOULD BE NUMERIC - PLZ ENTER IT'        00319500
+003196               TO LS-MSG                                          00319600
+003197          EXEC CICS RETURN                                        00319700
+003198          END-EXEC                                                00319800
+003199          END-IF                                                  00319900
+003200*                                                                 00320000
+003201     END-IF.                                                      00320100
+003202*                                                                 00320200
+003203     IF LS-REQ-DATE = SPACES                                      00320300
+003204          MOVE 'STOC' TO LS-OPT                                   00320400
+003205          MOVE SPACES TO LS-CONFIRM                               00320500
+003206          MOVE SPACES TO LS-REQ-DATE                              00320600
+003207          MOVE SPACES TO LS-TOKEN                                 00320700
+003208          MOVE 'REQUIRED DATE NOT ENTERED - PLZ ENTER IT'         00320800
+003209                      TO LS-MSG                                   00320900
+003210          EXEC CICS RETURN                                        00321000
+003211          END-EXEC                                                00321100
+003212     ELSE                                                         00321200
+003213          MOVE LS-REQ-DATE  TO INPUTDATELA                        00321300
+003214          MOVE LS-REQ-DATE(1:2) TO MONTHLA                        00321400
+003215          MOVE LS-REQ-DATE(3:1) TO WS-SLASH1                      00321500
+003216          MOVE LS-REQ-DATE(4:2) TO DAYLA                          00321600
+003217          MOVE LS-REQ-DATE(6:1) TO WS-SLASH2                      00321700
+003218          MOVE LS-REQ-DATE(7:4) TO YEARLA                         00321800
+003219*                                                                 00321900
+003220          PERFORM 9400-BEGIN-PARA THRU 9400-EXIT                  00322000
+003221*                                                                 00322100
+003222          EVALUATE TRUE                                           00322200
+003223            WHEN DATENOTNUMERIC                                   00322300
+003224              MOVE 'STOC' TO LS-OPT                               00322400
+003225              MOVE SPACES TO LS-CONFIRM                           00322500
+003226              MOVE SPACES TO LS-REQ-DATE                          00322600
+003227              MOVE SPACES TO LS-TOKEN                             00322700
+003228              MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT IN MM00322800
+003229-                  '/DD/YYYY FORMAT' TO LS-MSG                    00322900
+003230              EXEC CICS RETURN                                    00323000
+003231              END-EXEC                                            00323100
+003232            WHEN MONTHCONTAINSZEROS                               00323200
+003233              MOVE 'STOC' TO LS-OPT                               00323300
+003234              MOVE SPACES TO LS-CONFIRM                           00323400
+003235              MOVE SPACES TO LS-REQ-DATE                          00323500
+003236              MOVE SPACES TO LS-TOKEN                             00323600
+003237              MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00323700
+003238                   TO LS-MSG                                      00323800
+003239              EXEC CICS RETURN                                    00323900
+003240              END-EXEC                                            00324000
+003241            WHEN MONTHGREATERTHAN12                               00324100
+003242              MOVE 'STOC' TO LS-OPT                               00324200
+003243              MOVE SPACES TO LS-CONFIRM                           00324300
+003244              MOVE SPACES TO LS-REQ-DATE                          00324400
+003245              MOVE SPACES TO LS-TOKEN                             00324500
+003246              MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00324600
+003247                      TO LS-MSG                                   00324700
+003248              EXEC CICS RETURN                                    00324800
+003249              END-EXEC                                            00324900
+003250            WHEN DAYCONTAINSZEROS                                 00325000
+003251              MOVE 'STOC' TO LS-OPT                               00325100
+003252              MOVE SPACES TO LS-CONFIRM                           00325200
+003253              MOVE SPACES TO LS-REQ-DATE                          00325300
+003254              MOVE SPACES TO LS-TOKEN                             00325400
+003255              MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    00325500
+003256                   TO LS-MSG                                      00325600
+003257              EXEC CICS RETURN                                    00325700
+003258              END-EXEC                                            00325800
+003259            WHEN DAYTOOGREATFORMONTH                              00325900
+003260              MOVE 'STOC' TO LS-OPT                               00326000
+003261              MOVE SPACES TO LS-CONFIRM                           00326100
+003262              MOVE SPACES TO LS-REQ-DATE                          00326200
+003263              MOVE SPACES TO LS-TOKEN                             00326300
+003264              MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENT00326400
+003265-                  'ER CORRECT FORMAT' TO LS-MSG                  00326500
+003266              EXEC CICS RETURN                                    00326600
+003267              END-EXEC                                            00326700
+003268            WHEN YEARCONTAINSZEROS                                00326800
+003269              MOVE 'STOC' TO LS-OPT                               00326900
+003270              MOVE SPACES TO LS-CONFIRM                           00327000
+003271              MOVE SPACES TO LS-REQ-DATE                          00327100
+003272              MOVE SPACES TO LS-TOKEN                             00327200
+003273              MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'    00327300
+003274                   TO LS-MSG                                      00327400
+003275              EXEC CICS RETURN                                    00327500
+003276              END-EXEC                                            00327600
+003277          END-EVALUATE                                            00327700
+003278*                                                                 00327800
+003279          IF LS-REQ-DATE(1:2)IS NOT NUMERIC                       00327900
+003280              MOVE 'STOC' TO LS-OPT                               00328000
+003281              MOVE SPACES TO LS-CONFIRM                           00328100
+003282              MOVE SPACES TO LS-REQ-DATE                          00328200
+003283              MOVE SPACES TO LS-TOKEN                             00328300
+003284              MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00328400
+003285                  TO LS-MSG                                       00328500
+003286              EXEC CICS RETURN                                    00328600
+003287              END-EXEC                                            00328700
+003288          END-IF                                                  00328800
+003289*                                                                 00328900
+003290          IF LS-REQ-DATE(4:2)IS NOT NUMERIC                       00329000
+003291              MOVE 'STOC' TO LS-OPT                               00329100
+003292              MOVE SPACES TO LS-CONFIRM                           00329200
+003293              MOVE SPACES TO LS-REQ-DATE                          00329300
+003294              MOVE SPACES TO LS-TOKEN                             00329400
+003295              MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    00329500
+003296                  TO LS-MSG                                       00329600
+003297              EXEC CICS RETURN                                    00329700
+003298              END-EXEC                                            00329800
+003299          END-IF                                                  00329900
+003300*                                                                 00330000
+003301          IF LS-REQ-DATE(7:4)IS NOT NUMERIC                       00330100
+003302              MOVE 'STOC' TO LS-OPT                               00330200
+003303              MOVE SPACES TO LS-CONFIRM                           00330300
+003304              MOVE SPACES TO LS-REQ-DATE                          00330400
+003305              MOVE SPACES TO LS-TOKEN                             00330500
+003306              MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'    00330600
+003307                  TO LS-MSG                                       00330700
+003308              EXEC CICS RETURN                                    00330800
+003309              END-EXEC                                            00330900
+003310          ELSE                                                    00331000
+003311             DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM   00331100
+003312*                                                                 00331200
+003313             IF MONTHLA = 02 AND WS-SLASH1 = '/' AND DAYLA = 29   00331300
+003314                AND WS-SLASH2 = '/' AND WS-REM NOT = 0            00331400
+003315              MOVE 'STOC' TO LS-OPT                               00331500
+003316              MOVE SPACES TO LS-CONFIRM                           00331600
+003317              MOVE SPACES TO LS-REQ-DATE                          00331700
+003318              MOVE SPACES TO LS-TOKEN                             00331800
+003319              MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENT00331900
+003320-                    'ER CORRECT FORMAT' TO LS-MSG                00332000
+003321              EXEC CICS RETURN                                    00332100
+003322              END-EXEC                                            00332200
+003323             END-IF                                               00332300
+003324*                                                                 00332400
+003325          END-IF                                                  00332500
+003326*                                                                 00332600
+003327          EVALUATE TRUE                                           00332700
+003328              WHEN WS-SLASH1 NOT = '/'                            00332800
+003329              MOVE 'STOC' TO LS-OPT                               00332900
+003330              MOVE SPACES TO LS-CONFIRM                           00333000
+003331              MOVE SPACES TO LS-REQ-DATE                          00333100
+003332              MOVE SPACES TO LS-TOKEN                             00333200
+003333              MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A SEP00333300
+003334-                    'ERATOR'  TO LS-MSG                          00333400
+003335              EXEC CICS RETURN                                    00333500
+003336              END-EXEC                                            00333600
+003337              WHEN WS-SLASH2 NOT = '/'                            00333700
+003338              MOVE 'STOC' TO LS-OPT                               00333800
+003339              MOVE SPACES TO LS-CONFIRM                           00333900
+003340              MOVE SPACES TO LS-REQ-DATE                          00334000
+003341              MOVE SPACES TO LS-TOKEN                             00334100
+003342              MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A SEP00334200
+003343-                    'ERATOR'  TO LS-MSG                          00334300
+003344              EXEC CICS RETURN                                    00334400
+003345              END-EXEC                                            00334500
+003346          END-EVALUATE                                            00334600
+003347*                                                                 00334700
+003348     END-IF.                                                      00334800
+003349*                                                                 00334900
+003350     IF LS-SHP-DATE = SPACES                                      00335000
+003351          MOVE 'STOC' TO LS-OPT                                   00335100
+003352          MOVE SPACES TO LS-CONFIRM                               00335200
+003353          MOVE SPACES TO LS-SHP-DATE                              00335300
+003354          MOVE SPACES TO LS-TOKEN                                 00335400
+003360          MOVE 'SHIPMENT DATE NOT ENTERED - PLZ ENTER IT'         00336000
+003370               TO LS-MSG                                          00337000
+003400          EXEC CICS RETURN                                        00340000
+003500          END-EXEC                                                00350000
+003600     ELSE                                                         00360000
+003700          MOVE LS-SHP-DATE  TO INPUTDATELA                        00370000
+003800          MOVE LS-SHP-DATE(1:2) TO MONTHLA                        00380000
+003900          MOVE LS-SHP-DATE(3:1) TO WS-SLASH1                      00390000
+004000          MOVE LS-SHP-DATE(4:2) TO DAYLA                          00400000
+004100          MOVE LS-SHP-DATE(6:1) TO WS-SLASH2                      00410000
+004200          MOVE LS-SHP-DATE(7:4) TO YEARLA                         00420000
+004300*                                                                 00430000
+004400          PERFORM 9400-BEGIN-PARA THRU 9400-EXIT                  00440000
+004500*                                                                 00450000
+004600          EVALUATE TRUE                                           00460000
+004700            WHEN DATENOTNUMERIC                                   00470000
+004710              MOVE 'STOC' TO LS-OPT                               00471000
+004720              MOVE SPACES TO LS-CONFIRM                           00472000
+004740              MOVE SPACES TO LS-SHP-DATE                          00474000
+004770              MOVE SPACES TO LS-TOKEN                             00477000
+004800              MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT IN MM00480000
+004900-                  '/DD/YYYY FORMAT' TO LS-MSG                    00490000
+005000              EXEC CICS RETURN                                    00500000
+005100              END-EXEC                                            00510000
+005200            WHEN MONTHCONTAINSZEROS                               00520000
+005210              MOVE 'STOC' TO LS-OPT                               00521000
+005220              MOVE SPACES TO LS-CONFIRM                           00522000
+005240              MOVE SPACES TO LS-SHP-DATE                          00524000
+005270              MOVE SPACES TO LS-TOKEN                             00527000
+005300              MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00530000
+005400                   TO LS-MSG                                      00540000
+005500              EXEC CICS RETURN                                    00550000
+005600              END-EXEC                                            00560000
+005700            WHEN MONTHGREATERTHAN12                               00570000
+005710              MOVE 'STOC' TO LS-OPT                               00571000
+005720              MOVE SPACES TO LS-CONFIRM                           00572000
+005740              MOVE SPACES TO LS-SHP-DATE                          00574000
+005770              MOVE SPACES TO LS-TOKEN                             00577000
+005800              MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00580000
+005900                      TO LS-MSG                                   00590000
+006000              EXEC CICS RETURN                                    00600000
+006100              END-EXEC                                            00610000
+006200            WHEN DAYCONTAINSZEROS                                 00620000
+006210              MOVE 'STOC' TO LS-OPT                               00621000
+006220              MOVE SPACES TO LS-CONFIRM                           00622000
+006240              MOVE SPACES TO LS-SHP-DATE                          00624000
+006270              MOVE SPACES TO LS-TOKEN                             00627000
+006300              MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    00630000
+006400                   TO LS-MSG                                      00640000
+006500              EXEC CICS RETURN                                    00650000
+006600              END-EXEC                                            00660000
+006700            WHEN DAYTOOGREATFORMONTH                              00670000
+006710              MOVE 'STOC' TO LS-OPT                               00671000
+006720              MOVE SPACES TO LS-CONFIRM                           00672000
+006740              MOVE SPACES TO LS-SHP-DATE                          00674000
+006770              MOVE SPACES TO LS-TOKEN                             00677000
+006800              MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENT00680000
+006900-                  'ER CORRECT FORMAT' TO LS-MSG                  00690000
+007000              EXEC CICS RETURN                                    00700000
+007100              END-EXEC                                            00710000
+007200            WHEN YEARCONTAINSZEROS                                00720000
+007210              MOVE 'STOC' TO LS-OPT                               00721000
+007220              MOVE SPACES TO LS-CONFIRM                           00722000
+007240              MOVE SPACES TO LS-SHP-DATE                          00724000
+007270              MOVE SPACES TO LS-TOKEN                             00727000
+007300              MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'    00730000
+007400                   TO LS-MSG                                      00740000
+007500              EXEC CICS RETURN                                    00750000
+007600              END-EXEC                                            00760000
+007700          END-EVALUATE                                            00770000
+007800*                                                                 00780000
+007900          IF LS-SHP-DATE(1:2)IS NOT NUMERIC                       00790000
+007910              MOVE 'STOC' TO LS-OPT                               00791000
+007920              MOVE SPACES TO LS-CONFIRM                           00792000
+007940              MOVE SPACES TO LS-SHP-DATE                          00794000
+007970              MOVE SPACES TO LS-TOKEN                             00797000
+008000              MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00800000
+008100                  TO LS-MSG                                       00810000
+008200              EXEC CICS RETURN                                    00820000
+008300              END-EXEC                                            00830000
+008400          END-IF                                                  00840000
+008500*                                                                 00850000
+008600          IF LS-SHP-DATE(4:2)IS NOT NUMERIC                       00860000
+008610              MOVE 'STOC' TO LS-OPT                               00861000
+008620              MOVE SPACES TO LS-CONFIRM                           00862000
+008640              MOVE SPACES TO LS-SHP-DATE                          00864000
+008670              MOVE SPACES TO LS-TOKEN                             00867000
+008700              MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    00870000
+008800                  TO LS-MSG                                       00880000
+008900              EXEC CICS RETURN                                    00890000
+009000              END-EXEC                                            00900000
+009100          END-IF                                                  00910000
+009200*                                                                 00920000
+009300          IF LS-SHP-DATE(7:4)IS NOT NUMERIC                       00930000
+009310              MOVE 'STOC' TO LS-OPT                               00931000
+009320              MOVE SPACES TO LS-CONFIRM                           00932000
+009340              MOVE SPACES TO LS-SHP-DATE                          00934000
+009370              MOVE SPACES TO LS-TOKEN                             00937000
+009400              MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'    00940000
+009500                  TO LS-MSG                                       00950000
+009600              EXEC CICS RETURN                                    00960000
+009700              END-EXEC                                            00970000
+009800          ELSE                                                    00980000
+009900             DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM   00990000
+010000*                                                                 01000000
+010100             IF MONTHLA = 02 AND WS-SLASH1 = '/' AND DAYLA = 29   01010000
+010200                AND WS-SLASH2 = '/' AND WS-REM NOT = 0            01020000
+010210              MOVE 'STOC' TO LS-OPT                               01021000
+010220              MOVE SPACES TO LS-CONFIRM                           01022000
+010240              MOVE SPACES TO LS-SHP-DATE                          01024000
+010270              MOVE SPACES TO LS-TOKEN                             01027000
+010300              MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENT01030000
+010400-                    'ER CORRECT FORMAT' TO LS-MSG                01040000
+010500              EXEC CICS RETURN                                    01050000
+010600              END-EXEC                                            01060000
+010700             END-IF                                               01070000
+010800*                                                                 01080000
+010900          END-IF                                                  01090000
+011000*                                                                 01100000
+011100          EVALUATE TRUE                                           01110000
+011200              WHEN WS-SLASH1 NOT = '/'                            01120000
+011210              MOVE 'STOC' TO LS-OPT                               01121000
+011220              MOVE SPACES TO LS-CONFIRM                           01122000
+011240              MOVE SPACES TO LS-SHP-DATE                          01124000
+011270              MOVE SPACES TO LS-TOKEN                             01127000
+011300              MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A SEP01130000
+011400-                    'ERATOR'  TO LS-MSG                          01140000
+011500              EXEC CICS RETURN                                    01150000
+011600              END-EXEC                                            01160000
+011700              WHEN WS-SLASH2 NOT = '/'                            01170000
+011710              MOVE 'STOC' TO LS-OPT                               01171000
+011720              MOVE SPACES TO LS-CONFIRM                           01172000
+011740              MOVE SPACES TO LS-SHP-DATE                          01174000
+011770              MOVE SPACES TO LS-TOKEN                             01177000
+011800              MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A SEP01180000
+011900-                    'ERATOR'  TO LS-MSG                          01190000
+012000              EXEC CICS RETURN                                    01200000
+012100              END-EXEC                                            01210000
+012200          END-EVALUATE                                            01220000
+012300*                                                                 01230000
+012400     END-IF.                                                      01240000
+012500*                                                                 01250000
+031000*                                                                 03100000
+032400 4000-EXIT.                                                       03240000
+032500     EXIT.                                                        03250000
+032600******************************************************************03260000
+032601 4000-FETCH-EMP-ID-PARA.                                          03260100
+032602     PERFORM XXXX-READQ-PARA THRU XXXX-EXIT.                      03260200
+032605     MOVE Q-EMP-ID TO EMP-ID.                                     03260500
+032609*                                                                 03260900
+032610     EXEC SQL                                                     03261000
+032611         SELECT EMP_ID                                            03261100
+032612         INTO :EMP-ID                                             03261200
+032613         FROM ADMT.T_EM_EMPLOYEE                                  03261300
+032614         WHERE EMP_ID >: EMP-ID                                   03261400
+032615         ORDER BY EMP_ID ASC FETCH FIRST 1 ROWS ONLY              03261500
+032616     END-EXEC.                                                    03261600
+032617*                                                                 03261700
+032618     EVALUATE SQLCODE                                             03261800
+032619        WHEN 0                                                    03261900
+032620           MOVE EMP-ID TO LS-EMP-ID                               03262000
+032621           MOVE LS-EMP-ID TO Q-EMP-ID                             03262100
+032622        WHEN +100                                                 03262200
+032623           MOVE 100       TO LS-EMP-ID                            03262300
+032624           MOVE LS-EMP-ID TO Q-EMP-ID                             03262400
+032625        WHEN OTHER                                                03262500
+032626           EXEC CICS RETURN END-EXEC                              03262600
+032627     END-EVALUATE.                                                03262700
+032628*                                                                 03262800
+032629 4000-EXIT.                                                       03262900
+032630     EXIT.                                                        03263000
+032631******************************************************************03263100
+032632 4000-FETCH-UNIT-PRC-PARA.                                        03263200
+032633     MOVE LS-PROD-ID TO PROD-ID.                                  03263300
+032634*                                                                 03263400
+032635     EXEC SQL                                                     03263500
+032636         SELECT PROD_UNIT_PRICE                                   03263600
+032637         INTO :PROD-UNIT-PRICE                                    03263700
+032638         FROM ADMT.T_PR_PRODUCT                                   03263800
+032639         WHERE PROD_ID =: PROD-ID                                 03263900
+032640     END-EXEC.                                                    03264000
+032641*                                                                 03264100
+032642     MOVE PROD-UNIT-PRICE TO LS-UNIT-PRC.                         03264200
+032643*                                                                 03264300
+032644 4000-EXIT.                                                       03264400
+032645     EXIT.                                                        03264500
+032646******************************************************************03264600
+032647 5000-VALIDATE-DATE-PARA.                                         03264700
+032648 6000-WRITEQ-PARA.                                                03264800
+032649        MOVE LS-ORD-ID    TO Q-ORD-ID.                            03264900
+032650        MOVE LS-CUST-ID   TO Q-CUST-ID.                           03265000
+032651        MOVE LS-EMP-ID    TO Q-EMP-ID.                            03265100
+032652        MOVE LS-PROD-ID   TO Q-PROD-ID.                           03265200
+032653        MOVE LS-UNIT-PRC  TO Q-UNIT-PRC.                          03265300
+032654        MOVE LS-QUANTITY  TO Q-QUANTITY.                          03265400
+032655        MOVE LS-ORD-DATE  TO Q-ORD-DATE.                          03265500
+032656        MOVE LS-REQ-DATE  TO Q-REQ-DATE.                          03265600
+032657        MOVE LS-SHP-DATE  TO Q-SHP-DATE.                          03265700
+032658        MOVE LS-CARR-COST TO Q-CARR-COST.                         03265800
+032659        MOVE LS-TOT-COST  TO Q-TOT-COST.                          03265900
+032660        MOVE LS-TOKEN     TO Q-TOKEN.                             03266000
+032661*                                                                 03266100
+032662      EXEC CICS WRITEQ TS                                         03266200
+032663               QUEUE('Q-NAME')                                    03266300
+032664               FROM(ORDERQ)                                       03266400
+032665               ITEM(CHOICE1)                                      03266500
+032666               REWRITE                                            03266600
+032667               MAIN                                               03266700
+032668               RESP(RE)                                           03266800
+032669      END-EXEC.                                                   03266900
+032670      IF RE = DFHRESP(NORMAL) CONTINUE                            03267000
+032671      ELSE                                                        03267100
+032672      EXEC CICS WRITEQ TS                                         03267200
+032673               QUEUE('Q-NAME')                                    03267300
+032674               FROM(ORDERQ)                                       03267400
+032675               ITEM(CHOICE1)                                      03267500
+032676*              REWRITE                                            03267600
+032677               MAIN                                               03267700
+032678               ORDE(RE)                                           03267800
+032679      END-EXEC                                                    03267900
+032680      END-IF.                                                     03268000
+032681*                                                                 03268100
+032682 6000-EXIT.                                                       03268200
+032683     EXIT.                                                        03268300
+032684******************************************************************03268400
+032690 7000-MOVE-TO-FILE-REC-PARA.                                      03269000
+032700     MOVE LS-ORD-ID    TO ORD-ID.                                 03270000
+032800     MOVE LS-CUST-ID   TO CUST-ID.                                03280000
+032900     MOVE LS-EMP-ID    TO EMP-ID.                                 03290000
+033000     MOVE LS-PROD-ID   TO PROD-ID.                                03300000
+033100     MOVE LS-UNIT-PRC  TO UNIT-PRC.                               03310000
+033200     MOVE LS-QUANTITY  TO QUANTITY.                               03320000
+033300     MOVE LS-ORD-DATE  TO ORD-DATE.                               03330000
+033400     MOVE LS-REQ-DATE  TO REQ-DATE.                               03340000
+033500     MOVE LS-SHP-DATE  TO SHP-DATE.                               03350000
+033600     MOVE LS-CARR-COST TO CARR-COST.                              03360000
+033700     MOVE LS-TOT-COST  TO TOT-COST.                               03370000
+033800     MOVE LS-TOKEN     TO TOKEN.                                  03380000
+033900*                                                                 03390000
+034000 7000-EXIT.                                                       03400000
+034100     EXIT.                                                        03410000
+034200******************************************************************03420000
+034300 8000-FILE-WRITE-PARA.                                            03430000
+034400     EXEC CICS                                                    03440000
+034500            WRITE FILE ('OMTRANS')                                03450000
+034600            FROM (ORDR-REC)                                       03460000
+034700            RIDFLD(ORD-ID)                                        03470000
+034800            RBA                                                   03480000
+034900            RESP(RE1)                                             03490000
+035000      END-EXEC.                                                   03500000
+035100      DISPLAY 'RESPPGM1 ' RE1 ',' EIBRESP.                        03510000
+035200      IF RE1 NOT = DFHRESP(NORMAL)                                03520000
+035300            EXEC CICS                                             03530000
+035400               RETURN                                             03540000
+035500            END-EXEC                                              03550000
+035600      END-IF.                                                     03560000
+035700*                                                                 03570000
+035800 8000-EXIT.                                                       03580000
+035900     EXIT.                                                        03590000

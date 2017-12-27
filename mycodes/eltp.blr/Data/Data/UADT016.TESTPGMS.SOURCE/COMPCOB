@@ -1,0 +1,13 @@
+//UADT016I JOB NOTIFY=&SYSUID,REGION=0M                                 00010055
+/*JOBPARM  LINES=999999                                                 00010118
+//*  COBOL                                                              00020001
+//*                                                                     00040000
+//PROCLIB JCLLIB ORDER='UADT016.TESTPGM.SOURCE'                         00050035
+//*                                                                     00060000
+//STEP1 EXEC PROC=COB2COB,                                              00070025
+//           INLIB='UADT016.TESTPGM.SOURCE',     <= INPUT PGM PATH      00080035
+//           LOADLIB='UADT016.BASE.LOADLIB',          <= CICS LOAD LIB  00110013
+//           MEM=VSAMTEST                   <= NAME OF IP & DBRM        00120070
+//LKED.SYSIN DD *                                                       00130024
+     NAME VSAMTEST(R)                           <= NAME OF LOAD MODULE  00150070
+//                                                                      00160020

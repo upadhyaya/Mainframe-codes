@@ -1,0 +1,14 @@
+//UADT016L JOB NOTIFY=&SYSUID,REGION=0M                                 00010000
+/*JOBPARM  LINES=999999                                                 00011000
+//*                                                                     00020000
+//STEP1    EXEC PGM=VSAMTEST                                            00030001
+//STEPLIB  DD DSN=UADT016.BASE.LOADLIB,DISP=SHR                         00040000
+//VSAMIN   DD DSN=ELTP.BLR.SAMP.BASE,DISP=SHR                           00050001
+//SORTOUT  DD DSN='UADT016.VSAM.OUT1',DISP=SHR                          00060002
+//*3       DD DSN='UADT014.XML.OUTPUT2',DISP=SHR                        00061000
+//SYSPRINT DD SYSOUT=*                                                  00070000
+//SYSTSPRT DD SYSOUT=*                                                  00080000
+//SYSUDUMP DD SYSOUT=*                                                  00090000
+//SYSOUT   DD SYSOUT=*                                                  00100000
+//                                                                      00110000
+//*           BUFNO=09                                                  00110100

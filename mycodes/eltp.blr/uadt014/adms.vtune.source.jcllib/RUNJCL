@@ -1,0 +1,13 @@
+//UADT014A JOB NOTIFY=&SYSUID,REGION=4M,CLASS=C,TIME=NOLIMIT            00010042
+//*                                                                     00020000
+//JOBLIB   DD DSN=ADMS.VTUNE.SOURCE.LOADLIB,DISP=SHR                    00030042
+//*                                                                     00040000
+//STEP01 EXEC PGM=XTRCT110                                              00050045
+//SMFDATA  DD DISP=SHR,DSN=SATYAM.ZOSA.SYSMAN1.G0691V00                 00060044
+//SYSPRINT DD SYSOUT=*                                                  00070000
+//SYSOUT   DD SYSOUT=*                                                  00071000
+//*SMFOUT  DD DSN=UADT016.SMF64.EXTRPT4,DISP=SHR                        00120033
+//SMFOUT  DD DSN=UADT014.SATYAM.ZOSA.SYSMAN1.EXTRACT2,                  00121045
+//         DISP=(,CATLG,DELETE),                                        00130042
+//         RECFM=F,UNIT=(SYSDA,3),                                      00140042
+//         SPACE=(CYL,(10,100),RLSE)                                    00150042

@@ -1,0 +1,39 @@
+      *                                                                 00012723
+       01 SMF30-DESCRIPTION.                                            00013023
+            10  WS-DESC-SMF30STD        PIC X(10) VALUE 'DATE    '.     00020014
+            10  FILLER           PIC X(1) VALUE ' '.                    00030008
+            10  WS-DESC-SMF30SIT        PIC X(11) VALUE 'START TIME'.   00030116
+            10  FILLER           PIC X(1) VALUE ' '.                    00030209
+            10  WS-DESC-SMF30JBN        PIC X(08) VALUE 'JOB NAME'.     00030316
+            10  FILLER           PIC X(1) VALUE ' '.                    00030409
+            10  WS-DESC-SMF30JNM        PIC X(08) VALUE 'JOB ID  '.     00031016
+            10  FILLER           PIC X(1) VALUE ' '.                    00032008
+            10  WS-DESC-SMF30ELPTME     PIC X(12) VALUE 'ELAPSED TIME'. 00033008
+            10  FILLER           PIC X(1) VALUE ' '.                    00034008
+            10  WS-DESC-SMF30CPUTME     PIC X(11) VALUE 'CPU TIME'.     00035016
+            10  FILLER           PIC X(1) VALUE ' '.                    00036008
+            10  WS-DESC-SMF30TEP        PIC X(10) VALUE 'TOTAL I/O'.    00037008
+            10  FILLER           PIC X(1) VALUE ' '.                    00038008
+            10  WS-DESC-SMF30RGN        PIC X(10) VALUE 'REGION'.       00039008
+            10  FILLER           PIC X(1) VALUE ' '.                    00039108
+            10  WS-DESC-SMF30SCC      PIC X(10) VALUE 'COMPLETION'.     00039219
+            10  FILLER           PIC X(1) VALUE ' '.                    00039316
+       01 SMF30-UNIT-DESCRIPTION.                                       00039416
+            10  WS-UNIT-SMF30STD        PIC X(10) VALUE 'DD/MM/YYYY'.   00039516
+            10  FILLER           PIC X(1) VALUE ' '.                    00039616
+            10  WS-UNIT-SMF30SIT        PIC X(11) VALUE 'HH:MM:SS.SS'.  00039716
+            10  FILLER           PIC X(1) VALUE ' '.                    00039816
+            10  WS-UNIT-SMF30JBN        PIC X(08) VALUE SPACES.         00039916
+            10  FILLER           PIC X(1) VALUE ' '.                    00040016
+            10  WS-UNIT-SMF30JNM        PIC X(08) VALUE SPACES.         00040116
+            10  FILLER           PIC X(1) VALUE ' '.                    00040216
+            10  WS-UNIT-SMF30ELPTME     PIC X(12) VALUE 'HH:MM:SS.SS'.  00040316
+            10  FILLER           PIC X(1) VALUE ' '.                    00040416
+            10  WS-UNIT-SMF30CPUTME     PIC X(11) VALUE 'HH:MM:SS.SS'.  00040516
+            10  FILLER           PIC X(1) VALUE ' '.                    00040616
+            10  WS-UNIT-SMF30TEP        PIC X(10) VALUE ' (BLOCKS) '.   00040720
+            10  FILLER           PIC X(1) VALUE ' '.                    00040816
+            10  WS-UNIT-SMF30RGN        PIC X(10) VALUE '(K)'.          00040916
+            10  FILLER           PIC X(1) VALUE ' '.                    00041016
+            10  WS-UNIT-SMF30SCC        PIC X(07) VALUE '   CODE'.      00041119
+            10  FILLER           PIC X(1) VALUE ' '.                    00041216

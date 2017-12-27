@@ -1,0 +1,32 @@
+      ******************************************************************
+      * DCLGEN TABLE(ADMT.T_CUST_CART)                                 *
+      *        LIBRARY(UADT012.BCASE.OMA(CUSTCART))                    *
+      *        LANGUAGE(COBOL)                                         *
+      *        QUOTE                                                   *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE ADMT.T_CUST_CART TABLE
+           ( CART_CART_ID                   DECIMAL(10, 0) NOT NULL,
+             CART_CUST_ID                   DECIMAL(10, 0) NOT NULL,
+             CART_PROD_ID                   DECIMAL(10, 0) NOT NULL,
+             CART_UNIT_PR                   CHAR(12) NOT NULL,
+             CART_QNTY                      DECIMAL(5, 0) NOT NULL,
+             CART_ORD_DATE                  CHAR(10) NOT NULL,
+             CART_CARR_COST                 CHAR(12) NOT NULL,
+             CART_STATUS                    CHAR(1) NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ADMT.T_CUST_CART                   *
+      ******************************************************************
+       01  DCLT-CUST-CART.
+           10 CART-CART-ID         PIC S9(10)V USAGE COMP-3.
+           10 CART-CUST-ID         PIC S9(10)V USAGE COMP-3.
+           10 CART-PROD-ID         PIC S9(10)V USAGE COMP-3.
+           10 CART-UNIT-PR         PIC X(12).
+           10 CART-QNTY            PIC S9(5)V USAGE COMP-3.
+           10 CART-ORD-DATE        PIC X(10).
+           10 CART-CARR-COST       PIC X(12).
+           10 CART-STATUS          PIC X(1).
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 8       *
+      ******************************************************************

@@ -1,0 +1,6 @@
+SET CURRENT SQLID='SATYAM3';                                            00001001
+DROP TABLE T_EM_EMPLOYEE;                                               00010001
+DROP TABLE T_PR_PRODUCT;                                                00020001
+DROP TABLE T_SU_SUPPLIER;                                               00030001
+DROP TABLE T_OR_ORDER;                                                  00040001
+DROP TABLE T_OL_ORDER_LN_ITEM;                                          00050001

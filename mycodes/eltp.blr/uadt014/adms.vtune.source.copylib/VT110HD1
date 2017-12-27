@@ -1,0 +1,228 @@
+       01 SMF110-REPORT-HEADER.                                         00010001
+      *                                                                 00011045
+          05 MAIN-HEADER-LINE1.                                         00012045
+             10 FILLER            PIC X(14) VALUE 'SYSTEM ID    :'.     00013045
+             10 WS-SYSTEMID-RPT   PIC X(4).                             00014045
+             10 FILLER            PIC X(42) VALUE SPACES.               00015045
+             10 WS-REPORT-HEADER  PIC X(30).                            00016046
+             10 FILLER            PIC X(45) VALUE SPACES.               00017045
+             10 FILLER            PIC X(5) VALUE 'DATE:'.               00018045
+             10 WS-DATE.                                                00019045
+                15 WS-DAY   PIC 9(2).                                   00019145
+                15 FILLER   PIC X(1) VALUE '/'.                         00019245
+                15 WS-MONTH PIC 9(2).                                   00019345
+                15 FILLER   PIC X(1) VALUE '/'.                         00019445
+                15 WS-YEAR  PIC 9(4).                                   00019545
+      *                                                                 00019645
+          05 MAIN-HEADER-LINE2.                                         00019745
+             10 FILLER            PIC X(14) VALUE 'SUB-SYSTEM ID:'.     00019845
+             10 WS-SUBSYSID-RPT   PIC X(4).                             00019945
+             10 FILLER            PIC X(01) VALUE '('.                  00020147
+             10 WS-APPLID-RPT     PIC X(08).                            00020247
+             10 FILLER            PIC X(01) VALUE ')'.                  00020347
+             10 FILLER            PIC X(32) VALUE SPACES.               00020448
+             10 FILLER            PIC X(30) VALUE ALL ' '.              00020547
+             10 FILLER            PIC X(45) VALUE SPACES.               00020647
+             10 FILLER            PIC X(5) VALUE 'TIME:'.               00020747
+             10 WS-TIME.                                                00020847
+                15 WS-HOUR  PIC 9(2).                                   00020947
+                15 FILLER   PIC X(1) VALUE ':'.                         00021047
+                15 WS-MIN   PIC 9(2).                                   00021147
+                15 FILLER   PIC X(1) VALUE ':'.                         00021247
+                15 WS-SEC   PIC 9(2).                                   00021347
+      *                                                                 00022045
+          05 PATTERN1.                                                  00060001
+             10 FILLER  PIC X(150) VALUE ALL '-'.                       00070043
+          05 PATTERN2.                                                  00080001
+             10 FILLER  PIC X(150) VALUE ALL '*'.                       00090043
+          05 HEADER2.                                                   00100001
+             10 FILLER  PIC X(05) VALUE 'Tran='.                        00110033
+             10 WS-TRAN PIC X(04).                                      00120001
+             10 FILLER  PIC X(141) VALUE ALL ' '.                       00121043
+          05 HEADER3.                                                   00130001
+             10 FILLER  PIC X(02) VALUE ALL ' '.                        00140001
+             10 FILLER  PIC X(12) VALUE 'Summary Data'.                 00150033
+             10 FILLER  PIC X(50) VALUE ALL ' '.                        00160044
+             10 FILLER  PIC X(34) VALUE                                 00170014
+                                  '-------------  Time  -------------'. 00170133
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        00171001
+             10 FILLER  PIC X(22) VALUE '------- Count --------'.       00172033
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        00173025
+             10 FILLER  PIC X(20) VALUE '------ Ratio  ------'.         00174033
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        00175001
+          05 HEADER4.                                                   00176001
+             10 FILLER  PIC X(64) VALUE ALL ' '.                        00177044
+             10 FILLER  PIC X(34) VALUE                                 00179112
+                                  '        Total         Average     '. 00179233
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        00179301
+             10 FILLER  PIC X(22) VALUE                                 00179412
+                                  '    Total     Average '.             00179533
+             10 FILLER  PIC X(27) VALUE ALL ' '.                        00179638
+          05 HEADER5.                                                   00179901
+             10 FILLER  PIC X(06) VALUE ALL ' '.                        00180001
+             10 FILLER  PIC X(06) VALUE '#Tasks'.                       00180133
+             10 FILLER  PIC X(89) VALUE ALL ' '.                        00180244
+             10 WS-TRAN-RPT PIC ZZZZZZ99.                               00180306
+             10 FILLER  PIC X(36) VALUE ALL ' '.                        00180414
+          05 RESPONSE-TIME-DETAILS.                                     00181138
+             10 FILLER  PIC X(06) VALUE ALL ' '.                        00182038
+             10 FILLER  PIC X(13) VALUE 'Response Time'.                00190033
+             10 FILLER  PIC X(45) VALUE ALL ' '.                        00200043
+             10 WS-TOT-RSP PIC ZZZZZZZ9.999999.                         00210027
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        00211028
+             10 WS-AVG-RSP PIC ZZZZZZZ9.999999.                         00220027
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        00230001
+          05 DB2-TIME-DETAILS.                                          00521029
+             10 FILLER  PIC X(11) VALUE ALL ' '.                        00522029
+             10 FILLER  PIC X(13) VALUE 'DB2 Time'.                     00523033
+             10 FILLER  PIC X(40) VALUE ALL ' '.                        00524043
+             10 WS-TOT-DB2T PIC ZZZZZZZ9.999999.                        00525029
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        00526029
+             10 WS-AVG-DB2T PIC ZZZZZZZ9.999999.                        00527029
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        00528029
+             10 WS-TOT-CNTDB2 PIC ZZZZZZ99.                             00529029
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        00529129
+             10 WS-AVG-CNTDB2 PIC ZZZZZ9.99.                            00529229
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        00529329
+             10 WS-RATIO-DB2T PIC ZZ9.99.                               00529429
+             10 FILLER  PIC X(13) VALUE '% of CPU Time'.                00529533
+          05 OWAIT-TIME-DETAILS.                                        01091033
+             10 FILLER  PIC X(06) VALUE ALL ' '.                        01092033
+             10 FILLER  PIC X(55) VALUE                                 01093042
+                'N/A      Other wait time'.                             01094034
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01095033
+             10 WS-TOT-OWT   PIC ZZZZZZZ9.999999.                       01096033
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01097033
+             10 WS-AVG-OWT   PIC ZZZZZZZ9.999999.                       01098033
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01099033
+             10 WS-TOT-CNTOWT PIC ZZZZZZ99.                             01099133
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01099233
+             10 WS-AVG-CNTOWT PIC ZZZZZ9.99.                            01099333
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01099433
+             10 WS-RATIO-OWT PIC ZZ9.99.                                01099533
+             10 FILLER  PIC X(13) VALUE '% of Suspend'.                 01099633
+          05 ALL-TIME-DETAILS OCCURS 06 TIMES INDEXED BY BWT.           01100036
+             10 FILLER  PIC X(06) VALUE ALL ' '.                        01110031
+             10 WS-ALL-RPTLINE  PIC X(55).                              01120042
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01140031
+             10 WS-TOT-RPTTME PIC ZZZZZZZ9.999999.                      01150035
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01160031
+             10 WS-AVG-RPTTME PIC ZZZZZZZ9.999999.                      01170035
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01180031
+             10 WS-TOT-CNTRPT PIC ZZZZZZ99.                             01190035
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01200031
+             10 WS-AVG-CNTRPT PIC ZZZZZ9.99.                            01210035
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01220031
+             10 WS-RATIO-TME PIC ZZ9.99.                                01230035
+             10 WS-RATIO-SX  PIC X(13).                                 01240035
+          05 OTHER-WAIT-TIME-DETAILS OCCURS 42 TIMES INDEXED BY KWT.    01241035
+             10 FILLER  PIC X(06) VALUE ALL ' '.                        01242035
+             10 WS-RPTLINE  PIC X(55).                                  01243042
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01244035
+             10 WS-TOT-RPTWT PIC ZZZZZZZ9.999999.                       01245035
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01246035
+             10 WS-AVG-RPTWT PIC ZZZZZZZ9.999999.                       01247035
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01248035
+             10 WS-TOT-RPTCNT PIC ZZZZZZ99.                             01249035
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01249135
+             10 WS-AVG-RPTCNT PIC ZZZZZ9.99.                            01249235
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01249335
+             10 WS-RATIO-RPTWT PIC ZZ9.99.                              01249435
+             10 FILLER  PIC X(13) VALUE '% of Suspend'.                 01249535
+          05 HEADER6.                                                   01250031
+             10 FILLER  PIC X(02) VALUE ALL ' '.                        01260031
+             10 FILLER  PIC X(14) VALUE 'Suspend Detail'.               01270033
+             10 FILLER  PIC X(48) VALUE ALL ' '.                        01280044
+             10 FILLER  PIC X(34) VALUE                                 01290031
+                                  '------- Suspend Time ----------'.    01300033
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01310031
+             10 FILLER  PIC X(22) VALUE '------- Count --------'.       01320033
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01330031
+             10 FILLER  PIC X(20) VALUE '------ Ratio  ------'.         01340033
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01350031
+          05 FINAL-HEADER2.                                             01355038
+             10 FILLER  PIC X(64) VALUE ALL ' '.                        01356044
+             10 FILLER  PIC X(34) VALUE                                 01359038
+                                  '-------------  Time  -------------'. 01359138
+             10 FILLER  PIC X(29) VALUE ALL ' '.                        01359238
+             10 FILLER  PIC X(20) VALUE '------ Ratio  ------'.         01359538
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01359638
+          05 FINAL-HEADER3.                                             01359738
+             10 FILLER  PIC X(64) VALUE ALL ' '.                        01359844
+             10 FILLER  PIC X(34) VALUE                                 01359938
+                                  '        Total         Average     '. 01360038
+             10 FILLER  PIC X(53) VALUE ALL ' '.                        01360138
+          05 FINAL-HEADER4.                                             01360238
+             10 FILLER  PIC X(06) VALUE ALL ' '.                        01360338
+             10 FILLER  PIC X(06) VALUE '#Tasks'.                       01360438
+             10 FILLER  PIC X(01) VALUE '='.                            01360541
+             10 WS-FINAL-TRAN-RPT PIC ZZZZZZZZZZZZZZ99.                 01360641
+             10 FILLER  PIC X(70) VALUE ALL ' '.                        01360741
+             10 FILLER  PIC X(36) VALUE ALL ' '.                        01360838
+          05 FINAL-HEADER5.                                             01360938
+             10 FILLER  PIC X(02) VALUE ALL ' '.                        01361038
+             10 FILLER  PIC X(14) VALUE 'Suspend Detail'.               01361138
+             10 FILLER  PIC X(48) VALUE ALL ' '.                        01361244
+             10 FILLER  PIC X(34) VALUE                                 01361338
+                                  '------- Suspend Time ----------'.    01361438
+             10 FILLER  PIC X(29) VALUE ALL ' '.                        01361538
+             10 FILLER  PIC X(20) VALUE '------ Ratio  ------'.         01361738
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01361838
+          05 FINAL-RESPONSE-DETAILS.                                    01362038
+             10 FILLER  PIC X(06) VALUE ALL ' '.                        01370037
+             10 FILLER  PIC X(50) VALUE 'Response Time'.                01380044
+             10 FILLER  PIC X(08) VALUE ALL ' '.                        01390043
+             10 WS-FINAL-TOTRESP PIC ZZZZZZZ9.999999.                   01400038
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01410037
+             10 WS-FINAL-AVGRESP PIC ZZZZZZZ9.999999.                   01420038
+             10 FILLER  PIC X(47) VALUE ALL ' '.                        01430038
+          05 FINAL-DB2-TIME-DETAILS.                                    01491039
+             10 FILLER  PIC X(11) VALUE ALL ' '.                        01492039
+             10 FILLER  PIC X(45) VALUE 'DB2 Time'.                     01493044
+             10 FILLER  PIC X(08) VALUE ALL ' '.                        01494043
+             10 WS-FINAL-TOTDB2 PIC ZZZZZZZ9.999999.                    01495039
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01496038
+             10 WS-FINAL-AVGDB2 PIC ZZZZZZZ9.999999.                    01497039
+             10 FILLER  PIC X(28) VALUE ALL ' '.                        01498038
+             10 WS-FINAL-RATDB2 PIC ZZ9.99.                             01499240
+             10 FILLER  PIC X(13) VALUE '% of CPU Time'.                01499339
+          05 FINAL-OTHER-WAIT-DETAILS.                                  01499439
+             10 FILLER  PIC X(06) VALUE ALL ' '.                        01499539
+             10 FILLER  PIC X(55) VALUE 'N/A      Other Wait Time'.     01499642
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01499739
+             10 WS-FINAL-TOTOWAIT PIC ZZZZZZZ9.999999.                  01499839
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01499939
+             10 WS-FINAL-AVGOWAIT PIC ZZZZZZZ9.999999.                  01500039
+             10 FILLER  PIC X(28) VALUE ALL ' '.                        01500139
+             10 WS-FINOWT-RATRPT PIC ZZ9.99.                            01500239
+             10 FILLER  PIC X(13) VALUE '% of Suspend'.                 01500339
+          05 FINAL-TIME-DETAILS1 OCCURS 06 TIMES INDEXED BY DWT.        01500439
+             10 FILLER  PIC X(06) VALUE ALL ' '.                        01500539
+             10 WS-FIN-RPTLINE  PIC X(55).                              01500642
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01500739
+             10 WS-FINAL-TOTRPT PIC ZZZZZZZ9.999999.                    01500839
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01500939
+             10 WS-FINAL-AVGRPT PIC ZZZZZZZ9.999999.                    01501039
+             10 FILLER  PIC X(12) VALUE ALL ' '.                        01501139
+             10 FILLER  PIC X(13) VALUE ALL ' '.                        01501239
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01501339
+             10 WS-FINAL-RATRPT PIC ZZ9.99.                             01501439
+             10 WS-RAT-SX  PIC X(13).                                   01501539
+          05 FINAL-TIME-DETAILS2 OCCURS 42 TIMES INDEXED BY FWT.        01502039
+             10 FILLER  PIC X(06) VALUE ALL ' '.                        01510037
+             10 WS-FINWT-RPTLINE  PIC X(55).                            01520042
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01530037
+             10 WS-FINWT-TOTRPT PIC ZZZZZZZ9.999999.                    01540037
+             10 FILLER  PIC X(04) VALUE ALL ' '.                        01550037
+             10 WS-FINWT-AVGRPT PIC ZZZZZZZ9.999999.                    01560037
+             10 FILLER  PIC X(12) VALUE ALL ' '.                        01570037
+             10 FILLER  PIC X(13) VALUE ALL ' '.                        01580037
+             10 FILLER  PIC X(03) VALUE ALL ' '.                        01590037
+             10 WS-FINWT-RATRPT PIC ZZ9.99.                             01600037
+             10 FILLER     PIC X(13) VALUE '% of Suspend'.              01610037
+      *                                                                 01611049
+       01 NO-REPORT-LINE.                                               01620049
+          05 FILLER PIC X(40) VALUE ALL ' '.                            01630049
+          05 FILLER PIC X(20) VALUE '  NO RECORDS FOUND  '.             01640049
+          05 FILLER PIC X(40) VALUE ALL ' '.                            01650049
+      *                                                                 01660049

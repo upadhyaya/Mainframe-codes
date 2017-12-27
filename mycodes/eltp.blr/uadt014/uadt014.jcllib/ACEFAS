@@ -1,0 +1,366 @@
+--CREATE UNIQUE INDEX UBET381.IND_TMGT_ADMIN ON
+--CREATE UNIQUE INDEX UBET381.IND_RBS_BILPROD ON
+--UBET381.RBS_BILPROD(BILNO,BPROD_SNO)
+--CREATE UNIQUE INDEX UBET403.IND_TRANS_TBL ON UBET403.TRANS_TBL;
+--CREATE UNIQUE INDEX UBET381.IND_HMGT_PATIENT ON
+--UBET381.HMGT_PATIENT(PATIENT_ID);
+--CREATE UNIQUE INDEX UBET381.IND_SMGT_STU ON UBET381.SMGT_STU(STU_ID);
+--CREATE UNIQUE INDEX UBET381.IND_SMGT_MRKFB ON
+--UBET381.SMGT_FBINFO(STU_ID);
+--CREATE UNIQUE INDEX UBET381.IND_SMGT_MRK ON UBET381.SMGT_MRK(STU_ID);
+--UBET381.TMGT_ADMIN(ADMIN_ID);
+--CREATE UNIQUE INDEX ADMT.T_ST_STAT ON
+--ADMT.T_ST_STATUS(STATUS_ORD_ID);
+--CREATE UNIQUE INDEX UBET381.IND_SMGT_STF ON UBET381.SMGT_STF(
+--STF_ID);
+--CREATE UNIQUE INDEX UBET381.IND_TMGT_LOGIN ON
+--UBET381.TMGT_LOGIN(USER_ID);
+--CREATE UNIQUE INDEX UBET381.IND_TMGT_CUST ON
+--UBET381.TMGT_CUST(CUST_ID);
+--CREATE UNIQUE INDEX UBET381.IND_HMGT_LOGIN ON UBET381.HMGT_LOGIN(
+--USER_ID);
+--CREATE UNIQUE INDEX UBET381.IND_RBS_BILPROD ON
+--UBET381.RBS_BILPROD(BILNO);
+--CREATE UNIQUE INDEX UBET381.IND_HMGT_DOC ON UBET381.HMGT_DOC(DOC_ID);
+--CREATE UNIQUE INDEX UBET381.IND_HMGT_MEDCN ON
+--UBET381.HMGT_MEDCN(MEDCN_NAME);
+--CEATE UNIQUE INDEX UBET381.IND_RBS_PROD ON  UBET381.RBS_PROD(PROD_ID);
+--CREATE UNIQUE INDEX UBET381.IND_RBS_BILL ON UBET381.RBS_BILL(BILL_NO);
+--CREATE UNIQUE INDEX UBET381.IND_SMGT_LOGIN ON
+--                 UBET381.SMGT_LOGIN(LOGIN_ID);
+--DROP FOREIGN KEY(PROJETO)
+------------------------------------------------------------------
+--CREATE UNIQUE INDEX ACEBK.IND_CUST_DTL ON ACEBK.CUST_DTL(CUST_ID);    00000125
+--CREATE UNIQUE INDEX ACEBK.IND_TRNS_TBL ON ACEBK.TRNS_TBL(TRANS_ID);   00000125
+--------------------------------------------------------------------
+--CREATE UNIQUE INDEX ACEBK.IND_AUTH_TBL ON ACEBK.AUTH_TBL(LOGIN_ID);   00000125
+--EATE UNIQUE INDEX ACEBK.IND_CUST_DETAIL ON ACEBK.CUST_DETAIL(CUST_ID);00000125
+--CREATE UNIQUE INDEX ACEBK.IND_TRANS_TBL ON ACEBK.TRANS_TBL(TRANS_ID); 00000125
+------------------------------------------------------------------------
+--CREATE UNIQUE INDEX ACEBNK.AUTH_TBL_IX ON ACEBNK.AUTH_TBL(LOGIN_ID);  00000125
+--CREATE UNIQUE INDEX ACEBNK.CUST_DETAIL_IX ON ACEBNK.AUTH_TBL(CUST_ID);00000125
+--CREATE UNIQUE INDEX GBLUN.TRANSACTION_TBL_IX ON
+--GBLUN.TRANSACTION_TBL(TRANSACTION ID);
+------------------------------------------------------------------------
+--ALTER TABLE ACEBNK.CUST_DETAIL
+--FOREIGN KEY(LOGIN_ID) REFERENCES ACEBNK.AUTH_TBL(LOGIN_ID);
+--ALTER TABLE GBLUN.ALOCACAO_LNT ADD
+--FOREIGN KEY(EMP_NUM) REFERENCES GBLUN.EMPREGADO_LNT(EMP_NUM);
+--FOREIGN KEY(PRJ_NUM) REFERENCES GBLUN.PROJETOS_LNT(PRJ_NUM)
+--ALTER TABLE GBLUN.EMPREGADO_LNT
+--FOREIGN KEY(PROJETO) REFERENCES GBLUN.PROJETOS_LNT(PRJ_NUM);
+--ALTER TABLE GBLUN.PROJETOS_LNT
+--FOREIGN KEY(COD_GER) REFERENCES GBLUN.EMPREGADO_LNT(EMP_NUM);
+--ACEFAS.VEND_MAST_TBL(VEND_ID);                                        00000225
+--CREATE UNIQUE INDEX ACEFAS.R_ITEM_CODE ON                             00000328
+--ACEFAS.RAW_INV_TBL(R_ITEM_CODE);                                      00000428
+--CREATE UNIQUE INDEX ACEFAS.F_ITEM_CODE ON                             00000528
+--ACEFAS.FIN_GOODS_INV_TBL(F_ITEM_CODE);                                00000628
+--CREATE UNIQUE INDEX ACEFAS.EMP_ID ON                                  00000528
+--ACEFAS.PAYROLL_TBL(EMP_ID);                                           00000628
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+--CREATE UNIQUE INDEX ADMT.T_PH_PHINFO1 ON
+--ADMT.T_PH_PHINFO(PH_MEMBER_ID);
+--CREATE UNIQUE INDEX ADMT.T_PL_PLINFO1 ON
+--ADMT.T_PL_PLINFO(PL_PLAN_ID);
+--CREATE UNIQUE INDEX ADMT.T_EN_ENROLL1 ON
+--ADMT.T_EN_ENROLL(EN_POLICY_ID);
+--CREATE UNIQUE INDEX ADMT.T_PL_STATUS1 ON
+--ADMT.T_PL_STATUS(ST_POLICY_ID);
+------------------------------------------------------------------------00000825
+------------------------------------------------------------------------00000900
+--CREATE TABLE ADMT.T_PH_PHINFO(                                        00001002
+--PH_MEMBER_ID   DECIMAL(05,0) NOT NULL PRIMARY KEY,                    00001102
+--PH_MEMBER_NAME   CHAR(25) NOT NULL,                                   00001102
+--PH_ADDRESS   CHAR(40) NOT NULL,                                       00001102
+--PH_CITY     CHAR(10) NOT NULL,                                        00001102
+--PH_STATE    CHAR(15) NOT NULL,                                        00001102
+--PH_PIN     DECIMAL(10,0) NOT NULL,                                    00001102
+--PH_COUNTRY   CHAR(15) NOT NULL,                                       00001102
+--PH_DOB   DATE NOT NULL,                                               00001102
+--PH_GENDER  CHAR(1) NOT NULL,                                          00001102
+--PH_MOBILE   CHAR(24) NOT NULL,                                        00001102
+--PH_LANDLINE  CHAR(20),                                                00001202
+--PH_FAX  CHAR(24),                                                     00001202
+--PH_EMAIL  CHAR(25) NOT NULL,                                          00001202
+--PH_PASSWORD  CHAR(08) NOT NULL,                                       00001202
+--IN ADMTDB.ADMTTS1;                                                    00001502
+------------------------------------------------------------------------00001600
+------------------------------------------------------------------------00001700
+--CREATE TABLE ADMT.T_PL_PLINFO(                                        00001002
+--PL_PLAN_ID   DECIMAL(03,0) NOT NULL PRIMARY KEY,                      00001102
+--PL_PLAN_NAME CHAR(15) NOT NULL)                                       00001202
+--IN ADMTDB.ADMTTS1;
+------------------------------------------------------------------------00001600
+------------------------------------------------------------------------00001700
+--CREATE UNIQUE INDEX ADMT.T_PL_PLINFO1 ON
+--ADMT.T_PL_PLINFO(PL_PLAN_ID);
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+--CREATE TABLE ADMT.T_PL_STATUS(                                        00001002
+--ST_POLICY_ID   DECIMAL(10,0) NOT NULL PRIMARY KEY,                    00001102
+--ST_PREM_TOKEN CHAR(02),                                               00001202
+--ST_POLICY_STAT CHAR(01))                                              00001502
+--IN ADMTDB.ADMTTS1;
+------------------------------------------------------------------------00001600
+------------------------------------------------------------------------00001700
+--CREATE TABLE ADMT.T_EN_ENROLL(                                        00001002
+--EN_POLICY_ID   DECIMAL(10,0) NOT NULL PRIMARY KEY,                    00001102
+--EN_MEMBER_ID   DECIMAL(05,0) NOT NULL,                                00001102
+--EN_PLAN_ID   DECIMAL(03,0) NOT NULL,                                  00001102
+--EN_POLICY_TERM  DECIMAL(02,0) NOT NULL,                               00001102
+--EN_COMM_DATE   DATE NOT NULL,                                         00001102
+--EN_MAT_DATE   DATE NOT NULL,                                          00001102
+--EN_PREMIUM   DECIMAL(12,2) NOT NULL,                                  00001102
+--EN_EXP_DATE  DATE NOT NULL,                                           00001102
+--EN_NOM1   CHAR(25) NOT NULL,                                          00001102
+--EN_R_NOM1 CHAR(10) NOT NULL,                                          00001102
+--EN_NOM2   CHAR(25),                                                   00001102
+--EN_R_NOM2 CHAR(10))                                                   00001102
+--IN ADMTDB.ADMTTS1;                                                    00001502
+------------------------------------------------------------------------00001600
+------------------------------------------------------------------------00001700
+--CREATE TABLE ADMT.T_ST_STATUS(                                        00001002
+--STATUS_ORD_ID   DECIMAL(10,0) NOT NULL PRIMARY KEY,                   00001102
+--STATUS_ID    CHAR(1))                                                 00001202
+--IN ADMTDB.ADMTTS1                                                     00001502
+------------------------------------------------------------------------00001600
+------------------------------------------------------------------------00001700
+-- CREATE TABLE ACEFAS.CUST_DETAILS_TBL(                                00001819
+-- CUST_ID       CHAR   (4) NOT NULL PRIMARY KEY,                       00001919
+-- CUST_NAME     CHAR   (10),                                           00002019
+-- CUST_PHONENO  INTEGER,                                               00002119
+-- CUST_ADDRESS  CHAR   (15),                                           00002219
+-- CUST_STATE    CHAR   (10),                                           00002319
+-- CUST_COUNTRY  CHAR   (10))                                           00002419
+-- IN DBENT01.TSENT011                                                  00002719
+------------------------------------------------------------------------00002802
+------------------------------------------------------------------------00002902
+-- CREATE TABLE ACEFAS.SALE_ORD_TBL(                                    00003005
+-- SAL_REQ_ID     CHAR      (4),                                        00003105
+-- SAL_DEPT       CHAR      (4),                                        00003205
+-- SAL_ITEM_CODE  CHAR      (6),                                        00003305
+-- SAL_ITEM_NAME  CHAR      (10),                                       00003405
+-- SAL_ITEM_DESC  CHAR      (10),                                       00003505
+-- SAL_QTY        SMALL INT (4),                                        00003605
+-- DUE_DATE       DATE,                                                 00003705
+-- ORDER_REQ_DATE DATE,                                                 00003805
+-- SAL_STATUS     CHAR      (4))                                        00003905
+-- IN DBENT01.TSENT011                                                  00004205
+------------------------------------------------------------------------00004305
+------------------------------------------------------------------------00004405
+-- CREATE TABLE ACEFAS.AR_MAST_TBL(                                     00004506
+-- AR_CODE          CHAR   (4),                                         00004706
+-- AR_PROCESS_DATE  DATE,                                               00004806
+-- AR_TOT_AMT       DECIMAL(8,2))                                       00004906
+-- IN DBENT01.TSENT011                                                  00005206
+------------------------------------------------------------------------00005305
+------------------------------------------------------------------------00005405
+-- CREATE TABLE ACEFAS.FIN_GOODS_INV_TBL(                               00005507
+-- F_ITEM_CODE     CHAR   (6) NOT NULL PRIMARY KEY,                     00005607
+-- F_ITEM_NAME     CHAR   (10),                                         00005707
+-- F_ITEM_DESC     CHAR   (10),                                         00005807
+-- F_QTY           NUMERIC(4),                                          00005907
+-- F_AMT           DECIMAL(8,2),                                        00006007
+-- F_REORDER_LEVEL NUMERIC(4),                                          00006107
+-- F_DATE          DATE)                                                00006307
+-- IN DBENT01.TSENT011                                                  00006407
+------------------------------------------------------------------------00006506
+------------------------------------------------------------------------00006606
+-- CREATE TABLE ACEFAS.RAW_INV_TBL(                                     00006713
+-- R_ITEM_CODE     CHAR    (6) NOT NULL PRIMARY KEY,                    00006813
+-- R_ITEM_NAME     CHAR    (10),                                        00006913
+-- R_ITEM_DESC     CHAR    (10),                                        00007013
+-- R_QTY           NUMERIC (4),                                         00007113
+-- R_AMT           DECIMAL (8,2),                                       00007213
+-- R_VEND_ID       CHAR    (4),                                         00007313
+-- R_REORDER_LEVEL NUMERIC (2),                                         00007413
+-- R_DATE          DATE)                                                00007513
+-- IN DBENT01.TSENT011;                                                 00009213
+------------------------------------------------------------------------00009306
+------------------------------------------------------------------------00009406
+--CREATE TABLE ACEFAS.VEND_MAST_TBL(                                    00009513
+--VEND_ID        CHAR    (4) NOT NULL PRIMARY KEY,                      00009613
+--VEND_NAME      CHAR    (10),                                          00009713
+--ACC_NO         NUMERIC (10),                                          00009813
+--VEND_BANK_DTLS CHAR    (15),                                          00009913
+--VEND_ADDRESS   CHAR    (15))                                          00010013
+--IN DBENT01.TSENT011;                                                  00010113
+------------------------------------------------------------------------00010206
+------------------------------------------------------------------------00010306
+-- CREATE TABLE ACEFAS.AP_MAST_TBL(                                     00010415
+-- AP_CODE     CHAR     (6),                                            00010515
+-- AP_TOT_AMT  DECIMAL  (8,2),                                          00010615
+-- DEPT_NAME   CHAR     (4),                                            00010715
+-- AP_DATE     DATE)                                                    00010815
+-- IN DBENT01.TSENT011;                                                 00011115
+------------------------------------------------------------------------00011206
+------------------------------------------------------------------------00011306
+--  CREATE TABLE ACEFAS.SUNDRY_TBL(                                     00011416
+--  TYPE         CHAR   (4),                                            00011516
+--  DESCRIPTION  CHAR   (10),                                           00011616
+--  SD_QTY       NUMERIC(4),                                            00011716
+--  SD_AMOUNT    DECIMAL(8,2),                                          00011816
+--  SD_DATE      DATE)                                                  00011916
+-- IN DBENT01.TSENT011;                                                 00012016
+------------------------------------------------------------------------00012906
+------------------------------------------------------------------------00013006
+-- CREATE TABLE ACEFAS.GEN_LED_TBL(                                     00013117
+-- GL_SYSTEM     CHAR   (6),                                            00013217
+-- AMOUNT        DECIMAL(8,2),                                          00013317
+-- GL_DATE       DATE)                                                  00013417
+-- IN DBENT01.TSENT011;                                                 00013517
+------------------------------------------------------------------------00013806
+--CREATE TABLE UBET381.SMGT_FBINFO(
+--STU_ID       CHAR(8)  PRIMARY KEY NOT NULL,
+--FOREIGN KEY(STF_ID) REFERENCES UBET381.SMGT_STF(STF_ID)
+--ON DELETE CASCADE,
+--COMM_RTG     CHAR(1),
+--TECH_RTG     CHAR(1),
+--DBTC_RTG     CHAR(1),
+--INTR_RTG     CHAR(1),
+--REMARKS      VARCHAR(25)
+--)IN DBENT04.SBEN04;
+--CREATE TABLE UBET381.SMGT_MRK(
+--STU_ID CHAR(8) NOT NULL PRIMARY KEY,
+--STU_SECTION  CHAR(1),
+--LANG1_MRKS   SMALLINT,
+--LANG1_MAX    SMALLINT,
+--LANG2_MRKS   SMALLINT,
+--LANG2_MAX    SMALLINT,
+--LANG3_MRKS   SMALLINT,
+--LANG3_MAX    SMALLINT,
+--SUB1_MRKS    SMALLINT,
+--SUB1_MAX     SMALLINT,
+--SUB2_MRKS    SMALLINT,
+--SUB2_MAX     SMALLINT,
+--SUB3_MRKS    SMALLINT,
+--GRADE        CHAR(2),
+--PERCENTAGE   DECIMAL(5,2),
+--REMARKS      VARCHAR(25))
+--IN DBENT04.SBEN04;
+------------------------------------------------------------------------
+--CREATE TABLE    UBET381.HMGT_PATIENT(
+--PATIENT_ID      CHAR(10) PRIMARY KEY NOT NULL,
+--FOREIGN KEY (PATIENT_DOCID) REFERENCES UBET381.HMGT_DOC(DOC_ID)
+--ON DELETE CASCADE,
+--PATIENT_NAME     CHAR(20),
+--PATIENT_GND      CHAR(1),
+--PATIENT_AGE      SMALLINT,
+--PATIENT_GUARD    CHAR(20),
+--PATIENT_ILLNESS  CHAR(20),
+--PATIENT_BLDGRP   CHAR(3),
+--PATIENT_PHNO     INTEGER,
+--PATIENT_ROOM     SMALLINT,
+--PATIENT_MED      CHAR(20),
+--PATIENT_DSCHAR   CHAR(1),
+--PATIENT_DSDATE   DATE,
+--PATIENT_EMR_ID   CHAR(10),
+--PATIENT_EMR_STAT CHAR(1)
+--)IN DBENT04.SBEN04;
+------------------------------------------------------------------------
+--  CREATE TABLE ACEFAS.PAYROLL_TBL(                                    00013921
+--  EMP_ID           CHAR   (6) NOT NULL PRIMARY KEY,                   00014021
+--  EMP_NAME         CHAR   (10),                                       00014121
+--  DESIGNATION      CHAR   (10),                                       00014221
+--  DEPT_NAME        CHAR   (4),                                        00014321
+--  CTC              DECIMAL(8,2),                                      00014421
+--  LAST_WORK_DAY    DATE,                                              00014521
+--  ADDRESS          CHAR   (20),                                       00014621
+--  TELE_NO          NUMERIC(10),                                       00014721
+--  DATE_OF_JOINING  DATE,                                              00014821
+--  STATUS           CHAR   (2) DEFAULT 'A')                            00014921
+-- IN DBENT01.TSENT011;                                                 00015021
+------------------------------------------------------------------------00015406
+------------------------------------------------------------------------00015506
+--CREATE TABLE ACEFAS.PAYROLL_MAST_TBL(                                 00015622
+--PR_CODE  CHAR   (6),                                                  00015722
+--TOT_SAL_AMOUNT   DECIMAL(8,2),                                        00015822
+--PAY_PROCESS_DATE DATE)                                                00015922
+--IN DBENT01.TSENT011;                                                  00016022
+------------------------------------------------------------------------00016122
+------------------------------------------------------------------------00016222
+--CREATE TABLE ACEFAS.ACCT_PAY_TBL(                                     00016325
+--PO_NO          NUMERIC(4),                                            00016425
+--INVOICE_NO     NUMERIC(6),                                            00016525
+--TOTAL_ITEM     NUMERIC(4),                                            00016625
+--QTY            NUMERIC(4),                                            00016725
+--TOT_AMT        DECIMAL(8,2),                                          00016825
+--VEND_ID        CHAR   (4),                                            00016925
+--TRANS_DATE     DATE,                                                  00017025
+--INVOICE_DATE   DATE,                                                  00017125
+--FOREIGN KEY (VEND_ID) REFERENCES ACEFAS.VEND_MAST_TBL(VEND_ID))       00017225
+--IN DBENT01.TSENT011;                                                  00017325
+------------------------------------------------------------------------00017422
+------------------------------------------------------------------------00017525
+--CREATE TABLE ACEFAS.PURCH_TBL(                                        00017628
+--PO_NO         NUMERIC (4),                                            00017728
+--VEND_ID       CHAR    (4),                                            00017828
+--VEND_NAME     CHAR    (10),                                           00017928
+--ITEM_CODE     CHAR    (10),                                           00018028
+--ITEM_NAME     CHAR    (10),                                           00018128
+--ITEM_DESC     CHAR    (10),                                           00018228
+--PO_DATE       DATE,                                                   00018328
+--PO_DUE_DATE   DATE,                                                   00018428
+--INVOICE_NO    NUMERIC (5),                                            00018528
+--INVOICE_DATE  DATE,                                                   00018628
+--VERIFIED_FLAG CHAR    (1),                                            00018728
+--VERIFIED_DATE DATE,                                                   00018828
+--TOT_COST      NUMERIC (8,2),                                          00018928
+--FOREIGN KEY (VEND_ID) REFERENCES ACEFAS.VEND_MAST_TBL(VEND_ID),       00019028
+--FOREIGN KEY (ITEM_CODE) REFERENCES ACEFAS.RAW_INV_TBL(R_ITEM_CODE))   00019128
+--IN DBENT01.TSENT011;                                                  00019228
+------------------------------------------------------------------------00019325
+------------------------------------------------------------------------00019428
+--REATE TABLE ADMT.BCASE_CC_DTL(                                        00019528
+--R_CARD_NO    INT PRIMARY KEY NOT NULL,
+--L_NO         INT NOT NULL,
+--CARD_SEC_NO   INT NOT NULL,
+--EXPRY_DT      DATE NOT NULL,
+--R_CARD_TYPE  CHAR(25) NOT NULL,
+--R_AMT        DECIMAL(6,2) NOT NULL,
+-- CR_LMT        DECIMAL(6,2) NOT NULL,
+-- LAST_UPDT_TS  TIMESTAMP)
+-- IN ADMTDB.ADMTTS5;
+------------------------------------------------------------------------
+-- CREATE TABLE ACEFAS.ACCT_REC_TBL(
+-- SALE_ORD_NO   INT      (4),
+-- EMP_ID        CHAR     (4),
+-- INVOICE_NO    NUMERIC  (6),
+-- INVOICE_DATE  DATE,
+-- TOTAL_ITEM    NUMERIC  (4),
+-- QTY   NUMERIC          (4),
+-- TOT_AMT       DECIMAL  (8,2),
+-- CUST_ID       CHAR     (4),
+-- ORDERED_DATE  DATE,
+-- FOREIGN KEY(INVOICE_NO) REFERENCES ACEFAS.PURCH_TBL(INVOICE_NO),     00019028
+-- FOREIGN KEY(CUST_ID) REFERENCES ACEFAS.CUST_DETAILS_TBL(CUST_ID))    00019128
+-- IN DBENT01.TSENT011;                                                 00019228
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+----------        END  --            -----------------------------------
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+--CREATE TABLE ELTP.SIGNON(USERID CHAR(6) NOT NULL,PROJECT CHAR(01) NOT
+--NULL,GROUP CHAR(1) NOT NULL,LOCKWORD CHAR(8) NOT NULL)IN DELT01.SELT0100030028
+--------------------------------------------------------------------
+--CREATE TABLE ADMT.T_LP_CLAIM(                                         00001002
+--LP_AUTH_ID       DECIMAL(05,0) NOT NULL PRIMARY KEY,                  00001102
+--LP_NOMINEE_ID    DECIMAL(05,0) NOT NULL,                              00001102
+--LP_POLICY_ID     DECIMAL(10,0) NOT NULL,                              00001102
+--LP_MEMBER_ID     DECIMAL(05,0) NOT NULL,                              00001102
+--LP_CLAIM_DATE    DATE NOT NULL,                                       00001102
+--LP_TYPE_DEATH    CHAR(10) NOT NULL,                                   00001102
+--LP_ACCOUNT_NO    DECIMAL(15,0) NOT NULL,                              00001102
+--LP_BANK_NAME     CHAR(25) NOT NULL,                                   00001102
+--FOREIGN KEY(LP_POLICY_ID) REFERENCES ADMT.T_EN_ENROLL(EN_POLICY_ID)
+--                          ON DELETE CASCADE,
+--FOREIGN KEY(LP_MEMBER_ID) REFERENCES ADMT.T_PH_PHINFO(PH_MEMBER_ID)
+--                          ON DELETE CASCADE)
+--IN ADMTDB.ADMTTS1;                                                    00001502
+------------------------------------------------------------------------00001600
+--CREATE UNIQUE INDEX ADMT.T_LP_CLAIM1 ON
+--ADMT.T_LP_CLAIM(LP_AUTH_ID);
+------------------------------------------------------------------------
+------------------------------------------------------------------------

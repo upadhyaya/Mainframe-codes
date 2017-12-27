@@ -1,0 +1,345 @@
+000010 IDENTIFICATION DIVISION.                                         00001035
+000020 PROGRAM-ID. OMDLPGM2.                                            00002036
+000030*                                                                 00003036
+000040 ENVIRONMENT DIVISION.                                            00004036
+000050*                                                                 00005036
+000060 DATA DIVISION.                                                   00006036
+000070*                                                                 00007036
+000080 WORKING-STORAGE SECTION.                                         00008036
+000090           EXEC SQL                                               00009036
+000100                INCLUDE SQLCA                                     00010036
+000101           END-EXEC.                                              00010136
+000102           EXEC SQL                                               00010236
+000103                INCLUDE DLDTL                                     00010336
+000104           END-EXEC.                                              00010436
+000105           EXEC SQL INCLUDE PROD  END-EXEC.                       00010536
+000106  01 Q-NAME    PIC X(8).                                          00010636
+000107  01 TEMP-QNAME REDEFINES Q-NAME.                                 00010736
+000108       02 FIRST-REF  PIC X(4).                                    00010836
+000109       02 SECOND-REF PIC 9(4).                                    00010936
+000110  01 CHOICE1 PIC S9(4) COMP VALUE 1.                              00011036
+000120  01 RESCODE PIC S9(4) COMP.                                      00012036
+000130  01 FIRST-REC PIC 9(10).                                         00013036
+000140  01 LAST-REC PIC 9(10).                                          00014036
+000150  01 DLRQ.                                                        00015036
+000160         05 Q-FIRST-PAGE-REC PIC 9(10).                           00016036
+000170         05 Q-LAST-PAGE-REC  PIC 9(10).                           00017036
+000171         05 Q-FIRST-REC      PIC 9(10).                           00017136
+000172         05 Q-LAST-REC       PIC 9(10).                           00017236
+000173         05 Q-DLR-ID         PIC 9(10).                           00017336
+000174         05 Q-EOP            PIC X(1).                            00017436
+000175*                                                                 00017536
+000176       EXEC SQL DECLARE OM2 SCROLL CURSOR FOR                     00017636
+000177          SELECT DEALER_ID,                                       00017736
+000178                  ORDER_ID,                                       00017836
+000179                  PROD_ID,                                        00017936
+000180                  PROD_NAME,                                      00018036
+000190                  PROD_QUANTITY,                                  00019036
+000200                  UNIT_PRICE,                                     00020036
+000300                  DDATE,                                          00030036
+000400                  CATEGORY_NAME,                                  00040036
+000500                  CATEGORY_ID   FROM ADMT.DEALER_DTL              00050036
+000600       WHERE DEALER_ID = :DEALER-ID AND                           00060036
+000700             ORDER_ID > :ORDER-ID                                 00070036
+000710      ORDER BY DEALER_ID,ORDER_ID                                 00071036
+000720      END-EXEC.                                                   00072036
+000730     EXEC SQL DECLARE OM3 SCROLL CURSOR FOR                       00073036
+000740          SELECT DEALER_ID,                                       00074036
+000750                  ORDER_ID,                                       00075036
+000760                  PROD_ID,                                        00076036
+000770                  PROD_NAME,                                      00077036
+000780                  PROD_QUANTITY,                                  00078036
+000790                  UNIT_PRICE,                                     00079036
+000800                  DDATE,                                          00080036
+000900                  CATEGORY_NAME,                                  00090036
+001000                  CATEGORY_ID   FROM ADMT.DEALER_DTL              00100036
+001100       WHERE DEALER_ID = :DEALER-ID AND                           00110036
+001200             ORDER_ID < :ORDER-ID                                 00120036
+001300      ORDER BY ORDER_ID DESC                                      00130036
+001400      END-EXEC.                                                   00140036
+001500*                                                                 00150036
+001600 LINKAGE SECTION.                                                 00160036
+001700 01 DFHCOMMAREA.                                                  00170036
+001800      COPY OMDLCPB2.                                              00180036
+001810*                                                                 00181036
+001820 PROCEDURE DIVISION.                                              00182036
+001830 0000-MAIN-PARA.                                                  00183036
+001840       MOVE 'DLRPGM' TO FIRST-REF.                                00184036
+001850       MOVE EIBTRMID TO SECOND-REF.                               00185036
+001860       IF EIBCALEN = 0                                            00186036
+001870           MOVE 'PLEASE ENTER ORDER ID OR DEALER ID TO GET THE DE 00187036
+001880-          'TAILS' TO LS-MSG                                      00188036
+001890           EXEC CICS RETURN                                       00189036
+001900           END-EXEC                                               00190036
+002000       ELSE PERFORM 1000-PARA                                     00200036
+002100       END-IF.                                                    00210036
+002200           EXEC CICS RETURN                                       00220036
+002210           END-EXEC.                                              00221036
+002220 1000-PARA.                                                       00222036
+002230       EVALUATE TRUE                                              00223036
+002240       WHEN LS-OPT = 'BYDLR'                                      00224036
+002250            PERFORM 2000-SELECT-BY-DLR-PARA                       00225036
+002260       WHEN LS-OPT = 'PGDN'                                       00226036
+002270            EXEC CICS READQ TS                                    00227036
+002280                      QUEUE(Q-NAME)                               00228036
+002290                      INTO(DLRQ)                                  00229036
+002291                      ITEM(CHOICE1)                               00229136
+002292            END-EXEC                                              00229236
+002293            MOVE Q-LAST-REC TO ORDER-ID                           00229336
+002294            IF Q-EOP = 'Y'                                        00229436
+002295                 SUBTRACT 1 FROM Q-FIRST-REC GIVING FIRST-REC     00229536
+002296                 MOVE FIRST-REC TO ORDER-ID                       00229636
+002297            END-IF                                                00229736
+002298            MOVE Q-DLR-ID   TO DEALER-ID                          00229836
+002299            PERFORM 2500-PAGEDOWN-PARA                            00229936
+002300       WHEN LS-OPT = 'PGUP'                                       00230036
+002400            EXEC CICS READQ TS                                    00240036
+002401                      QUEUE(Q-NAME)                               00240136
+002402                      INTO(DLRQ)                                  00240236
+002403                      ITEM(CHOICE1)                               00240336
+002404            END-EXEC                                              00240436
+002405            MOVE Q-FIRST-REC TO ORDER-ID                          00240536
+002406            MOVE Q-DLR-ID   TO DEALER-ID                          00240636
+002407            PERFORM 2500-PAGEUP-PARA                              00240736
+002408       WHEN OTHER                                                 00240836
+002409            MOVE 0 TO LS-INPUT-DEALER-ID                          00240936
+002410            MOVE SPACES TO LS-OPT                                 00241036
+002420            SET K TO 1                                            00242036
+002430            PERFORM 2000-FWD-CLEAR-PARA UNTIL K > 8               00243036
+002431            MOVE 'INVALID OPTION SELECTED' TO LS-MSG              00243136
+002432            EXEC CICS RETURN END-EXEC                             00243236
+002433       END-EVALUATE.                                              00243336
+002434 2000-SELECT-BY-DLR-PARA.                                         00243436
+002435          IF LENGTH OF LS-INPUT-DEALER-ID = 0                     00243536
+002436             MOVE 'DEALER ID IS NOT ENTERED' TO LS-MSG            00243636
+002437             EXEC CICS RETURN END-EXEC                            00243736
+002438          ELSE IF LS-INPUT-DEALER-ID IS NOT NUMERIC               00243836
+002439             MOVE 'DEALER ID SHOULD BE NUMERIC' TO LS-MSG         00243936
+002440             EXEC CICS RETURN END-EXEC                            00244036
+002441          ELSE IF LS-INPUT-DEALER-ID IS ZERO                      00244136
+002442             SET K TO 1                                           00244236
+002443             PERFORM 2000-FWD-CLEAR-PARA UNTIL K > 8              00244336
+002444             MOVE 'DEALER ID CANNOT BE ZERO' TO LS-MSG            00244436
+002445             EXEC CICS RETURN END-EXEC                            00244536
+002446          END-IF.                                                 00244636
+002447          SET K TO 1.                                             00244736
+002448          MOVE  LS-INPUT-DEALER-ID TO DEALER-ID                   00244836
+002449          MOVE 0 TO ORDER-ID                                      00244936
+002450          EXEC SQL SELECT ORDER_ID INTO                           00245036
+002460                 :ORDER-ID                                        00246036
+002461                 FROM ADMT.DEALER_DTL                             00246136
+002462               WHERE DEALER_ID = :DEALER-ID                       00246236
+002463              ORDER BY ORDER_ID DESC                              00246336
+002464              FETCH FIRST ROW ONLY                                00246436
+002465              END-EXEC.                                           00246536
+002466          MOVE ORDER-ID TO Q-LAST-PAGE-REC                        00246636
+002467          DISPLAY 'ORDERID SELECTFETCH ' ORDER-ID                 00246736
+002468          MOVE  LS-INPUT-DEALER-ID TO DEALER-ID                   00246836
+002469          MOVE 0 TO ORDER-ID                                      00246936
+002470          EXEC SQL OPEN OM2 END-EXEC.                             00247036
+002471          PERFORM 2000-FETCH-FWD-PARA UNTIL SQLCODE = 100         00247136
+002472              OR K > 8                                            00247236
+002473          EXEC SQL CLOSE OM2 END-EXEC.                            00247336
+002474          PERFORM 3000-WRITEQ-PARA                                00247436
+002475          EXEC CICS RETURN END-EXEC.                              00247536
+002476*                                                                 00247636
+002477  2500-PAGEDOWN-PARA.                                             00247736
+002478          IF LS-ORDER-ID(8) IS NOT EQUAL TO SPACES OR             00247836
+002479                  LS-ORDER-ID(8) IS NOT EQUAL TO LOW-VALUES OR    00247936
+002480                  LS-ORDER-ID(8) IS NOT EQUAL TO 0                00248036
+002490                  MOVE Q-LAST-REC TO ORDER-ID                     00249036
+002500*         ELSE IF LS-ORDER-ID(8) IS  EQUAL TO SPACES OR           00250036
+002600*                 LS-ORDER-ID(8) IS  EQUAL TO LOW-VALUES OR       00260036
+002700*                 LS-ORDER-ID(8) IS  EQUAL TO 0                   00270036
+002800*                 MOVE Q-FIRST-REC TO ORDER-ID                    00280036
+002900          ELSE                                                    00290036
+003000                  MOVE 'END OF PAGE' TO LS-MSG                    00300036
+003100                  EXEC CICS RETURN END-EXEC                       00310036
+003200          END-IF                                                  00320036
+003300            IF Q-EOP = 'Y'                                        00330036
+003400                 SUBTRACT 1 FROM Q-FIRST-REC GIVING FIRST-REC     00340036
+003500                 MOVE FIRST-REC TO ORDER-ID                       00350036
+003600                 DISPLAY 'ORDERID BEGIN ' ORDER-ID                00360036
+003700                 MOVE 'N' TO Q-EOP                                00370036
+003800            END-IF                                                00380036
+003900          SET K TO 1.                                             00390036
+004000          DISPLAY 'PGDNORDER ID ' ORDER-ID                        00400036
+004001          EXEC SQL OPEN OM2 END-EXEC.                             00400136
+004002          PERFORM 2000-FETCH-FWD-PARA UNTIL SQLCODE = 100         00400236
+004003              OR K > 8                                            00400336
+004004          EXEC SQL CLOSE OM2 END-EXEC.                            00400436
+004005          PERFORM 3000-WRITEQ-PARA                                00400536
+004006          EXEC CICS RETURN END-EXEC.                              00400636
+004007   2500-PAGEUP-PARA.                                              00400736
+004008          IF LS-ORDER-ID(1) IS NOT EQUAL TO SPACES OR             00400836
+004009                  LS-ORDER-ID(1) IS NOT EQUAL TO LOW-VALUES       00400936
+004010                  MOVE Q-FIRST-REC TO ORDER-ID                    00401036
+004011          ELSE                                                    00401136
+004012                  MOVE 'END OF PAGE' TO LS-MSG                    00401236
+004013                  EXEC CICS RETURN END-EXEC                       00401336
+004014          END-IF                                                  00401436
+004015          SET K TO 8.                                             00401536
+004016*           DISPLAY 'QQQQQ',Q-FIRST-REC,',',Q-FIRST-PAGE-REC      00401636
+004017*           DISPLAY Q-LAST-REC                                    00401736
+004018            IF Q-FIRST-REC = Q-FIRST-PAGE-REC                     00401836
+004019               ADD 1 TO Q-LAST-REC GIVING LAST-REC                00401936
+004020               MOVE LAST-REC TO ORDER-ID                          00402036
+004021               MOVE Q-DLR-ID   TO DEALER-ID                       00402136
+004022            END-IF                                                00402236
+004023          EXEC SQL OPEN OM3 END-EXEC.                             00402336
+004024          PERFORM 2000-FETCH-BCK-PARA UNTIL SQLCODE = 100         00402436
+004025              OR K < 1                                            00402536
+004026          EXEC SQL CLOSE OM3 END-EXEC.                            00402636
+004027*         MOVE 'N' TO Q-EOP                                       00402736
+004028          PERFORM 3000-WRITEQ-PARA                                00402836
+004029          EXEC CICS RETURN END-EXEC.                              00402936
+004030  2000-FETCH-FWD-PARA.                                            00403036
+004040          EXEC SQL FETCH NEXT FROM OM2 INTO                       00404036
+004050                 :DEALER-ID,                                      00405036
+004060                 :ORDER-ID,                                       00406036
+004070                 :DCLDEALER-DTL.PROD-ID,                          00407036
+004080                 :DCLDEALER-DTL.PROD-NAME,                        00408036
+004090                 :PROD-QUANTITY,                                  00409036
+004100                 :UNIT-PRICE,                                     00410036
+004200                 :DDATE,                                          00420036
+004300                 :CATEGORY-NAME,                                  00430036
+004400                 :CATEGORY-ID                                     00440036
+004500          END-EXEC.                                               00450036
+004600          EVALUATE SQLCODE                                        00460036
+004700             WHEN 0                                               00470036
+004800               IF K = 1                                           00480036
+004900                 MOVE ORDER-ID TO Q-FIRST-REC                     00490036
+005000                 IF LS-OPT = 'BYDLR'                              00500036
+005100                    MOVE ORDER-ID TO Q-FIRST-PAGE-REC             00510036
+005200                 END-IF                                           00520036
+005300               ELSE IF K = 8                                      00530036
+005310                 IF Q-LAST-PAGE-REC = ORDER-ID                    00531036
+005311                   MOVE 'END OF PAGE' TO LS-MSG                   00531136
+005312                   MOVE 'Y' TO Q-EOP                              00531236
+005313                 END-IF                                           00531336
+005314                 END-IF                                           00531436
+005315               END-IF                                             00531536
+005316             MOVE ORDER-ID TO Q-LAST-REC                          00531636
+005317             MOVE DEALER-ID TO Q-DLR-ID                           00531736
+005318             PERFORM 2500-MOVEBACK-PARA                           00531836
+005319             SET K UP BY 1                                        00531936
+005320             WHEN 100                                             00532036
+005330                  IF LS-OPT = 'BYDLR'                             00533036
+005340                    IF K = 1                                      00534036
+005350                     PERFORM 2000-FWD-CLEAR-PARA UNTIL K > 8      00535036
+005360                     MOVE 'NO RECORDS FOUND FOR THE DEALER ID'    00536036
+005370                        TO LS-MSG                                 00537036
+005380                     EXEC CICS RETURN END-EXEC                    00538036
+005390                    ELSE                                          00539036
+005400                     PERFORM 2000-FWD-CLEAR-PARA UNTIL K > 8      00540036
+005410                     MOVE 'END OF PAGE' TO LS-MSG                 00541036
+005411                     EXEC CICS RETURN END-EXEC                    00541136
+005412                    END-IF                                        00541236
+005413                  ELSE IF LS-OPT = 'PGDN'                         00541336
+005414                     PERFORM 2000-FWD-CLEAR-PARA UNTIL K > 8      00541436
+005415                     DISPLAY 'QFIRSTREC ' Q-FIRST-REC             00541536
+005416                     MOVE ORDER-ID TO Q-LAST-REC                  00541636
+005417                     MOVE DEALER-ID TO Q-DLR-ID                   00541736
+005418                     MOVE 'END OF PAGE' TO LS-MSG                 00541836
+005419                     MOVE 'Y' TO Q-EOP                            00541936
+005420                     EXEC SQL CLOSE OM2 END-EXEC                  00542036
+005421                     PERFORM 3000-WRITEQ-PARA                     00542136
+005422                     EXEC CICS RETURN END-EXEC                    00542236
+005423                  END-IF                                          00542336
+005424                  END-IF                                          00542436
+005425*                                                                 00542536
+005426                  MOVE ' END OF PAGE' TO LS-MSG                   00542636
+005427                  PERFORM 2000-FWD-CLEAR-PARA UNTIL K > 8         00542736
+005428             WHEN OTHER                                           00542836
+005429             MOVE 'FETCH FAILED' TO LS-MSG                        00542936
+005430             EXEC CICS RETURN END-EXEC                            00543036
+005431          END-EVALUATE.                                           00543136
+005432  2000-FETCH-BCK-PARA.                                            00543236
+005433          MOVE 'N' TO Q-EOP                                       00543336
+005434          EXEC SQL FETCH NEXT FROM OM3 INTO                       00543436
+005435                 :DEALER-ID,                                      00543536
+005436                 :ORDER-ID,                                       00543636
+005437                 :DCLDEALER-DTL.PROD-ID,                          00543736
+005438                 :DCLDEALER-DTL.PROD-NAME,                        00543836
+005439                 :PROD-QUANTITY,                                  00543936
+005440                 :UNIT-PRICE,                                     00544036
+005441                 :DDATE,                                          00544136
+005442                 :CATEGORY-NAME,                                  00544236
+005443                 :CATEGORY-ID                                     00544336
+005444          END-EXEC.                                               00544436
+005445          EVALUATE SQLCODE                                        00544536
+005446             WHEN 0                                               00544636
+005447             IF K = 8                                             00544736
+005448                MOVE ORDER-ID TO Q-LAST-REC                       00544836
+005449             END-IF                                               00544936
+005450             MOVE ORDER-ID TO Q-FIRST-REC                         00545036
+005460             MOVE DEALER-ID TO Q-DLR-ID                           00546036
+005461             PERFORM 2500-MOVEBACK-PARA                           00546136
+005462             IF K = 1                                             00546236
+005463                IF ORDER-ID = Q-FIRST-PAGE-REC                    00546336
+005464*                 MOVE ORDER-ID TO Q-FIRST-REC                    00546436
+005465                  MOVE 'TOP OF PAGE' TO LS-MSG                    00546536
+005466                  MOVE 'Y' TO Q-EOP                               00546636
+005467                END-IF                                            00546736
+005468             END-IF                                               00546836
+005469             SET K DOWN BY 1                                      00546936
+005470             WHEN 100                                             00547036
+005471                  PERFORM 2000-BCK-CLEAR-PARA UNTIL K < 1         00547136
+005472             WHEN OTHER                                           00547236
+005473             MOVE 'FETCH FAILED' TO LS-MSG                        00547336
+005474             EXEC CICS RETURN END-EXEC                            00547436
+005475          END-EVALUATE.                                           00547536
+005476    3000-WRITEQ-PARA.                                             00547636
+005477               EXEC CICS WRITEQ TS                                00547736
+005478                        QUEUE(Q-NAME)                             00547836
+005479                        FROM(DLRQ)                                00547936
+005480                        ITEM(CHOICE1)                             00548036
+005490                        REWRITE                                   00549036
+005500                        MAIN                                      00550036
+005600                        RESP(RESCODE)                             00560036
+005700               END-EXEC                                           00570036
+005800               IF RESCODE = DFHRESP(NORMAL) CONTINUE              00580036
+005900               ELSE                                               00590036
+006000               EXEC CICS WRITEQ TS                                00600036
+006100                        QUEUE(Q-NAME)                             00610036
+006200                        FROM(DLRQ)                                00620036
+006300                        ITEM(CHOICE1)                             00630036
+006400                        MAIN                                      00640036
+006500                        RESP(RESCODE)                             00650036
+006600               END-EXEC                                           00660036
+006700               END-IF.                                            00670036
+006800  2500-MOVEBACK-PARA.                                             00680036
+006900         MOVE  DEALER-ID         TO  LS-DEALER-ID(K)              00690036
+007000         MOVE  ORDER-ID          TO  LS-ORDER-ID(K)               00700036
+007100         MOVE  PROD-ID OF DCLDEALER-DTL TO  LS-PROD-ID(K)         00710036
+007200         MOVE  PROD-NAME OF DCLDEALER-DTL  TO  LS-PROD-NAME(K)    00720036
+007300         MOVE  PROD-QUANTITY     TO  LS-QUANT(K)                  00730036
+007400         MOVE  UNIT-PRICE        TO  LS-PRICE(K)                  00740036
+007500         MOVE  DDATE             TO  LS-DATE(K)                   00750036
+007600         MOVE  CATEGORY-NAME     TO  LS-CATEG-NAME(K)             00760036
+007700         MOVE  CATEGORY-ID       TO  LS-CATEG-ID(K).              00770036
+007800*                                                                 00780036
+007900  2000-FWD-CLEAR-PARA.                                            00790036
+008000         MOVE  0                 TO  LS-DEALER-ID(K)              00800036
+008100         MOVE  0                 TO  LS-ORDER-ID(K)               00810036
+008200         MOVE  0                 TO  LS-PROD-ID(K)                00820036
+008300         MOVE  SPACES            TO  LS-PROD-NAME(K)              00830036
+008400         MOVE  0                 TO  LS-QUANT(K)                  00840036
+008500         MOVE  0                 TO  LS-PRICE(K)                  00850036
+008600         MOVE  SPACES            TO  LS-DATE(K)                   00860036
+008700         MOVE  SPACES            TO  LS-CATEG-NAME(K)             00870036
+008800         MOVE  0                 TO  LS-CATEG-ID(K).              00880036
+008900         SET K UP BY 1.                                           00890036
+009000*                                                                 00900036
+009100  2000-BCK-CLEAR-PARA.                                            00910036
+009200         MOVE  0                 TO  LS-DEALER-ID(K)              00920036
+009300         MOVE  0                 TO  LS-ORDER-ID(K)               00930036
+009400         MOVE  0                 TO  LS-PROD-ID(K)                00940036
+009500         MOVE  SPACES            TO  LS-PROD-NAME(K)              00950036
+009600         MOVE  0                 TO  LS-QUANT(K)                  00960036
+009700         MOVE  0                 TO  LS-PRICE(K)                  00970036
+009800         MOVE  SPACES            TO  LS-DATE(K)                   00980036
+009900         MOVE  SPACES            TO  LS-CATEG-NAME(K)             00990036
+010000         MOVE  0                 TO  LS-CATEG-ID(K).              01000036
+010100         MOVE 'TOP OF PAGE' TO LS-MSG                             01010036
+010200         SET K DOWN BY 1.                                         01020036

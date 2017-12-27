@@ -1,0 +1,20 @@
+      *****************************************************************
+      *WORKING STORAGE VARIABLES FOR CONVERTING A BYTE TO BITS
+      *****************************************************************
+       01  TWO-BYTES.
+                  05  TWO-BYTES-01        PIC X.
+                  05  TWO-BYTES-02        PIC X.
+       01  TWO-BYTES-BINARY        REDEFINES   TWO-BYTES
+                                   PIC S9(4)   BINARY.
+       01  IX-1                    PIC 99      VALUE 0.
+       01  REGISTER-1              PIC S9(5)   VALUE 0.
+       01  BTS-PASS-BITS           PIC X.
+       01  BTS-PASS-BYTES.
+           15  BTS-PASS-BYTE-01    PIC X.
+           15  BTS-PASS-BYTE-02    PIC X.
+           15  BTS-PASS-BYTE-03    PIC X.
+           15  BTS-PASS-BYTE-04    PIC X.
+           15  BTS-PASS-BYTE-05    PIC X.
+           15  BTS-PASS-BYTE-06    PIC X.
+           15  BTS-PASS-BYTE-07    PIC X.
+           15  BTS-PASS-BYTE-08    PIC X.

@@ -1,0 +1,637 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. DLRPRO.                                              00020063
+000400 AUTHOR. SOA TEAM.                                                00040000
+000410 DATE-WRITTEN. 05/11/08.                                          00041064
+000420 DATE-COMPILED. 05/11/08.                                         00042064
+000717******************************************************************00071700
+000718 DATA DIVISION.                                                   00071800
+000719 WORKING-STORAGE SECTION.                                         00071900
+000720 COPY VCOUNTRY.                                                   00072044
+000726      EXEC SQL INCLUDE DLRPRO  END-EXEC.                          00072668
+000729      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00072913
+            EXEC SQL INCLUDE LOGIN1  END-EXEC.                          00073070
+001007*                                                                 00100700
+001016 01 WK-DATE.                                                      00101612
+001017    05 WK-D-DD PIC 99.                                            00101712
+001018    05 FILLER  PIC X.                                             00101812
+001019    05 WK-D-MM PIC 99.                                            00101912
+001020    05 FILLER  PIC X.                                             00102012
+001021    05 WK-D-YY PIC 99.                                            00102112
+001022 01 WK-TIME.                                                      00102212
+001023    05 WK-T-HH PIC 99.                                            00102312
+001024    05 FILLER  PIC X.                                             00102412
+001025    05 WK-T-MM PIC 99.                                            00102512
+001026    05 FILLER  PIC X.                                             00102612
+001027    05 WK-T-SS PIC 99.                                            00102712
+001028 01 DT PIC S9(15) COMP-3.                                         00102812
+      *                                                                 00102970
+       01 WS-CONCATE.                                                   00103070
+          05 WS-CST   PIC X(2) VALUE 'SU'.                              00103170
+          05 WS-ID    PIC 9(05).                                        00103270
+001029*                                                                 00103312
+001030 01 WS-SCR-DATE.                                                  00103412
+001031    05 WS-YEAR  PIC 9(4).                                         00103512
+001033    05 SLASH1   PIC X(1) VALUE '-'.                               00103612
+001034    05 WS-DATE  PIC 9(2).                                         00103723
+001035    05 SLASH2   PIC X(1) VALUE '-'.                               00103812
+001036    05 WS-MONTH PIC 9(2).                                         00103923
+001038*                                                                 00104012
+001039 01 WS-YEAR1  PIC 9(4) VALUE 0.                                   00104112
+001040*                                                                 00104212
+001042 01 I       PIC 9(3) VALUE 0.                                     00104344
+001043 01 WS-FLAG PIC X    VALUE 'N'.                                   00104444
+001044 01 WS-CSFLAG PIC X    VALUE 'N'.                                 00104544
+001046*                                                                 00104644
+001083 01 WS-COMMAREA  PIC X(9).                                        00108327
+001084*                                                                 00108427
+001085 77 RAND-INT PIC 9(10).                                           00108553
+001086*                                                                 00108653
+001100 LINKAGE SECTION.                                                 00110027
+001101 01 DFHCOMMAREA.                                                  00110127
+001110      COPY DLRCPY.                                                00111066
+001149******************************************************************00114900
+001150 PROCEDURE DIVISION USING DFHCOMMAREA.                            00115000
+001151******************************************************************00115100
+001152*        MOVE SPACES TO LS-OPT, LS-CONFIRM, LS-ORD-DATE,          00115232
+001153*                       LS-REQ-DATE, LS-SHP-DATE, LS-TOKEN,       00115332
+001154*                       LS-SCM, LS-UNIT-PRC, LS-CARR-COST,        00115432
+001155*                       LS-TOT-COST.                              00115532
+001156*        MOVE 0      TO LS-ORD-ID, LS-DLR-ID, LS-EMP-ID,          00115666
+001157*                       LS-PROD-ID, LS-QUANTITY.                  00115732
+001158*        MOVE 'END PGM' TO LS-MSG.                                00115832
+001159*        EXEC CICS RETURN                                         00115932
+001160*        END-EXEC.                                                00116032
+001161 1000-MAINLINE-PARA.                                              00116100
+001162     DISPLAY 'START 1000'.                                        00116229
+001163     IF EIBCALEN = 0                                              00116300
+001164        PERFORM 2100-CLEAR-PARA THRU 2100-EXIT                    00116444
+001179        MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG                  00117944
+001180        EXEC CICS RETURN                                          00118044
+001181        END-EXEC                                                  00118144
+001182     ELSE                                                         00118244
+001183        DISPLAY 'IN ELSE 1000'                                    00118344
+001184        PERFORM 2000-PROCESSING-PARA                              00118444
+001185*                                                                 00118500
+001190        EXEC CICS RETURN                                          00119044
+001301        END-EXEC                                                  00130144
+001302     END-IF.                                                      00130200
+001303******************************************************************00130300
+001340 2000-PROCESSING-PARA.                                            00134000
+001341      DISPLAY 'START 2000'.                                       00134128
+001345      EVALUATE TRUE                                               00134500
+001346         WHEN LS-OPT = 'INSERT'                                   00134644
+001356             PERFORM 3000-INSERT-PARA THRU 3000-EXIT              00135644
+001358             EXEC CICS RETURN END-EXEC                            00135804
+001359         WHEN LS-OPT = 'SELECT'                                   00135951
+001360             PERFORM 4000-SELECT-PARA THRU 4000-EXIT              00136051
+001361             EXEC CICS RETURN END-EXEC                            00136153
+001362         WHEN LS-OPT = 'UPDATE'                                   00136254
+001363             PERFORM 5000-UPDATE-PARA THRU 5000-EXIT              00136354
+001364             EXEC CICS RETURN END-EXEC                            00136454
+001365         WHEN LS-OPT = 'DELETE'                                   00136562
+001366             PERFORM 6000-DELETE-PARA THRU 6000-EXIT              00136662
+001367             EXEC CICS RETURN END-EXEC                            00136762
+001371*                    EXEC CICS READQ TS                           00137144
+001372*                         QUEUE('Q-NAME')                         00137244
+001373*                         INTO(ORDERQ)                            00137344
+001374*                         ITEM(CHOICE1)                           00137444
+001375*                    END-EXEC                                     00137544
+001426         WHEN OTHER                                               00142644
+001427            PERFORM 2100-CLEAR-PARA THRU 2100-EXIT                00142744
+001446            EXEC CICS RETURN END-EXEC                             00144644
+001447      END-EVALUATE.                                               00144744
+001448*                                                                 00144844
+001449 2000-EXIT.                                                       00144944
+001450     EXIT.                                                        00145044
+001451******************************************************************00145144
+001452 2100-CLEAR-PARA.                                                 00145244
+001453      MOVE SPACES TO LS-MSG,                                      00145344
+001454                     LS-OPT,                                      00145444
+001455                     LS-DLRNAME,                                  00145566
+001456                     LS-ADDLN1,                                   00145644
+001457                     LS-ADDLN2,                                   00145744
+001458                     LS-CITY,                                     00145844
+001459                     LS-STATE,                                    00145944
+001460                     LS-PCODE,                                    00146044
+001461                     LS-CTRY                                      00146144
+001462                     LS-PHONE,                                    00146244
+001463                     LS-FAX,                                      00146344
+001464*                    LS-EMAIL.                                    00146465
+001465      MOVE 0      TO LS-DLRID.                                    00146566
+001466*                                                                 00146644
+001467 2100-EXIT.                                                       00146744
+001468     EXIT.                                                        00146844
+001469************************************************************      00146944
+001470 3000-INSERT-PARA.                                                00147044
+001471     DISPLAY 'START 3000'.                                        00147144
+001472     PERFORM 3100-FETCH-DLR-ID-PARA THRU 3100-EXIT                00147269
+001473*      UNTIL WS-CSFLAG = 'Y'                                      00147369
+001474     PERFORM 3200-VALIDATION-PARA THRU 3200-EXIT.                 00147444
+001475     PERFORM 3300-VALDATE-PARA THRU 3300-EXIT.                    00147544
+001476     PERFORM 3400-VALID-COUNTRY-PARA THRU 3400-EXIT               00147644
+001477             VARYING I FROM 1 BY 1 UNTIL I > 120                  00147744
+001478             OR WS-FLAG = 'Y'.                                    00147844
+001479     IF WS-FLAG = 'Y'                                             00147944
+001480       MOVE LS-DLRID TO DLR-ID                                    00148066
+001481       MOVE LS-DLRNAME TO DLR-NAME                                00148166
+001482       MOVE LS-ADDLN1 TO DLR-ADR-LN-1                             00148266
+001483       MOVE LS-ADDLN2 TO DLR-ADR-LN-2                             00148366
+001484       MOVE LS-CITY   TO DLR-CITY                                 00148466
+001485       MOVE LS-STATE  TO DLR-STATE                                00148566
+001486       MOVE LS-PCODE  TO DLR-POST-CD                              00148666
+001487       MOVE LS-CTRY   TO DLR-COUNTRT                              00148766
+001488       MOVE LS-PHONE  TO DLR-PHONE                                00148866
+001489       MOVE LS-FAX    TO DLR-FAX                                  00148966
+001490*      MOVE LS-EMAIL  TO DLR-EMAIL-ID                             00149066
+001491       MOVE LS-CRDATE TO DLR-CR-DATE                              00149166
+001492       EXEC SQL INSERT INTO                                       00149244
+001493          ADMT.T_DL_DEALER VALUES(:DLR-ID,                        00149366
+001494              :DLR-NAME,:DLR-ADR-LN-1,                            00149466
+001495              :DLR-ADR-LN-2,:DLR-CITY,                            00149566
+001496              :DLR-STATE,:DLR-POST-CD,                            00149666
+001497              :DLR-COUNTRT,:DLR-PHONE,                            00149766
+001498             :DLR-FAX,:DLR-CR-DATE)                               00149866
+001499       END-EXEC                                                   00149944
+001500       EVALUATE SQLCODE                                           00150044
+001501          WHEN 0                                                  00150144
+001502             MOVE 'SUPPLIER PROFILE REGISTERED SUCCESSFULLY'      00150269
+                        TO LS-MSG                                       00150369
+                   PERFORM 3010-CONCATE-PARA THRU 3010-EXIT             00150470
+                   EXEC SQL INSERT INTO                                 00150570
+                      ADMT.LOGIN_DTLS VALUES(:USER-ID,                  00150670
+                          :USER-PWD,:ACCESS-TOKEN)                      00150770
+                   END-EXEC                                             00150870
+                   EXEC CICS RETURN END-EXEC                            00151470
+001507          WHEN OTHER                                              00151644
+001508            MOVE 'REGISTRATION OF SUPPLIER PROFILE FAILED'        00151769
+                              TO LS-MSG                                 00151869
+001509            EXEC CICS RETURN END-EXEC                             00151944
+001513       END-EVALUATE                                               00152044
+001514*                                                                 00152144
+001515     ELSE                                                         00152244
+001516       MOVE 0 TO I                                                00152344
+001517       MOVE SPACES TO LS-CTRY                                     00152444
+001519       MOVE 'INVALID COUNTRY,PLEASE CHOOSE THE VALID COUNTRY'     00152544
+001520             TO LS-MSG                                            00152644
+001521       EXEC CICS RETURN END-EXEC                                  00152744
+001522     END-IF.                                                      00152844
+001523*                                                                 00152944
+001524 3000-EXIT.                                                       00153044
+001525     EXIT.                                                        00153144
+001526***************************************************************** 00154044
+001584*3100-FETCH-DLR-ID-PARA.                                          00158466
+001585*                                                                 00158544
+001592*    DISPLAY 'START 3100-PARA'.                                   00159253
+001593*    MOVE 5451 TO DLR-ID.                                         00159366
+001594*    EXEC SQL                                                     00159453
+001600*        SELECT DLR_ID                                            00160066
+001700*        INTO :DLR-ID                                             00170066
+001710*        FROM ADMT.T_DL_DEALER                                    00171069
+001720*        WHERE DLR_ID = :DLR-ID                                   00172066
+001730*    END-EXEC.                                                    00173053
+001740*                                                                 00174004
+001741*    DISPLAY 'SQLCODE', SQLCODE.                                  00174153
+001771*    EVALUATE SQLCODE                                             00177153
+001772*       WHEN 0                                                    00177253
+001773*           ADD 1 TO DLR-ID                                       00177366
+001774*           MOVE 'N' TO WS-CSFLAG                                 00177453
+001775*       WHEN +100                                                 00177553
+001776*           MOVE 'Y' TO WS-CSFLAG                                 00177653
+001777*           MOVE DLR-ID TO LS-DLRID                               00177766
+001778*    END-EVALUATE.                                                00177853
+001779*                                                                 00177944
+001814*3100-EXIT.                                                       00181453
+001815*    EXIT.                                                        00181553
+001816***************************************************************** 00181636
+001817 3100-FETCH-DLR-ID-PARA.                                          00181766
+001818*                                                                 00181855
+001819     DISPLAY 'START 3100-PARA'.                                   00181953
+001820*    COMPUTE RAND-INT = 1000000000 * FUNCTION RANDOM.             00182069
+001822*    MOVE RAND-INT TO DLR-ID.                                     00182269
+001830     EXEC SQL                                                     00183053
+001831          SELECT DLR_ID                                           00183166
+001832          INTO :DLR-ID                                            00183266
+001833          FROM ADMT.T_DL_DEALER                                   00183367
+                ORDER BY DLR_ID DESC FETCH FIRST 1 ROWS ONLY            00183469
+001835     END-EXEC.                                                    00183653
+001836                                                                  00183953
+001837     DISPLAY 'SQLCODE', SQLCODE.                                  00184053
+001838     EVALUATE SQLCODE                                             00184153
+001839        WHEN 0                                                    00184253
+001840*           ADD 1 TO RAND-INT                                     00184369
+001841*           MOVE 'N' TO WS-CSFLAG                                 00184469
+                  MOVE DLR-ID TO LS-DLRID                               00184569
+                  COMPUTE LS-DLRID = LS-DLRID + 1                       00184669
+001842            DISPLAY LS-DLRID                                      00184769
+001843        WHEN +100                                                 00184853
+001846            MOVE 1 TO LS-DLRID                                    00184969
+001847     END-EVALUATE.                                                00185053
+001848*                                                                 00185151
+001849 3100-EXIT.                                                       00185253
+001850     EXIT.                                                        00185353
+001851***************************************************************** 00185451
+001852 3200-VALIDATION-PARA.                                            00185551
+001853*                                                                 00185655
+001860     DISPLAY 'START 3200'.                                        00186051
+001900     IF LS-DLRNAME = 0 OR LS-DLRNAME = SPACES                     00190066
+001910          MOVE 'ENTER A VALID SUPPLIER NAME' TO LS-MSG            00191069
+001912          EXEC CICS RETURN END-EXEC                               00191244
+001913     ELSE IF LS-DLRNAME IS NOT ALPHABETIC                         00191366
+001914          MOVE 'ENTER A VALID SUPPLIER NAME'                      00191469
+001915               TO LS-MSG                                          00191544
+001916          EXEC CICS RETURN END-EXEC                               00191644
+001918          END-IF                                                  00191844
+001919     END-IF.                                                      00191944
+002000*                                                                 00200044
+002100     IF LS-ADDLN1 = 0 OR LS-ADDLN1 = SPACES                       00210044
+002200     MOVE 'SUPPLIER ADDRESS-LN 1 NOT ENTERED - PLZ ENTER IT'      00220069
+002422                                                    TO LS-MSG     00221069
+002300          EXEC CICS RETURN END-EXEC                               00230044
+002410     END-IF.                                                      00241044
+002420*                                                                 00242044
+002421     IF LS-ADDLN2 = 0 OR LS-ADDLN2 = SPACES                       00242144
+002422     MOVE 'SUPPLIER ADDRESS-LN 2 NOT ENTERED - PLZ ENTER IT'      00242269
+002422                                                    TO LS-MSG     00242369
+002423          EXEC CICS RETURN END-EXEC                               00242469
+002424     END-IF.                                                      00242569
+002425*                                                                 00242669
+002426     IF LS-CITY = 0 OR LS-CITY = SPACES                           00242769
+002427          MOVE 'CITY NOT ENTERED - PLZ ENTER IT' TO LS-MSG        00242869
+002428          EXEC CICS RETURN END-EXEC                               00242969
+002429     ELSE IF LS-CITY IS NOT ALPHABETIC                            00243069
+002430          MOVE 'CITY ENTERED IS INCORRECT - ENTER CORRECTLY'      00243169
+002431               TO LS-MSG                                          00243269
+002432          EXEC CICS RETURN END-EXEC                               00243369
+002433          END-IF                                                  00243469
+002434     END-IF.                                                      00243569
+002435*                                                                 00243669
+002436     IF LS-STATE = 0 OR LS-STATE = SPACES                         00243769
+002437          MOVE 'STATE NOT ENTERED - PLZ ENTER IT' TO LS-MSG       00243869
+002438          EXEC CICS RETURN END-EXEC                               00243969
+002439     ELSE IF LS-STATE IS NOT ALPHABETIC                           00244069
+002440          MOVE 'STATE ENTERED IS INCORRECT - ENTER CORRECTLY'     00244169
+002441               TO LS-MSG                                          00244269
+002442          EXEC CICS RETURN END-EXEC                               00244369
+002443          END-IF                                                  00244469
+002444     END-IF.                                                      00244569
+002445*                                                                 00244669
+002446     IF LS-PCODE = 0 OR LS-PCODE = SPACES                         00244769
+002447         MOVE 'POSTAL CODE NOT ENTERED - PLZ ENTER IT' TO LS-MSG  00244869
+002448         EXEC CICS RETURN END-EXEC                                00244969
+002449     ELSE IF LS-PCODE IS ALPHABETIC                               00245069
+002450         MOVE 'POSTAL CODE ENTERED IS INCORRECT - ENTER CORRECTLY'00245169
+002451              TO LS-MSG                                           00245269
+002452         EXEC CICS RETURN END-EXEC                                00245369
+002453          END-IF                                                  00245469
+002454     END-IF.                                                      00245569
+002455*                                                                 00245669
+002456     IF LS-CTRY = 0 OR LS-CTRY = SPACES                           00245769
+002457          MOVE 'COUNTRY NOT ENTERED - PLZ ENTER IT' TO LS-MSG     00245869
+002458          EXEC CICS RETURN END-EXEC                               00245969
+002459     END-IF.                                                      00246069
+002460*                                                                 00246169
+002461     IF LS-PHONE = 0 OR LS-PHONE = SPACES                         00246269
+002462         MOVE 'PHONE NOT ENTERED - PLZ ENTER IT' TO LS-MSG        00246369
+002463         EXEC CICS RETURN END-EXEC                                00246469
+002464     ELSE IF LS-PHONE IS ALPHABETIC                               00246569
+002465         MOVE 'PHONE ENTERED IS INCORRECT - ENTER CORRECTLY'      00246669
+002466              TO LS-MSG                                           00246769
+002467         EXEC CICS RETURN END-EXEC                                00246869
+002468          END-IF                                                  00246969
+002469     END-IF.                                                      00247069
+002470*                                                                 00248069
+002481     IF LS-FAX = 0 OR LS-FAX = SPACES                             00248144
+002482         MOVE 'FAX NOT ENTERED - PLZ ENTER IT' TO LS-MSG          00248244
+002483         EXEC CICS RETURN END-EXEC                                00248344
+002484     ELSE IF LS-FAX IS ALPHABETIC                                 00248444
+002485         MOVE 'FAX ENTERED IS INCORRECT - ENTER CORRECTLY'        00248544
+002486              TO LS-MSG                                           00248644
+002487         EXEC CICS RETURN END-EXEC                                00248744
+002488          END-IF                                                  00248844
+002489     END-IF.                                                      00248944
+002490*                                                                 00249044
+002491*    IF LS-EMAIL = 0 OR LS-EMAIL = SPACES                         00249165
+002492*        MOVE 'EMAIL-ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG     00249265
+002493*        EXEC CICS RETURN END-EXEC                                00249365
+002499*    END-IF.                                                      00249965
+002500*                                                                 00250055
+002501*    IF LS-CRDATE = 0 OR LS-CRDATE = SPACES                       00250155
+002502*         MOVE 'CREATION DATE NOT ENTERED - PLZ ENTER IT'         00250255
+002503*               TO LS-MSG                                         00250355
+002504*         EXEC CICS RETURN END-EXEC                               00250455
+002505*    ELSE                                                         00250555
+002506*         MOVE LS-CRDATE   TO INPUTDATELA                         00250655
+002507*         MOVE LS-CRDATE(1:2) TO MONTHLA                          00250755
+002508*         MOVE LS-CRDATE(3:1) TO WS-SLASH1                        00250855
+002510*         MOVE LS-CRDATE(4:2) TO DAYLA                            00251055
+002600*         MOVE LS-CRDATE(6:1) TO WS-SLASH2                        00260044
+002700*         MOVE LS-CRDATE(7:4) TO YEARLA                           00270044
+002800*                                                                 00280044
+002900*         PERFORM 9400-BEGIN-PARA THRU 9400-EXIT                  00290044
+003000*                                                                 00300044
+003100*         EVALUATE TRUE                                           00310044
+003110*           WHEN DATENOTNUMERIC                                   00311044
+003120*             MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    00312044
+003130*                  TO LS-MSG                                      00313051
+003150*             EXEC CICS RETURN END-EXEC                           00315044
+003151*           WHEN MONTHCONTAINSZEROS                               00315144
+003152*             MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00315244
+003153*                  TO LS-MSG                                      00315351
+003155*             EXEC CICS RETURN END-EXEC                           00315544
+003156*           WHEN MONTHGREATERTHAN12                               00315644
+003160*             MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00316044
+003170*                   TO LS-MSG                                     00317051
+003190*              EXEC CICS RETURN END-EXEC                          00319044
+003191*            WHEN DAYCONTAINSZEROS                                00319144
+003192*              MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'   00319244
+003193*                   TO LS-MSG                                     00319351
+003195*              EXEC CICS RETURN END-EXEC                          00319544
+003196*            WHEN DAYTOOGREATFORMONTH                             00319644
+003197*              MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ EN00319744
+003198*                   'TER CORRECT FORMAT' TO LS-MSG                00319851
+003200*              EXEC CICS RETURN END-EXEC                          00320044
+003201*            WHEN YEARCONTAINSZEROS                               00320144
+003202*              MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'   00320244
+003203*                     TO LS-MSG                                   00320351
+003205*              EXEC CICS RETURN END-EXEC                          00320544
+003206*         END-EVALUATE                                            00320644
+003207*                                                                 00320718
+003208*         IF LS-CRDATE(1:2) IS NOT NUMERIC                        00320844
+003209*            MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'    00320944
+003210*                TO LS-MSG                                        00321051
+003212*            EXEC CICS RETURN END-EXEC                            00321244
+003213*         END-IF                                                  00321344
+003214*                                                                 00321444
+003215*         IF LS-CRDATE(4:2) IS NOT NUMERIC                        00321544
+003216*            MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'     00321644
+003217*                TO LS-MSG                                        00321751
+003219*            EXEC CICS RETURN END-EXEC                            00321944
+003220*         END-IF                                                  00322044
+003221*                                                                 00322144
+003222*         IF LS-CRDATE(7:4)IS NOT NUMERIC                         00322244
+003223*            MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'     00322344
+003224*                TO LS-MSG                                        00322451
+003226*            EXEC CICS RETURN END-EXEC                            00322644
+003227*         ELSE                                                    00322744
+003228*            DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM   00322844
+003229*                                                                 00322944
+003230*            IF MONTHLA = 02 AND WS-SLASH1 = '/' AND DAYLA = 29   00323044
+003231*               AND WS-SLASH2 = '/' AND WS-REM NOT = 0            00323144
+003232*               MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ E00323244
+003233*                  'NTER CORRECT FORMAT' TO LS-MSG                00323351
+003235*               EXEC CICS RETURN END-EXEC                         00323544
+003236*            END-IF                                               00323644
+003240*                                                                 00324018
+003250*         END-IF                                                  00325044
+032400*                                                                 03240044
+032500*         EVALUATE TRUE                                           03250044
+032510*             WHEN WS-SLASH1 NOT = '/'                            03251044
+032520*               MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A S03252044
+032530*                    'EPERATOR'  TO LS-MSG                        03253051
+032550*               EXEC CICS RETURN END-EXEC                         03255044
+032560*                                                                 03256044
+032570*             WHEN WS-SLASH2 NOT = '/'                            03257044
+032580*               MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A S03258044
+032590*                    'EPERATOR'  TO LS-MSG                        03259051
+032592*               EXEC CICS RETURN END-EXEC                         03259244
+032593*         END-EVALUATE                                            03259344
+032594*                                                                 03259448
+032595 3200-EXIT.                                                       03259549
+032596     EXIT.                                                        03259648
+032597******************************************************************03259744
+032666 3300-VALDATE-PARA.                                               03266644
+032667     DISPLAY 'START 3300'.                                        03266744
+032668     EXEC CICS ASKTIME ABSTIME(DT) END-EXEC.                      03266818
+032669     EXEC CICS FORMATTIME                                         03266918
+032670         ABSTIME(DT)                                              03267018
+032671         MMDDYY(WK-DATE)                                          03267118
+032672         DATESEP                                                  03267218
+032673         TIME(WK-TIME)                                            03267318
+032674         TIMESEP                                                  03267418
+032675     END-EXEC.                                                    03267518
+032676*                                                                 03267618
+032677     MOVE WK-D-YY TO WS-YEAR1.                                    03267718
+032678     ADD 2000 TO WS-YEAR1.                                        03267818
+032679     MOVE WS-YEAR1 TO WS-YEAR.                                    03267918
+032680     MOVE WK-D-MM TO WS-MONTH.                                    03268018
+032681     MOVE WK-D-DD TO WS-DATE.                                     03268118
+032682     MOVE WS-SCR-DATE TO LS-CRDATE.                               03268248
+032685*                                                                 03268518
+032686     DISPLAY 'END   3300'.                                        03268644
+032687*                                                                 03268744
+032688 3300-EXIT.                                                       03268844
+032689     EXIT.                                                        03268918
+032690**********************************************************        03269049
+032691 3400-VALID-COUNTRY-PARA.                                         03269149
+032700     IF LS-CTRY = WS-COUNTRY-NAME(I)                              03270049
+032800        MOVE 'Y' TO WS-FLAG                                       03280049
+032900     ELSE                                                         03290049
+033000        MOVE 'N' TO WS-FLAG                                       03300049
+033100     END-IF.                                                      03310049
+033200*                                                                 03320049
+033300 3400-EXIT.                                                       03330049
+033400     EXIT.                                                        03340049
+033410***************************************************************** 03341051
+033500 4000-SELECT-PARA.                                                03350051
+033600     IF LS-DLRID = 0                                              03360066
+033700        MOVE 'SUPPLIER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   03370069
+033900        EXEC CICS RETURN END-EXEC                                 03390051
+034000*                                                                 03400051
+034100     ELSE IF LS-DLRID IS NOT NUMERIC                              03410066
+034200        MOVE 'SUPPLIER ID SHOULD BE NUMERIC - PLZ ENTER IT'       03420069
+034300             TO LS-MSG                                            03430051
+034400        EXEC CICS RETURN END-EXEC                                 03440051
+034600*                                                                 03460051
+034700          ELSE                                                    03470051
+034800            MOVE LS-DLRID TO DLR-ID                               03480066
+034900            EXEC SQL                                              03490051
+035000               SELECT DLR_ID,DLR_NAME,DLR_ADR_LN_1,               03500066
+035100                     DLR_ADR_LN_2,DLR_CITY,DLR_STATE,             03510066
+035200                     DLR_POST_CD,DLR_COUNTRT,DLR_PHONE,           03520066
+035210                     DLR_FAX,DLR_CR_DATE                          03521066
+035300               INTO :DLR-ID,:DLR-NAME,                            03530066
+035400                    :DLR-ADR-LN-1,                                03540066
+035500                    :DLR-ADR-LN-2,                                03550066
+035600                    :DLR-CITY,                                    03560066
+035700                    :DLR-STATE,                                   03570066
+035800                    :DLR-POST-CD,                                 03580066
+035900                    :DLR-COUNTRT,                                 03590066
+036000                    :DLR-PHONE,                                   03600066
+036100                    :DLR-FAX,                                     03610066
+036120                    :DLR-CR-DATE                                  03612066
+036200               FROM ADMT.T_DL_DEALER                              03620066
+036300               WHERE DLR_ID = :DLR-ID                             03630066
+036400            END-EXEC                                              03640051
+036500*                                                                 03650051
+036600            EVALUATE SQLCODE                                      03660051
+036700               WHEN 0                                             03670051
+036800                   MOVE DLR-ID        TO LS-DLRID                 03680066
+036810                   MOVE DLR-NAME      TO LS-DLRNAME               03681066
+036900                   MOVE DLR-ADR-LN-1 TO LS-ADDLN1                 03690066
+037000                   MOVE DLR-ADR-LN-2 TO LS-ADDLN2                 03700066
+037100                   MOVE DLR-CITY      TO LS-CITY                  03710066
+037200               MOVE DLR-STATE     TO LS-STATE                     03720066
+037300                   MOVE DLR-POST-CD   TO LS-PCODE                 03730066
+037400                   MOVE DLR-COUNTRT   TO LS-CTRY                  03740066
+037500                   MOVE DLR-PHONE     TO LS-PHONE                 03750066
+037600                   MOVE DLR-FAX       TO LS-FAX                   03760066
+037610*                  MOVE DLR-EMAIL-ID TO LS-EMAIL                  03761066
+037630                   MOVE DLR-CR-DATE   TO LS-CRDATE                03763066
+037700*                                                                 03770051
+037800         MOVE 'PROFILE DETAILS RETRIEVED SUCCESSFULLY'            03780069
+037900                         TO LS-MSG                                03790051
+038100                   EXEC CICS RETURN END-EXEC                      03810051
+038200               WHEN OTHER                                         03820051
+038300                   PERFORM 2100-CLEAR-PARA THRU 2100-EXIT         03830051
+038400                   MOVE DLR-ID TO LS-DLRID                        03840066
+038500                   MOVE 'SUPPLIER DOES NOT EXIST' TO LS-MSG       03850069
+038600                   EXEC CICS RETURN END-EXEC                      03860051
+038900            END-EVALUATE                                          03890051
+039000*                                                                 03900051
+039100          END-IF                                                  03910051
+039200*                                                                 03920051
+039300     END-IF.                                                      03930051
+039400*                                                                 03940051
+039500 4000-EXIT.                                                       03950051
+039600     EXIT.                                                        03960051
+039700******************************************************************03970054
+039800 5000-UPDATE-PARA.                                                03980054
+039810     IF LS-DLRID = 0 OR LS-DLRID = SPACES                         03981066
+039820        MOVE 'SUPPLIER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   03982069
+039830         EXEC CICS RETURN END-EXEC                                03983055
+039840     ELSE IF LS-DLRID IS NOT NUMERIC                              03984066
+039850       MOVE 'SUPPLIER ID SHOULD BE NUMERIC' TO LS-MSG             03985069
+039870         EXEC CICS RETURN END-EXEC                                03987055
+039880          END-IF                                                  03988055
+039890     END-IF.                                                      03989055
+039891*                                                                 03989155
+039900     MOVE LS-DLRID TO DLR-ID.                                     03990066
+039910*                                                                 03991054
+040000     EXEC SQL                                                     04000059
+040010         SELECT DLR_ID                                            04001066
+040011         INTO :DLR-ID                                             04001166
+040020         FROM ADMT.T_DL_DEALER                                    04002066
+040040         WHERE DLR_ID = :DLR-ID                                   04004066
+040050     END-EXEC.                                                    04005054
+040060*                                                                 04006054
+040070     EVALUATE SQLCODE                                             04007054
+040080        WHEN 0                                                    04008054
+040100          PERFORM 3200-VALIDATION-PARA THRU 3200-EXIT             04010054
+040200          PERFORM 3300-VALDATE-PARA THRU 3300-EXIT                04020054
+040300          PERFORM 3400-VALID-COUNTRY-PARA THRU 3400-EXIT          04030054
+040400              VARYING I FROM 1 BY 1 UNTIL I > 120 OR WS-FLAG = 'Y'04040054
+040600          IF WS-FLAG = 'Y'                                        04060054
+040700             MOVE LS-DLRID TO DLR-ID                              04070066
+040800             MOVE LS-DLRNAME TO DLR-NAME                          04080066
+040900             MOVE LS-ADDLN1 TO DLR-ADR-LN-1                       04090066
+041000             MOVE LS-ADDLN2 TO DLR-ADR-LN-2                       04100066
+041100             MOVE LS-CITY   TO DLR-CITY                           04110066
+041200             MOVE LS-STATE  TO DLR-STATE                          04120066
+041300             MOVE LS-PCODE  TO DLR-POST-CD                        04130066
+041400             MOVE LS-CTRY   TO DLR-COUNTRT                        04140066
+041500             MOVE LS-PHONE  TO DLR-PHONE                          04150066
+041600             MOVE LS-FAX    TO DLR-FAX                            04160066
+041700*            MOVE LS-EMAIL  TO DLR-EMAIL-ID                       04170066
+041800             MOVE LS-CRDATE TO DLR-CR-DATE                        04180066
+041900             EXEC SQL                                             04190055
+042000                  UPDATE ADMT.T_DL_DEALER                         04200066
+042100                  SET DLR_ID        = :DLR-ID,                    04210066
+042200                      DLR_NAME      = :DLR-NAME,                  04220066
+042300                      DLR_ADR_LN_1 = :DLR-ADR-LN-1,               04230066
+042400                      DLR_ADR_LN_2 = :DLR-ADR-LN-2,               04240066
+042500                      DLR_CITY      = :DLR-CITY,                  04250066
+042600                      DLR_STATE     = :DLR-STATE,                 04260066
+042610                      DLR_POST_CD   = :DLR-POST-CD,               04261066
+042620                      DLR_COUNTRT   = :DLR-COUNTRT,               04262066
+042630                      DLR_PHONE     = :DLR-PHONE,                 04263066
+042640                      DLR_FAX       = :DLR-FAX,                   04264066
+042642                      DLR_CR_DATE   = :DLR-CR-DATE                04264266
+042650                  WHERE DLR_ID      = :DLR-ID                     04265066
+042660             END-EXEC                                             04266055
+042700             EVALUATE SQLCODE                                     04270054
+042800               WHEN 0                                             04280054
+042900             MOVE 'PROFILE INFORMATION MODIFIED SUCCESSFULLY' TO  04290069
+                      LS-MSG                                            04291069
+043000                  EXEC CICS RETURN END-EXEC                       04300054
+043100               WHEN OTHER                                         04310054
+043200                  MOVE 'UPDATION NOT SUCCESSFUL' TO LS-MSG        04320055
+043300                  EXEC CICS RETURN END-EXEC                       04330054
+043400             END-EVALUATE                                         04340054
+043500*                                                                 04350054
+043600          ELSE                                                    04360054
+043700            MOVE 0 TO I                                           04370054
+043800            MOVE SPACES TO LS-CTRY                                04380054
+043900            MOVE 'INVALID COUNTRY,PLEASE CHOOSE THE VALID COUNTRY'04390054
+044000                  TO LS-MSG                                       04400054
+044100            EXEC CICS RETURN END-EXEC                             04410054
+044200          END-IF                                                  04420054
+044210*                                                                 04421054
+044220        WHEN 100                                                  04422054
+044221           MOVE DLR-ID TO LS-DLRID                                04422166
+044222         MOVE 'SUPPLIER DOES NOT EXIST' TO LS-MSG                 04422269
+044223           EXEC CICS RETURN END-EXEC                              04422354
+044230     END-EVALUATE.                                                04423058
+044300*                                                                 04430054
+044400 5000-EXIT.                                                       04440055
+044500     EXIT.                                                        04450054
+044510****************************************************************  04451062
+044600 6000-DELETE-PARA.                                                04460062
+044700     IF LS-DLRID = 0 OR LS-DLRID = SPACES                         04470066
+044800         MOVE 'SUPPLIER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  04480069
+044900         EXEC CICS RETURN END-EXEC                                04490062
+045000     ELSE IF LS-DLRID IS NOT NUMERIC                              04500066
+045100         MOVE 'SUPPLIER ID SHOULD BE NUMERIC' TO LS-MSG           04510069
+045200         EXEC CICS RETURN END-EXEC                                04520062
+045300          END-IF                                                  04530062
+045400     END-IF.                                                      04540062
+045500*                                                                 04550062
+045600     MOVE LS-DLRID TO DLR-ID.                                     04560066
+045700*                                                                 04570062
+045800     EXEC SQL                                                     04580062
+045900         SELECT DLR_ID                                            04590066
+046000         INTO :DLR-ID                                             04600066
+046100         FROM ADMT.T_DL_DEALER                                    04610067
+046200         WHERE DLR_ID = :DLR-ID                                   04620066
+046300     END-EXEC.                                                    04630062
+046400*                                                                 04640062
+046500     EVALUATE SQLCODE                                             04650062
+046600        WHEN 0                                                    04660062
+046700           EXEC SQL DELETE FROM ADMT.T_DL_DEALER                  04670067
+046800           WHERE DLR_ID = :DLR-ID                                 04680066
+046900           END-EXEC                                               04690062
+047000           EVALUATE SQLCODE                                       04700062
+047100              WHEN 0                                              04710062
+                      MOVE LS-DLRID TO WS-ID                            04711071
+                      MOVE WS-CONCATE TO USER-ID                        04712071
+                      EXEC SQL                                          04713071
+                          DELETE FROM ADMT.LOGIN_DTLS                   04714071
+                          WHERE USER_ID = :USER-ID                      04715071
+                      END-EXEC                                          04716071
+047200                MOVE 'SUPPLIER PROFILE CLOSED SUCCESSFULLY'       04720069
+                              TO LS-MSG                                 04721069
+047300                EXEC CICS RETURN                                  04730071
+047400                END-EXEC                                          04740071
+047500              WHEN OTHER                                          04750062
+047600                  MOVE 'SUPPLIER PROFILE COULD NOT BE CLOSED'     04760069
+047600                                                  TO LS-MSG       04761069
+047700                  EXEC CICS RETURN                                04770062
+047800                  END-EXEC                                        04780062
+047900           END-EVALUATE                                           04790062
+048000*                                                                 04800062
+048100        WHEN 100                                                  04810062
+048110           MOVE 'SUPPLIER DOES NOT EXIST' TO LS-MSG               04811069
+048120           EXEC CICS RETURN                                       04812062
+048130           END-EXEC                                               04813062
+048200     END-EVALUATE.                                                04820062
+048300*                                                                 04830062
+048400 6000-EXIT.                                                       04840062
+048500     EXIT.                                                        04850062
+048300*                                                                 04860070
+       3010-CONCATE-PARA.                                               04870070
+           MOVE DLR-ID TO WS-ID.                                        04880070
+           MOVE WS-CONCATE TO USER-ID.                                  04890070
+           MOVE 'SATYAM' TO USER-PWD.                                   04920070
+           MOVE 'SUPLR' TO ACCESS-TOKEN.                                04930070
+                                                                        04940070
+       3010-EXIT.                                                       04950070
+           EXIT.                                                        04960070

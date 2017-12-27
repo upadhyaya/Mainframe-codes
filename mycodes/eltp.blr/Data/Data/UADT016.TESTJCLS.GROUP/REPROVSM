@@ -1,0 +1,9 @@
+//UADT016R JOB 'REPRO UTILITY',NOTIFY=&SYSUID,REGION=0M                 00010000
+//STEP1 EXEC PGM=IDCAMS                                                 00020000
+//SYSPRINT DD SYSOUT=*                                                  00030000
+//INDD DD DSN=ELTP.BLR.SAMP.BASE,DISP=SHR                               00040001
+//OUTDD DD DSN=ELTP.BLR.SAMP1.BASE,DISP=SHR                             00050002
+//SYSIN DD *                                                            00080000
+  REPRO INFILE(INDD) -                                                  00090000
+        OUTFILE(OUTDD)                                                  00100001
+//                                                                      00120000

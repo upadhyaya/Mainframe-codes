@@ -1,0 +1,24 @@
+//UADT012M JOB NOTIFY=&SYSUID,REGION=0M                                 00010002
+/*JOBPARM LINES=999999                                                  00011000
+//* COBOL + DB2 + CICS                                                  00020000
+//*  ASSUMED THAT IPPGM = DBRM = LOAD MODULE NAME ARE SAME              00030000
+//*                                                                     00040000
+//FTP00001 EXEC PGM=IKJEFT01,DYNAMNBR=50                                00050001
+//OUT      DD   SYSOUT=*                                                00060001
+//AMSDUMP  DD   SYSOUT=*                                                00070001
+//SYSTSPRT DD   SYSOUT=*                                                00080001
+//SYSIN    DD   DUMMY                                                   00090001
+//SYSPRINT DD   DUMMY                                                   00091001
+//OUTPUT   DD   SYSOUT=*                                                00100001
+//SYSTSIN  DD  *                                                        00110001
+FTP (EXIT                                                               00120001
+172.19.119.61                                                           00130001
+uadt002                                                                 00150001
+karage                                                                  00160001
+pwd                                                                     00161001
+ASCII                                                                   00170001
+CD /adms/basicjava/samplecodes/                                         00190001
+pwd                                                                     00200001
+PUT 'ELTP.AEP.REPOANU' repttest                                         00210001
+QUIT                                                                    00220001
+/*                                                                      00330000

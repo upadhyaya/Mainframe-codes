@@ -1,0 +1,131 @@
+       01 SMF110-REPORT-HEADER.                                         00010000
+      *                                                                 00011000
+          05 MAIN-HEADER-LINE1.                                         00012000
+             10 FILLER            PIC X(14) VALUE 'SYSTEM ID    :'.     00013000
+             10 WS-SYSTEMID-RPT   PIC X(4).                             00014000
+             10 FILLER            PIC X(42) VALUE SPACES.               00015000
+             10 WS-REPORT-HEADER  PIC X(30).                            00016000
+             10 FILLER            PIC X(45) VALUE SPACES.               00017000
+             10 FILLER            PIC X(5) VALUE 'DATE:'.               00018000
+             10 WS-DATE.                                                00019000
+                15 WS-DAY   PIC 9(2).                                   00019100
+                15 FILLER   PIC X(1) VALUE '/'.                         00019200
+                15 WS-MONTH PIC 9(2).                                   00019300
+                15 FILLER   PIC X(1) VALUE '/'.                         00019400
+                15 WS-YEAR  PIC 9(4).                                   00019500
+      *                                                                 00019600
+          05 MAIN-HEADER-LINE2.                                         00019700
+             10 FILLER            PIC X(14) VALUE 'SUB-SYSTEM ID:'.     00019800
+             10 WS-SUBSYSID-RPT   PIC X(4).                             00019900
+             10 FILLER            PIC X(01) VALUE '('.                  00020100
+             10 WS-APPLID-RPT     PIC X(08).                            00020200
+             10 FILLER            PIC X(01) VALUE ')'.                  00020300
+             10 FILLER            PIC X(32) VALUE SPACES.               00020400
+             10 FILLER            PIC X(30) VALUE ALL ' '.              00020500
+             10 FILLER            PIC X(45) VALUE SPACES.               00020600
+             10 FILLER            PIC X(5) VALUE 'TIME:'.               00020700
+             10 WS-TIME.                                                00020800
+                15 WS-HOUR  PIC 9(2).                                   00020900
+                15 FILLER   PIC X(1) VALUE ':'.                         00021000
+                15 WS-MIN   PIC 9(2).                                   00021100
+                15 FILLER   PIC X(1) VALUE ':'.                         00021200
+                15 WS-SEC   PIC 9(2).                                   00021300
+      *                                                                 00022000
+          05 PATTERN1.                                                  00060000
+             10 FILLER  PIC X(150) VALUE ALL '-'.                       00070000
+          05 PATTERN2.                                                  00080000
+             10 FILLER  PIC X(150) VALUE ALL '*'.                       00090000
+          05 HEADER1.                                                   00100001
+             10 FILLER  PIC X(01) VALUE ' '.                            00110001
+             10 FILLER  PIC X(04) VALUE 'Tran'.                         00120001
+             10 FILLER  PIC X(01) VALUE ' '.                            00121001
+             10 FILLER  PIC X(02) VALUE 'SC'.                           00122001
+             10 FILLER  PIC X(01) VALUE ' '.                            00123001
+             10 FILLER  PIC X(08) VALUE 'Userid'.                       00124001
+             10 FILLER  PIC X(01) VALUE ' '.                            00125001
+             10 FILLER  PIC X(04) VALUE 'RSID'.                         00126001
+             10 FILLER  PIC X(01) VALUE ' '.                            00127001
+             10 FILLER  PIC X(08) VALUE 'Program'.                      00128001
+             10 FILLER  PIC X(01) VALUE ' '.                            00129001
+             10 FILLER  PIC X(08) VALUE '  TaskNo'.                     00129101
+             10 FILLER  PIC X(01) VALUE ' '.                            00129201
+             10 FILLER  PIC X(12) VALUE 'Stop        '.                 00129301
+             10 FILLER  PIC X(01) VALUE ' '.                            00129401
+             10 FILLER  PIC X(09) VALUE 'Response'.                     00129508
+             10 FILLER  PIC X(01) VALUE ' '.                            00129601
+             10 FILLER  PIC X(09) VALUE 'Dispatch'.                     00129708
+             10 FILLER  PIC X(01) VALUE ' '.                            00129801
+             10 FILLER  PIC X(09) VALUE 'User CPU'.                     00129908
+             10 FILLER  PIC X(01) VALUE ' '.                            00130001
+             10 FILLER  PIC X(09) VALUE 'DB2 Time'.                     00130110
+             10 FILLER  PIC X(01) VALUE ' '.                            00130210
+             10 FILLER  PIC X(09) VALUE 'Suspend '.                     00130310
+             10 FILLER  PIC X(01) VALUE ' '.                            00130410
+             10 FILLER  PIC X(09) VALUE 'DispWait'.                     00130510
+             10 FILLER  PIC X(01) VALUE ' '.                            00130610
+             10 FILLER  PIC X(09) VALUE ' FC Wait'.                     00130710
+             10 FILLER  PIC X(01) VALUE ' '.                            00130810
+             10 FILLER  PIC X(08) VALUE '  FCAMRq'.                     00130910
+             10 FILLER  PIC X(01) VALUE ' '.                            00131010
+             10 FILLER  PIC X(09) VALUE ' IR Wait'.                     00131110
+             10 FILLER  PIC X(01) VALUE ' '.                            00131210
+          05 HEADER2.                                                   00131310
+             10 FILLER  PIC X(41) VALUE ' '.                            00131410
+             10 FILLER  PIC X(12) VALUE 'Time        '.                 00132501
+             10 FILLER  PIC X(01) VALUE ' '.                            00132601
+             10 FILLER  PIC X(09) VALUE '  Time  '.                     00132709
+             10 FILLER  PIC X(01) VALUE ' '.                            00132801
+             10 FILLER  PIC X(09) VALUE '  Time  '.                     00132909
+             10 FILLER  PIC X(01) VALUE ' '.                            00133001
+             10 FILLER  PIC X(09) VALUE '  Time  '.                     00133110
+             10 FILLER  PIC X(01) VALUE ' '.                            00133210
+             10 FILLER  PIC X(09) VALUE '  Time  '.                     00133310
+             10 FILLER  PIC X(01) VALUE ' '.                            00133410
+             10 FILLER  PIC X(09) VALUE '  Time  '.                     00133510
+             10 FILLER  PIC X(01) VALUE ' '.                            00133610
+             10 FILLER  PIC X(09) VALUE '  Time  '.                     00133710
+             10 FILLER  PIC X(01) VALUE ' '.                            00133810
+             10 FILLER  PIC X(09) VALUE '  Time  '.                     00133910
+             10 FILLER  PIC X(10) VALUE ' '.                            00134010
+             10 FILLER  PIC X(09) VALUE '  Time  '.                     00134109
+             10 FILLER  PIC X(01) VALUE ' '.                            00134201
+          05 WS-REPORT-LINE.                                            00134301
+             10 FILLER             PIC X(01) VALUE ' '.                 00134401
+             10 WS-TRANSACTION     PIC X(04).                           00134501
+             10 FILLER             PIC X(01) VALUE ' '.                 00134601
+             10 WS-START-TYPE      PIC X(02).                           00134703
+             10 FILLER             PIC X(01) VALUE ' '.                 00134801
+             10 WS-USER-ID         PIC X(08).                           00134902
+             10 FILLER             PIC X(01) VALUE ' '.                 00135001
+             10 WS-RSYSID          PIC X(04).                           00135102
+             10 FILLER             PIC X(01) VALUE ' '.                 00135201
+             10 WS-PGMNAME         PIC X(08).                           00135302
+             10 FILLER             PIC X(01) VALUE ' '.                 00135401
+             10 WS-TASKNO          PIC ZZZZZZ99.                        00135502
+             10 FILLER             PIC X(01) VALUE ' '.                 00135601
+             10 WS-STOP-TIME       PIC X(12).                           00135702
+             10 FILLER             PIC X(01) VALUE ' '.                 00135801
+             10 WS-RESPONSE-TIME   PIC Z9.999999.                       00135907
+             10 FILLER             PIC X(01) VALUE ' '.                 00136002
+             10 WS-DISPATCH-TIME   PIC Z9.999999.                       00136107
+             10 FILLER             PIC X(01) VALUE ' '.                 00136202
+             10 WS-CPU-TIME        PIC Z9.999999.                       00136307
+             10 FILLER             PIC X(01) VALUE ' '.                 00136402
+             10 WS-DB2-TIME        PIC Z9.999999.                       00136510
+             10 FILLER             PIC X(01) VALUE ' '.                 00136610
+             10 WS-SUSPEND-TIME    PIC Z9.999999.                       00136710
+             10 FILLER             PIC X(01) VALUE ' '.                 00136810
+             10 WS-DISPWAIT-TIME   PIC Z9.999999.                       00136910
+             10 FILLER             PIC X(01) VALUE ' '.                 00137010
+             10 WS-FCWAIT-TIME     PIC Z9.999999.                       00137110
+             10 FILLER             PIC X(01) VALUE ' '.                 00137210
+             10 WS-FCAM-REQ        PIC ZZZZZZZ9.                        00137310
+             10 FILLER             PIC X(01) VALUE ' '.                 00137410
+             10 WS-IRWAIT-TIME     PIC Z9.999999.                       00137510
+             10 FILLER             PIC X(01) VALUE ' '.                 00137610
+      *                                                                 00137711
+       01 NO-REPORT-LINE.                                               00137811
+          05 FILLER PIC X(40) VALUE ALL ' '.                            00137911
+          05 FILLER PIC X(20) VALUE '  NO RECORDS FOUND  '.             00138011
+          05 FILLER PIC X(40) VALUE ALL ' '.                            00139011
+      *                                                                 00140011

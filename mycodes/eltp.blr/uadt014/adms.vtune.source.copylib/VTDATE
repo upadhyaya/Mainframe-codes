@@ -1,0 +1,51 @@
+      ******************************************************************00000108
+      *CODE FOR CONVERTING DATE FROM JULIAN FORMAT TO GREGORIAN FORMAT  00000208
+      ******************************************************************00000308
+       9000-JULIAN2GREGORIAN-PARA.                                      00001000
+            IF WS-JULIAN-PREFIX = '0'                                   00010000
+                MOVE '19' TO WS-JJ-PREFIX                               00020000
+            ELSE                                                        00030000
+                MOVE '20' TO WS-JJ-PREFIX                               00040000
+            END-IF                                                      00050000
+            MOVE WS-JULIAN-YEAR TO WS-JJ-YY                             00060000
+            MOVE WS-JULIAN-DAY  TO WS-JJ-DDD                            00070000
+            COMPUTE WS-DD   = FUNCTION INTEGER-OF-DAY(WS-JJ-N)          00080002
+            COMPUTE WS-GG-N = FUNCTION DATE-OF-INTEGER(WS-DD)           00090000
+            MOVE WS-GG-DD TO WS-GRE-DD                                  00100000
+            MOVE WS-GG-MM TO WS-GRE-MM                                  00110000
+            MOVE WS-GG-YYYY TO WS-GRE-YYYY.                             00120000
+      *                                                                 00121002
+       9000-JULIAN2GREGORIAN-EXIT.                                      00130002
+            EXIT.                                                       00140001
+      *                                                                 00150002
+      ******************************************************************00151008
+      *CODE FOR FORMATING THE TIME TO HH:MM:SS.SS                       00152008
+      ******************************************************************00153008
+       9100-FORMATTIME-PARA.                                            00160005
+           COMPUTE WS-TIME-HH-N = (SMF30TIME-1 / 360000)                00170003
+           COMPUTE WS-TIME-MM-N = (SMF30TIME-1 / 6000)                  00180003
+                                  -(WS-TIME-HH-N * 60)                  00190003
+           COMPUTE WS-TIME-SS-N = (SMF30TIME-1 / 100)                   00200003
+                                 -(WS-TIME-MM-N * 60)                   00210003
+                                 -(WS-TIME-HH-N * 3600).                00220004
+      *                                                                 00221006
+       9100-FORMATTIME-EXIT.                                            00230007
+            EXIT.                                                       00240006
+      *                                                                 00250006
+      ******************************************************************00251009
+      *CODE FOR OBTAINING CURRENT DATE AND TIME.                        00252009
+      ******************************************************************00253009
+       9200-GETDATETIME-PARA.                                           00260009
+            MOVE FUNCTION CURRENT-DATE (1:8) TO WS-TODAY                00270009
+            MOVE WS-TODAY(1:4) TO WS-YEAR                               00280009
+            MOVE WS-TODAY(5:2) TO WS-MONTH                              00290009
+            MOVE WS-TODAY(7:2) TO WS-DAY.                               00300009
+            MOVE FUNCTION CURRENT-DATE (9:6) TO WS-TIMET                00310009
+            MOVE WS-TIMET(1:2) TO WS-HOUR                               00320009
+            MOVE WS-TIMET(3:2) TO WS-MIN                                00330009
+            MOVE WS-TIMET(5:2) TO WS-SEC.                               00340009
+      *                                                                 00350009
+       9200-GETDATETIME-EXIT.                                           00360009
+            EXIT.                                                       00370009
+      *                                                                 00380009
+      ******************************************************************00390009

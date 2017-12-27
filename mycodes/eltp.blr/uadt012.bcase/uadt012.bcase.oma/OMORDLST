@@ -1,0 +1,678 @@
+       IDENTIFICATION DIVISION.                                         00010001
+       PROGRAM-ID. OMORDLST.                                            00020099
+       DATA DIVISION.                                                   00120001
+       WORKING-STORAGE SECTION.                                         00160001
+       COPY VALIDDT.                                                    00170099
+       COPY DFHAID.                                                     00171099
+       01 FROM-ORD-DATE PIC X(10).                                      00180099
+       01 TO-ORD-DATE PIC X(10).                                        00190099
+       01 WS1-ORDER-DATE PIC X(10).                                     00200099
+           EXEC SQL                                                     00220001
+               INCLUDE ORDR                                             00230091
+           END-EXEC.                                                    00240001
+           EXEC SQL                                                     00250001
+               INCLUDE SQLCA                                            00260001
+           END-EXEC.                                                    00270001
+      *                                                                 00280001
+      *********************************************************         00281004
+      ****CURSOR DECLARATION FOR SELECTING THE LIST OF JOBS****         00282004
+      *********************************************************         00283004
+           EXEC SQL                                                     00284004
+               DECLARE ORDCUR CURSOR FOR                                00285099
+               SELECT  ORD_CUST_ID,ORD_PROD_ID,ORD_QUANT,               00286089
+                       ORD_ID,ORD_EMP_ID,ORD_TOTAL_COST                 00287099
+               FROM    ADMT.T_OR_ORDER                                  00289089
+               WHERE   ORD_DATE >= :FROM-ORD-DATE                       00289199
+               AND     ORD_DATE <= :TO-ORD-DATE                         00289299
+                       ORDER BY ORD_CUST_ID, ORD_TOTAL_COST DESC        00289399
+           END-EXEC.                                                    00289499
+      *                                                                 00289599
+       01 WS-QUOT     PIC 9(4) VALUE 0.                                 00289699
+       01 WS-REM      PIC 9(4) VALUE 0.                                 00289799
+       01 WK-DATE.                                                      00291064
+          05 WK-DD    PIC  X(2).                                        00300001
+          05 FILLER   PIC  X(1).                                        00310001
+          05 WK-MM    PIC  X(2).                                        00320001
+          05 FILLER   PIC  X(1).                                        00330001
+          05 WK-YY    PIC  X(4).                                        00340001
+      *                                                                 00350001
+       01 WK-TIME.                                                      00360001
+          05 WK-HH  PIC 99.                                             00370001
+          05 FILLER PIC X.                                              00380001
+          05 WK-MM  PIC 99.                                             00390001
+          05 FILLER PIC X.                                              00400001
+          05 WK-SS  PIC 99.                                             00410001
+       01 WS-SLASH1   PIC X(1) VALUE '-'.                               00411099
+       01 WS-SLASH2   PIC X(1) VALUE '-'.                               00412099
+      *                                                                 00420001
+       01  TSQ-NAME PIC X(08).                                          00420123
+       01  TSQ REDEFINES TSQ-NAME.                                      00420234
+           03 FIRST-PART    PIC X(4).                                   00420323
+           03 SECOND-PART   PIC 9(4).                                   00420423
+      *                                                                 00420617
+       01  Q-NM PIC X(08).                                              00420775
+       01  TSQ1 REDEFINES Q-NM.                                         00420875
+           03 FIRST-REF     PIC X(4).                                   00420974
+           03 SECOND-REF    PIC 9(4).                                   00421074
+      *                                                                 00421174
+       01 ORD-TOT-COST.                                                 00421289
+          02 WS-ORD-TOT-COST  PIC 9(16)V99.                             00421389
+          02 RE-ORD-TOT-COST  REDEFINES WS-ORD-TOT-COST PIC Z(14)9(4).  00421499
+                                                                        00421574
+       01 WS-TXT2  PIC X(80) VALUE 'DIRECT ENTRY TO MN05 IS RESTRICTED'.00421692
+       01 WS-TXT3  PIC X(80) VALUE 'SESSION COMPLETED'.                 00421774
+      *                                                                 00421874
+       01 DT PIC S9(15) COMP-3.                                         00421974
+      *                                                                 00422074
+       01 WS-TEMP     PIC 9(5).                                         00422174
+       01 WS-TEMP1    PIC 9(5).                                         00422274
+       01 WS-QRESP    PIC S9(8) COMP.                                   00422374
+       01 WS-Q-ITEM   PIC S9(4) COMP VALUE 0.                           00423057
+       01 WS-CUR-TEMP PIC 9(5).                                         00424005
+      *                                                                 00425017
+       01 Q-ITEM     PIC S9(4) COMP VALUE 0.                            00426074
+       01 RE         PIC S9(8) COMP.                                    00427074
+      *                                                                 00428074
+       01 WS-COMMAREA.                                                  00430031
+          02 WS-TOT-NO        PIC  9(5).                                00460057
+          02 WS-CUR-NO        PIC  9(5).                                00470057
+          02 WS-RESP-CODE     PIC  S9(08) COMP.                         00471084
+      *   02 WS-COUNT         PIC 9(04).                                00471184
+      *                                                                 00478323
+       01 WS-QUEUE-REC.                                                 00479002
+          02 WSQ-ORD-CUST-ID     PIC 9(10).                             00479189
+          02 WSQ-ORD-PROD-ID     PIC 9(10).                             00479289
+          02 WSQ-ORD-QUANT       PIC 9(05).                             00479389
+          02 WSQ-ORD-ID          PIC 9(10).                             00479489
+          02 WSQ-EMP-ID          PIC 9(10).                             00479599
+          02 WSQ-ORD-TOTAL-COST  PIC 9(16)V9(02).                       00479689
+      *                                                                 00480102
+       01 WS-QUEUE-REC1.                                                00480248
+          02 WS1-ORD-CUST-ID     PIC 9(10).                             00480389
+          02 WS1-ORD-PROD-ID     PIC 9(10).                             00480489
+          02 WS1-ORD-QUANT       PIC 9(05).                             00480589
+          02 WS1-ORD-ID          PIC 9(10).                             00480689
+          02 WS1-EMP-ID          PIC 9(10).                             00480799
+          02 WS1-ORD-TOTAL-COST  PIC 9(16)V9(02).                       00480889
+      *                                                                 00483148
+      ********************************************************          00484001
+      ************** LINKAGE SECTION TO LINK *****************          00490001
+      **************** COMMUNICATION AREA ********************          00500001
+       LINKAGE SECTION.                                                 00510001
+       01 DFHCOMMAREA.                                                  00520001
+           COPY ORDCPY.                                                 00530099
+      *********************************************************         00551002
+      ************* PROCEDURE DIVISION STARTS HERE ************         00552002
+      *********************************************************         00553002
+       PROCEDURE DIVISION.                                              00554005
+      *COPY VALDATE.                                                    00554199
+               EXEC CICS HANDLE CONDITION                               00555023
+                       MAPFAIL(3400-EXIT)                               00556023
+                       INVREQ(6000-RETURN-PARA)                         00557059
+               END-EXEC.                                                00558023
+               MOVE 'ORDR'   TO FIRST-PART.                             00558199
+               MOVE EIBTRMID TO SECOND-PART.                            00558274
+               MOVE 'COM1'   TO FIRST-REF.                              00558399
+               MOVE EIBTRMID TO SECOND-REF.                             00558489
+               IF LK-FLAG = 'PGUP' OR 'PGDN'                            00559674
+                 MOVE 1 TO Q-ITEM                                       00559774
+                 PERFORM 8020-READ-QUEUE THRU 8020-EXIT                 00559874
+               ELSE IF LK-FLAG = 'FRST'                                 00560177
+                  PERFORM 9000-CHK-QUEUE-PARA THRU 9000-EXIT            00560377
+               END-IF.                                                  00560774
+               PERFORM 0000-MAIN-PARA.                                  00560877
+       0000-MAIN-PARA.                                                  00560902
+           IF EIBCALEN = 00                                             00570023
+              EXEC CICS SEND TEXT                                       00580023
+                        NOEDIT                                          00590023
+                        FROM(WS-TXT2)                                   00591023
+                        LENGTH(80)                                      00592023
+                        ERASE                                           00593023
+              END-EXEC                                                  00594023
+              EXEC CICS RETURN                                          00596023
+              END-EXEC                                                  00597023
+      *                                                                 00598023
+            ELSE                                                        00599023
+              PERFORM 2000-PROCESSING-PARA THRU 2000-EXIT               01056023
+           END-IF.                                                      01057023
+           EXEC CICS RETURN                                             01059023
+           END-EXEC.                                                    01059323
+      *                                                                 01059480
+       2000-PROCESSING-PARA.                                            01062123
+            EVALUATE TRUE                                               01062223
+                 WHEN EIBAID = DFHPF2 OR LK-FLAG = 'FRST'               01062326
+                   MOVE ZEROS TO WS-CUR-NO                              01062564
+                   MOVE ZEROS TO WS-TOT-NO                              01062664
+                   PERFORM 3200-LIST-ORDDT-PARA THRU 3200-EXIT          01062899
+                 WHEN EIBAID = DFHPF7 OR LK-FLAG = 'PGUP'               01063324
+                      PERFORM 8000-PAGE-UP-PARA THRU 8000-PAGE-UP-EXIT  01063556
+                 WHEN EIBAID = DFHPF8 OR LK-FLAG = 'PGDN'               01064125
+                       PERFORM 9000-PAGE-DN-PARA THRU 9000-PAGE-DN-EXIT 01064465
+            END-EVALUATE.                                               01064934
+       2000-EXIT.                                                       01065023
+           EXIT.                                                        01065123
+      *****************************************************             01065226
+       3200-LIST-ORDDT-PARA.                                            01067699
+            MOVE LK-FROM-ORD-DT TO WS1-ORDER-DATE                       01067899
+            PERFORM 3500-FROM-VALIDDATE-PARA                            01068099
+            MOVE LK-TO-ORD-DT TO WS1-ORDER-DATE                         01068299
+            PERFORM 3500-TO-VALIDDATE-PARA                              01069099
+            PERFORM 6000-DELETEQ-PARA THRU 6000-DELETEQ-EXIT            01069799
+            PERFORM 1000-SEARCH-SEND-PARA THRU 1000-EXIT                01069999
+            PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.             01070099
+      *                                                                 01070199
+       3200-EXIT.                                                       01070299
+            EXIT.                                                       01070399
+      *                                                                 01070499
+      **********************************************************        01070599
+      *********** PARA FOR FETCHING AND WRITING INTI QUEUE*****         01071002
+      **********************************************************        01080002
+       1000-SEARCH-SEND-PARA.                                           01090002
+            MOVE LK-FROM-ORD-DT TO FROM-ORD-DATE.                       01100099
+            MOVE LK-TO-ORD-DT   TO TO-ORD-DATE.                         01110099
+            IF FROM-ORD-DATE < TO-ORD-DATE                              01120099
+               CONTINUE                                                 01130099
+            ELSE                                                        01131099
+               MOVE 'FROM DATE SHOULD BE LESSER THAN TO DATE' TO LK-MSG 01132099
+               PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT           01134099
+            END-IF                                                      01135099
+            EXEC SQL                                                    01140002
+               OPEN ORDCUR                                              01150099
+            END-EXEC.                                                   01160002
+            EVALUATE SQLCODE                                            01170002
+                WHEN ZERO                                               01180002
+                    PERFORM 20000-INITIALIZE-PARA THRU 20000-EXIT       01190002
+                    MOVE 0 TO WS-TOT-NO                                 01210035
+                    MOVE 0 TO WS-Q-ITEM                                 01220002
+                    PERFORM 8000-FETCH-PARA THRU 8000-FETCH-EXIT        01230002
+                    IF SQLCODE = 100                                    01240002
+                       PERFORM 1010-CLOSE-CURSOR-PARA THRU 1010-EXIT    01240116
+                       MOVE ZERO TO LK-COUNT                            01240260
+                       MOVE 'NO RECORDS FOUND FOR THE GIVEN DATE RANGE' 01250099
+                       TO LK-MSG                                        01260099
+                       PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT   01290002
+                    ELSE                                                01300002
+      *             MOVE 1 TO WS-COUNT                                  01301084
+                    PERFORM UNTIL SQLCODE = 100                         01310084
+              MOVE ORD-CUST-ID      TO WSQ-ORD-CUST-ID                  01320090
+              MOVE ORD-PROD-ID      TO WSQ-ORD-PROD-ID                  01330090
+              MOVE ORD-QUANT        TO WSQ-ORD-QUANT                    01340090
+              MOVE ORD-ID           TO WSQ-ORD-ID                       01350090
+              MOVE ORD-EMP-ID       TO WSQ-EMP-ID                       01360099
+              MOVE ORD-TOTAL-COST   TO WSQ-ORD-TOTAL-COST               01370090
+                 EXEC CICS WRITEQ TS                                    01400002
+                      QUEUE(TSQ-NAME)                                   01410027
+                      FROM(WS-QUEUE-REC)                                01420002
+                      LENGTH(LENGTH OF WS-QUEUE-REC)                    01430002
+                      ITEM(WS-Q-ITEM)                                   01440002
+                      RESP(WS-QRESP)                                    01450002
+                 END-EXEC                                               01460002
+           ADD 1 TO WS-TOT-NO                                           01470035
+      *    ADD 1 TO WS-COUNT                                            01471084
+               PERFORM 20000-INITIALIZE-PARA THRU 20000-EXIT            01480003
+           PERFORM 8000-FETCH-PARA THRU 8000-FETCH-EXIT                 01500002
+            END-PERFORM                                                 01510002
+            END-IF                                                      01520002
+           WHEN OTHER                                                   01530002
+             MOVE ZERO TO LK-COUNT                                      01535081
+             MOVE 'RESOURCES NOT AVAILABLE'  TO LK-MSG                  01550099
+             PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT             01560081
+           END-EVALUATE.                                                01580002
+           PERFORM 1010-CLOSE-CURSOR-PARA THRU 1010-EXIT.               01581081
+           PERFORM 12000-READ-TSQ-PARA THRU 12000-READ-TSQ-EXIT.        01620081
+       1000-EXIT.                                                       01630002
+           EXIT.                                                        01640002
+      *                                                                 01641016
+       1010-CLOSE-CURSOR-PARA.                                          01650016
+            EXEC SQL                                                    01660016
+                 CLOSE ORDCUR                                           01670099
+            END-EXEC.                                                   01680016
+       1010-EXIT.                                                       01690016
+            EXIT.                                                       01700016
+      *                                                                 01710016
+       20000-INITIALIZE-PARA.                                           02220002
+                INITIALIZE   ORD-CUST-ID.                               02230089
+                INITIALIZE   ORD-PROD-ID.                               02240089
+                INITIALIZE   ORD-QUANT.                                 02250089
+                INITIALIZE   ORD-ID.                                    02260089
+                INITIALIZE   ORD-EMP-ID.                                02270099
+                INITIALIZE   ORD-TOTAL-COST.                            02280089
+       20000-EXIT.                                                      02290005
+            EXIT.                                                       02300002
+       8000-FETCH-PARA.                                                 02310002
+             EXEC SQL                                                   02320002
+                FETCH ORDCUR                                            02330099
+                INTO :ORD-CUST-ID,                                      02340089
+                     :ORD-PROD-ID,                                      02350089
+                     :ORD-QUANT,                                        02360089
+                     :ORD-ID,                                           02380089
+                     :ORD-EMP-ID,                                       02390099
+                     :ORD-TOTAL-COST                                    02400089
+             END-EXEC.                                                  02420002
+       8000-FETCH-EXIT.                                                 02430002
+            EXIT.                                                       02440002
+      **********************************************************        02441003
+      *************** PARA TO READ THE QUEUE *******************        02442003
+      **********************************************************        02443003
+       12000-READ-TSQ-PARA.                                             02444003
+                SET K TO 1.                                             02445130
+                MOVE 1 TO LK-COUNT.                                     02445241
+                INITIALIZE WS-QUEUE-REC.                                02446057
+                MOVE 1 TO WS-CUR-NO , WS-CUR-TEMP.                      02449035
+                COMPUTE WS-TEMP = WS-CUR-NO + 08.                       02449192
+                MOVE 1 TO WS-Q-ITEM.                                    02449203
+                EXEC CICS READQ TS                                      02449303
+                   QUEUE(TSQ-NAME)                                      02449427
+                   INTO(WS-QUEUE-REC1)                                  02449548
+                   ITEM(WS-Q-ITEM)                                      02449603
+                   LENGTH(LENGTH OF WS-QUEUE-REC1)                      02449748
+                   RESP(WS-QRESP)                                       02449803
+                END-EXEC.                                               02449903
+               PERFORM UNTIL (WS-CUR-TEMP >= 09 OR                      02450092
+                              WS-QRESP = 26)                            02450160
+           MOVE WS1-ORD-CUST-ID      TO OUT-ORD-CUST-ID(K)              02450490
+           MOVE WS1-ORD-PROD-ID      TO OUT-ORD-PROD-ID(K)              02450590
+           MOVE WS1-ORD-QUANT        TO OUT-ORD-QUANT(K)                02450690
+           MOVE WS1-ORD-ID           TO OUT-ORD-ID(K)                   02450790
+           MOVE WS1-EMP-ID           TO OUT-ORD-EMP-ID(K)               02450899
+           MOVE WS1-ORD-TOTAL-COST   TO WS-ORD-TOT-COST                 02450990
+           MOVE RE-ORD-TOT-COST      TO OUT-ORD-TOTAL-COST(K)           02451090
+                ADD 1 TO WS-CUR-TEMP                                    02455803
+                ADD 1 TO WS-Q-ITEM                                      02455903
+                SET K UP BY 1                                           02456030
+                ADD 1 TO LK-COUNT                                       02456141
+                    EXEC CICS                                           02456203
+                      READQ TS                                          02456303
+                      QUEUE(TSQ-NAME)                                   02456427
+                      INTO(WS-QUEUE-REC1)                               02456548
+                      ITEM(WS-Q-ITEM)                                   02456603
+                      LENGTH(LENGTH OF WS-QUEUE-REC1)                   02456748
+                      RESP(WS-QRESP)                                    02456803
+                    END-EXEC                                            02456903
+              END-PERFORM.                                              02457103
+              COMPUTE LK-COUNT = LK-COUNT - 1.                          02457256
+              MOVE 'THIS IS FIRST SCREEN' TO LK-MSG.                    02457375
+      *       MOVE WS-TOT-NO    TO LK-MSG.                              02457475
+              MOVE WS-QRESP     TO WS-RESP-CODE.                        02457561
+              PERFORM 8010-WRITE-QUEUE THRU 8010-EXIT.                  02458074
+              PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.           02458160
+       12000-READ-TSQ-EXIT.                                             02458260
+             EXIT.                                                      02459060
+      *****************************************************             02460064
+      **********************************************************        02490971
+       8000-PAGE-UP-PARA.                                               02491071
+             IF WS-CUR-NO IS EQUAL TO 1                                 02491171
+                MOVE 'YOU ARE AT BEGINNING' TO LK-MSG                   02491371
+             ELSE                                                       02491471
+               SUBTRACT 08 FROM WS-CUR-NO                               02491592
+             END-IF.                                                    02491685
+             MOVE WS-CUR-NO TO WS-Q-ITEM, WS-TEMP, WS-CUR-TEMP.         02491799
+             IF WS-TOT-NO < 8                                           02491898
+                MOVE WS-TOT-NO TO WS-TEMP                               02491999
+             ELSE                                                       02492098
+               ADD 08 TO WS-TEMP                                        02492198
+             END-IF.                                                    02492298
+               SET K TO 1.                                              02492385
+               MOVE 1 TO LK-COUNT.                                      02492485
+              PERFORM 2500-PRO-PARA UNTIL WS-CUR-TEMP = WS-TEMP         02492799
+              COMPUTE LK-COUNT = LK-COUNT - 1.                          02496099
+              MOVE WS-QRESP     TO WS-RESP-CODE.                        02496199
+              PERFORM 8010-WRITE-QUEUE THRU 8010-EXIT.                  02496399
+              PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.           02496499
+       8000-PAGE-UP-EXIT.                                               02496599
+            EXIT.                                                       02497099
+       9000-PAGE-DN-PARA.                                               02498565
+             IF (WS-RESP-CODE NOT EQUAL TO 26   AND                     02498665
+                   WS-CUR-NO < WS-TOT-NO )                              02498765
+                 ADD 08 TO WS-CUR-NO                                    02498892
+                 SET K TO 1                                             02498965
+                 MOVE 1 TO LK-COUNT                                     02499065
+             END-IF.                                                    02499165
+             MOVE WS-CUR-NO TO WS-CUR-TEMP, WS-Q-ITEM , WS-TEMP.        02499465
+             ADD 08 TO WS-TEMP.                                         02499592
+             MOVE 1 TO WS-TEMP1.                                        02499665
+             EXEC CICS READQ TS                                         02499865
+                QUEUE(TSQ-NAME)                                         02499965
+                INTO(WS-QUEUE-REC1)                                     02500065
+                ITEM(WS-Q-ITEM)                                         02500165
+                LENGTH(LENGTH OF WS-QUEUE-REC1)                         02500265
+                RESP(WS-QRESP)                                          02500365
+             END-EXEC.                                                  02500484
+           PERFORM UNTIL (WS-CUR-TEMP >= WS-TEMP OR                     02500565
+                          WS-QRESP = 26)                                02500665
+           MOVE WS1-ORD-CUST-ID      TO OUT-ORD-CUST-ID(K)              02500790
+           MOVE WS1-ORD-PROD-ID      TO OUT-ORD-PROD-ID(K)              02500890
+           MOVE WS1-ORD-QUANT        TO OUT-ORD-QUANT(K)                02500990
+           MOVE WS1-ORD-ID           TO OUT-ORD-ID(K)                   02501090
+           MOVE WS1-EMP-ID           TO OUT-ORD-EMP-ID(K)               02501199
+           MOVE WS1-ORD-TOTAL-COST   TO WS-ORD-TOT-COST                 02501290
+           MOVE RE-ORD-TOT-COST      TO OUT-ORD-TOTAL-COST(K)           02501390
+                 ADD 1 TO WS-TEMP1                                      02502565
+                 ADD 1 TO WS-CUR-TEMP                                   02502665
+                 ADD 1 TO WS-Q-ITEM                                     02502765
+                 SET K UP BY 1                                          02502865
+                 ADD 1 TO LK-COUNT                                      02502965
+                 EXEC CICS READQ TS                                     02503065
+                      QUEUE(TSQ-NAME)                                   02503165
+                      INTO(WS-QUEUE-REC1)                               02503265
+                      ITEM(WS-Q-ITEM)                                   02503365
+                      LENGTH(LENGTH OF WS-QUEUE-REC1)                   02503465
+                      RESP(WS-QRESP)                                    02503565
+                 END-EXEC                                               02503665
+                 END-PERFORM.                                           02503784
+                 COMPUTE WS-TEMP1 = WS-TEMP1 - 1.                       02503884
+                 MOVE WS-TEMP1 TO LK-COUNT.                             02503984
+      *          MOVE WS-CUR-NO TO LK-MSG.                              02504086
+      *       END-IF.                                                   02504184
+                IF WS-CUR-NO + 08 > WS-TOT-NO                           02504292
+                    MOVE 'THIS IS LAST SCREEN' TO LK-MSG                02504381
+                END-IF.                                                 02504481
+                MOVE WS-QRESP     TO WS-RESP-CODE.                      02505083
+                PERFORM 8010-WRITE-QUEUE THRU 8010-EXIT.                02505183
+                PERFORM 6000-RETURN-PARA THRU 6000-RETURN-EXIT.         02505365
+       9000-PAGE-DN-EXIT.                                               02505465
+            EXIT.                                                       02506065
+       8010-WRITE-QUEUE.                                                02512874
+            MOVE 1 TO Q-ITEM.                                           02512975
+            EXEC CICS WRITEQ TS                                         02513074
+                 QUEUE(Q-NM)                                            02513175
+                 FROM(WS-COMMAREA)                                      02513274
+                 LENGTH(LENGTH OF WS-COMMAREA)                          02513374
+                 ITEM(Q-ITEM)                                           02513474
+                 RESP(RE)                                               02513574
+                 REWRITE                                                02513677
+            END-EXEC.                                                   02513774
+       8010-EXIT.                                                       02513874
+           EXIT.                                                        02513974
+       8020-READ-QUEUE.                                                 02514074
+            EXEC CICS READQ                                             02514174
+                 QUEUE(Q-NM)                                            02514275
+                 INTO(WS-COMMAREA)                                      02514374
+                 LENGTH(LENGTH OF WS-COMMAREA)                          02514474
+                 ITEM(Q-ITEM)                                           02514574
+                 RESP(RE)                                               02514674
+            END-EXEC.                                                   02514774
+       8020-EXIT.                                                       02514874
+           EXIT.                                                        02514974
+       9000-CHK-QUEUE-PARA.                                             02515077
+            MOVE 1 TO Q-ITEM.                                           02515178
+            EXEC CICS READQ                                             02515277
+                 QUEUE(Q-NM)                                            02515377
+                 INTO(WS-COMMAREA)                                      02515477
+                 LENGTH(LENGTH OF WS-COMMAREA)                          02515577
+                 ITEM(Q-ITEM)                                           02515677
+                 RESP(RE)                                               02515777
+            END-EXEC.                                                   02515877
+            IF RE = 00                                                  02515977
+               CONTINUE                                                 02516077
+            ELSE IF RE = 44                                             02516177
+                 MOVE SPACES TO WS-COMMAREA                             02516277
+                 MOVE 1 TO Q-ITEM                                       02516377
+                 EXEC CICS WRITEQ TS                                    02516477
+                    QUEUE(Q-NM)                                         02516577
+                    FROM(WS-COMMAREA)                                   02516677
+                    LENGTH(LENGTH OF WS-COMMAREA)                       02516777
+                    ITEM(Q-ITEM)                                        02516877
+                    RESP(RE)                                            02516977
+                 END-EXEC                                               02517077
+            END-IF.                                                     02517177
+       9000-EXIT.                                                       02517277
+           EXIT.                                                        02517377
+      ****************DELETE QUEUE PARA*********************            02517474
+       6000-DELETEQ-PARA.                                               02517574
+               MOVE SPACES TO WS-QUEUE-REC.                             02517674
+               EXEC CICS WRITEQ TS                                      02517774
+                    QUEUE(TSQ-NAME)                                     02517874
+                    FROM(WS-QUEUE-REC)                                  02517974
+                    LENGTH(LENGTH OF WS-QUEUE-REC)                      02518074
+                    ITEM(WS-Q-ITEM)                                     02518174
+                    RESP(WS-QRESP)                                      02518274
+               END-EXEC.                                                02518374
+              EXEC CICS DELETEQ TS                                      02518474
+                   QUEUE(TSQ-NAME)                                      02518574
+              END-EXEC.                                                 02518674
+      *                                                                 02518774
+       6000-DELETEQ-EXIT.                                               02518874
+            EXIT.                                                       02518974
+      **********************************************************        02519074
+      ************ GET DATE PARA *******************************        02519174
+      **********************************************************        02519274
+       GET-DATE-PARA.                                                   02519374
+            EXEC CICS                                                   02519474
+               ASKTIME                                                  02519574
+               ABSTIME(WK-DATE)                                         02519674
+            END-EXEC.                                                   02519774
+            EXEC CICS FORMATTIME                                        02519874
+                  ABSTIME(WK-DATE)                                      02519974
+                  MMDDYYYY(WK-DATE)                                     02520074
+                  DATESEP                                               02520174
+                  TIME(WK-TIME)                                         02520274
+                  TIMESEP                                               02520374
+            END-EXEC.                                                   02520474
+      ***********************INVALID-PARA*******************************02520574
+       INVALID-KEY-PARA.                                                02520674
+            MOVE 'ENTER A VALID FUNCTION KEY' TO LK-MSG.                02520774
+            EXEC CICS RETURN END-EXEC.                                  02520874
+      ***********************RETURN-PARA********************************02520974
+       6000-RETURN-PARA.                                                02521074
+            EXEC CICS RETURN                                            02521174
+            END-EXEC.                                                   02521274
+       6000-RETURN-EXIT.                                                02521374
+            EXIT.                                                       02522003
+      *                                                                 02530023
+       3400-EXIT.                                                       02570023
+           EXIT.                                                        02580023
+       3500-FROM-VALIDDATE-PARA.                                        02590099
+            IF LENGTH OF LK-FROM-ORD-DT = 0 OR LK-FROM-ORD-DT = SPACES  02600099
+              MOVE 'STARTING ORDER DATE NOT ENTERED - PLZ ENTER IT'     02620099
+                                      TO LK-MSG                         02630099
+              EXEC CICS RETURN END-EXEC                                 02670099
+            ELSE                                                        02680099
+                MOVE LK-FROM-ORD-DT      TO INPUTDATELA                 02690099
+                MOVE LK-FROM-ORD-DT(6:2) TO MONTHLA                     02700099
+                MOVE LK-FROM-ORD-DT(5:1) TO WS-SLASH1                   02710099
+                MOVE LK-FROM-ORD-DT(9:2) TO DAYLA                       02720099
+                MOVE LK-FROM-ORD-DT(8:1) TO WS-SLASH2                   02730099
+                MOVE LK-FROM-ORD-DT(1:4) TO YEARLA                      02740099
+                PERFORM 9400-BEGIN-PARA                                 02750099
+      *                                                                 02760099
+                EVALUATE TRUE                                           02771099
+                  WHEN DATENOTNUMERIC                                   02780099
+                    MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT IN MM02790099
+      -                  '-DD-YYYY FORMAT' TO LK-MSG                    02800099
+                    EXEC CICS RETURN END-EXEC                           02830099
+                  WHEN MONTHCONTAINSZEROS                               02840099
+                    MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   02850099
+                         TO LK-MSG                                      02860099
+                    EXEC CICS RETURN END-EXEC                           02890099
+                  WHEN MONTHGREATERTHAN12                               02900099
+                    MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   02910099
+                         TO LK-MSG                                      02920099
+                    EXEC CICS RETURN END-EXEC                           02950099
+                  WHEN DAYCONTAINSZEROS                                 02960099
+                    MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    02970099
+                         TO LK-MSG                                      02980099
+                    EXEC CICS RETURN END-EXEC                           03010099
+                  WHEN DAYTOOGREATFORMONTH                              03020099
+                    MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENT03030099
+      -                  'ER CORRECT FORMAT' TO LK-MSG                  03040099
+                    EXEC CICS RETURN END-EXEC                           03070099
+                  WHEN YEARCONTAINSZEROS                                03080099
+                    MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'    03100099
+                         TO LK-MSG                                      03110099
+                    EXEC CICS RETURN END-EXEC                           03130099
+                END-EVALUATE                                            03140099
+      *                                                                 03150099
+                IF LK-FROM-ORD-DT(6:2) IS NOT NUMERIC                   03160099
+                    MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   03170099
+                          TO LK-MSG                                     03180099
+                    EXEC CICS RETURN END-EXEC                           03210099
+                END-IF                                                  03220099
+      *                                                                 03230099
+                IF LK-FROM-ORD-DT(9:2) IS NOT NUMERIC                   03240099
+                    MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    03260099
+                          TO LK-MSG                                     03270099
+                    EXEC CICS RETURN END-EXEC                           03290099
+                END-IF                                                  03300099
+      *                                                                 03310099
+                IF LK-FROM-ORD-DT (1:4) IS NOT NUMERIC                  03320099
+                     MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'   03340099
+                           TO LK-MSG                                    03350099
+                     EXEC CICS RETURN END-EXEC                          03370099
+                ELSE                                                    03380099
+                     DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM 03390099
+                                                                        03400099
+                     IF MONTHLA = 02 AND WS-SLASH1 = '-' AND DAYLA = 29 03410099
+                        AND WS-SLASH2 = '-' AND WS-REM NOT = 0          03420099
+                        MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ03430099
+      -                   ' ENTER CORRECT FORMAT' TO LK-MSG             03440099
+                        EXEC CICS RETURN END-EXEC                       03470099
+                     END-IF                                             03480099
+      *                                                                 03490099
+                END-IF                                                  03500099
+      *                                                                 03510099
+                EVALUATE TRUE                                           03520099
+                    WHEN WS-SLASH1 NOT = '-'                            03530099
+                      MOVE 'DATE SEPERATOR IS INVALID, USE ONLY - AS A S03540099
+      -                    'EPERATOR'  TO LK-MSG                        03550099
+                      EXEC CICS RETURN END-EXEC                         03580099
+                    WHEN WS-SLASH2 NOT = '-'                            03590099
+                      MOVE 'DATE SEPERATOR IS INVALID, USE ONLY - AS A S03600099
+      -                    'EPERATOR'  TO LK-MSG                        03610099
+                      EXEC CICS RETURN END-EXEC                         03640099
+                END-EVALUATE                                            03650099
+      *                                                                 03660099
+            END-IF.                                                     03670099
+      *                                                                 03680099
+       3500-TO-VALIDDATE-PARA.                                          03710099
+            IF LENGTH OF WS1-ORDER-DATE = 0 OR WS1-ORDER-DATE = SPACES  03720099
+             MOVE 'END ORDER DATE NOT ENTERED - PLZ ENTER IT' TO LK-MSG 03730099
+              EXEC CICS RETURN END-EXEC                                 03740099
+            ELSE                                                        03750099
+                MOVE WS1-ORDER-DATE     TO INPUTDATELA                  03760099
+                MOVE WS1-ORDER-DATE(6:2) TO MONTHLA                     03770099
+                MOVE WS1-ORDER-DATE(5:1) TO WS-SLASH1                   03780099
+                MOVE WS1-ORDER-DATE(9:2) TO DAYLA                       03790099
+                MOVE WS1-ORDER-DATE(8:1) TO WS-SLASH2                   03800099
+                MOVE WS1-ORDER-DATE(1:4) TO YEARLA                      03810099
+                PERFORM 9400-BEGIN-PARA                                 03820099
+      *                                                                 03830099
+                EVALUATE TRUE                                           03840099
+                  WHEN DATENOTNUMERIC                                   03850099
+                    MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT IN YY03860099
+      -                  'YY-MM-DD FORMAT' TO LK-MSG                    03870099
+                    EXEC CICS RETURN END-EXEC                           03880099
+                  WHEN MONTHCONTAINSZEROS                               03890099
+                    MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   03900099
+                         TO LK-MSG                                      03910099
+                    EXEC CICS RETURN END-EXEC                           03920099
+                  WHEN MONTHGREATERTHAN12                               03930099
+                    MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   03940099
+                         TO LK-MSG                                      03950099
+                    EXEC CICS RETURN END-EXEC                           03960099
+                  WHEN DAYCONTAINSZEROS                                 03970099
+                    MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    03980099
+                         TO LK-MSG                                      03990099
+                    EXEC CICS RETURN END-EXEC                           04000099
+                  WHEN DAYTOOGREATFORMONTH                              04010099
+                    MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENT04020099
+      -                  'ER CORRECT FORMAT' TO LK-MSG                  04030099
+                    EXEC CICS RETURN END-EXEC                           04040099
+                  WHEN YEARCONTAINSZEROS                                04050099
+                    MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'    04060099
+                         TO LK-MSG                                      04070099
+                    EXEC CICS RETURN END-EXEC                           04080099
+                END-EVALUATE                                            04090099
+      *                                                                 04100099
+                IF WS1-ORDER-DATE(6:2) IS NOT NUMERIC                   04110099
+                    MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   04120099
+                          TO LK-MSG                                     04130099
+                    EXEC CICS RETURN END-EXEC                           04140099
+                END-IF                                                  04150099
+      *                                                                 04160099
+                IF WS1-ORDER-DATE(9:2) IS NOT NUMERIC                   04170099
+                    MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    04180099
+                          TO LK-MSG                                     04190099
+                    EXEC CICS RETURN END-EXEC                           04200099
+                END-IF                                                  04210099
+      *                                                                 04220099
+                IF WS1-ORDER-DATE (1:4) IS NOT NUMERIC                  04230099
+                     MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'   04240099
+                           TO LK-MSG                                    04250099
+                     EXEC CICS RETURN END-EXEC                          04260099
+                ELSE                                                    04270099
+                     DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM 04280099
+                                                                        04290099
+                     IF MONTHLA = 02 AND WS-SLASH1 = '-' AND DAYLA = 29 04300099
+                        AND WS-SLASH2 = '-' AND WS-REM NOT = 0          04310099
+                        MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ04320099
+      -                   ' ENTER CORRECT FORMAT' TO LK-MSG             04330099
+                        EXEC CICS RETURN END-EXEC                       04340099
+                     END-IF                                             04350099
+      *                                                                 04360099
+                END-IF                                                  04370099
+      *                                                                 04380099
+                EVALUATE TRUE                                           04390099
+                    WHEN WS-SLASH1 NOT = '-'                            04400099
+                      MOVE 'DATE SEPERATOR IS INVALID, USE ONLY - AS A S04410099
+      -                    'EPERATOR'  TO LK-MSG                        04420099
+                      EXEC CICS RETURN END-EXEC                         04430099
+                    WHEN WS-SLASH2 NOT = '-'                            04440099
+                      MOVE 'DATE SEPERATOR IS INVALID, USE ONLY - AS A S04450099
+      -                    'EPERATOR'  TO LK-MSG                        04460099
+                      EXEC CICS RETURN END-EXEC                         04470099
+                END-EVALUATE                                            04480099
+      *                                                                 04490099
+            END-IF.                                                     04500099
+       2500-PRO-PARA.                                                   04501099
+               EXEC CICS READQ TS                                       04503099
+                  QUEUE(TSQ-NAME)                                       04504099
+                  INTO(WS-QUEUE-REC1)                                   04505099
+                  ITEM(WS-Q-ITEM)                                       04506099
+                  LENGTH(LENGTH OF WS-QUEUE-REC1)                       04507099
+                  RESP(WS-QRESP)                                        04508099
+               END-EXEC                                                 04509099
+           MOVE WS1-ORD-CUST-ID      TO OUT-ORD-CUST-ID(K)              04509299
+           MOVE WS1-ORD-PROD-ID      TO OUT-ORD-PROD-ID(K)              04509499
+           MOVE WS1-ORD-QUANT        TO OUT-ORD-QUANT(K)                04509699
+           MOVE WS1-ORD-ID           TO OUT-ORD-ID(K)                   04509899
+           MOVE WS1-EMP-ID           TO OUT-ORD-EMP-ID(K)               04510099
+           MOVE WS1-ORD-TOTAL-COST   TO WS-ORD-TOT-COST                 04510399
+           MOVE RE-ORD-TOT-COST      TO OUT-ORD-TOTAL-COST(K)           04510599
+                  ADD 1 TO WS-Q-ITEM                                    04512099
+                  ADD 1 TO WS-CUR-TEMP                                  04513099
+                  SET K UP BY 1                                         04514099
+                  ADD 1 TO LK-COUNT.                                    04515099
+       9400-BEGIN-PARA.                                                 04516099
+           EVALUATE TRUE                                                04517099
+           WHEN INPUTDATELA NOT NUMERIC  SET DATENOTNUMERIC     TO TRUE 04518099
+           WHEN YEARLA EQUAL TO ZEROS    SET YEARCONTAINSZEROS  TO TRUE 04519099
+           WHEN MONTHLA EQUAL TO ZEROS   SET MONTHCONTAINSZEROS TO TRUE 04520099
+           WHEN DAYLA EQUAL TO ZEROS     SET DAYCONTAINSZEROS   TO TRUE 04530099
+           WHEN MONTHINVALID             SET MONTHGREATERTHAN12 TO TRUE 04540099
+           WHEN OTHER PERFORM 9500-CHECKFORVALIDDAY-PARA                04550099
+           END-EVALUATE.                                                04560099
+        9500-CHECKFORVALIDDAY-PARA.                                     04570099
+            DIVIDE YEARLA BY 400 GIVING LEAPQUOT REMAINDER LEAPREMAIN.  04580099
+            IF LEAPREMAIN = 0                                           04590099
+              SET LEAPYEAR TO TRUE                                      04600099
+              ELSE                                                      04601099
+                DIVIDE YEARLA BY 100 GIVING LEAPQUOT REMAINDER          04602099
+              LEAPREMAIN                                                04603099
+                IF LEAPREMAIN NOT = 0                                   04604099
+                  DIVIDE YEARLA BY 4 GIVING LEAPQUOT REMAINDER          04605099
+              LEAPREMAIN                                                04606099
+                  IF LEAPREMAIN = 0                                     04607099
+                     SET LEAPYEAR TO TRUE                               04608099
+             END-IF                                                     04610099
+             END-IF                                                     04620099
+             END-IF                                                     04630099
+                                                                        04640099
+            IF LEAPYEAR AND MONTHISFEBRUARY                             04650099
+                MOVE 29 TO DAYSINMONTH(2)                               04660099
+            END-IF                                                      04670099
+            IF DAYLA GREATER THAN DAYSINMONTH(MONTHLA)                  04680099
+              SET DAYTOOGREATFORMONTH TO TRUE                           04690099
+            ELSE                                                        04700099
+             SET DATEISVALID TO TRUE                                    04710099
+            END-IF.                                                     04720099

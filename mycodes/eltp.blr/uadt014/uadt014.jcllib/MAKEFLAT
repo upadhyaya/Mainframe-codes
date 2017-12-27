@@ -1,0 +1,17 @@
+//UADT014R JOB NOTIFY=&SYSUID,REGION=0M,CLASS=E                         JOB05995
+//*                                                                     00020000
+//JOBLIB   DD DSN=UADA011.SARO.LOADLIB,DISP=SHR                         00030000
+//*                                                                     00040000
+//STEP1  EXEC PGM=SMFSLCT,REGION=6M   <== CBT FILE 523                  00050000
+//STEPLIB DD DISP=SHR,DSN=UADA011.SARO.LOADLIB                          00060000
+//SYSUT1  DD DISP=SHR,DCB=BUFNO=80,                                     00070000
+//         DSN=UADT014.SMF110.RECORDS                                   00080019
+//DDOUT   DD DSN=UADT014.SMF30.TEMP,DISP=SHR                            00090009
+//*       UNIT=(SYSDA),DISP=(,CATLG,DELETE),                            00100000
+//*       DCB=(LRECL=32756,BLKSIZE=32760,RECFM=VB,BUFNO=80),            00110002
+//*       SPACE=(CYL,(10,10),RLSE)                                      00120010
+//SYSPRINT DD DUMMY                                                     00130000
+//SYSIN DD *                                                            00140000
+OUTPUT=DDOUT                                                            00150000
+/*                                                                      00160000
+//*                                                                     00170000

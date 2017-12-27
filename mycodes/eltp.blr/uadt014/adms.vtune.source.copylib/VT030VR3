@@ -1,0 +1,30 @@
+002090*                                                                 00010000
+004200 01 WS-VARIABLES.                                                 00020000
+004310     05 WS-COUNT              PIC S9(9) VALUE ZEROES.             00030000
+           05 WS-COUNTER            PIC 9(1) VALUE ZERO.                00031000
+           05 WS-HEADER             PIC X(45) VALUE                     00032000
+                                 'SMF30: CONSOLIDATED BATCH JOB REPORT'.00033000
+           05 WS-SMF30-PATTERN1     PIC X(100) VALUE ALL '*'.           00034000
+           05 WS-PREV-JOBNAME       PIC X(08) VALUE SPACES.             00034100
+002090*                                                                 00035000
+002090*END-OF-FILE STATUS INDICATOR FLAGS.                              00050000
+004400 01 WS-FLAGS.                                                     00060000
+004500     05 WS-SMFDATA-FILE-FLAG  PIC X(01).                          00070000
+004600        88 SMFDATA-OVER       VALUE 'Y'.                          00080000
+004700        88 SMFDATA-NOT-OVER   VALUE 'N'.                          00090000
+002090*                                                                 00180000
+       01 WS-COMPUTE-VARIABLES.                                         00190000
+          05 SMF30CPU-MAX      PIC 9(12) VALUE ZEROES.                  00200000
+          05 SMF30CPU-AVG      PIC 9(12) VALUE ZEROES.                  00210000
+          05 SMF30CPU-TOT1     PIC 9(12) VALUE ZEROES.                  00220000
+          05 SMF30CPU-TOT2     PIC 9(12) VALUE ZEROES.                  00230000
+          05 SMF30ELP-MAX      PIC 9(12) VALUE ZEROES.                  00240000
+          05 SMF30ELP-AVG      PIC 9(12) VALUE ZEROES.                  00250000
+          05 SMF30ELP-TOT1     PIC 9(12) VALUE ZEROES.                  00260000
+          05 SMF30ELP-TOT2     PIC 9(12) VALUE ZEROES.                  00270000
+          05 WS-AVGIO          PIC 9(08) VALUE ZEROES.                  00280000
+          05 WS-MAXIO          PIC 9(08) VALUE ZEROES.                  00290000
+          05 WS-TOTAL-SMF30TEP PIC 9(08) VALUE ZEROES.                  00300000
+          05 WS-SUCCESS-CNT    PIC 9(08) VALUE ZEROES.                  00310000
+          05 WS-ABEND-CNT      PIC 9(08) VALUE ZEROES.                  00320000
+002090*                                                                 00330000

@@ -1,0 +1,36 @@
+        01 SMF30-VARIABLES.                                             00010000
+                10  WS-SMF30TME          PIC X(10).                     00040008
+                10  FILLER               PIC X(1) VALUE '!'.            00041008
+             05 WS-IDENTIFICATION-SECTION.                              00702005
+                10  WS-SMF30JBN          PIC X(10).                     00710008
+                10  FILLER               PIC X(1) VALUE '!'.            00711008
+                10  WS-SMF30JNM          PIC X(10).                     00750008
+                10  FILLER               PIC X(1) VALUE '!'.            00751008
+                10  WS-SMF30SIT          PIC X(10).                     00830008
+                10  FILLER               PIC X(1) VALUE '!'.            00831008
+                10  WS-SMF30STD          PIC X(10).                     00832010
+                10  FILLER               PIC X(1) VALUE '!'.            00833009
+             05 WS-I-O-ACTIVITY-SECTION-GROUP.                          01001004
+                10  WS-SMF30TEP          PIC X(10).                     01030008
+                10  FILLER           PIC X(1) VALUE '!'.                01040008
+             05 WS-COMPLETION-SECTION-GROUP.                            01050011
+                10  WS-SMF30SCC          PIC X(10).                     01060011
+                10  FILLER           PIC X(1) VALUE '!'.                01070011
+             05 WS-PROCESSOR-SECTION-GROUP.                             01441004
+                10  WS-SMF30CPT          PIC X(10).                     01470008
+                10  FILLER           PIC X(1) VALUE '!'.                01480008
+                10  WS-SMF30CPS          PIC X(10).                     01490008
+                10  FILLER           PIC X(1) VALUE '!'.                01500008
+                10  WS-SMF30ICU          PIC X(10).                     01510008
+                10  FILLER           PIC X(1) VALUE '!'.                01520008
+                10  WS-SMF30ISB          PIC X(10).                     01530008
+                10  FILLER           PIC X(1) VALUE '!'.                01540008
+                10  WS-SMF30IIP          PIC X(10).                     01670008
+                10  FILLER           PIC X(1) VALUE '!'.                01680008
+                10  WS-SMF30RCT          PIC X(10).                     01690008
+                10  FILLER           PIC X(1) VALUE '!'.                01700008
+                10  WS-SMF30HPT          PIC X(10).                     01710008
+                10  FILLER           PIC X(1) VALUE '!'.                01720008
+             05 WS-STORAGE-SECTION-GROUP.                               02441004
+                10  WS-SMF30RGN          PIC X(10).                     02970008
+                10  FILLER           PIC X(1) VALUE '!'.                02980008

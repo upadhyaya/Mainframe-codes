@@ -1,0 +1,42 @@
+      ******************************************************************
+      * DCLGEN TABLE(ADMT.T_EM_EMPLOYEE)                               *
+      *        LIBRARY(ADMS.BASE.COPYLIB(EMPLOY))                      *
+      *        LANGUAGE(COBOL)                                         *
+      *        QUOTE                                                   *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE ADMT.T_EM_EMPLOYEE TABLE
+           ( EMP_ID                         DECIMAL(10,0) NOT NULL,
+             EMP_NAME                       CHAR(40) NOT NULL,
+             EMP_BIRTH_DT                   DATE NOT NULL,
+             EMP_HIRE_DT                    DATE NOT NULL,
+             EMP_ADR_LN_1                   CHAR(40) NOT NULL,
+             EMP_ADR_LN_2                   CHAR(40) NOT NULL,
+             EMP_CITY                       CHAR(15) NOT NULL,
+             EMP_STATE                      CHAR(15) NOT NULL,
+             EMP_POST_CD                    CHAR(10) NOT NULL,
+             EMP_COUNTRY                    CHAR(15) NOT NULL,
+             EMP_PHONE                      CHAR(24) NOT NULL,
+             EMP_FAX                        CHAR(24) NOT NULL,
+             EMP_USER_ID                    CHAR(8) NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ADMT.T_EM_EMPLOYEE                 *
+      ******************************************************************
+       01  DCLT-EM-EMPLOYEE.
+           10 EMP-ID               PIC S9(10)V USAGE COMP-3.
+           10 EMP-NAME             PIC X(40).
+           10 EMP-BIRTH-DT         PIC X(10).
+           10 EMP-HIRE-DT          PIC X(10).
+           10 EMP-ADR-LN-1         PIC X(40).
+           10 EMP-ADR-LN-2         PIC X(40).
+           10 EMP-CITY             PIC X(15).
+           10 EMP-STATE            PIC X(15).
+           10 EMP-POST-CD          PIC X(10).
+           10 EMP-COUNTRY          PIC X(15).
+           10 EMP-PHONE            PIC X(24).
+           10 EMP-FAX              PIC X(24).
+           10 EMP-USER-ID          PIC X(8).
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 13      *
+      ******************************************************************

@@ -1,0 +1,18 @@
+//PAOLOR1L JOB (56000999,00000000,81320000),'SAMPLE1B',                 00010003
+//         CLASS=A,NOTIFY=&SYSUID,MSGCLASS=H                            00020000
+//*                                                                     00030000
+//SAMPLE1 EXEC  PGM=IKJEFT01,DYNAMNBR=20,REGION=4M                      00040000
+//STEPLIB   DD DISP=SHR,DSN=DB9BU.RUNLIB.LOAD                           00050001
+//          DD DISP=SHR,DSN=DB9B9.SDSNEXIT                              00060001
+//          DD DISP=SHR,DSN=DB9B9.SDSNLOAD                              00070001
+//LOBDATA   DD DISP=SHR,DSN=PAOLOR1.DB2V8.PDF                           00080002
+//SYSOUT    DD SYSOUT=*                                                 00090000
+//SYSTSPRT  DD SYSOUT=*                                                 00100000
+//SYSUDUMP  DD SYSOUT=*                                                 00110000
+//SYSTSIN   DD *                                                        00120000
+  DSN SYSTEM(DB9B)                                                      00130002
+  RUN PROGRAM(SAMPLE1B) PLAN(SAMPLE1B) -                                00140000
+  LIB('DB9BU.RUNLIB.LOAD')                                              00150002
+ END                                                                    00160000
+//*                                                                     00170000
+

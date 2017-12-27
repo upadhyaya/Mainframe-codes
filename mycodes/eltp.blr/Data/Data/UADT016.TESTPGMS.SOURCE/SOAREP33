@@ -1,0 +1,121 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SOAREP3.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT VSAMIP ASSIGN TO VSAMIN
+                  ORGANIZATION IS INDEXED
+                  ACCESS MODE IS DYNAMIC
+                  RECORD KEY IS ORDER-KEY
+                  FILE STATUS WS-FILE-VSAMSTAT.
+       DATA DIVISION.
+       FILE SECTION.
+       FD VSAMIP.
+       01 VSAMREC.
+           02 ORDER-KEY            PIC 9(10).
+           02 CUSTOMER-ID          PIC 9(10).
+           02 EMPLOYEE-ID          PIC 9(10).
+           02 PROD-ID              PIC 9(10).
+           02 UNIT-PRICE           PIC 9(10)V99.
+           02 QUANTITY             PIC 9(05).
+           02 ORDER-DATE           PIC X(10).
+           02 REQUIRED-DATE        PIC X(10).
+           02 SHIPMENT-DATE        PIC X(10).
+           02 CARRIER-DATE         PIC 9(10)V99.
+           02 TOTAL-COST           PIC 9(16)V99.
+           02 TOKEN-KEY            PIC X(1).
+       WORKING-STORAGE SECTION.
+       01 WS-FILE-VSAMSTAT  PIC 9(2).
+       01 WS-EOF            PIC X(01) VALUE 'N'.
+       01 CNT1              PIC 9(02) VALUE ZEROES.
+       01 VSAM-FILE-DATA.
+           02 WSF-ORDER-ID         PIC 9(10).
+           02 WSF-CUSTOMER-ID      PIC 9(10).
+           02 WSF-EMPLOYEE-ID      PIC 9(10).
+           02 WSF-PROD-ID          PIC 9(10).
+           02 WSF-UNIT-PRICE       PIC 9(10)V99.
+           02 WSF-QUANTITY         PIC 9(05).
+           02 WSF-ORDER-DATE       PIC X(10).
+           02 WSF-REQUIRED-DATE    PIC X(10).
+           02 WSF-SHIPMENT-DATE    PIC X(10).
+           02 WSF-CARRIER-COST     PIC 9(10)V99.
+           02 WSF-TOTAL-COST       PIC 9(16)V99.
+           02 WSF-TOKEN            PIC X(1).
+       PROCEDURE DIVISION.
+      ***************************************************************
+      *                   0000-MAINLINE                             *
+      *          CONTAINS THE MAIN FLOW OF THE PROGRAM              *
+      ***************************************************************
+       0000-MAINLINE.
+           PERFORM 4000-OPEN-FILE-PARA.
+
+           PERFORM 5000-READ-WRITE-PARA.
+           MOVE ZEROES TO CNT1.
+           PERFORM 5100-READ-WRITE-PARA UNTIL WS-FILE-VSAMSTAT = '00'.
+           MOVE 0000000555 TO ORDER-KEY.
+           PERFORM 5000-READ-WRITE-PARA.
+           MOVE ZEROES TO CNT1.
+           PERFORM 5100-READ-WRITE-PARA UNTIL WS-FILE-VSAMSTAT = '00'.
+           MOVE 0000000556 TO ORDER-KEY.
+           PERFORM 5000-READ-WRITE-PARA.
+           MOVE ZEROES TO CNT1.
+           PERFORM 5100-READ-WRITE-PARA UNTIL WS-FILE-VSAMSTAT = '00'.
+      **   PERFORM 5100-READ-WRITE-PARA UNTIL WS-EOF = 'Y'.
+           PERFORM 7000-CLOSE-REPORT-FILE-PARA.
+      *
+      **************************************************************
+      *               4000-OPEN-FILE-PARA.                         *
+      *           READ THE DATA FROM VSAM FILE                     *
+      **************************************************************
+       4000-OPEN-FILE-PARA.
+           OPEN INPUT VSAMIP.
+           DISPLAY "AFTER OPEN OF VSAMFILE-".
+           DISPLAY "FILE STATUS-" WS-FILE-VSAMSTAT.
+           MOVE "P" TO TOKEN-KEY.
+           MOVE ZEROES TO CNT1.
+           MOVE 'N' TO WS-EOF.
+           MOVE 0000001252 TO ORDER-KEY.
+      **************************************************************
+      *               5000-READ-AND-WRITE-REPORT-PARA.             *
+      *              WRITING THE DATA TO REPORT REP-REC            *
+      **************************************************************
+       5000-READ-WRITE-PARA.
+           DISPLAY "TOKEN-KEY:" TOKEN-KEY.
+           START VSAMIP
+                 KEY IS EQUAL TO ORDER-KEY
+                 INVALID KEY DISPLAY 'KEY NOT FOUND'
+                             PERFORM 7000-CLOSE-REPORT-FILE-PARA
+           END-START.
+           DISPLAY "START FILE STATUS-" WS-FILE-VSAMSTAT.
+           MOVE '02' TO WS-FILE-VSAMSTAT.
+       5100-READ-WRITE-PARA.
+           READ VSAMIP NEXT RECORD
+           END-READ.
+      **   READ VSAMIP
+      **        AT END MOVE 'Y' TO WS-EOF
+      **   END-READ.
+           COMPUTE CNT1 = CNT1 + 1.
+           DISPLAY 'CNT1' CNT1.
+           DISPLAY "READ FILE STATUS-" WS-FILE-VSAMSTAT.
+           MOVE  ORDER-KEY     TO  WSF-ORDER-ID.
+           MOVE  CUSTOMER-ID   TO  WSF-CUSTOMER-ID.
+           MOVE  EMPLOYEE-ID   TO  WSF-EMPLOYEE-ID.
+           MOVE  PROD-ID       TO  WSF-PROD-ID.
+           MOVE  UNIT-PRICE    TO  WSF-UNIT-PRICE.
+           MOVE  QUANTITY      TO  WSF-QUANTITY.
+           MOVE  ORDER-DATE    TO  WSF-ORDER-DATE.
+           MOVE  REQUIRED-DATE TO  WSF-REQUIRED-DATE.
+           MOVE  SHIPMENT-DATE TO  WSF-SHIPMENT-DATE.
+           MOVE  CARRIER-DATE  TO  WSF-CARRIER-COST.
+           MOVE  TOTAL-COST    TO  WSF-TOTAL-COST.
+           MOVE  TOKEN-KEY     TO  WSF-TOKEN.
+           DISPLAY "VSAMDATA:" VSAM-FILE-DATA.
+      ***************************************************************
+      *                 7000-CLOSE-REPORT-FILE-PARA.                *
+      *                     CLOSE THE VSAM FILE                     *
+      ***************************************************************
+       7000-CLOSE-REPORT-FILE-PARA.
+           DISPLAY "IN CLOSE PARA".
+           CLOSE VSAMIP.
+           DISPLAY "FILE STATUS-" WS-FILE-VSAMSTAT.
+           STOP RUN.

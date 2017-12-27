@@ -1,0 +1,32 @@
+      ******************************************************************
+      * DCLGEN TABLE(ADMT.LOGIN_DTLS)                                  *
+      *        LIBRARY(ELTP.BLR.SOACPY(LOGIN1))                        *
+      *        LANGUAGE(COBOL)                                         *
+      *        QUOTE                                                   *
+      *        LABEL(YES)                                              *
+      *        INDVAR(YES)                                             *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE ADMT.LOGIN_DTLS TABLE
+           ( USER_ID                        CHAR(12) NOT NULL,
+             USER_PWD                       CHAR(20) NOT NULL,
+             ACCESS_TOKEN                   CHAR(6) NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ADMT.LOGIN_DTLS                    *
+      ******************************************************************
+       01  DCLLOGIN-DTLS.
+      *    *************************************************************
+           10 USER-ID              PIC X(12).
+      *    *************************************************************
+           10 USER-PWD             PIC X(20).
+      *    *************************************************************
+           10 ACCESS-TOKEN         PIC X(6).
+      ******************************************************************
+      * INDICATOR VARIABLE STRUCTURE                                   *
+      ******************************************************************
+       01  ILOGIN-DTLS.
+           10 INDSTRUC           PIC S9(4) USAGE COMP OCCURS 3 TIMES.
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 3       *
+      ******************************************************************

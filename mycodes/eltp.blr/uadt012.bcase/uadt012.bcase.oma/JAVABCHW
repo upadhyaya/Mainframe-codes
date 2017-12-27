@@ -1,0 +1,633 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. JAVABCHW.                                            00020001
+000300 AUTHOR. SOA TEAM.                                                00030001
+000400 DATE-WRITTEN. 20/06/08.                                          00040001
+000500 DATE-COMPILED. 20/06/08.                                         00050001
+000510*                                                                 00051000
+000520*MODULE       : JAVA DB2 BATCH MODULE.                            00052000
+000530*TITLE        : NA                                                00053000
+000540*MAPS USED    : JAVBMP MAP.                                       00054001
+000550*                                                                 00055000
+000560******************************************************************00056000
+000570 DATA DIVISION.                                                   00057000
+000580 WORKING-STORAGE SECTION.                                         00058000
+000590 COPY DFHAID.                                                     00059000
+000600 COPY DFHBMSCA.                                                   00060000
+000700 COPY JAVBMP.                                                     00070001
+000710 COPY VALIDDT.                                                    00071003
+000720 COPY OUTPRT.                                                     00072008
+000800*                                                                 00080000
+000900 01 WK-DATE.                                                      00090000
+001000    05 WK-D-DD PIC 99.                                            00100000
+001100    05 FILLER  PIC X.                                             00110000
+001200    05 WK-D-MM PIC 99.                                            00120000
+001300    05 FILLER  PIC X.                                             00130000
+001400    05 WK-D-YY PIC 99.                                            00140000
+001500 01 WK-TIME.                                                      00150000
+001600    05 WK-T-HH PIC 99.                                            00160000
+001700    05 FILLER  PIC X.                                             00170000
+001800    05 WK-T-MM PIC 99.                                            00180000
+001900    05 FILLER  PIC X.                                             00190000
+002000    05 WK-T-SS PIC 99.                                            00200000
+002100 01 DT         PIC S9(15) COMP-3.                                 00210000
+002200*                                                                 00220000
+002300 01 WS-COMMAREA PIC 9 VALUE 0.                                    00230000
+002400 01 WS-TXT1  PIC X(80) VALUE 'SESSION COMPLETED'.                 00240000
+002500*                                                                 00250000
+002510*                                                                 00251006
+002520 01 WS-HYPHEN1  PIC X(1) VALUE '-'.                               00252006
+002530 01 WS-HYPHEN2  PIC X(1) VALUE '-'.                               00253006
+002540*                                                                 00254006
+002550 01 WS-QUOT     PIC 9(4) VALUE 0.                                 00255006
+002560 01 WS-REM      PIC 9(4) VALUE 0.                                 00256006
+002570*                                                                 00257006
+002600 01 WS-MESSAGES.                                                  00260000
+002700    05 JOB1  PIC X(4).                                            00270000
+002800    05 UID1  PIC X(7).                                            00280000
+002900    05 CARD  PIC X(2).                                            00290000
+003000    05 MSGM1 PIC X(67).                                           00300000
+003100*                                                                 00310000
+003200 01 UID PIC X(7).                                                 00320000
+003300*                                                                 00330000
+003400 01  RESP1            PIC 9(8) BINARY.                            00340000
+003500 01  RESP2            PIC 9(8) BINARY.                            00350000
+003600 01  TOKEN            PIC X(8).                                   00360000
+003700 01  OUTLEN           PIC S9(8) BINARY VALUE +80.                 00370000
+003800*                                                                 00380000
+003900 01 WS-JOBCARD.                                                   00390000
+003910    05 JCARD1 PIC X(2).                                           00391000
+003920    05 UIDJ   PIC X(7).                                           00392000
+003930    05 CARD1  PIC X(1).                                           00393000
+003940    05 JCARD2 PIC X(70).                                          00394000
+004028*                                                                 00402800
+004029 01 WS-TEMP PIC X(10).                                            00402932
+004031*                                                                 00403117
+004033 LINKAGE SECTION.                                                 00403309
+004034 01 DFHCOMMAREA.                                                  00403409
+004040    COPY CUSTCPY.                                                 00404001
+004041***************************************************************** 00404100
+004042 PROCEDURE DIVISION USING DFHCOMMAREA.                            00404200
+004043***************************************************************** 00404300
+004044 COPY VALDATE.                                                    00404403
+004045 1000-MAINLINE-PARA.                                              00404500
+004046        MOVE 0 TO LS-CURSOR.                                      00404600
+004047        PERFORM 2000-PROCESSING-PARA THRU 2000-EXIT.              00404701
+004048*                                                                 00404800
+004049     EXEC CICS RETURN                                             00404900
+004050     END-EXEC.                                                    00405000
+004051******************************************************************00405100
+004060 2000-PROCESSING-PARA.                                            00406001
+004070      EVALUATE TRUE                                               00407000
+004080          WHEN LS-OPT = 'REPORT'                                  00408000
+004090              PERFORM 3000-VALIDATION-PARA THRU 3000-EXIT         00409002
+004091              PERFORM 3500-VALIDATE-DATE-PARA THRU 3500-EXIT      00409136
+004092              PERFORM 4000-CICSINTRDR-PARA THRU 4000-EXIT         00409236
+004100          WHEN OTHER                                              00410000
+004200              PERFORM 7000-ERROR-PARA THRU 7000-EXIT              00420004
+004300      END-EVALUATE.                                               00430000
+004400*                                                                 00440000
+004500 2000-EXIT.                                                       00450001
+004600     EXIT.                                                        00460000
+004700******************************************************************00470000
+004710 3000-VALIDATION-PARA.                                            00471002
+004711     IF LS-CUSTID = 0  AND LS-FROMDATE = SPACES  AND              00471133
+004712                           LS-TODATE = SPACES                     00471233
+004713        MOVE 'DETAILS NOT ENTERED FOR THE REPORT GENERATION - PLEA00471334
+004714-            'SE TRY AGAIN' TO LS-MSG1                            00471434
+004715        MOVE SPACES TO LS-MSG2                                    00471535
+004716        MOVE 1 TO LS-CURSOR                                       00471635
+004717        EXEC CICS RETURN                                          00471735
+004718        END-EXEC                                                  00471835
+004719     END-IF.                                                      00471935
+004720*                                                                 00472035
+004721     IF LS-CUSTID = 0                                             00472135
+004730        MOVE 0000000000 TO LS-CUSTID                              00473002
+004731     ELSE IF LS-CUSTID IS NOT NUMERIC                             00473102
+004732             MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'  00473202
+004733                  TO LS-MSG1                                      00473302
+004734             MOVE LOW-VALUES TO WS-TEMP                           00473443
+004735             MOVE WS-TEMP TO LS-CUSTID                            00473543
+004736             MOVE SPACES TO LS-MSG2                               00473630
+004737             MOVE 1 TO LS-CURSOR                                  00473730
+004738             EXEC CICS RETURN                                     00473830
+004739             END-EXEC                                             00473930
+004740           END-IF                                                 00474030
+004741     END-IF.                                                      00474130
+004742*                                                                 00474230
+004743     IF LS-FROMDATE = SPACES                                      00474330
+004750        MOVE '0001-01-01' TO LS-FROMDATE                          00475002
+004751     ELSE                                                         00475104
+004752        PERFORM 5000-VALIDATE-FROMDATE-PARA THRU 5000-EXIT        00475204
+004760     END-IF.                                                      00476002
+004770*                                                                 00477002
+004780     IF LS-TODATE = SPACES                                        00478002
+004790        MOVE '9999-12-31' TO LS-TODATE                            00479002
+004791     ELSE                                                         00479104
+004792        PERFORM 6000-VALIDATE-TODATE-PARA THRU 6000-EXIT          00479204
+004793     END-IF.                                                      00479302
+004807*                                                                 00480702
+004808 3000-EXIT.                                                       00480823
+004809     EXIT.                                                        00480902
+004810******************************************************************00481002
+004811 3500-VALIDATE-DATE-PARA.                                         00481136
+004812     IF LS-FROMDATE(1:4) > LS-TODATE(1:4)                         00481236
+004814        MOVE 'FROMDATE GREATER THAN TODATE - ENTER THE CORRECT RAN00481436
+004815-            'GE' TO LS-MSG1                                      00481536
+004816        MOVE SPACES TO LS-MSG2                                    00481636
+004817        MOVE 2 TO LS-CURSOR                                       00481736
+004818        EXEC CICS RETURN                                          00481836
+004819        END-EXEC                                                  00481936
+004820     END-IF.                                                      00482036
+004821*                                                                 00482136
+004822     IF LS-FROMDATE(1:4) = LS-TODATE(1:4)                         00482236
+004823        IF LS-FROMDATE(6:2) > LS-TODATE(6:2)                      00482336
+004824           MOVE 'FROMDATE MONTH GREATER THAN TODATE MONTH - TRY AG00482436
+004825-            'AIN' TO LS-MSG1                                     00482536
+004826           MOVE SPACES TO LS-MSG2                                 00482636
+004827           MOVE 2 TO LS-CURSOR                                    00482736
+004828           EXEC CICS RETURN                                       00482836
+004829           END-EXEC                                               00482936
+004830        ELSE IF LS-FROMDATE(6:2) = LS-TODATE(6:2)                 00483036
+004831                IF LS-FROMDATE(9:2) > LS-TODATE(9:2)              00483136
+004832                   MOVE 'FROMDATE DAY GREATER THAN TODATE DAY - TR00483236
+004833-                       'Y AGAIN' TO LS-MSG1                      00483336
+004834                   MOVE SPACES TO LS-MSG2                         00483436
+004835                   MOVE 2 TO LS-CURSOR                            00483536
+004836                   EXEC CICS RETURN                               00483636
+004837                   END-EXEC                                       00483736
+004838                END-IF                                            00483836
+004839             END-IF                                               00483936
+004840        END-IF                                                    00484036
+004841     END-IF.                                                      00484136
+004842*                                                                 00484236
+004843 3500-EXIT.                                                       00484336
+004844     EXIT.                                                        00484436
+004845******************************************************************00484536
+004850 4000-CICSINTRDR-PARA.                                            00485002
+004900     EXEC CICS ASSIGN USERID(UID) END-EXEC.                       00490000
+005000*                                                                 00500000
+005100     MOVE UID TO UIDJ.                                            00510000
+005200     MOVE 'Q' TO CARD1.                                           00520000
+005300     MOVE '//' TO JCARD1.                                         00530000
+005400     MOVE " JOB 43312,'JAVA  PROGRAM',REGION=0M," TO JCARD2.      00540000
+005500     MOVE WS-JOBCARD TO OUTPRT1.                                  00550000
+005600     MOVE '//         CLASS=E,MSGCLASS=X,NOTIFY=&SYSUID,TIME=NOLIM00560000
+005700-                     'IT' TO OUTPRT2.                            00570000
+005710     MOVE '//PROCLIB JCLLIB ORDER=(UADT002.BLR.JAVAJCL)'          00571007
+005720                TO OUTPRT3.                                       00572007
+005800*                                                                 00580000
+005900     MOVE '//STEP1 EXEC PGM=BPXBATCH,' TO OUTPRT4.                00590007
+006000     MOVE "//         PARM='SH'" TO OUTPRT5.                      00600007
+006100     MOVE '//SYSPRINT DD SYSOUT=*' TO OUTPRT6.                    00610007
+006200     MOVE '//SYSOUT DD SYSOUT=*' TO OUTPRT7.                      00620007
+006210     MOVE "//STDOUT DD PATH='/adms/zportal/CusRep/CusRpFile.txt',"00621047
+006220                   TO OUTPRT8.                                    00622047
+006230     MOVE '//             PATHOPTS=(OWRONLY),' TO                 00623047
+006240           OUTPRT9.                                               00624047
+006250     MOVE '//             PATHDISP=(DELETE)' TO                   00625047
+006260           OUTPRT10.                                              00626047
+006300     MOVE "//STDIN DD PATH='/adms/zportal/CusRep/CusRep.stdin',"  00630046
+006400           TO OUTPRT11.                                           00640047
+006500     MOVE '//             PATHOPTS=(ORDONLY)' TO OUTPRT12.        00650047
+006600     MOVE "//STDOUT DD PATH='/adms/zportal/CusRep/CusRep.stdout',"00660046
+006700                   TO OUTPRT13.                                   00670047
+006800     MOVE '//             PATHOPTS=(OWRONLY,OCREAT,OTRUNC),' TO   00680000
+006900           OUTPRT14.                                              00690047
+007000     MOVE '//             PATHMODE=(SIRWXU,SIRWXG,SIRWXO)' TO     00700000
+007100           OUTPRT15.                                              00710047
+007200     MOVE "//STDERR DD PATH='/adms/zportal/CusRep/CusRep.stderr',"00720046
+007300                  TO OUTPRT16.                                    00730047
+007400     MOVE '//             PATHOPTS=(OWRONLY,OCREAT,OTRUNC),' TO   00740000
+007500           OUTPRT17.                                              00750047
+007510     MOVE '//             PATHMODE=(SIRWXU,SIRWXG,SIRWXO)' TO     00751000
+007520           OUTPRT18.                                              00752047
+007521     MOVE '//JAVAJZOS EXEC PROC=JVMPRC14,' TO OUTPRT19.           00752147
+007522     MOVE "//           JAVACLS='CusRep'" TO OUTPRT20.            00752247
+007523     MOVE '//MAINARGS DD *' TO OUTPRT21.                          00752347
+007524*                                                                 00752409
+007525     STRING LS-FROMDATE DELIMITED BY SPACE                        00752522
+007527            ' '         DELIMITED BY SIZE                         00752711
+007528            LS-TODATE   DELIMITED BY SPACE                        00752811
+007529            ' '         DELIMITED BY SIZE                         00752911
+007530            LS-CUSTID   DELIMITED BY SPACE                        00753011
+007533         INTO OUTPRT22.                                           00753347
+007534*    MOVE "//           ARGS='2007-08-28 2008-12-28 60082959'" TO 00753411
+007535*            OUTPRT18.                                            00753511
+007536     MOVE "//STDOUT DD PATH='/adms/zportal/CusRep/CusRep.stdout',"00753646
+007537                  TO OUTPRT23.                                    00753747
+007538     MOVE '//             PATHOPTS=(OWRONLY,OCREAT,OTRUNC),' TO   00753810
+007539           OUTPRT24.                                              00753947
+007540     MOVE '//             PATHMODE=(SIRWXU,SIRWXG,SIRWXO)' TO     00754010
+007541           OUTPRT25.                                              00754147
+007542     MOVE "//STDERR DD PATH='/adms/zportal/CusRep/CusRep.stderr',"00754246
+007543                  TO OUTPRT26.                                    00754347
+007544     MOVE '//             PATHOPTS=(OWRONLY,OCREAT,OTRUNC),' TO   00754410
+007545           OUTPRT27.                                              00754547
+007546     MOVE '//             PATHMODE=(SIRWXU,SIRWXG,SIRWXO)' TO     00754610
+007547           OUTPRT28.                                              00754747
+007548     MOVE "//STDENV DD PATH='/adms/zportal/CusRep/CusRep.env',"   00754846
+007549           TO OUTPRT29.                                           00754947
+007550     MOVE '//             PATHOPTS=(ORDONLY)' TO OUTPRT30.        00755047
+007551*                                                                 00755110
+007552          EXEC CICS SPOOLOPEN OUTPUT                              00755210
+007553                    NODE ('N1')                                   00755300
+007560                    USERID ('INTRDR')                             00756000
+007570                    RESP(RESP1) RESP2(RESP2)                      00757000
+007571                    TOKEN(TOKEN)                                  00757100
+007572          END-EXEC                                                00757200
+007573          EXEC CICS SPOOLWRITE                                    00757300
+007574                    FROM(OUTPRT1)                                 00757400
+007575                    RESP(RESP1) RESP2(RESP2)                      00757500
+007576                    FLENGTH(OUTLEN)                               00757600
+007577                    TOKEN(TOKEN)                                  00757700
+007578          END-EXEC                                                00757800
+007579          EXEC CICS SPOOLWRITE                                    00757900
+007580                    FROM(OUTPRT2)                                 00758000
+007581                    RESP(RESP1) RESP2(RESP2)                      00758100
+007582                    FLENGTH(OUTLEN)                               00758200
+007583                    TOKEN(TOKEN)                                  00758300
+007584          END-EXEC                                                00758400
+007585          EXEC CICS SPOOLWRITE                                    00758500
+007586                    FROM(OUTPRT3)                                 00758600
+007587                    RESP(RESP1) RESP2(RESP2)                      00758700
+007588                    FLENGTH(OUTLEN)                               00758800
+007589                    TOKEN(TOKEN)                                  00758900
+007590          END-EXEC                                                00759000
+007591          EXEC CICS SPOOLWRITE                                    00759100
+007592                    FROM(OUTPRT4)                                 00759200
+007593                    RESP(RESP1) RESP2(RESP2)                      00759300
+007594                    FLENGTH(OUTLEN)                               00759400
+007595                    TOKEN(TOKEN)                                  00759500
+007596          END-EXEC                                                00759600
+007597          EXEC CICS SPOOLWRITE                                    00759700
+007598                    FROM(OUTPRT5)                                 00759800
+007599                    RESP(RESP1) RESP2(RESP2)                      00759900
+007600                    FLENGTH(OUTLEN)                               00760000
+007601                    TOKEN(TOKEN)                                  00760100
+007602          END-EXEC                                                00760200
+007603          EXEC CICS SPOOLWRITE                                    00760300
+007604                    FROM(OUTPRT6)                                 00760400
+007605                    RESP(RESP1) RESP2(RESP2)                      00760500
+007606                    FLENGTH(OUTLEN)                               00760600
+007607                    TOKEN(TOKEN)                                  00760700
+007608          END-EXEC                                                00760800
+007609          EXEC CICS SPOOLWRITE                                    00760900
+007610                    FROM(OUTPRT7)                                 00761000
+007611                    RESP(RESP1) RESP2(RESP2)                      00761100
+007612                    FLENGTH(OUTLEN)                               00761200
+007613                    TOKEN(TOKEN)                                  00761300
+007614          END-EXEC                                                00761400
+007615          EXEC CICS SPOOLWRITE                                    00761500
+007616                    FROM(OUTPRT8)                                 00761600
+007617                    RESP(RESP1) RESP2(RESP2)                      00761700
+007618                    FLENGTH(OUTLEN)                               00761800
+007619                    TOKEN(TOKEN)                                  00761900
+007620          END-EXEC                                                00762000
+007621          EXEC CICS SPOOLWRITE                                    00762100
+007622                    FROM(OUTPRT9)                                 00762200
+007623                    RESP(RESP1) RESP2(RESP2)                      00762300
+007624                    FLENGTH(OUTLEN)                               00762400
+007625                    TOKEN(TOKEN)                                  00762500
+007626          END-EXEC                                                00762600
+007627          EXEC CICS SPOOLWRITE                                    00762700
+007628                    FROM(OUTPRT10)                                00762800
+007629                    RESP(RESP1) RESP2(RESP2)                      00762900
+007630                    FLENGTH(OUTLEN)                               00763000
+007631                    TOKEN(TOKEN)                                  00763100
+007632          END-EXEC                                                00763200
+007633          EXEC CICS SPOOLWRITE                                    00763300
+007634                    FROM(OUTPRT11)                                00763400
+007635                    RESP(RESP1) RESP2(RESP2)                      00763500
+007636                    FLENGTH(OUTLEN)                               00763600
+007637                    TOKEN(TOKEN)                                  00763700
+007638          END-EXEC                                                00763800
+007639          EXEC CICS SPOOLWRITE                                    00763900
+007640                    FROM(OUTPRT12)                                00764000
+007641                    RESP(RESP1) RESP2(RESP2)                      00764100
+007642                    FLENGTH(OUTLEN)                               00764200
+007643                    TOKEN(TOKEN)                                  00764300
+007644          END-EXEC                                                00764400
+007645          EXEC CICS SPOOLWRITE                                    00764500
+007646                    FROM(OUTPRT13)                                00764600
+007647                    RESP(RESP1) RESP2(RESP2)                      00764700
+007648                    FLENGTH(OUTLEN)                               00764800
+007649                    TOKEN(TOKEN)                                  00764900
+007650          END-EXEC                                                00765000
+007651          EXEC CICS SPOOLWRITE                                    00765100
+007652                    FROM(OUTPRT14)                                00765200
+007653                    RESP(RESP1) RESP2(RESP2)                      00765300
+007654                    FLENGTH(OUTLEN)                               00765400
+007655                    TOKEN(TOKEN)                                  00765500
+007656          END-EXEC                                                00765600
+007657          EXEC CICS SPOOLWRITE                                    00765707
+007658                    FROM(OUTPRT15)                                00765807
+007659                    RESP(RESP1) RESP2(RESP2)                      00765907
+007660                    FLENGTH(OUTLEN)                               00766007
+007661                    TOKEN(TOKEN)                                  00766107
+007662          END-EXEC                                                00766207
+007663          EXEC CICS SPOOLWRITE                                    00766307
+007664                    FROM(OUTPRT16)                                00766407
+007665                    RESP(RESP1) RESP2(RESP2)                      00766507
+007666                    FLENGTH(OUTLEN)                               00766607
+007667                    TOKEN(TOKEN)                                  00766707
+007668          END-EXEC                                                00766807
+007669          EXEC CICS SPOOLWRITE                                    00766907
+007670                    FROM(OUTPRT17)                                00767007
+007671                    RESP(RESP1) RESP2(RESP2)                      00767107
+007672                    FLENGTH(OUTLEN)                               00767207
+007673                    TOKEN(TOKEN)                                  00767307
+007674          END-EXEC                                                00767407
+007675          EXEC CICS SPOOLWRITE                                    00767507
+007676                    FROM(OUTPRT18)                                00767607
+007677                    RESP(RESP1) RESP2(RESP2)                      00767707
+007678                    FLENGTH(OUTLEN)                               00767807
+007679                    TOKEN(TOKEN)                                  00767907
+007680          END-EXEC                                                00768007
+007681          EXEC CICS SPOOLWRITE                                    00768107
+007682                    FROM(OUTPRT19)                                00768207
+007683                    RESP(RESP1) RESP2(RESP2)                      00768307
+007684                    FLENGTH(OUTLEN)                               00768407
+007685                    TOKEN(TOKEN)                                  00768507
+007686          END-EXEC                                                00768607
+007687          EXEC CICS SPOOLWRITE                                    00768707
+007688                    FROM(OUTPRT20)                                00768807
+007689                    RESP(RESP1) RESP2(RESP2)                      00768907
+007690                    FLENGTH(OUTLEN)                               00769007
+007691                    TOKEN(TOKEN)                                  00769107
+007692          END-EXEC                                                00769207
+007693          EXEC CICS SPOOLWRITE                                    00769307
+007694                    FROM(OUTPRT21)                                00769407
+007695                    RESP(RESP1) RESP2(RESP2)                      00769507
+007696                    FLENGTH(OUTLEN)                               00769607
+007697                    TOKEN(TOKEN)                                  00769707
+007698          END-EXEC                                                00769807
+007699          EXEC CICS SPOOLWRITE                                    00769907
+007700                    FROM(OUTPRT22)                                00770007
+007701                    RESP(RESP1) RESP2(RESP2)                      00770107
+007702                    FLENGTH(OUTLEN)                               00770207
+007703                    TOKEN(TOKEN)                                  00770307
+007704          END-EXEC                                                00770407
+007705          EXEC CICS SPOOLWRITE                                    00770507
+007706                    FROM(OUTPRT23)                                00770607
+007707                    RESP(RESP1) RESP2(RESP2)                      00770707
+007708                    FLENGTH(OUTLEN)                               00770807
+007709                    TOKEN(TOKEN)                                  00770907
+007710          END-EXEC                                                00771007
+007711          EXEC CICS SPOOLWRITE                                    00771107
+007712                    FROM(OUTPRT24)                                00771207
+007713                    RESP(RESP1) RESP2(RESP2)                      00771307
+007714                    FLENGTH(OUTLEN)                               00771407
+007715                    TOKEN(TOKEN)                                  00771507
+007716          END-EXEC                                                00771607
+007717          EXEC CICS SPOOLWRITE                                    00771707
+007718                    FROM(OUTPRT25)                                00771807
+007719                    RESP(RESP1) RESP2(RESP2)                      00771907
+007720                    FLENGTH(OUTLEN)                               00772007
+007721                    TOKEN(TOKEN)                                  00772107
+007722          END-EXEC                                                00772207
+007723          EXEC CICS SPOOLWRITE                                    00772307
+007724                    FROM(OUTPRT26)                                00772407
+007725                    RESP(RESP1) RESP2(RESP2)                      00772507
+007726                    FLENGTH(OUTLEN)                               00772607
+007727                    TOKEN(TOKEN)                                  00772707
+007728          END-EXEC                                                00772807
+007729          EXEC CICS SPOOLWRITE                                    00772922
+007730                    FROM(OUTPRT27)                                00773022
+007731                    RESP(RESP1) RESP2(RESP2)                      00773122
+007732                    FLENGTH(OUTLEN)                               00773222
+007733                    TOKEN(TOKEN)                                  00773322
+007734          END-EXEC                                                00773422
+007735          EXEC CICS SPOOLWRITE                                    00773547
+007736                    FROM(OUTPRT28)                                00773647
+007737                    RESP(RESP1) RESP2(RESP2)                      00773747
+007738                    FLENGTH(OUTLEN)                               00773847
+007739                    TOKEN(TOKEN)                                  00773947
+007740          END-EXEC                                                00774047
+007741          EXEC CICS SPOOLWRITE                                    00774147
+007742                    FROM(OUTPRT29)                                00774247
+007743                    RESP(RESP1) RESP2(RESP2)                      00774347
+007744                    FLENGTH(OUTLEN)                               00774447
+007745                    TOKEN(TOKEN)                                  00774547
+007746          END-EXEC                                                00774647
+007747          EXEC CICS SPOOLWRITE                                    00774747
+007748                    FROM(OUTPRT30)                                00774847
+007749                    RESP(RESP1) RESP2(RESP2)                      00774947
+007750                    FLENGTH(OUTLEN)                               00775047
+007751                    TOKEN(TOKEN)                                  00775147
+007752          END-EXEC                                                00775247
+007753          EXEC CICS SPOOLCLOSE                                    00775347
+007754                    TOKEN(TOKEN)                                  00775447
+007755                    RESP(RESP1) RESP2(RESP2)                      00775547
+007756          END-EXEC.                                               00775647
+007757*                                                                 00775747
+007758     MOVE 'JOB' TO JOB1.                                          00775847
+007759     MOVE UID TO UID1.                                            00775947
+007760     MOVE 'Q' TO CARD.                                            00776047
+007761     MOVE 'JOB HAS BEEN SUBMITTED SUCCESSFULLY FOR THE REPORT GENE00776147
+007762-         'RATION' TO MSGM1.                                      00776247
+007763     MOVE MSGM1 TO LS-MSG1.                                       00776347
+007764     MOVE 'VIEW THE REPORT IN /adms/zportal/CusRep/CusRepFile.txt'00776447
+007765            TO LS-MSG2.                                           00776547
+007766     PERFORM 9500-VALIDATE-PARA THRU 9500-EXIT.                   00776647
+007767     MOVE 1 TO LS-CURSOR.                                         00776747
+007768     EXEC CICS RETURN                                             00776847
+007769     END-EXEC.                                                    00776947
+007770*                                                                 00777047
+007771 4000-EXIT.                                                       00777147
+007772     EXIT.                                                        00777247
+007773******************************************************************00777347
+007774 5000-VALIDATE-FROMDATE-PARA.                                     00777447
+007775     MOVE LS-FROMDATE TO INPUTDATELA                              00777547
+007776     MOVE LS-FROMDATE(1:4) TO YEARLA                              00777647
+007777     MOVE LS-FROMDATE(5:1) TO WS-HYPHEN1                          00777747
+007778     MOVE LS-FROMDATE(6:2) TO MONTHLA                             00777847
+007779     MOVE LS-FROMDATE(8:1) TO WS-HYPHEN2                          00777947
+007780     MOVE LS-FROMDATE(9:2) TO DAYLA                               00778047
+007781     DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM           00778147
+007782*                                                                 00778247
+007783     IF MONTHLA = 02 AND WS-HYPHEN1 = '-' AND DAYLA = 29          00778347
+007784        AND WS-HYPHEN2 = '-' AND WS-REM NOT = 0                   00778447
+007785        MOVE 'FROM-DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENTE00778547
+007786-            'R CORRECT FORMAT' TO LS-MSG1                        00778647
+007787        MOVE SPACES TO LS-MSG2                                    00778747
+007788        MOVE 2 TO LS-CURSOR                                       00778847
+007789        EXEC CICS RETURN                                          00778947
+007790        END-EXEC                                                  00779047
+007791     ELSE                                                         00779147
+007792        PERFORM 8000-BEGIN-PARA THRU 8000-EXIT                    00779247
+007793*                                                                 00779347
+007794        EVALUATE TRUE                                             00779447
+007795          WHEN DATENOTNUMERIC                                     00779547
+007796            MOVE 'FROM-DATE FORMAT IS INVALID - PLEASE ENTER IT IN00779647
+007797-                ' YYYY-MM-DD FORMAT' TO LS-MSG1                  00779747
+007798            MOVE SPACES TO LS-MSG2                                00779847
+007799            MOVE 2 TO LS-CURSOR                                   00779947
+007800            EXEC CICS RETURN                                      00780047
+007801            END-EXEC                                              00780147
+007802          WHEN MONTHCONTAINSZEROS                                 00780247
+007803            MOVE 'MONTH ENTERED FOR FROM-DATE IS INVALID - PLEASE 00780347
+007804-               'ENTER IT' TO LS-MSG1                             00780447
+007805            MOVE SPACES TO LS-MSG2                                00780547
+007806            MOVE 2 TO LS-CURSOR                                   00780647
+007807            EXEC CICS RETURN                                      00780747
+007808            END-EXEC                                              00780847
+007809          WHEN MONTHGREATERTHAN12                                 00780947
+007810            MOVE 'MONTH ENTERED FOR FROM-DATE IS INVALID - PLEASE 00781047
+007811-               'ENTER IT' TO LS-MSG1                             00781147
+007812            MOVE SPACES TO LS-MSG2                                00781247
+007813            MOVE 2 TO LS-CURSOR                                   00781347
+007814            EXEC CICS RETURN                                      00781447
+007815            END-EXEC                                              00781547
+007816          WHEN DAYCONTAINSZEROS                                   00781647
+007817            MOVE 'FROM-DATE ENTERED IS INVALID - PLEASE ENTER IT' 00781747
+007818                 TO LS-MSG1                                       00781847
+007819            MOVE SPACES TO LS-MSG2                                00781947
+007820            MOVE 2 TO LS-CURSOR                                   00782047
+007821            EXEC CICS RETURN                                      00782147
+007822            END-EXEC                                              00782247
+007823          WHEN DAYTOOGREATFORMONTH                                00782347
+007824            MOVE 'FROM-DATE FOR PARTICULAR MONTH IS INVALID - PLZ 00782447
+007825-                'ENTER CORRECT FORMAT' TO LS-MSG1                00782547
+007826            MOVE SPACES TO LS-MSG2                                00782647
+007827            MOVE 2 TO LS-CURSOR                                   00782747
+007828            EXEC CICS RETURN                                      00782847
+007829            END-EXEC                                              00782947
+007830          WHEN YEARCONTAINSZEROS                                  00783047
+007831            MOVE 'YEAR ENTERED FOR FROM-DATE IS INVALID - PLEASE E00783147
+007832-               'NTER IT' TO LS-MSG1                              00783247
+007833            MOVE SPACES TO LS-MSG2                                00783347
+007834            MOVE 2 TO LS-CURSOR                                   00783447
+007835            EXEC CICS RETURN                                      00783547
+007836            END-EXEC                                              00783647
+007837          END-EVALUATE                                            00783747
+007838*                                                                 00783847
+007839          EVALUATE TRUE                                           00783947
+007840              WHEN WS-HYPHEN1 NOT = '-'                           00784047
+007841                MOVE 'DATE SEPERATOR FOR FROM-DATE IS INVALID, USE00784147
+007842-                    ' ONLY - AS A SEPERATOR'  TO LS-MSG1         00784247
+007843                MOVE SPACES TO LS-MSG2                            00784347
+007844                MOVE 2 TO LS-CURSOR                               00784447
+007845                EXEC CICS RETURN                                  00784547
+007846                END-EXEC                                          00784647
+007847              WHEN WS-HYPHEN2 NOT = '-'                           00784747
+007848                MOVE 'DATE SEPERATOR FOR FROM-DATE IS INVALID, USE00784847
+007849-                    ' ONLY - AS A SEPERATOR'  TO LS-MSG1         00784947
+007850                MOVE SPACES TO LS-MSG2                            00785047
+007851                MOVE 2 TO LS-CURSOR                               00785147
+007852                EXEC CICS RETURN                                  00785247
+007853                END-EXEC                                          00785347
+007854          END-EVALUATE                                            00785447
+007855*                                                                 00785547
+007856     END-IF.                                                      00785647
+007857*                                                                 00785747
+007858 5000-EXIT.                                                       00785847
+007859     EXIT.                                                        00785947
+007860******************************************************************00786047
+007861 6000-VALIDATE-TODATE-PARA.                                       00786147
+007862     MOVE LS-TODATE TO INPUTDATELA                                00786247
+007863     MOVE LS-TODATE(1:4) TO YEARLA                                00786347
+007864     MOVE LS-TODATE(5:1) TO WS-HYPHEN1                            00786447
+007865     MOVE LS-TODATE(6:2) TO MONTHLA                               00786547
+007866     MOVE LS-TODATE(8:1) TO WS-HYPHEN2                            00786647
+007867     MOVE LS-TODATE(9:2) TO DAYLA                                 00786747
+007868     DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM           00786847
+007869*                                                                 00786947
+007870     IF MONTHLA = 02 AND WS-HYPHEN1 = '-' AND DAYLA = 29          00787047
+007871        AND WS-HYPHEN2 = '-' AND WS-REM NOT = 0                   00787147
+007872        MOVE 'TO-DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENTER 00787247
+007873-            'CORRECT FORMAT' TO LS-MSG1                          00787347
+007874        MOVE SPACES TO LS-MSG2                                    00787447
+007875        MOVE 3 TO LS-CURSOR                                       00787547
+007876        EXEC CICS RETURN                                          00787647
+007877        END-EXEC                                                  00787747
+007878     ELSE                                                         00787847
+007879        PERFORM 8000-BEGIN-PARA THRU 8000-EXIT                    00787947
+007880*                                                                 00788047
+007881        EVALUATE TRUE                                             00788147
+007882          WHEN DATENOTNUMERIC                                     00788247
+007883            MOVE 'TO-DATE FORMAT IS INVALID - PLEASE ENTER IT IN Y00788347
+007884-                'YYY-MM-DD FORMAT' TO LS-MSG1                    00788447
+007885            MOVE SPACES TO LS-MSG2                                00788547
+007886            MOVE 3 TO LS-CURSOR                                   00788647
+007887            EXEC CICS RETURN                                      00788747
+007888            END-EXEC                                              00788847
+007889          WHEN MONTHCONTAINSZEROS                                 00788947
+007890            MOVE 'MONTH ENTERED FOR TO-DATE IS INVALID - PLEASE EN00789047
+007891-                'TER IT' TO LS-MSG1                              00789147
+007892            MOVE SPACES TO LS-MSG2                                00789247
+007893            MOVE 3 TO LS-CURSOR                                   00789347
+007894            EXEC CICS RETURN                                      00789447
+007895            END-EXEC                                              00789547
+007896          WHEN MONTHGREATERTHAN12                                 00789647
+007897            MOVE 'MONTH ENTERED FOR TO-DATE IS INVALID - PLEASE EN00789747
+007898-                'TER IT' TO LS-MSG1                              00789847
+007899            MOVE SPACES TO LS-MSG2                                00789947
+007900            MOVE 3 TO LS-CURSOR                                   00790047
+007901            EXEC CICS RETURN                                      00790147
+007902            END-EXEC                                              00790247
+007903          WHEN DAYCONTAINSZEROS                                   00790347
+007904            MOVE 'TO-DATE ENTERED IS INVALID - PLEASE ENTER IT'   00790447
+007905                 TO LS-MSG1                                       00790547
+007906            MOVE SPACES TO LS-MSG2                                00790647
+007907            MOVE 3 TO LS-CURSOR                                   00790747
+007908            EXEC CICS RETURN                                      00790847
+007909            END-EXEC                                              00790947
+007910          WHEN DAYTOOGREATFORMONTH                                00791047
+007911            MOVE 'TO-DATE FOR PARTICULAR MONTH IS INVALID - PLZ EN00791147
+007912-                'TER CORRECT FORMAT' TO LS-MSG1                  00791247
+007913            MOVE SPACES TO LS-MSG2                                00791347
+007914            MOVE 3 TO LS-CURSOR                                   00791447
+007915            EXEC CICS RETURN                                      00791547
+007916            END-EXEC                                              00791647
+007917          WHEN YEARCONTAINSZEROS                                  00791747
+007918             MOVE 'YEAR ENTERED FOR TO-DATE IS INVALID - PLEASE EN00791847
+007919-                 'TER IT' TO LS-MSG1                             00791947
+007920            MOVE SPACES TO LS-MSG2                                00792047
+007921            MOVE 3 TO LS-CURSOR                                   00792147
+007922            EXEC CICS RETURN                                      00792247
+007923            END-EXEC                                              00792347
+007924          END-EVALUATE                                            00792447
+007925*                                                                 00792547
+007926          EVALUATE TRUE                                           00792647
+007927              WHEN WS-HYPHEN1 NOT = '-'                           00792747
+007928                MOVE 'DATE SEPERATOR FOR TO-DATE IS INVALID, USE O00792847
+007929-                    'NLY - AS A SEPERATOR'  TO LS-MSG1           00792947
+007930                MOVE SPACES TO LS-MSG2                            00793047
+007931                MOVE 3 TO LS-CURSOR                               00793147
+007932                EXEC CICS RETURN                                  00793247
+007933                END-EXEC                                          00793347
+007934              WHEN WS-HYPHEN2 NOT = '-'                           00793447
+007935                MOVE 'DATE SEPERATOR FOR TO-DATE IS INVALID, USE O00793547
+007936-                    'NLY - AS A SEPERATOR'  TO LS-MSG1           00793647
+007937                MOVE SPACES TO LS-MSG2                            00793747
+007938                MOVE 3 TO LS-CURSOR                               00793847
+007939                EXEC CICS RETURN                                  00793947
+007940                END-EXEC                                          00794047
+007941          END-EVALUATE                                            00794147
+007942*                                                                 00794247
+007943     END-IF.                                                      00794347
+007944*                                                                 00794447
+007945 6000-EXIT.                                                       00794547
+007946     EXIT.                                                        00794647
+007947******************************************************************00794747
+007948 7000-ERROR-PARA.                                                 00794847
+007949      MOVE 'INVALID KEY PRESSED - PLZ TRY AGAIN' TO LS-MSG1.      00794947
+007950      MOVE SPACES TO LS-MSG2.                                     00795047
+007951      MOVE 1 TO LS-CURSOR.                                        00795147
+007952      EXEC CICS RETURN                                            00795247
+007953      END-EXEC.                                                   00795347
+007954*                                                                 00795447
+007960 7000-EXIT.                                                       00796047
+008000     EXIT.                                                        00800007
+008010******************************************************************00801037
+008100 9500-VALIDATE-PARA.                                              00810037
+008900     IF LS-FROMDATE = '0001-01-01'                                00890037
+009000        MOVE LOW-VALUES TO LS-FROMDATE                            00900037
+009300     END-IF.                                                      00930037
+009400*                                                                 00940037
+009500     IF LS-TODATE = '9999-12-31'                                  00950037
+009600        MOVE LOW-VALUES TO LS-TODATE                              00960037
+009700     END-IF.                                                      00970037
+009800*                                                                 00980037
+009900 9500-EXIT.                                                       00990037
+010000     EXIT.                                                        01000037

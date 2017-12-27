@@ -1,0 +1,9 @@
+//UADT014L JOB 'LISTCAT',NOTIFY=&SYSUID
+//STEP1    EXEC  PGM=IDCAMS
+//SYSPRINT DD    SYSOUT=*
+//SYSIN    DD    *
+      LISTCAT -
+          ENTRIES(IMS910.UTILIDB) -
+          CLUSTER -
+          ALL
+/*

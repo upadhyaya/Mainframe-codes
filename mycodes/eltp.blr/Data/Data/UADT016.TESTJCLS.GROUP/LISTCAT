@@ -1,0 +1,15 @@
+//UADT016L JOB 'LISTCAT',NOTIFY=&SYSUID                                 JOB09142
+//STEP1    EXEC  PGM=IDCAMS
+//SYSPRINT DD    SYSOUT=*
+//**********************************************************************
+//* THIS WILL LIST ALL THE DETAILS EXCLUDING THE NUMBER OF CI IN CA
+//* LISTCAT -
+//*    ENTRIES(IMS910.UTILIDB) -
+//*    CLUSTER
+//*    ALL
+//**********************************************************************
+//SYSIN    DD    *
+      LISTCAT -
+          ENTRIES(IMS910.UTILIDB) -
+          ALL
+/*

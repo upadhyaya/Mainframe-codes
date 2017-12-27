@@ -1,0 +1,12 @@
+          05 LK-FROM-ORD-DT   PIC X(10).                                00010002
+          05 LK-TO-ORD-DT     PIC X(10).                                00020003
+          05 LK-MSG           PIC X(65).                                00030000
+          05 LK-FLAG          PIC X(4).                                 00070200
+          05 LK-COUNT         PIC 9(05).                                00070600
+        03    LK-OUTPUT-REC-ARRAY   OCCURS 08 TIMES INDEXED BY K.       00072000
+          05 OUT-ORD-CUST-ID     PIC 9(10).                             00090000
+          05 OUT-ORD-EMP-ID      PIC 9(10).                             00100001
+          05 OUT-ORD-PROD-ID     PIC 9(10).                             00110000
+          05 OUT-ORD-QUANT       PIC 9(05).                             00130000
+          05 OUT-ORD-ID          PIC 9(10).                             00150000
+          05 OUT-ORD-TOTAL-COST  PIC 9(18).                             00190000

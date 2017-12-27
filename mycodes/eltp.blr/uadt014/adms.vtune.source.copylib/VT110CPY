@@ -1,0 +1,372 @@
+       01  SMF110COPY.                                                  00010000
+           03  SMF-HEADER.                                              00020000
+      *        05  SMF-RECORD-LENGTH       PIC 9(4)    COMP.            00030000
+      *        05  SMF-SEGMENT-DESCRIPTION PIC 9(4)    COMP.            00040000
+      *        SMF System indicator                                     00050000
+               05  SMF-RECORD-FLAG         PIC X.                       00060000
+      *        SMF Record type 110 - X'6E' for CICS                     00070000
+               05  SMF-RECORD-TYPE         PIC X.                       00080000
+                   88  SMF-CICS-RECORD-TYPE    VALUE '>'.               00090000
+      *        SMF Record time since midnight in hundredths of a second 00100000
+               05  SMF-RECORD-TIME         PIC 9(8)    COMP.            00110000
+      *        SMF Reord date - 0CYYDDDF                                00120000
+               05  SMF-RECORD-DATE         PIC S9(7)   COMP-3.          00130000
+      *        SMF System identification (SID)                          00140000
+               05  SMF-SYSTEM-ID           PIC X(4).                    00150000
+      *        SMF Subsystem identification - 'CICS'                    00160000
+               05  SMF-SUBSYSTEM-ID        PIC X(4).                    00170000
+      *        SMF 110 record subtype                                   00180000
+               05  SMF-RECORD-SUBTYPE      PIC 9(4)    COMP.            00190000
+                   88  SMF-JC-SUBTYPE          VALUE 0.                 00200000
+                   88  SMF-MN-SUBTYPE          VALUE 1.                 00210000
+                   88  SMF-ST-SUBTYPE          VALUE 2.                 00220000
+                   88  SMF-XQ-SUBTYPE          VALUE 3.                 00230000
+                   88  SMF-CF-SUBTYPE          VALUE 4.                 00240000
+                   88  SMF-NC-SUBTYPE          VALUE 5.                 00250000
+      *        Number of SMF record triplets                            00260000
+               05  SMF-RECORD-TRIPLETS     PIC 9(4)    COMP.            00270000
+               05  FILLER                  PIC 9(4)    COMP.            00280000
+      *        Product section - offset, length and number              00290000
+               05  SMF-PS-OFFSET           PIC 9(8)    COMP.            00300000
+               05  SMF-PS-LENGTH           PIC 9(4)    COMP.            00310000
+               05  SMF-PS-NUMBER           PIC 9(4)    COMP.            00320000
+      *        Data section - offset, length and number                 00330000
+               05  SMF-DS-OFFSET           PIC 9(8)    COMP.            00340000
+               05  SMF-DS-LENGTH           PIC 9(4)    COMP.            00350000
+               05  SMF-DS-NUMBER           PIC 9(4)    COMP.            00360000
+           03  SMF-PRODUCT-SECTION.                                     00370000
+      *        SMF 110 Record version format x'0vrm'                    00380000
+      *                             v = version                         00390000
+      *                             r = release                         00400000
+      *                             m = modification                    00410000
+               05  SMF-RECORD-VERSION      PIC 9(4)    COMP.            00420000
+      *                                                                 00430000
+               05  SMF-GENERIC-APPLID      PIC X(8).                    00440000
+               05  SMF-SPECIFIC-APPLID     PIC X(8).                    00450000
+      *        SMF 110 Record maintenance flag                          00460000
+               05  SMF-MAINTENANCE-FLAG    PIC 9(4)    COMP.            00470000
+               05  FILLER                  PIC 9(4)    COMP.            00480001
+      *        CICS CLASS OF DATA:1-DICTIONARY,3-PERFORMANCE            00490001
+      *                           4-EXCEPTION ,5-TRANSACTION RESOURCE   00500001
+               05  SMF-CLASS               PIC 9(4)    COMP.            00510001
+      *        CICS FIELD CONNECTOR:OFFSET, LENGTH AND NUMBER           00520001
+               05  SMF-CICSCONN-OFFSET     PIC 9(8)    COMP.            00530001
+               05  SMF-CICSCONN-LENGTH     PIC 9(4)    COMP.            00540001
+               05  SMF-CICSCONN-NUMBER     PIC 9(4)    COMP.            00550001
+      *        FIRST CICS DATA RECORD - OFFSET, LENGTH AND NUMBER       00560001
+               05  SMF-REC-OFFSET          PIC 9(8)    COMP.            00570001
+               05  SMF-REC-LENGTH          PIC 9(4)    COMP.            00580001
+               05  SMF-REC-NUMBER          PIC 9(4)    COMP.            00590001
+      *        RESERVED                                                 00600001
+               05  FILLER                  PIC X(20).                   00610003
+      *        LOCAL TOD CLOCK ADJUSTMENT VALUE                         00620001
+               05  SMF-LOCAL-CLK           PIC 9(8)    COMP.            00630001
+      *        LEAP SECOND OFFSET TOD FORMAT                            00640001
+               05  SMF-LEAP-SEC            PIC 9(16)   COMP.            00650001
+      *        LOCAL TIME/DATE OFFSET                                   00660001
+               05  SMF-OFF-LOCALTIME       PIC 9(16)   COMP.            00670005
+      *        RESERVED                                                 00680001
+               05  FILLER                  PIC X(01).                   00690006
+      *        MONITORING OPTIONS                                       00700001
+               05  SMF-MONITOR-OPTION      PIC X(1).                    00710006
+      *        CICS Jobname                                             00720000
+               05  SMF-CICS-JOB-NAME       PIC X(8).                    00730000
+      *        CICS Job start data - 0CYYDDDF                           00740000
+               05  SMF-CICS-JOB-DATE       PIC S9(7)   COMP-3.          00750000
+      *        CICS Job start time in hundredths of a second            00760000
+               05  SMF-CICS-JOB-TIME       PIC 9(8)    COMP.            00770000
+      *        CICS Job userid                                          00780000
+               05  SMF-CICS-JOB-USERID     PIC X(8).                    00790000
+      *        MVS level (acronym, ver, rel, and mod level numbers)     00800000
+               05  SMF-CICS-CVTPRODN       PIC X(8).                    00810000
+      ******************************************************************00820007
+           03 SMF110-PERF-DATA.                                         01240007
+              05 SMF110-TRAN                   PIC X(04).               01250007
+              05 SMF110-TERM                   PIC X(04).               01260007
+              05 SMF110-USERID                 PIC X(08).               01270007
+              05 SMF110-TTYPE                  PIC X(02).               01280014
+              05 FILLER                        PIC X(02).               01290023
+              05 SMF110-START                  PIC X(8).                01301024
+              05 SMF110-STOP                   PIC X(8).                01302025
+              05 SMF110-TRANNUM                PIC S9(07) COMP-3.       01310038
+              05 SMF110-TRANPRI                PIC 9(08) COMP.          01320039
+              05 SMF110-TCLSNAME               PIC X(08).               01330007
+              05 SMF110-LUNAME                 PIC X(08).               01340007
+              05 SMF110-PGMNAME                PIC X(08).               01350012
+              05 SMF110-NETUOWPX               PIC X(20).               01360007
+              05 SMF110-NETUOWSX               PIC X(08).               01370026
+              05 SMF110-RSYSID                 PIC X(4).                01380007
+              05 SMF110-PERRECNT               PIC 9(08) COMP.          01390026
+              05 SMF110-RMUOWID                PIC X(08).               01400027
+              05 SMF110-SRVCLSNM               PIC X(8).                01410007
+              05 SMF110-RPTCLSNM               PIC X(8).                01420007
+              05 SMF110-FCTYNAME               PIC X(4).                01430026
+              05 SMF110-TRANFLAG               PIC 9(16) COMP.          01440040
+              05 SMF110-TERMINFO               PIC 9(08) COMP.          01450040
+              05 SMF110-TERMCNNM               PIC X(4).                01460007
+              05 SMF110-BRDGTRAN               PIC X(4).                01470007
+              05 SMF110-RRMSURID               PIC X(16).               01480007
+              05 SMF110-PRCSNAME               PIC X(36).               01490007
+              05 SMF110-PRCSTYPE               PIC X(8).                01500007
+              05 SMF110-PRCSID                 PIC X(52).               01510007
+              05 SMF110-ACTVTYID               PIC X(52).               01520007
+              05 SMF110-ACTVTYNM               PIC X(16).               01530007
+              05 SMF110-CLIPADDR               PIC X(16).               01540007
+              05 SMF110-TRNGRPID               PIC X(28).               01550007
+              05 SMF110-NETID                  PIC X(8).                01560007
+              05 SMF110-RLUNAME                PIC X(8).                01570007
+              05 SMF110-TCPSRVCE               PIC X(8).                01580007
+              05 SMF110-PORTNUM                PIC 9(08) COMP.          01590040
+              05 SMF110-OTSTID                 PIC X(128).              01600007
+              05 SMF110-CBSRVRNM               PIC X(4).                01610007
+              05 SMF110-TASKFLAG               PIC X(4).                01620007
+              05 SMF110-ABCODEO                PIC X(4).                01630007
+              05 SMF110-ABCODEC                PIC X(4).                01640007
+              05 SMF110-RTYPE                  PIC X(4).                01650007
+              05 SMF110-TCMSGIN1               PIC 9(08) COMP.          01660041
+              05 SMF110-TCCHRIN1               PIC 9(08) COMP.          01670041
+              05 SMF110-TCMSGOU1               PIC 9(08) COMP.          01680041
+              05 SMF110-TCCHROU1               PIC 9(08) COMP.          01690041
+              05 SMF110-TCMSGIN2               PIC 9(08) COMP.          01700041
+              05 SMF110-TCCHRIN2               PIC 9(08) COMP.          01710041
+              05 SMF110-TCMSGOU2               PIC 9(08) COMP.          01720041
+              05 SMF110-TCCHROU2               PIC 9(08) COMP.          01730041
+              05 SMF110-TCM62IN2               PIC 9(08) COMP.          01740041
+              05 SMF110-TCC62IN2               PIC 9(08) COMP.          01750041
+              05 SMF110-TCM62OU2               PIC 9(08) COMP.          01760041
+              05 SMF110-TCC62OU2               PIC 9(08) COMP.          01770041
+              05 SMF110-TCALLOCT               PIC 9(08) COMP.          01780041
+              05 SMF110-SCUGETCT               PIC 9(08) COMP.          01790041
+              05 SMF110-SCUGETC2               PIC 9(08) COMP.          01800041
+              05 SMF110-SCCGETCT               PIC 9(08) COMP.          01810041
+              05 SMF110-SCCGETC2               PIC 9(08) COMP.          01820041
+              05 SMF110-SCUSRHWM               PIC 9(08) COMP.          01830041
+              05 SMF110-SCUSRHW2               PIC 9(08) COMP.          01840041
+              05 SMF110-SC24CHWM               PIC 9(08) COMP.          01850041
+              05 SMF110-SC31CHWM               PIC 9(08) COMP.          01860041
+              05 SMF110-SCUSRSTG               PIC 9(16) COMP.          01870042
+              05 SMF110-SCUSRST2               PIC 9(16) COMP.          01880042
+              05 SMF110-SC24COCC               PIC 9(16) COMP.          01890042
+              05 SMF110-SC31COCC               PIC 9(16) COMP.          01900042
+              05 SMF110-SC24SGCT               PIC 9(08) COMP.          01910041
+              05 SMF110-SC24GSHR               PIC 9(08) COMP.          01920041
+              05 SMF110-SC24FSHR               PIC 9(08) COMP.          01930041
+              05 SMF110-SC31SGCT               PIC 9(08) COMP.          01940041
+              05 SMF110-SC31GSHR               PIC 9(08) COMP.          01950041
+              05 SMF110-SC31FSHR               PIC 9(08) COMP.          01960041
+              05 SMF110-PCSTGHWM               PIC 9(08) COMP.          01970041
+              05 SMF110-PC31AHWM               PIC 9(08) COMP.          01980041
+              05 SMF110-PC24BHWM               PIC 9(08) COMP.          01990041
+              05 SMF110-PC31CHWM               PIC 9(08) COMP.          02000041
+              05 SMF110-PC24CHWM               PIC 9(08) COMP.          02010041
+              05 SMF110-PC31RHWM               PIC 9(08) COMP.          02020041
+              05 SMF110-PC24RHWM               PIC 9(08) COMP.          02030041
+              05 SMF110-PC31SHWM               PIC 9(08) COMP.          02040041
+              05 SMF110-PC24SHWM               PIC 9(08) COMP.          02050041
+              05 SMF110-FCGETCT                PIC 9(08) COMP.          02060041
+              05 SMF110-FCPUTCT                PIC 9(08) COMP.          02070041
+              05 SMF110-FCBRWCT                PIC 9(08) COMP.          02080041
+              05 SMF110-FCADDCT                PIC 9(08) COMP.          02090041
+              05 SMF110-FCDELCT                PIC 9(08) COMP.          02100041
+              05 SMF110-FCTOTCT                PIC 9(08) COMP.          02110041
+              05 SMF110-FCAMCT                 PIC 9(08) COMP.          02120041
+              05 SMF110-TDGETCT                PIC 9(08) COMP.          02130041
+              05 SMF110-TDPUTCT                PIC 9(08) COMP.          02140041
+              05 SMF110-TDPURCT                PIC 9(08) COMP.          02150041
+              05 SMF110-TDTOTCT                PIC 9(08) COMP.          02160041
+              05 SMF110-TSGETCT                PIC 9(08) COMP.          02170041
+              05 SMF110-TSPUTACT               PIC 9(08) COMP.          02180041
+              05 SMF110-TSPUTMCT               PIC 9(08) COMP.          02190041
+              05 SMF110-TSTOTCT                PIC 9(08) COMP.          02200041
+              05 SMF110-BMSMAPCT               PIC 9(08) COMP.          02210041
+              05 SMF110-BMSINCT                PIC 9(08) COMP.          02220041
+              05 SMF110-BMSOUTCT               PIC 9(08) COMP.          02230041
+              05 SMF110-BMSTOTCT               PIC 9(08) COMP.          02240041
+              05 SMF110-PCLINKCT               PIC 9(08) COMP.          02250041
+              05 SMF110-PCXCTLCT               PIC 9(08) COMP.          02260041
+              05 SMF110-PCLOADCT               PIC 9(08) COMP.          02270041
+              05 SMF110-PCLURMCT               PIC 9(08) COMP.          02280041
+              05 SMF110-PCDPLCT                PIC 9(08) COMP.          02290041
+              05 SMF110-PCDLCSDL               PIC 9(08) COMP.          02300041
+              05 SMF110-PCDLCRDL               PIC 9(08) COMP.          02310041
+              05 SMF110-PCLNKCCT               PIC 9(08) COMP.          02320041
+              05 SMF110-PCXCLCCT               PIC 9(08) COMP.          02330041
+              05 SMF110-PCDPLCCT               PIC 9(08) COMP.          02340041
+              05 SMF110-PCRTNCCT               PIC 9(08) COMP.          02350041
+              05 SMF110-PCRTNCDL               PIC 9(08) COMP.          02360041
+              05 SMF110-JNLWRTCT               PIC 9(08) COMP.          02370041
+              05 SMF110-LOGWRTCT               PIC 9(08) COMP.          02380041
+              05 SMF110-ICPUINCT               PIC 9(08) COMP.          02390041
+              05 SMF110-ICTOTCT                PIC 9(08) COMP.          02400041
+              05 SMF110-ICSTACCT               PIC 9(08) COMP.          02410041
+              05 SMF110-ICSTACDL               PIC 9(08) COMP.          02420041
+              05 SMF110-ICSTRCCT               PIC 9(08) COMP.          02430041
+              05 SMF110-ICSTRCDL               PIC 9(08) COMP.          02440041
+              05 SMF110-SPSYNCCT               PIC 9(08) COMP.          02450041
+              05 SMF110-CFCAPICT               PIC 9(08) COMP.          02460041
+              05 SMF110-SZALLOCT               PIC 9(08) COMP.          02470041
+              05 SMF110-SZRCVCT                PIC 9(08) COMP.          02480041
+              05 SMF110-SZSENDCT               PIC 9(08) COMP.          02490041
+              05 SMF110-SZSTRTCT               PIC 9(08) COMP.          02500041
+              05 SMF110-SZCHROUT               PIC 9(08) COMP.          02510041
+              05 SMF110-SZCHRIN                PIC 9(08) COMP.          02520041
+              05 SMF110-SZALLCTO               PIC 9(08) COMP.          02530041
+              05 SMF110-SZRCVTO                PIC 9(08) COMP.          02540041
+              05 SMF110-SZTOTCT                PIC 9(08) COMP.          02550041
+              05 SMF110-BARSYNCT               PIC 9(08) COMP.          02560041
+              05 SMF110-BARASYCT               PIC 9(08) COMP.          02570041
+              05 SMF110-BALKPACT               PIC 9(08) COMP.          02580041
+              05 SMF110-BADPROCT               PIC 9(08) COMP.          02590041
+              05 SMF110-BADACTCT               PIC 9(08) COMP.          02600041
+              05 SMF110-BARSPACT               PIC 9(08) COMP.          02610041
+              05 SMF110-BASUPACT               PIC 9(08) COMP.          02620041
+              05 SMF110-BARMPACT               PIC 9(08) COMP.          02630041
+              05 SMF110-BADCPACT               PIC 9(08) COMP.          02640041
+              05 SMF110-BAACQPCT               PIC 9(08) COMP.          02650041
+              05 SMF110-BATOTPCT               PIC 9(08) COMP.          02660041
+              05 SMF110-BAPRDCCT               PIC 9(08) COMP.          02670041
+              05 SMF110-BAACDCCT               PIC 9(08) COMP.          02680041
+              05 SMF110-BATOTCCT               PIC 9(08) COMP.          02690041
+              05 SMF110-BARATECT               PIC 9(08) COMP.          02700041
+              05 SMF110-BADFIECT               PIC 9(08) COMP.          02710041
+              05 SMF110-BATIAECT               PIC 9(08) COMP.          02720041
+              05 SMF110-BATOTECT               PIC 9(08) COMP.          02730041
+              05 SMF110-WBRCVCT                PIC 9(08) COMP.          02740041
+              05 SMF110-WBCHRIN                PIC 9(08) COMP.          02750041
+              05 SMF110-WBSENDCT               PIC 9(08) COMP.          02760041
+              05 SMF110-WBCHROUT               PIC 9(08) COMP.          02770041
+              05 SMF110-WBTOTCT                PIC 9(08) COMP.          02780041
+              05 SMF110-WBREPRCT               PIC 9(08) COMP.          02790041
+              05 SMF110-WBREPWCT               PIC 9(08) COMP.          02800041
+              05 SMF110-WBEXTRCT               PIC 9(08) COMP.          02810041
+              05 SMF110-WBBRWCT                PIC 9(08) COMP.          02820041
+              05 SMF110-WBREADCT               PIC 9(08) COMP.          02830041
+              05 SMF110-WBWRITCT               PIC 9(08) COMP.          02840041
+              05 SMF110-DHCRECT                PIC 9(08) COMP.          02850041
+              05 SMF110-DHINSCT                PIC 9(08) COMP.          02860041
+              05 SMF110-DHSETCT                PIC 9(08) COMP.          02870041
+              05 SMF110-DHRETCT                PIC 9(08) COMP.          02880041
+              05 SMF110-DHTOTCT                PIC 9(08) COMP.          02890041
+              05 SMF110-DHTOTDCL               PIC 9(08) COMP.          02900041
+              05 SMF110-SOBYENCT               PIC 9(08) COMP.          02910041
+              05 SMF110-SOBYDECT               PIC 9(08) COMP.          02920041
+              05 SMF110-SOEXTRCT               PIC 9(08) COMP.          02930041
+              05 SMF110-SOCNPSCT               PIC 9(08) COMP.          02940041
+              05 SMF110-SOCPSCT                PIC 9(08) COMP.          02950041
+              05 SMF110-SONPSHWM               PIC 9(08) COMP.          02960041
+              05 SMF110-SOPSHWM                PIC 9(08) COMP.          02970041
+              05 SMF110-SORCVCT                PIC 9(08) COMP.          02980041
+              05 SMF110-SOCHRIN                PIC 9(08) COMP.          02990041
+              05 SMF110-SOSENDCT               PIC 9(08) COMP.          03000041
+              05 SMF110-SOCHROUT               PIC 9(08) COMP.          03010041
+              05 SMF110-SOTOTCT                PIC 9(08) COMP.          03020041
+              05 SMF110-SOMSGIN1               PIC 9(08) COMP.          03030041
+              05 SMF110-SOCHRIN1               PIC 9(08) COMP.          03040041
+              05 SMF110-SOMSGOU1               PIC 9(08) COMP.          03050041
+              05 SMF110-SOCHROU1               PIC 9(08) COMP.          03060041
+              05 SMF110-IMSREQCT               PIC 9(08) COMP.          03070041
+              05 SMF110-DB2REQCT               PIC 9(08) COMP.          03080041
+              05 SMF110-TCBATTCT               PIC 9(08) COMP.          03090041
+              05 SMF110-DSTCBHWM               PIC 9(08) COMP.          03100041
+              05 SMF110-EJBSACCT               PIC 9(08) COMP.          03110041
+              05 SMF110-EJBSPACT               PIC 9(08) COMP.          03120041
+              05 SMF110-EJBCRECT               PIC 9(08) COMP.          03130041
+              05 SMF110-EJBREMCT               PIC 9(08) COMP.          03140041
+              05 SMF110-EJBMTHCT               PIC 9(08) COMP.          03150041
+              05 SMF110-EJBTOTCT               PIC 9(08) COMP.          03160041
+              05 SMF110-WBREDOCT               PIC 9(08) COMP.          03170041
+              05 SMF110-WBWRTOCT               PIC 9(08) COMP.          03180041
+              05 SMF110-WBRCVIN1               PIC 9(08) COMP.          03190041
+              05 SMF110-WBCHRIN1               PIC 9(08) COMP.          03200041
+              05 SMF110-WBSNDOU1               PIC 9(08) COMP.          03210041
+              05 SMF110-WBCHROU1               PIC 9(08) COMP.          03220041
+              05 SMF110-WBPARSCT               PIC 9(08) COMP.          03230041
+              05 SMF110-WBBRWOCT               PIC 9(08) COMP.          03240041
+              05 SMF110-WBIWBSCT               PIC 9(08) COMP.          03250041
+              05 SMF110-WBREPRDL               PIC 9(08) COMP.          03260041
+              05 SMF110-WBREPWDL               PIC 9(08) COMP.          03270041
+              05 SMF110-PGTOTCCT               PIC 9(08) COMP.          03280041
+              05 SMF110-PGBRWCCT               PIC 9(08) COMP.          03290041
+              05 SMF110-PGGETCCT               PIC 9(08) COMP.          03300041
+              05 SMF110-PGPUTCCT               PIC 9(08) COMP.          03310041
+              05 SMF110-PGMOVCCT               PIC 9(08) COMP.          03320041
+              05 SMF110-PGGETCDL               PIC 9(08) COMP.          03330041
+              05 SMF110-PGPUTCDL               PIC 9(08) COMP.          03340041
+              05 SMF110-PGCRECCT               PIC 9(08) COMP.          03350041
+              05 SMF110-USRDISPT               PIC X(08).               03360007
+              05 SMF110-USRCPUT                PIC X(08).               03370007
+              05 SMF110-SUSPTIME               PIC X(08).               03380007
+              05 SMF110-DISPWTT                PIC X(08).               03390007
+              05 SMF110-QRDISPT                PIC X(08).               03400007
+              05 SMF110-QRCPUT                 PIC X(08).               03410007
+              05 SMF110-MSDISPT                PIC X(08).               03420007
+              05 SMF110-MSCPUT                 PIC X(08).               03430007
+              05 SMF110-RODISPT                PIC X(08).               03440007
+              05 SMF110-ROCPUT                 PIC X(08).               03450007
+              05 SMF110-KY8DISPT               PIC X(08).               03460007
+              05 SMF110-KY8CPUT                PIC X(08).               03470007
+              05 SMF110-KY9DISPT               PIC X(08).               03480007
+              05 SMF110-KY9CPUT                PIC X(08).               03490007
+              05 SMF110-L8CPUT                 PIC X(08).               03500007
+              05 SMF110-L9CPUT                 PIC X(08).               03510007
+              05 SMF110-J8CPUT                 PIC X(08).               03520007
+              05 SMF110-S8CPUT                 PIC X(08).               03530007
+              05 SMF110-J9CPUT                 PIC X(08).               03540007
+              05 SMF110-X8CPUT                 PIC X(08).               03550007
+              05 SMF110-X9CPUT                 PIC X(08).               03560007
+              05 SMF110-QRMODDLY               PIC X(08).               03570007
+              05 SMF110-MAXOTDLY               PIC X(08).               03580007
+              05 SMF110-MAXJTDLY               PIC X(08).               03590007
+              05 SMF110-MAXXTDLY               PIC X(08).               03600007
+              05 SMF110-MAXSTDLY               PIC X(08).               03610007
+              05 SMF110-DSTCBMWT               PIC X(08).               03620007
+              05 SMF110-DSCHMDLY               PIC X(08).               03630007
+              05 SMF110-EXWTTIME               PIC X(08).               03640007
+              05 SMF110-TCIOWTT                PIC X(08).               03650007
+              05 SMF110-FCIOWTT                PIC X(08).               03660007
+              05 SMF110-JCIOWTT                PIC X(08).               03670007
+              05 SMF110-TSIOWTT                PIC X(08).               03680007
+              05 SMF110-IRIOWTT                PIC X(08).               03690007
+              05 SMF110-TDIOWTT                PIC X(08).               03700007
+              05 SMF110-PCLOADTM               PIC X(08).               03710007
+              05 SMF110-DSPDELAY               PIC X(08).               03720007
+              05 SMF110-TCLDELAY               PIC X(08).               03730007
+              05 SMF110-MXTDELAY               PIC X(08).               03740007
+              05 SMF110-ENQDELAY               PIC X(08).               03750007
+              05 SMF110-GNQDELAY               PIC X(08).               03760007
+              05 SMF110-LU61WTT                PIC X(08).               03770007
+              05 SMF110-LU62WTT                PIC X(08).               03780007
+              05 SMF110-SZWAIT                 PIC X(08).               03790007
+              05 SMF110-RMITIME                PIC X(08).               03800007
+              05 SMF110-RMISUSP                PIC X(08).               03810007
+              05 SMF110-SYNCTIME               PIC X(08).               03820007
+              05 SMF110-RLSWAIT                PIC X(08).               03830007
+              05 SMF110-RLSCPUT                PIC X(08).               03840007
+              05 SMF110-LMDELAY                PIC X(08).               03850007
+              05 SMF110-WTEXWAIT               PIC X(08).               03860007
+              05 SMF110-WTCEWAIT               PIC X(08).               03870007
+              05 SMF110-ICDELAY                PIC X(08).               03880007
+              05 SMF110-GVUPWAIT               PIC X(08).               03890007
+              05 SMF110-TSSHWAIT               PIC X(08).               03900007
+              05 SMF110-CFDTWAIT               PIC X(08).               03910007
+              05 SMF110-SRVSYWTT               PIC X(08).               03920007
+              05 SMF110-RRMSWAIT               PIC X(08).               03930007
+              05 SMF110-RUNTRWTT               PIC X(08).               03940007
+              05 SMF110-SYNCDLY                PIC X(08).               03950007
+              05 SMF110-SOIOWTT                PIC X(08).               03960007
+              05 SMF110-IMSWAIT                PIC X(08).               03970007
+              05 SMF110-DB2RDYQW               PIC X(08).               03980007
+              05 SMF110-DB2CONWT               PIC X(08).               03990007
+              05 SMF110-DB2WAIT                PIC X(08).               04000007
+              05 SMF110-JVMTIME                PIC X(08).               04010007
+              05 SMF110-JVMSUSP                PIC X(08).               04020007
+              05 SMF110-SOOIOWTT               PIC X(08).               04030007
+              05 SMF110-RQRWAIT                PIC X(08).               04040007
+              05 SMF110-RQPWAIT                PIC X(08).               04050007
+              05 SMF110-OTSINDWT               PIC X(08).               04060007
+              05 SMF110-JVMITIME               PIC X(08).               04070007
+              05 SMF110-JVMRTIME               PIC X(08).               04080007
+              05 SMF110-PTPWAIT                PIC X(08).               04090007
+              05 SMF110-DSMMSCWT               PIC X(08).               04100007
+           05 SMF110-TRAN-DATA.                                         04110007
+              10 FILLER                        PIC X(02).               04120007

@@ -1,0 +1,79 @@
+000100 PROCESS XREF                                                     00010099
+000110 IDENTIFICATION DIVISION.                                         00011099
+000120 PROGRAM-ID. PRODSUMB.                                            00012099
+000130****************************************************************  00013099
+000140 ENVIRONMENT DIVISION.                                            00014099
+000141****************************************************************  00014199
+000150 INPUT-OUTPUT SECTION.                                            00015099
+000160 FILE-CONTROL.                                                    00016099
+000170     SELECT REPFILE ASSIGN TO OUTREP.                             00017099
+000181****************************************************************  00018199
+000190 DATA DIVISION.                                                   00019099
+000191****************************************************************  00019199
+000200 FILE SECTION.                                                    00020099
+000300 FD  REPFILE                                                      00030099
+000500     LABEL RECORDS ARE STANDARD.                                  00050099
+000510*                                                                 00051099
+000600 01 REP-REC           PIC X(104).                                 00060099
+000610***************************************************************** 00061099
+001740 WORKING-STORAGE SECTION.                                         00174099
+001770*01 WS-FROM-DATE      PIC X(10).                                  00177099
+001780*01 WS-TO-DATE        PIC X(10).                                  00178099
+001790      EXEC SQL INCLUDE SQLCA    END-EXEC.                         00179099
+001800      EXEC SQL INCLUDE STATS    END-EXEC.                         00180099
+002420*********************************************************         00242099
+002430**CURSOR DECLARATION FOR SELECTING THE DETAILS OF ORDER**         00243099
+002440*********************************************************         00244099
+002450     EXEC SQL                                                     00245099
+002460         DECLARE C11 CURSOR FOR                                   00246099
+002470         SELECT ST_PROD_ID,SUM(ST_PROD_QNT)                       00247099
+003000         FROM ADMT.T_ST_STATUS                                    00300099
+003100         WHERE ST_STATUS_ID = :ST-STATUS-ID                       00310099
+003200         GROUP BY ST_PROD_ID                                      00320099
+003400     END-EXEC.                                                    00340099
+003410*********************************************************         00341099
+003500 01 LIN1.                                                         00350099
+003600     05 FILLER        PIC X(05) VALUE SPACES.                     00360099
+003700     05 FILLER        PIC X(17) VALUE 'PRODUCT ID     :'.         00370099
+003800     05 R1-PRODID     PIC 9(10).                                  00380099
+003810     05 FILLER        PIC X(17) VALUE 'QUANTITY'.                 00381099
+003820     05 R1-QUANTITY   PIC 9(05).                                  00382099
+003900     05 FILLER        PIC X(50) VALUE SPACES.                     00390099
+008500 LINKAGE SECTION.                                                 00850099
+008600 01 DFHCOMMAREA.                                                  00860099
+008700    05 LS-PARM-LENGTH     PIC S9(4) COMP.                         00870099
+008800    05 LS-STATUS-ID     PIC X.                                    00880099
+009100 PROCEDURE DIVISION USING DFHCOMMAREA.                            00910099
+009200***************************************************************   00920099
+009300*                   0000-MAINLINE                             *   00930099
+009400*          CONTAINS THE MAIN FLOW OF THE PROGRAM              *   00940099
+009500***************************************************************   00950099
+009600 0000-MAINLINE.                                                   00960099
+009700     DISPLAY 'INITIALLY'.                                         00970099
+009800     MOVE 'H'   TO   ST-STATUS-ID.                                00980099
+009900     OPEN OUTPUT REPFILE.                                         00990099
+009910     EXEC SQL OPEN CURSOR C11 END-EXEC.                           00991099
+010000     PERFORM 100-PARA UNTIL SQLCODE = 100.                        01000099
+010001     EXEC SQL CLOSE CURSOR C11 END-EXEC.                          01000199
+010010     CLOSE REPFILE.                                               01001099
+010020     STOP RUN.                                                    01002099
+010100*                                                                 01010099
+010200 100-PARA.                                                        01020099
+010300     EXEC SQL FETCH C11                                           01030099
+010400              INTO :ST-PROD-ID,:ST-PROD-QNT                       01040099
+010500     END-EXEC.                                                    01050099
+010600     DISPLAY 'SQLCODE', SQLCODE.                                  01060099
+010700     EVALUATE SQLCODE                                             01070099
+010800       WHEN 0                                                     01080099
+010900          MOVE ST-PROD-ID TO R1-PRODID                            01090099
+011000          MOVE ST-PROD-QNT TO R1-QUANTITY                         01100099
+011010          WRITE REP-REC FROM LIN1                                 01101099
+011100       WHEN 100                                                   01110099
+011110          EXEC SQL CLOSE CURSOR C11 END-EXEC                      01111099
+011120          CLOSE REPFILE                                           01112099
+011130          STOP RUN                                                01113099
+011210       WHEN OTHER                                                 01121099
+011211          EXEC SQL CLOSE CURSOR C11 END-EXEC                      01121199
+011212          CLOSE REPFILE                                           01121299
+011213          STOP RUN                                                01121399
+011300     END-EVALUATE.                                                01130099

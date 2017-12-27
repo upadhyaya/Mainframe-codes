@@ -1,0 +1,24 @@
+//UADT016P JOB NOTIFY=&SYSUID,REGION=0M                                 00010028
+//*                                                                     00040000
+//PROCLIB JCLLIB ORDER='UADT016.TESTPGM.SOURCE'                         00050027
+//*                                                                     00060000
+//STEP1 EXEC PROC=PLIPROC,                                              00070016
+//           SRCLIB=UADT016.TESTPGM.SOURCE,                             00080028
+//           SYSLIB=SYS1.MACLIB,                                        00090026
+//           LOADLIB=UADT016.BASE.LOADLIB,                              00110027
+//           MEM=SAMPPLI                                                00120027
+//LKED.SYSIN DD *                                                       00130008
+     NAME SAMPPLI(R)                                                    00150027
+/*                                                                      00151022
+//*******************************************************************   00170011
+//**  MAKE CHANGES HERE ONLY   **************************************   00180011
+//**  SRCLIB IS YOUR COBOL SOURCE LIBRARY  **************************   00190011
+//**  MEM IS THE PARAMETER TO SPECIFY THE MEMBER OF SRCLIB **********   00200011
+//**  LOADLIB IS THE LOAD LIBRARY WHERE EXECUTABLE MODULE IS ********   00210011
+//**  PLACED  *******************************************************   00220011
+//*******************************************************************   00230011
+//***RUNJCL ALSO INCLUDED HERE***************************************   00231031
+//STEP EXEC PGM=SAMPPLI,COND=(4,LT)                                     00240030
+//STEPLIB DD DSN=UADT016.BASE.LOADLIB,DISP=SHR                          00250030
+//SYSPRINT DD SYSOUT=*                                                  00340030
+//SYSOUT   DD SYSOUT=*                                                  00341030

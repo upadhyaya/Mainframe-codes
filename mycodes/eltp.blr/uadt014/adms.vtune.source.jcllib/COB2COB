@@ -1,0 +1,46 @@
+//COB2COB  PROC INLIB='ADMS.BASE.SOURCE',                               00010000
+//         COPYLIB='ADMS.BASE.COPYLIB',                                 00030000
+//         LOADLIB='ADMS.CICSA1.LOAD',                                  00050000
+//         MEM=                                                         00060003
+//*                                                                     00140000
+//* - IBM COBOL COMPILE (COB),                                          00170000
+//* - AND LINK EDIT (LKED)                                              00200000
+//*                                                                     00210000
+//********************************************************************  00540000
+//* COMPILE THE NEW MODIFIED SOURCE FROM THE TRANSLATE STEP          *  00550000
+//********************************************************************  00560000
+//COB EXEC PGM=IGYCRCTL,REGION=2048K,                                   00570000
+//      PARM='NODYNAM,LIB,OBJECT,LIST,APOST,MAP,XREF,NOSEQUENCE'        00580000
+//STEPLIB  DD DSNAME=IGY.SIGYCOMP,DISP=SHR                              00600000
+//SYSPRINT DD SYSOUT=*                                                  00610000
+//SYSLIB   DD DSN=&COPYLIB,DISP=SHR                     <== COPY LIB    00620000
+//SYSIN    DD DSN=&INLIB(&MEM),DISP=SHR                                 00630001
+//SYSUT1   DD SPACE=(TRK,(1,1))                                         00680000
+//SYSUT2   DD SPACE=(TRK,(5,2))                                         00690004
+//SYSUT3   DD SPACE=(TRK,(5,2))                                         00700004
+//SYSUT4   DD SPACE=(TRK,(5,2))                                         00710004
+//SYSUT5   DD SPACE=(TRK,(5,2))                                         00720004
+//SYSUT6   DD SPACE=(TRK,(5,2))                                         00730004
+//SYSUT7   DD SPACE=(TRK,(5,2))                                         00740004
+//SYSLIN   DD DSN=&&LOADSET,DISP=(MOD,PASS),UNIT=SYSDA,                 00751006
+//            SPACE=(TRK,(10,10))                                       00752000
+//*                                                                     00760000
+//********************************************************************  00870000
+//* LINKEDIT OUTPUT FROM CPY4LNK & SYSIN OVERRIDE                    *  00880000
+//********************************************************************  00890000
+//LKED EXEC PGM=IEWL,COND=(8,LT,COB),REGION=1024K                       00900000
+//SYSLIB   DD DSN=CEE.SCEERUN,DISP=SHR                                  00920005
+//         DD DSN=CEE.SCEELKED,DISP=SHR                                 00930005
+//         DD DSN=ISP.SISPLOAD,DISP=SHR                                 00952005
+//         DD DSN=&LOADLIB,DISP=SHR                                     00953006
+//*                                                                     00960000
+//SYSPRINT DD SYSOUT=*                                                  00970000
+//SYSLIN   DD DSN=&&LOADSET,DISP=(OLD,DELETE)                           00990000
+//         DD DDNAME=SYSIN                                              01000000
+//*YSUT1   DD UNIT=SYSDA,SPACE=(TRK,(10,10))                            01010000
+//SYSLMOD  DD DSNAME=&LOADLIB(&MEM),DISP=SHR                            01020000
+//*<= LKED.SYSIN SHOULD OVERLOAD DSNCLI & PGMNAME                       01040000
+//SYSIN    DD DUMMY                                                     01050000
+//*                                                                     01060000
+//  PEND                    <= END OF COB2COBC PROC                     01070000
+//*                                                                     01080000

@@ -1,0 +1,32 @@
+      ***************************************************************** 00001004
+      *        CODE FOR CONVERTING BINARY TO DECIMAL VALUE              00002004
+      *  EXAMPLE :                                                      00002106
+      *  INPUT:00010000,OUTPUT:16                                       00002206
+      ***************************************************************** 00003004
+       9600-BINTODEC-PARA.                                              00010000
+            IF BTS-PASS-BYTES(1:1) = 1                                  00030002
+               COMPUTE DEC1 = DEC1 + 128                                00040003
+            END-IF.                                                     00050002
+            IF BTS-PASS-BYTES(2:1) = 1                                  00060002
+               COMPUTE DEC1 = DEC1 + 64                                 00070003
+            END-IF.                                                     00080002
+            IF BTS-PASS-BYTES(3:1) = 1                                  00090002
+               COMPUTE DEC1 = DEC1 + 32                                 00100003
+            END-IF.                                                     00110002
+            IF BTS-PASS-BYTES(4:1) = 1                                  00120002
+               COMPUTE DEC1 = DEC1 + 16                                 00130003
+            END-IF.                                                     00140002
+            IF BTS-PASS-BYTES(5:1) = 1                                  00150002
+               COMPUTE DEC1 = DEC1 + 08                                 00160003
+            END-IF.                                                     00170002
+            IF BTS-PASS-BYTES(6:1) = 1                                  00180002
+               COMPUTE DEC1 = DEC1 + 04                                 00190003
+            END-IF.                                                     00200002
+            IF BTS-PASS-BYTES(7:1) = 1                                  00210002
+               COMPUTE DEC1 = DEC1 + 02                                 00220003
+            END-IF.                                                     00230002
+            IF BTS-PASS-BYTES(8:1) = 1                                  00240002
+               COMPUTE DEC1 = DEC1 + 01                                 00250003
+            END-IF.                                                     00260002
+       9600-BINTODEC-EXIT.                                              00280002
+              EXIT.                                                     00290002

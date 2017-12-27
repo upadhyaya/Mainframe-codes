@@ -1,0 +1,32 @@
+       01 SMF64-EXTRACT-FORMAT.                                         00010201
+                   10 SMF64SIDE PIC X(04).                              00060002
+                   10 SMF64JBNE PIC X(08).                              00070002
+                   10 SMF64RSTE PIC S9(08) BINARY.                      00090002
+                   10 SMF64RSDE PIC S9(07) PACKED-DECIMAL.              00100002
+                   10 SMF64RINE PIC X(01).                              00120002
+                   10 SMF64DTYE PIC X(01).                              00130002
+                   10 SMF64DNME PIC X(44).                              00150002
+                   10 SMF64ESLE PIC S9(04) BINARY.                      00190002
+                   10 SMF64VSNE PIC X(06).                              00230002
+      *            10 SMF64SLNE PIC S9(08) BINARY.                      00270203
+                   10 SMF64NILE PIC S9(08) BINARY.                      00300002
+                   10 SMF64NEXE PIC S9(08) BINARY.                      00310002
+                   10 SMF64NCSE PIC S9(08) BINARY.                      00380002
+                   10 SMF64NASE PIC S9(08) BINARY.                      00390002
+                   10 SMF64DDEE PIC S9(08) BINARY.                      00440002
+                   10 SMF64DINE PIC S9(08) BINARY.                      00450002
+                   10 SMF64DUPE PIC S9(08) BINARY.                      00460002
+                   10 SMF64DREE PIC S9(08) BINARY.                      00470002
+                   10 SMF64DCSE PIC S9(08) BINARY.                      00490002
+                   10 SMF64DASE PIC S9(08) BINARY.                      00500002
+                   10 SMF64DEPE PIC S9(08) BINARY.                      00510002
+                   10 SMF64BNOE PIC X(01).                              00590002
+                   10 SMF64BSPE PIC S9(08) BINARY.                      00600002
+                   10 SMF64BFDE PIC S9(04) BINARY.                      00610002
+                   10 SMF64BFIE PIC S9(04) BINARY.                      00620002
+                   10 SMF64CLNE PIC X(44).                              00630002
+                   10 SMF64MACE.                                        00650002
+                         15 SMF64MC1E PIC X(01).                        00660002
+                         15 SMF64MC2E PIC X(01).                        00670002
+                         15 SMF64MC3E PIC X(01).                        00680002
+                         15 SMF64MC4E PIC X(01).                        00681002

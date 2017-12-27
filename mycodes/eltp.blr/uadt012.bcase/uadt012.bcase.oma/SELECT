@@ -1,0 +1,6 @@
+SELECT * FROM ADMSGP.T_CU_CUSTOMER;                                     00010000
+SELECT * FROM ADMSGP.T_EM_EMPLOYEE;                                     00020000
+SELECT * FROM ADMSGP.T_PR_PRODUCT;                                      00030000
+SELECT * FROM ADMSGP.T_SU_SUPPLIER;                                     00040000
+SELECT * FROM ADMSGP.T_OR_ORDER;                                        00050000
+SELECT * FROM ADMSGP.T_OL_ORDER_LN_ITEM;                                00060000

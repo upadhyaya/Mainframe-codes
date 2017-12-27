@@ -1,0 +1,7 @@
+//UADT014J JOB 'STEPLIB',NOTIFY=&SYSUID                                 00010000
+//JOBLIB DD DSN=UADT014.PROCLIB,DISP=SHR                                00020000
+//       DD DSN=UADT014.BASE.LOADLIB,DISP=SHR                           00030000
+//STEP2 EXEC PGM=TEST1                                                  00040000
+//STEPLIB DD DSN=UADT014.JCLLIB,DISP=SHR                                00050000
+//STEP2 EXEC PGM=TEST2                                                  00070000
+//*                                                                     00080000

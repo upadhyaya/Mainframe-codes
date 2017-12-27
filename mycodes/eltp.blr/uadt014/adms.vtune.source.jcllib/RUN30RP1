@@ -1,0 +1,85 @@
+//UADA011D JOB  ,'SMF DATA UNLOAD',CLASS=E,                             00010002
+//             MSGLEVEL=(1,1),NOTIFY=&SYSUID                            00020000
+//JOBLIB   DD DSN=ADMS.VTUNE.SOURCE.LOADLIB,DISP=SHR                    00020104
+//**********************************************************************00021001
+//* CHANGE THE FOLLOWING                                                00021101
+//* -- JOB     : JOBLIB                                                 00021202
+//* -- STEP001 : SMF INPUT DATASETS                                     00021302
+//*              SYSIN CARD FOR DATE AND TIME FILTER                    00021402
+//* -- STEP002 : OUTPUT FILE FOR SMF FILE                               00021502
+//*              SYSIN CARD FOR JOB PREFIX FILTER                       00021602
+//* -- STEP003 : OUTPUT FILE FOR SMF30 REPORT1                          00021702
+//*                                                                     00021802
+//**********************************************************************00021902
+//* STEP001                                                             00022002
+//* DOWNLOAD SMF DATA TO A FLAT FILE                                    00023002
+//STEP001  EXEC PGM=IFASMFDP                                            00030001
+//SYSPRINT DD  SYSOUT=A                                                 00040000
+//OUTDD    DD  DSN=&&OUTD1,                                             00060000
+//             DISP=(NEW,PASS),                                         00061000
+//             LRECL=32760,BLKSIZE=4096,                                00061100
+//             RECFM=V,                                                 00061200
+//* MODIFY THE SPACE PARAMETERS ACCCORDING TO THE EXPECTED SMF DATA     00061301
+//* VOLUME                                                              00061401
+//             SPACE=(CYL,(10,100),RLSE)                                00061501
+//SMFDATA  DD  DISP=SHR,DSN=SYS1.MAN1                                   00070000
+//SMFDAT1  DD  DISP=SHR,DSN=SYS1.MAN2                                   00080002
+//SMFDAT2  DD  DISP=SHR,DSN=SYS1.MAN3                                   00090002
+//* MODIFY THE SYSIN DATA FOR FILTERING DATA BASED ON DATE AND TIME     00100001
+//*  --> DATE(YYYYJJJ,YYYYJJJ)                                          00100101
+//*          WHERE YYYYJJJ IS THE START DATE AND END DATE IN YEAR+JULIAN00100201
+//*                    DATE FORMAT                                      00100301
+//*  --> START(HHMM)                                                    00100401
+//*           WHERE HHMM IS THE START TIME IN HOUR+MINUTES FORMAT       00100501
+//*  --> END(HHMM)                                                      00100601
+//*           WHERE HHMM IS THE END TIME IN HOUR+MINUTES FORMAT         00100701
+//*                                                                     00101301
+//SYSIN    DD  *                                                        00101401
+     INDD(SMFDATA,OPTIONS(DUMP))                                        00102000
+     INDD(SMFDAT1,OPTIONS(DUMP))                                        00103002
+     INDD(SMFDAT2,OPTIONS(DUMP))                                        00104002
+     OUTDD(OUTDD,TYPE(30))                                              00105000
+     DATE(2008001,2008365)                                              00106002
+     START(0900)                                                        00107000
+     END(1800)                                                          00108000
+/*                                                                      00108100
+//* STEP002                                                             00108501
+//* SORT THE DATA TO EXTRACT THE RECORDS ONLY FOR A SPECIFIED           00108601
+//* JOB PREFIX                                                          00108701
+//*                                                                     00108801
+//* TO FILTER FOR A SPECIFIC JOB PREFIX, MODIFY THE BELOW DATA IN       00108901
+//* SYSIN CARD                                                          00109001
+//*                                                                     00109101
+//*                (215,4,CH,EQ,C'XXXX',OR,                             00109201
+//*                 215,4,CH,EQ,C'XXXX',OR,                             00109301
+//*                 215,4,CH,EQ,C'XXXX'))                               00109401
+//*                                                                     00109501
+//* CHANGE XXXX TO THE JOB PREFIX AND 4 TO THE CORRESPONDING LENGTH     00109601
+//*                                                                     00109701
+//STEP002 EXEC PGM=SORT                                                 00109801
+//SORTLIB DD DSN=SYS1.SORTLIB,DISP=SHR                                  00110000
+//SYSOUT DD SYSOUT=*                                                    00140000
+//SORTIN DD DSN=&&OUTD1,DISP=SHR                                        00150000
+//SORTOUT  DD  DSN=UADA011.SMF.BACKUP(+1),                              00160002
+//             DISP=(NEW,CATLG),                                        00170000
+//             SPACE=(CYL,(10,100),RLSE)                                00200000
+//SORTWK01 DD UNIT=SYSDA,SPACE=(CYL,(4,2))                              00210000
+//SYSIN DD *                                                            00220000
+     SORT FIELDS=(215,8,CH,A)                                           00230000
+     INCLUDE COND=((177,4,BI,EQ,X'0005',AND,                            00240003
+                    19,3,CH,EQ,C'JES'),AND,                             00241002
+                   (215,4,CH,EQ,C'XXXX',OR,                             00250001
+                    215,4,CH,EQ,C'XXXX',OR,                             00250101
+                    215,4,CH,EQ,C'UADT'))                               00251001
+     OPTION VLSHRT                                                      00260000
+/*                                                                      00270000
+//* STEP003                                                             00290002
+//* RUN THE REPORT PROGRAM                                              00291002
+//STEP003 EXEC PGM=VT030RP1                                             00300002
+//SMFDATA  DD DISP=SHR,DSN=UADA011.SMF.BACKUP(+1)                       00310002
+//SYSPRINT DD SYSOUT=*                                                  00320002
+//SYSOUT   DD SYSOUT=*                                                  00330002
+//SMFOUT  DD DSN=UADA011.SMF.SMF30RPT(+1),                              00350002
+//       DISP=(,CATLG,DELETE),                                          00360002
+//       RECFM=F,UNIT=(SYSDA,3),                                        00370002
+//       SPACE=(CYL,(1,10),RLSE)                                        00380002

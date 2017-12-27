@@ -1,0 +1,106 @@
+       01 SMF64-DESCRIPTIONA.                                           00010000
+            10  WS-DESC-SMF64CLN          PIC X(20)                     00020013
+                VALUE 'VSAM CLUSTER NAME : '.                           00021009
+            10  WS-SMF64CLN               PIC X(44).                    00022014
+            10  WS-DESC-SMF64VSN          PIC X(09)                     00022111
+                VALUE 'VOLUME : '.                                      00022211
+            10  WS-SMF64VSN               PIC X(06).                    00022309
+            10  FILLER                    PIC X(01) VALUE ' '.          00022411
+      *                                                                 00022701
+       01 SMF64-DESCRIPTIONJBN.                                         00055004
+            10  WS-DESC-SMF64JBN          PIC X(22)                     00060028
+                VALUE 'JOB NAME / TSO USER : '.                         00061028
+            10  WS-SMF64JBN               PIC X(14).                    00070028
+            10  FILLER                    PIC X(44) VALUE ALL SPACES.   00070123
+      *                                                                 00070201
+       01 SMF64-DESCRIPTIONDNMDTY.                                      00070323
+            10  WS-DESC-SMF64DNM         PIC X(22)                      00070420
+                VALUE 'COMPONENT NAME      : '.                         00070520
+            10  WS-SMF64DNM              PIC X(44).                     00070604
+            10  WS-DESC-SMF64DTY         PIC X(07) VALUE 'TYPE : '.     00070720
+            10  WS-SMF64DTY              PIC X(07).                     00070819
+      *                                                                 00071004
+       01 SMF64-DESCRIPTIONDDEBNO.                                      00071123
+            10  WS-DESC-SMF64DDE          PIC X(28)                     00072020
+                VALUE 'NUMBER OF RECORDS DELETED : '.                   00073020
+            10  WS-SMF64DDE               PIC ZZZZZZZ9.                 00080006
+            10  FILLER                   PIC X(08) VALUE ALL SPACES.    00080120
+            10  WS-DESC-SMF64BNO          PIC X(28)                     00080220
+                VALUE 'BUFFERS REQUESTED BY USER : '.                   00080320
+            10  WS-SMF64BNO               PIC ZZZZZZZ9.                 00080420
+      *                                                                 00080620
+       01 SMF64-DESCRIPTIONDINBSP.                                      00080723
+            10  WS-DESC-SMF64DIN          PIC X(28)                     00081020
+                VALUE 'NUMBER OF RECORDS INSERTED:'.                    00082020
+            10  WS-SMF64DIN               PIC ZZZZZZZ9.                 00083004
+            10  FILLER                    PIC X(08) VALUE ALL SPACES.   00083120
+            10  WS-DESC-SMF64BSP          PIC X(28)                     00083220
+                VALUE 'BUFFER SPACE              : '.                   00083320
+            10  WS-SMF64BSP               PIC ZZZZZZZ9.                 00083420
+      *                                                                 00083620
+       01 SMF64-DESCRIPTIONDUPBFD.                                      00083723
+            10  WS-DESC-SMF64DUP          PIC X(28)                     00084020
+                VALUE 'NUMBER OF RECORDS UPDATED : '.                   00084120
+            10  WS-SMF64DUP               PIC ZZZZZZZ9.                 00086004
+            10  FILLER                    PIC X(08) VALUE ALL SPACES.   00086120
+            10  WS-DESC-SMF64BFD          PIC X(28)                     00086220
+                VALUE 'DATA BUFFERS REQUESTED    : '.                   00086320
+            10  WS-SMF64BFD               PIC ZZZZZZZ9.                 00086425
+      *                                                                 00086512
+       01 SMF64-DESCRIPTIONDREBFI.                                      00086623
+            10  WS-DESC-SMF64DRE          PIC X(28)                     00087020
+                VALUE 'NUMBER OF RECORDS SELECTED: '.                   00088020
+            10  WS-SMF64DRE               PIC ZZZZZZZ9.                 00089004
+            10  FILLER                    PIC X(08) VALUE ALL SPACES.   00089120
+            10  WS-DESC-SMF64BFI          PIC X(28)                     00089220
+                VALUE 'REQUESTED INDEX BUFFERS   : '.                   00089320
+            10  WS-SMF64BFI               PIC ZZZZZZZ9.                 00089420
+      *                                                                 00090001
+       01 SMF64-DESCRIPTIONEXCNIL.                                      00090123
+            10  WS-DESC-SMF64DEP          PIC X(28)                     00090220
+                VALUE 'TOTAL EXCP COUNTS         : '.                   00090320
+            10  WS-SMF64DEP               PIC ZZZZZZZ9.                 00090404
+            10  FILLER                    PIC X(08) VALUE ALL SPACES.   00090520
+            10  WS-DESC-SMF64NIL          PIC X(28)                     00090620
+                VALUE 'NUMBER OF INDEX LEVELS    : '.                   00090720
+            10  WS-SMF64NIL               PIC ZZZZZZZ9.                 00090820
+                                                                        00090920
+       01 SMF64-DESCRIPTIONNEXMC1.                                      00091023
+            10  WS-DESC-SMF64NEX          PIC X(28)                     00100022
+                VALUE 'NUMBER OF EXTENTS         : '.                   00101020
+            10  WS-SMF64NEX               PIC ZZZZZZZ9.                 00110022
+            10  FILLER                    PIC X(08) VALUE ALL SPACES.   00110120
+            10  WS-DESC-SMF64MC1          PIC X(13)                     00110220
+                VALUE 'MACRF1 FIELD:'.                                  00110320
+            10  WS-SMF64MC1               PIC X(23).                    00110420
+      *                                                                 00110501
+       01 SMF64-DESCRIPTIONNCSMC2.                                      00111027
+            10  WS-DESC-SMF64CIS          PIC X(28)                     00112022
+                VALUE  'TOTAL CI-SPLITS          : '.                   00113020
+            10  WS-SMF64NCS               PIC ZZZZZZZ9.                 00114024
+            10  FILLER                    PIC X(08) VALUE ALL SPACES.   00114120
+            10  WS-DESC-SMF64MC2          PIC X(13)                     00114220
+                VALUE 'MACRF2 FIELD:'.                                  00114320
+            10  WS-SMF64MC2               PIC X(23).                    00114420
+      *                                                                 00114501
+       01 SMF64-DESCRIPTIONNASMC3.                                      00114626
+            10  WS-DESC-SMF64CAS          PIC X(28)                     00114720
+                VALUE  'TOTAL CA-SPLITS          : '.                   00114820
+            10  WS-SMF64NAS               PIC ZZZZZZZ9.                 00114924
+            10  FILLER                    PIC X(08) VALUE ALL SPACES.   00115020
+            10  WS-DESC-SMF64MC3          PIC X(13)                     00115120
+                VALUE 'MACRF3 FIELD:'.                                  00115220
+            10  WS-SMF64MC3               PIC X(23).                    00115320
+      *                                                                 00115420
+       01 SMF64-DESCRIPTIONDCS.                                         00116020
+            10  WS-DESC-SMF64DCS          PIC X(28)                     00120022
+                VALUE 'CHANGE IN CI-SPLIT        : '.                   00121020
+            10  WS-SMF64DCS               PIC ZZZZZZZ9.                 00130022
+            10  FILLER                    PIC X(44) VALUE ALL SPACES.   00130120
+      *                                                                 00131001
+       01 SMF64-DESCRIPTIONDAS.                                         00132020
+            10  WS-DESC-SMF64DAS          PIC X(28)                     00133020
+                VALUE 'CHANGE IN CA-SPLIT        : '.                   00134020
+            10  WS-SMF64DAS               PIC ZZZZZZZ9.                 00135022
+            10  FILLER                    PIC X(44) VALUE ALL SPACES.   00136020
+      *                                                                 00137020

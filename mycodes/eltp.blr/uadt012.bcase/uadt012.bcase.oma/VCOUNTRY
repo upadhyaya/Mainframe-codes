@@ -1,0 +1,124 @@
+000100 01 WS-COUNTRY.                                                   00010007
+000110   05 WS-COUNTRY-CDS-NMES.                                        00011007
+000300      10 FILLER PIC X(15) VALUE 'INDIA'.                          00030008
+000500      10 FILLER PIC X(15) VALUE 'USA'.                            00050008
+000700      10 FILLER PIC X(15) VALUE 'RUSSIA'.                         00070008
+000900      10 FILLER PIC X(15) VALUE 'JAPAN'.                          00090008
+001100      10 FILLER PIC X(15) VALUE 'AUSTRALIA'.                      00110008
+001300      10 FILLER PIC X(15) VALUE 'UK'.                             00130008
+001500      10 FILLER PIC X(15) VALUE 'SRI LANKA'.                      00150011
+001700      10 FILLER PIC X(15) VALUE 'CHINA'.                          00170008
+001900      10 FILLER PIC X(15) VALUE 'MALAYSIA'.                       00190008
+002000      10 FILLER PIC X(15) VALUE 'INDONESIA'.                      00200010
+002300      10 FILLER PIC X(15) VALUE 'SINGAPORE'.                      00230008
+002500      10 FILLER PIC X(15) VALUE 'UAE'.                            00250008
+002700      10 FILLER PIC X(15) VALUE 'ZAMBIA'.                         00270011
+002900      10 FILLER PIC X(15) VALUE 'ZIMBABWE'.                       00290011
+003100      10 FILLER PIC X(15) VALUE 'SOUTH AFRICA'.                   00310011
+003110      10 FILLER PIC X(15) VALUE 'AFGHANISTAN'.                    00311011
+003120      10 FILLER PIC X(15) VALUE 'ALBANIA'.                        00312011
+003130      10 FILLER PIC X(15) VALUE 'ALGERIA'.                        00313011
+003140      10 FILLER PIC X(15) VALUE 'ANTARCTICA'.                     00314011
+003150      10 FILLER PIC X(15) VALUE 'ARGENTINA'.                      00315011
+003160      10 FILLER PIC X(15) VALUE 'ARUBA'.                          00316011
+003170      10 FILLER PIC X(15) VALUE 'AUSTRIA'.                        00317011
+003180      10 FILLER PIC X(15) VALUE 'BAHRAIN'.                        00318011
+003190      10 FILLER PIC X(15) VALUE 'BAHAMAS'.                        00319011
+003191      10 FILLER PIC X(15) VALUE 'BANGLADESH'.                     00319111
+003192      10 FILLER PIC X(15) VALUE 'BELGIUM'.                        00319211
+003193      10 FILLER PIC X(15) VALUE 'BERMUDA'.                        00319311
+003194      10 FILLER PIC X(15) VALUE 'BHUTAN'.                         00319411
+003195      10 FILLER PIC X(15) VALUE 'BOLIVIA'.                        00319511
+003196      10 FILLER PIC X(15) VALUE 'BOTSWANA'.                       00319611
+003197      10 FILLER PIC X(15) VALUE 'BRAZIL'.                         00319711
+003198      10 FILLER PIC X(15) VALUE 'BULGARIA'.                       00319811
+003199      10 FILLER PIC X(15) VALUE 'CAMBODIA'.                       00319911
+003200      10 FILLER PIC X(15) VALUE 'CANADA'.                         00320011
+003201      10 FILLER PIC X(15) VALUE 'CHILE'.                          00320111
+003202      10 FILLER PIC X(15) VALUE 'COLOMBIA'.                       00320211
+003203      10 FILLER PIC X(15) VALUE 'COSTA RICA'.                     00320311
+003204      10 FILLER PIC X(15) VALUE 'CROATIA'.                        00320411
+003205      10 FILLER PIC X(15) VALUE 'CUBA'.                           00320511
+003206      10 FILLER PIC X(15) VALUE 'CZECH REPUBLIC'.                 00320611
+003207      10 FILLER PIC X(15) VALUE 'DENMARK'.                        00320711
+003208      10 FILLER PIC X(15) VALUE 'DOMINICA'.                       00320811
+003209      10 FILLER PIC X(15) VALUE 'CAMEROON'.                       00320911
+003210      10 FILLER PIC X(15) VALUE 'EGYPT'.                          00321011
+003211      10 FILLER PIC X(15) VALUE 'ETHIOPIA'.                       00321111
+003212      10 FILLER PIC X(15) VALUE 'FIJI'.                           00321211
+003213      10 FILLER PIC X(15) VALUE 'FINLAND'.                        00321311
+003214      10 FILLER PIC X(15) VALUE 'FRANCE'.                         00321411
+003215      10 FILLER PIC X(15) VALUE 'GAZA'.                           00321511
+003216      10 FILLER PIC X(15) VALUE 'GERMANY'.                        00321611
+003217      10 FILLER PIC X(15) VALUE 'GHANA'.                          00321711
+003218      10 FILLER PIC X(15) VALUE 'GIBRALTAR'.                      00321811
+003219      10 FILLER PIC X(15) VALUE 'GREECE'.                         00321911
+003220      10 FILLER PIC X(15) VALUE 'GREENLAND'.                      00322011
+003221      10 FILLER PIC X(15) VALUE 'GUINEA'.                         00322111
+003222      10 FILLER PIC X(15) VALUE 'GUYANA'.                         00322211
+003223      10 FILLER PIC X(15) VALUE 'HONG KONG'.                      00322311
+003224      10 FILLER PIC X(15) VALUE 'HUNGARY'.                        00322411
+003225      10 FILLER PIC X(15) VALUE 'ICELAND'.                        00322511
+003226      10 FILLER PIC X(15) VALUE 'IRAN'.                           00322611
+003227      10 FILLER PIC X(15) VALUE 'IRAQ'.                           00322711
+003228      10 FILLER PIC X(15) VALUE 'IRELAND'.                        00322811
+003229      10 FILLER PIC X(15) VALUE 'ISRAEL'.                         00322911
+003230      10 FILLER PIC X(15) VALUE 'ITALY'.                          00323011
+003231      10 FILLER PIC X(15) VALUE 'JAMAICA'.                        00323111
+003232      10 FILLER PIC X(15) VALUE 'JORDAN'.                         00323211
+003233      10 FILLER PIC X(15) VALUE 'KAZAKHSTAN'.                     00323311
+003234      10 FILLER PIC X(15) VALUE 'KENYA'.                          00323411
+003235      10 FILLER PIC X(15) VALUE 'NORTH KOREA'.                    00323511
+003236      10 FILLER PIC X(15) VALUE 'SOUTH KOREA'.                    00323611
+003237      10 FILLER PIC X(15) VALUE 'KUWAIT'.                         00323711
+003238      10 FILLER PIC X(15) VALUE 'LATVIA'.                         00323811
+003239      10 FILLER PIC X(15) VALUE 'LIBYA'.                          00323911
+003240      10 FILLER PIC X(15) VALUE 'LUXEMBOURG'.                     00324011
+003241      10 FILLER PIC X(15) VALUE 'MADAGASCAR'.                     00324111
+003242      10 FILLER PIC X(15) VALUE 'MALDIVES'.                       00324211
+003243      10 FILLER PIC X(15) VALUE 'MAURITIUS'.                      00324311
+003244      10 FILLER PIC X(15) VALUE 'MEXICO'.                         00324411
+003245      10 FILLER PIC X(15) VALUE 'MONGOLIA'.                       00324511
+003246      10 FILLER PIC X(15) VALUE 'MOROCCO'.                        00324611
+003247      10 FILLER PIC X(15) VALUE 'MYANMAR'.                        00324711
+003248      10 FILLER PIC X(15) VALUE 'NAMIBIA'.                        00324811
+003249      10 FILLER PIC X(15) VALUE 'NEPAL'.                          00324911
+003250      10 FILLER PIC X(15) VALUE 'NETHERLANDS'.                    00325011
+003251      10 FILLER PIC X(15) VALUE 'NEW ZEALAND'.                    00325111
+003252      10 FILLER PIC X(15) VALUE 'NIGERIA'.                        00325211
+003253      10 FILLER PIC X(15) VALUE 'NORWAY'.                         00325311
+003254      10 FILLER PIC X(15) VALUE 'OMAN'.                           00325411
+003255      10 FILLER PIC X(15) VALUE 'PAKISTAN'.                       00325511
+003256      10 FILLER PIC X(15) VALUE 'PANAMA'.                         00325611
+003257      10 FILLER PIC X(15) VALUE 'PARAGUAY'.                       00325711
+003258      10 FILLER PIC X(15) VALUE 'PHILIPPINES'.                    00325811
+003259      10 FILLER PIC X(15) VALUE 'PERU'.                           00325911
+003260      10 FILLER PIC X(15) VALUE 'POLAND'.                         00326011
+003261      10 FILLER PIC X(15) VALUE 'PORTUGAL'.                       00326111
+003262      10 FILLER PIC X(15) VALUE 'PUERTO RICO'.                    00326211
+003263      10 FILLER PIC X(15) VALUE 'ROMANIA'.                        00326311
+003264      10 FILLER PIC X(15) VALUE 'SAUDI ARABIA'.                   00326411
+003265      10 FILLER PIC X(15) VALUE 'SEYCHELLES'.                     00326511
+003266      10 FILLER PIC X(15) VALUE 'SLOVAKIA'.                       00326611
+003267      10 FILLER PIC X(15) VALUE 'SPAIN'.                          00326711
+003268      10 FILLER PIC X(15) VALUE 'SUDAN'.                          00326811
+003269      10 FILLER PIC X(15) VALUE 'SWEDEN'.                         00326911
+003270      10 FILLER PIC X(15) VALUE 'SWITZERLAND'.                    00327011
+003271      10 FILLER PIC X(15) VALUE 'TAIWAN'.                         00327111
+003272      10 FILLER PIC X(15) VALUE 'TANZANIA'.                       00327211
+003273      10 FILLER PIC X(15) VALUE 'THAILAND'.                       00327311
+003274      10 FILLER PIC X(15) VALUE 'SYRIA'.                          00327411
+003275      10 FILLER PIC X(15) VALUE 'TUNISIA'.                        00327511
+003276      10 FILLER PIC X(15) VALUE 'TURKEY'.                         00327611
+003277      10 FILLER PIC X(15) VALUE 'TURKMENISTAN'.                   00327711
+003278      10 FILLER PIC X(15) VALUE 'UGANDA'.                         00327811
+003279      10 FILLER PIC X(15) VALUE 'UKRAINE'.                        00327911
+003280      10 FILLER PIC X(15) VALUE 'URUGUAY'.                        00328011
+003281      10 FILLER PIC X(15) VALUE 'UZBEKISTAN'.                     00328111
+003282      10 FILLER PIC X(15) VALUE 'VATICAN CITY'.                   00328211
+003283      10 FILLER PIC X(15) VALUE 'VENEZUELA'.                      00328311
+003284      10 FILLER PIC X(15) VALUE 'VIETNAM'.                        00328411
+003285      10 FILLER PIC X(15) VALUE 'VIRGIN ISLANDS'.                 00328511
+003286      10 FILLER PIC X(15) VALUE 'YEMEN'.                          00328611
+003290   05 WS-CUNTRY REDEFINES WS-COUNTRY-CDS-NMES OCCURS 120 TIMES.   00329011
+003400      10 WS-COUNTRY-NAME PIC X(15).                               00340008

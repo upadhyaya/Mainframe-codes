@@ -1,0 +1,19 @@
+//UADT012A JOB NOTIFY=&SYSUID,MSGLEVEL=(1,1)                            00010000
+//BLDIND EXEC PGM=IDCAMS                                                00020000
+//SYSPRINT DD  SYSOUT=*                                                 00030000
+//*DISP=OLD ENSURES EXCLUSIVE USE DURING BLDINDEX                       00040000
+//*EXECUTION                                                            00050000
+//ORDBASE DD DSN=ELTP.BLR.OMA,DISP=OLD                                  00060002
+//AUTHAIX DD DSN=ELTP.BLR.OMA.AIX,DISP=OLD                              00070002
+//IDCUT1 DD DSN=SORT.WORK.ONE,DISP=OLD                                  00080001
+//IDCUT2 DD DSN=SORT.WORK.TWO,DISP=OLD                                  00090001
+//*TO USE DIFFERENT DDNAMES IN PLACE OF IDCUT1 AND                      00100000
+//*IDCUT2 ADD WORKFILES(DDNAME1,DDNAME2)                                00110000
+//*AS A BLDINDEX PARAMETER                                              00120000
+//SYSIN DD *                                                            00130000
+  BLDINDEX       -                                                      00140000
+   INFILE  (ORDBASE)   -                                                00150000
+   OUTFILE  (AUTHAIX)   -                                               00160000
+   INTERNALSORT     -                                                   00170000
+   CATALOG (VSAM.USERCAT)                                               00180000
+/*                                                                      00190000

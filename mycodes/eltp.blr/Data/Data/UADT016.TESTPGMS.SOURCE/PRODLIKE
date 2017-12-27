@@ -1,0 +1,28 @@
+       IDENTIFICATION DIVISION.                                         00011025
+       PROGRAM-ID. PRODLIKE.                                            00020099
+       ENVIRONMENT DIVISION.                                            00030001
+       DATA DIVISION.                                                   00130002
+       WORKING-STORAGE SECTION.                                         00180002
+      *********************COPY OF COMMUNICATION AREA**********         00181015
+      **********************COPY OF DCLGEN ********************         00184015
+           EXEC SQL                                                     00190002
+               INCLUDE SQLCA                                            00200002
+           END-EXEC.                                                    00210002
+           EXEC SQL                                                     00241012
+               INCLUDE CUSTM                                            00242012
+           END-EXEC.                                                    00243012
+       PROCEDURE DIVISION.                                              01110099
+      ***************************************************************   01150002
+       0000-MAINLINE.                                                   01160002
+           DISPLAY 'INITIALLY'.                                         01161048
+           MOVE 'JA%' TO CUST-NAME.                                     01162099
+           DISPLAY 'CUST-NAME' CUST-NAME.                               01163099
+           EXEC SQL                                                     01210002
+                SELECT CUST_NAME,CUST_ID                                01220099
+                INTO :CUST-ID,                                          01230099
+                     :CUST-NAME                                         01231099
+                FROM ADMT.T_CU_CUSTOMER                                 01240002
+                WHERE CUST_NAME LIKE :CUST-NAME                         01250099
+           END-EXEC.                                                    01260075
+                DISPLAY CUST-ID,CUST-NAME.                              01261099
+                STOP RUN.                                               01262099

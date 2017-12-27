@@ -1,0 +1,360 @@
+005154 01 SMF30-RECORD-FORMAT.                                          00010000
+005155      06 SMF30HDR.                                                00020000
+005156             10 SMF30FLG PIC X(01).                               00030000
+005157             10 SMF30RTY PIC X(1).                                00040005
+005158             10 SMF30TME PIC S9(8) BINARY.                        00050000
+005159             10 SMF30DTE PIC S9(7) PACKED-DECIMAL.                00060000
+005160             10 SMF30SID PIC X(04).                               00070000
+005161             10 SMF30WID PIC X(04).                               00080000
+005162             10 SMF30STP PIC S9(4) BINARY.                        00090000
+005169             10 SEGMENT-TRIPLES BINARY.                           00160000
+005178               15 SMF30SOF PIC S9(9).                             00250000
+005179               15 SMF30SLN PIC S9(4).                             00260000
+005180               15 SMF30SON PIC S9(4).                             00270000
+005181               15 SMF30IOF PIC S9(9).                             00280000
+005182               15 SMF30ILN PIC S9(4).                             00290000
+005183               15 SMF30ION PIC S9(4).                             00300000
+005184               15 SMF30UOF PIC S9(9).                             00310000
+005185               15 SMF30ULN PIC S9(4).                             00320000
+005186               15 SMF30UON PIC S9(4).                             00330000
+005187               15 SMF30TOF PIC S9(9).                             00340000
+005188               15 SMF30TLN PIC S9(4).                             00350000
+005189               15 SMF30TON PIC S9(4).                             00360000
+005190               15 SMF30COF PIC S9(9).                             00370000
+005191               15 SMF30CLN PIC S9(4).                             00380000
+005192               15 SMF30CON PIC S9(4).                             00390000
+005193               15 SMF30AOF PIC S9(9).                             00400000
+005194               15 SMF30ALN PIC S9(4).                             00410000
+005195               15 SMF30AON PIC S9(4).                             00420000
+005196               15 SMF30ROF PIC S9(9).                             00430000
+005197               15 SMF30RLN PIC S9(4).                             00440000
+005198               15 SMF30RON PIC S9(4).                             00450000
+005199               15 SMF30POF PIC S9(9).                             00460000
+005200               15 SMF30PLN PIC S9(4).                             00470000
+005201               15 SMF30PON PIC S9(4).                             00480000
+005202               15 SMF30OOF PIC S9(9).                             00490000
+005203               15 SMF30OLN PIC S9(4).                             00500000
+005204               15 SMF30OON PIC S9(4).                             00510000
+005205               15 SMF30EOF PIC S9(9).                             00520000
+005206               15 SMF30ELN PIC S9(4).                             00530000
+005207               15 SMF30EON PIC S9(4).                             00540000
+005208               15 SMF30EOR PIC S9(4).                             00550000
+005209               15 SMF30RVD PIC S9(4).                             00560000
+005210               15 SMF30EOS PIC S9(9).                             00570000
+005211               15 SMF30DRO PIC S9(9).                             00580000
+005212               15 SMF30DRL PIC S9(4).                             00590000
+005213               15 SMF30DRN PIC S9(4).                             00600000
+005214               15 SMF30ARO PIC S9(9).                             00610000
+005215               15 SMF30ARL PIC S9(4).                             00620000
+005216               15 SMF30ARN PIC S9(4).                             00630000
+005217               15 SMF30OPO PIC S9(9).                             00640000
+005218               15 SMF30OPL PIC S9(4).                             00650000
+005219               15 SMF30OPN PIC S9(4).                             00660000
+005220               15 SMF30OPM PIC S9(9).                             00670000
+005221               15 SMF30UDO PIC S9(9).                             00680000
+005222               15 SMF30UDL PIC S9(4).                             00690000
+005223               15 SMF30UDN PIC S9(4).                             00700000
+005224               15 SMF30UDS PIC S9(9).                             00710000
+005225               15 SMF30RMO PIC S9(9).                             00720000
+005226               15 SMF30RML PIC S9(4).                             00730000
+005227               15 SMF30RMN PIC S9(4).                             00740000
+005228               15 SMF30RMS PIC S9(9).                             00750000
+005229               15 SMF30MOF PIC S9(9).                             00760000
+005230               15 SMF30MLN PIC S9(4).                             00770000
+005231               15 SMF30MNO PIC S9(4).                             00780000
+005232               15 SMF30MOS PIC S9(9).                             00790000
+005234        06 SUBSYSTEM-SECTION.                                     00810000
+005235             10 SMF30TYP PIC S9(4) BINARY.                        00820000
+005236             10 SMF30RS1 PIC S9(4) BINARY.                        00830000
+005237             10 SMF30RVN PIC X(02).                               00840000
+005238             10 SMF30PNM PIC X(08).                               00850000
+005239             10 SMF30OSL PIC X(08).                               00860000
+005240             10 SMF30SYN PIC X(08).                               00870000
+005241             10 SMF30SYP PIC X(08).                               00880000
+005242          06 IDENTIFICATION-SECTION.                              00890000
+005243             10 SMF30JBN PIC X(08).                               00900000
+005244             10 SMF30PGM PIC X(08).                               00910000
+005245             10 SMF30STM PIC X(08).                               00920000
+005246             10 SMF30UIF PIC X(08).                               00930000
+005247             10 SMF30JNM PIC X(08).                               00940000
+005248             10 SMF30STN PIC S9(4) BINARY.                        00950000
+005249             10 SMF30CLS PIC X(01).                               00960000
+005250             10 FILLER PIC X(01).                                 00970000
+005251             10 SMF30PGN PIC S9(4) BINARY.                        00980000
+005252             10 SMF30JPT PIC S9(4) BINARY.                        00990000
+005253             10 SMF30AST PIC S9(8) BINARY.                        01000000
+005254             10 SMF30PPS PIC S9(8) BINARY.                        01010000
+005255             10 SMF30SIT PIC S9(8) BINARY.                        01020000
+005256             10 SMF30STD PIC S9(7) PACKED-DECIMAL.                01030000
+005257             10 SMF30RST PIC S9(8) BINARY.                        01040000
+005258             10 SMF30RSD PIC S9(7) PACKED-DECIMAL.                01050000
+005259             10 SMF30RET PIC S9(8) BINARY.                        01060000
+005260             10 SMF30RED PIC S9(7) PACKED-DECIMAL.                01070000
+005261             10 SMF30USR PIC X(20).                               01080000
+005262             10 SMF30GRP PIC X(08).                               01090000
+005263             10 SMF30RUD PIC X(08).                               01100000
+005264             10 SMF30TID PIC X(08).                               01110000
+005265             10 SMF30TSN PIC X(08).                               01120000
+005266             10 SMF30PSN PIC X(08).                               01130000
+005267             10 SMF30CL8 PIC X(08).                               01140000
+005268             10 SMF30ISS PIC S9(17) BINARY.                       01150000
+005269             10 SMF30IET PIC S9(17) BINARY.                       01160000
+005270             10 SMF30SSN PIC S9(8) BINARY.                        01170000
+005271             10 SMF30EXN PIC X(16).                               01180000
+005276                                                                  01230000
+005278 01 I-O-ACTIVITY-SECTION-GROUP.                                   01250002
+005281             10 SMF30INP PIC S9(8) BINARY.                        01280000
+005282             10 SMF30TEP PIC S9(8) BINARY.                        01290000
+005283             10 SMF30TPT PIC S9(8) BINARY.                        01300000
+005284             10 SMF30TGT PIC S9(8) BINARY.                        01310000
+005285             10 SMF30RDR PIC X(01).                               01320000
+005286             10 SMF30RDT PIC X(01).                               01330000
+005287             10 SMF30TCN PIC S9(8) BINARY.                        01340000
+005288             10 SMF30DCF PIC S9(8) BINARY.                        01350000
+005289             10 SMF30RSB PIC X(02).                               01360000
+005290             10 SMF30TRR PIC S9(8) BINARY.                        01370000
+005291             10 SMF30AIC PIC S9(8) BINARY.                        01380000
+005292             10 SMF30AID PIC S9(8) BINARY.                        01390000
+005293             10 SMF30AIW PIC S9(8) BINARY.                        01400000
+005294             10 SMF30AIS PIC S9(8) BINARY.                        01410000
+005295             10 SMF30EIC PIC S9(8) BINARY.                        01420000
+005296             10 SMF30EID PIC S9(8) BINARY.                        01430000
+005297             10 SMF30EIW PIC S9(8) BINARY.                        01440000
+005298             10 SMF30EIS PIC S9(8) BINARY.                        01450000
+005298             10 SMF30TEX PIC S9(16) BINARY.                       01451000
+005299 01 COMPLETION-SECTION-GROUP.                                     01460002
+005302             10 SMF30SCC PIC S9(4) BINARY.                        01490000
+005303             10 SMF30STI PIC S9(4) BINARY.                        01500000
+005304             10 SMF30ARC PIC S9(8) BINARY.                        01510000
+005305 01 PROCESSOR-SECTION-GROUP.                                      01520002
+005310             10 FILLER   PIC X(04).                               01570000
+005311             10 SMF30CPT PIC S9(8) BINARY.                        01580000
+005312             10 SMF30CPS PIC S9(8) BINARY.                        01590000
+005313             10 SMF30ICU PIC S9(8) BINARY.                        01600000
+005314             10 SMF30ISB PIC S9(8) BINARY.                        01610000
+005315             10 SMF30JVU PIC S9(8) BINARY.                        01620000
+005316             10 SMF30IVU PIC S9(8) BINARY.                        01630000
+005317             10 SMF30JVA PIC S9(8) BINARY.                        01640000
+005318             10 SMF30IVA PIC S9(8) BINARY.                        01650000
+005319             10 SMF30IST PIC S9(8) BINARY.                        01660000
+005320             10 SMF30IDT PIC S9(7) PACKED-DECIMAL.                01670000
+005321             10 SMF30IIP PIC S9(8) BINARY.                        01680000
+005322             10 SMF30RCT PIC S9(8) BINARY.                        01690000
+005323             10 SMF30HPT PIC S9(8) BINARY.                        01700000
+005324             10 SMF30CSC PIC S9(8) BINARY.                        01710000
+005325             10 SMF30DMI PIC S9(8) BINARY.                        01720000
+005326             10 SMF30DMO PIC S9(8) BINARY.                        01730000
+005327             10 SMF30ASR PIC S9(8) BINARY.                        01740000
+005328             10 SMF30ENC PIC S9(8) BINARY.                        01750000
+005329             10 SMF30DET PIC S9(8) BINARY.                        01760000
+005330             10 SMF30CEP PIC S9(8) BINARY.                        01770000
+005330             10 SMF30TF2 PIC X(01).                               01771000
+005330             10 SMF30T32 PIC X(01).                               01772000
+005330             10 SMF30T33 PIC X(01).                               01773000
+005330             10 FILLER   PIC X(01).                               01774000
+005330             10 SMF30-TIME-ON-IFA                                 01775000
+                      PIC S9(8) BINARY.                                 01775100
+005330             10 SMF30-ENCLAVE-TIME-ON-IFA                         01775200
+                      PIC S9(8) BINARY.                                 01775300
+005330             10 SMF30-DEP-ENCLAVE-TIME-ON-IFA                     01775400
+                      PIC S9(8) BINARY.                                 01775500
+005330             10 SMF30-TIME-IFA-ON-CP                              01775600
+                      PIC S9(8) BINARY.                                 01775700
+005330             10 SMF30-ENCLAVE-TIME-IFA-ON-CP                      01775800
+                      PIC S9(8) BINARY.                                 01775900
+005330             10 SMF30-DEP-ENC-TIME-IFA-ON-CP                      01776000
+                      PIC S9(8) BINARY.                                 01776100
+005330             10 SMF30CEPIE-ON-IFA                                 01776200
+                      PIC S9(8) BINARY.                                 01776300
+005330             10 SMF30-TIME-ON-ZIIP                                01776400
+                      PIC S9(8) BINARY.                                 01776500
+005330             10 SMF30-ENCLAVE-TIME-ON-ZIIP                        01776600
+                      PIC S9(8) BINARY.                                 01776700
+005330             10 SMF30-DEPENC-TIME-ON-ZIIP                         01776800
+                      PIC S9(8) BINARY.                                 01776900
+005330             10 SMF30-TIME-ZIIP-ON-CP                             01777000
+                      PIC S9(8) BINARY.                                 01777100
+005330             10 SMF30-ENCLAVE-TIME-ZIIP-ON-CP                     01777200
+                      PIC S9(8) BINARY.                                 01778000
+005330             10 SMF30-DEPENC-TIME-ZIIP-ON-CP                      01779000
+                      PIC S9(8) BINARY.                                 01779100
+005330             10 SMF30-ENCLAVE-TIME-ZIIP-QUAL                      01779200
+                      PIC S9(8) BINARY.                                 01779300
+005330             10 SMF30-DEPENC-TIME-ZIIP-QUAL                       01779400
+                      PIC S9(8) BINARY.                                 01779500
+005331 01 EXCP-AREA-IN-RECORD-GROUP.                                    01780002
+005335                15 SMF30DEV PIC X(01).                            01820000
+005336                15 SMF30UTP PIC X(01).                            01830000
+005337                15 SMF30CUA PIC S9(4) BINARY.                     01840000
+005338                15 SMF30DDN PIC X(08).                            01850000
+005339                15 SMF30BLK PIC S9(8) BINARY.                     01860000
+005340                15 SMF30BSZ PIC S9(4) BINARY.                     01870000
+005341                15 SMF30DCT PIC S9(8) BINARY.                     01880000
+005341                15 SMF30XBS PIC S9(16) BINARY.                    01881000
+005342 01 ACCOUNTING-SECTION-GROUP.                                     01890002
+005348             10 SMF30ACL PIC 9(01).                               01950000
+005355             10 SMF30ACT PIC X(01) OCCURS 1 TO 255                02020000
+005356                DEPENDING SMF30ACL-N.                             02030000
+005357 01 STORAGE-SECTION-GROUP.                                        02040002
+005360             10 SMF30RSV PIC S9(4) BINARY.                        02070000
+005361             10 SMF30SFL PIC X(01).                               02080000
+005362             10 SMF30SPK PIC X(01).                               02090000
+005363             10 SMF30PRV PIC S9(4) BINARY.                        02100000
+005364             10 SMF30SYS PIC S9(4) BINARY.                        02110000
+005365             10 SMF30PGI PIC S9(8) BINARY.                        02120000
+005366             10 SMF30PGO PIC S9(8) BINARY.                        02130000
+005367             10 SMF30CPM PIC S9(8) BINARY.                        02140000
+005368             10 SMF30NSW PIC S9(8) BINARY.                        02150000
+005369             10 SMF30PSI PIC S9(8) BINARY.                        02160000
+005370             10 SMF30PSO PIC S9(8) BINARY.                        02170000
+005371             10 SMF30VPI PIC S9(8) BINARY.                        02180000
+005372             10 SMF30VPO PIC S9(8) BINARY.                        02190000
+005373             10 SMF30VPR PIC S9(8) BINARY.                        02200000
+005374             10 SMF30CPI PIC S9(8) BINARY.                        02210000
+005375             10 SMF30HPI PIC S9(8) BINARY.                        02220000
+005376             10 SMF30LPI PIC S9(8) BINARY.                        02230000
+005377             10 SMF30HPO PIC S9(8) BINARY.                        02240000
+005378             10 SMF30PST PIC S9(8) BINARY.                        02250000
+005379             10 SMF30PSC PIC S9(17) BINARY.                       02260000
+005380             10 SMF30RGB PIC S9(8) BINARY.                        02270000
+005381             10 SMF30ERG PIC S9(8) BINARY.                        02280000
+005382             10 SMF30ARB PIC S9(8) BINARY.                        02290000
+005383             10 SMF30EAR PIC S9(8) BINARY.                        02300000
+005384             10 SMF30URB PIC S9(8) BINARY.                        02310000
+005385             10 SMF30EUR PIC S9(8) BINARY.                        02320000
+005386             10 SMF30RGN PIC S9(8) BINARY.                        02330000
+005387             10 SMF30DSV PIC S9(8) BINARY.                        02340000
+005388             10 SMF30PIE PIC S9(8) BINARY.                        02350000
+005389             10 SMF30POE PIC S9(8) BINARY.                        02360000
+005390             10 SMF30BIA PIC S9(8) BINARY.                        02370000
+005391             10 SMF30BOA PIC S9(8) BINARY.                        02380000
+005392             10 SMF30BIE PIC S9(8) BINARY.                        02390000
+005393             10 SMF30BOE PIC S9(8) BINARY.                        02400000
+005394             10 SMF30KIA PIC S9(8) BINARY.                        02410000
+005395             10 SMF30KOA PIC S9(8) BINARY.                        02420000
+005396             10 SMF30KIE PIC S9(8) BINARY.                        02430000
+005397             10 SMF30KOE PIC S9(8) BINARY.                        02440000
+005398             10 SMF30PSF PIC S9(17) BINARY.                       02450000
+005399             10 SMF30PAI PIC S9(8) BINARY.                        02460000
+005400             10 SMF30PEI PIC S9(8) BINARY.                        02470000
+005401             10 SMF30ERS PIC S9(17) BINARY.                       02480000
+005402             10 SMF30MEM PIC S9(17) BINARY.                       02490000
+005403             10 SMF30MES PIC X(01).                               02500000
+005403             10 FILLER   PIC X(23).                               02501000
+005404 01 PERFORMANCE-SECTION-GROUP.                                    02510002
+005407             10 SMF30SRV PIC S9(8) BINARY.                        02540000
+005408             10 SMF30CSU PIC S9(8) BINARY.                        02550000
+005409             10 SMF30SRB PIC S9(8) BINARY.                        02560000
+005410             10 SMF30IO  PIC S9(8) BINARY.                        02570000
+005411             10 SMF30MSO PIC S9(8) BINARY.                        02580000
+005412             10 SMF30TAT PIC S9(8) BINARY.                        02590000
+005413             10 SMF30SUS PIC S9(8) BINARY.                        02600001
+005414             10 SMF30RES PIC S9(8) BINARY.                        02610000
+005415             10 SMF30TRS PIC S9(8) BINARY.                        02620000
+005416             10 SMF30WLM PIC X(08).                               02630000
+005417             10 SMF30SCN PIC X(08).                               02640000
+005418             10 SMF30GRN PIC X(08).                               02650000
+005419             10 SMF30RCN PIC X(08).                               02660000
+005420             10 SMF30ETA PIC S9(8) BINARY.                        02670000
+005421             10 SMF30ESU PIC S9(8) BINARY.                        02680000
+005422             10 SMF30ETC PIC S9(8) BINARY.                        02690000
+005423             10 SMF30PFL PIC X(16).                               02700000
+005424             10 SMF30JQT PIC S9(8) BINARY.                        02710000
+005425             10 SMF30RQT PIC S9(8) BINARY.                        02720000
+005426             10 SMF30HQT PIC S9(8) BINARY.                        02730000
+005427             10 SMF30SQT PIC S9(8) BINARY.                        02740000
+005428             10 SMF30PF1 PIC X(01).                               02750000
+005429             10 SMF30PF2 PIC X(01).                               02760000
+005430             10 SMF30RS4 PIC X(02).                               02770000
+005431             10 SMF30JPN PIC X(08).                               02780000
+005431             10 SMF30MSC PIC S9(8) BINARY.                        02781000
+005431             10 SMF30CPC PIC S9(4) BINARY.                        02782000
+005431             10 SMF30LOC PIC S9(4) BINARY.                        02783000
+005431             10 SMF30SRC PIC S9(4) BINARY.                        02784000
+005431             10 SMF30ZNF PIC S9(4) BINARY.                        02785000
+005431             10 SMF30SNF PIC S9(4) BINARY.                        02786000
+005432 01 OPERATOR-SECTION-GROUP.                                       02790002
+005435             10 SMF30PDM PIC S9(8) BINARY.                        02820000
+005436             10 SMF30PRD PIC S9(8) BINARY.                        02830000
+005437             10 SMF30PTM PIC S9(8) BINARY.                        02840000
+005438             10 SMF30TPR PIC S9(8) BINARY.                        02850000
+005439             10 SMF30MTM PIC S9(8) BINARY.                        02860000
+005440             10 SMF30MSR PIC S9(8) BINARY.                        02870000
+005441 01 APPC-SECTION-GROUP.                                           02880002
+005443             10 SMF30DC  PIC S9(8) BINARY.                        02900000
+005444             10 SMF30DCA PIC S9(8) BINARY.                        02910000
+005445             10 SMF30DSC PIC S9(8) BINARY.                        02920000
+005447             10 SMF30DDS PIC X(08).                               02940000
+005448             10 SMF30DRC PIC S9(8) BINARY.                        02950000
+005450             10 SMF30DDR PIC X(08).                               02970000
+005451             10 SMF30DAC PIC S9(8) BINARY.                        02980000
+005452             10 SMF30DTR PIC S9(8) BINARY.                        02990000
+005453 01 APPC-CUMULATIVE-SECTION-GROUP.                                03000002
+005456             10 SMF30CN PIC S9(8) BINARY.                         03030000
+005457             10 SMF30CNA PIC S9(8) BINARY.                        03040000
+005458             10 SMF30SEN PIC S9(8) BINARY.                        03050000
+005460             10 SMF30DAT PIC X(08).                               03070000
+005461             10 SMF30REC PIC S9(8) BINARY.                        03080000
+005463             10 SMF30DAR PIC X(08).                               03100000
+005464             10 SMF30TAC PIC S9(8) BINARY.                        03110000
+005465             10 SMF30ATR PIC S9(8) BINARY.                        03120000
+005466 01 OPEN-MVS-SECTION-GROUP.                                       03130002
+005468             10 SMF30OPI PIC S9(8) BINARY.                        03150000
+005469             10 SMF30OPG PIC S9(8) BINARY.                        03160000
+005470             10 SMF30OUI PIC S9(8) BINARY.                        03170000
+005471             10 SMF30OUG PIC S9(8) BINARY.                        03180000
+005472             10 SMF30OSI PIC S9(8) BINARY.                        03190000
+005473             10 SMF30OSC PIC S9(8) BINARY.                        03200000
+005474             10 SMF30OST PIC S9(8) BINARY.                        03210000
+005475             10 SMF30ODR PIC S9(8) BINARY.                        03220000
+005476             10 SMF30OFR PIC S9(8) BINARY.                        03230000
+005477             10 SMF30OFW PIC S9(8) BINARY.                        03240000
+005478             10 SMF30OPR PIC S9(8) BINARY.                        03250000
+005479             10 SMF30OPW PIC S9(8) BINARY.                        03260000
+005480             10 SMF30OSR PIC S9(8) BINARY.                        03270000
+005481             10 SMF30OSW PIC S9(8) BINARY.                        03280000
+005482             10 SMF30OLL PIC S9(8) BINARY.                        03290000
+005483             10 SMF30OLP PIC S9(8) BINARY.                        03300000
+005484             10 SMF30OGL PIC S9(8) BINARY.                        03310000
+005485             10 SMF30OGP PIC S9(8) BINARY.                        03320000
+005486             10 SMF30OPP PIC S9(8) BINARY.                        03330000
+005487             10 SMF30OKR PIC S9(8) BINARY.                        03340000
+005488             10 SMF30OKW PIC S9(8) BINARY.                        03350000
+005489             10 SMF30OMS PIC S9(8) BINARY.                        03360000
+005490             10 SMF30OMR PIC S9(8) BINARY.                        03370000
+005491             10 SMF30OSY PIC S9(8) BINARY.                        03380000
+005492 01 AUTO-RESTART-SECTION-GROUP.                                   03390002
+005495             10 SMF30RNM PIC X(16).                               03420000
+005496             10 SMF30RTP PIC X(08).                               03430000
+005497             10 SMF30RRG PIC X(16).                               03440000
+005498             10 SMF30RSN PIC X(08).                               03450000
+005499             10 SMF30RGT PIC S9(8) BINARY.                        03460000
+005500             10 SMF30RGD PIC S9(8) BINARY.                        03470000
+005501             10 SMF30RWT PIC S9(8) BINARY.                        03480000
+005502             10 SMF30RWD PIC S9(8) BINARY.                        03490000
+005503             10 SMF30RYT PIC S9(8) BINARY.                        03500000
+005504             10 SMF30RYD PIC S9(8) BINARY.                        03510000
+005505             10 SMF30RTT PIC S9(8) BINARY.                        03520000
+005506             10 SMF30RTD PIC S9(8) BINARY.                        03530000
+005507 01 USAGE-DATA-SECTION-GROUP.                                     03540002
+005510             10 SMF30UPO PIC X(16).                               03570000
+005511             10 SMF30UPN PIC X(16).                               03580000
+005512             10 SMF30UPV PIC X(08).                               03590001
+005513             10 SMF30UPQ PIC X(08).                               03600000
+005514             10 SMF30UPI PIC X(08).                               03610000
+005515             10 SMF30UCT PIC S9(8) BINARY.                        03620000
+005516             10 SMF30UCS PIC S9(8) BINARY.                        03630000
+005517             10 SMF30URD PIC X(08).                               03640000
+005518             10 SMF30UDF PIC X(01).                               03650000
+005519             10 SMF30UFG PIC X(01).                               03660000
+005520             10 FILLER PIC X(02).                                 03670000
+005507 01 MULTISYS-ENCL-REMOTE-SYS-DATA.                                03680000
+005510             10 SMF30MRS PIC X(8).                                03710000
+005511             10 SMF30MRA PIC S9(8) BINARY.                        03720000
+005512             10 SMF30MRD PIC S9(8) BINARY.                        03730000
+005513             10 SMF30MRI PIC S9(8) BINARY.                        03740000
+       01 SMF30ACL-LONG.                                                03750000
+            05 PIC X(01).                                               03760000
+            05 SMF30ACL-LO PIC X(01).                                   03770000
+       01 SMF30ACL-N REDEFINES                                          03780000
+               SMF30ACL-LONG PIC S9(4).                                 03790000

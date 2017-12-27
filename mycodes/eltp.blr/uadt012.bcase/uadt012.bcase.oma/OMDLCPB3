@@ -1,0 +1,86 @@
+                05  L1S-OPT            PIC X(6).                        00010001
+                05  L1S-INPUT-DEALER-ID      PIC 9(10).                 00010101
+      *                                                                 00010201
+                    05  LS1-DEALER-ID      PIC 9(10).                   00020001
+                    05  LS1-ORDER-ID       PIC 9(10).                   00030001
+                    05  LS1-PROD-ID        PIC 9(10).                   00040001
+                    05  LS1-PROD-NAME      PIC X(40).                   00050001
+                    05  LS1-QUANT          PIC 9(10).                   00060001
+                    05  LS1-PRICE          PIC 9(10).                   00070001
+                    05  LS1-DATE           PIC X(10).                   00080001
+                    05  LS1-CATEG-NAME     PIC X(40).                   00090001
+                    05  LS1-CATEG-ID       PIC 9(10).                   00100001
+      *                                                                 00100101
+                    05  LS2-DEALER-ID      PIC 9(10).                   00100201
+                    05  LS2-ORDER-ID       PIC 9(10).                   00100301
+                    05  LS2-PROD-ID        PIC 9(10).                   00100401
+                    05  LS2-PROD-NAME      PIC X(40).                   00100501
+                    05  LS2-QUANT          PIC 9(10).                   00100601
+                    05  LS2-PRICE          PIC 9(10).                   00100701
+                    05  LS2-DATE           PIC X(10).                   00100801
+                    05  LS2-CATEG-NAME     PIC X(40).                   00100901
+                    05  LS2-CATEG-ID       PIC 9(10).                   00101001
+      *                                                                 00102001
+      *                                                                 00103001
+                    05  LS3-DEALER-ID      PIC 9(10).                   00104001
+                    05  LS3-ORDER-ID       PIC 9(10).                   00105001
+                    05  LS3-PROD-ID        PIC 9(10).                   00106001
+                    05  LS3-PROD-NAME      PIC X(40).                   00107001
+                    05  LS3-QUANT          PIC 9(10).                   00108001
+                    05  LS3-PRICE          PIC 9(10).                   00109001
+                    05  LS3-DATE           PIC X(10).                   00109101
+                    05  LS3-CATEG-NAME     PIC X(40).                   00109201
+                    05  LS3-CATEG-ID       PIC 9(10).                   00109301
+      *                                                                 00109401
+                    05  LS4-DEALER-ID      PIC 9(10).                   00109501
+                    05  LS4-ORDER-ID       PIC 9(10).                   00109601
+                    05  LS4-PROD-ID        PIC 9(10).                   00109701
+                    05  LS4-PROD-NAME      PIC X(40).                   00109801
+                    05  LS4-QUANT          PIC 9(10).                   00109901
+                    05  LS4-PRICE          PIC 9(10).                   00110001
+                    05  LS4-DATE           PIC X(10).                   00111001
+                    05  LS4-CATEG-NAME     PIC X(40).                   00112001
+                    05  LS4-CATEG-ID       PIC 9(10).                   00113001
+      *                                                                 00114001
+                    05  LS5-DEALER-ID      PIC 9(10).                   00115001
+                    05  LS5-ORDER-ID       PIC 9(10).                   00116001
+                    05  LS5-PROD-ID        PIC 9(10).                   00117001
+                    05  LS5-PROD-NAME      PIC X(40).                   00118001
+                    05  LS5-QUANT          PIC 9(10).                   00119001
+                    05  LS5-PRICE          PIC 9(10).                   00119101
+                    05  LS5-DATE           PIC X(10).                   00119201
+                    05  LS5-CATEG-NAME     PIC X(40).                   00119301
+                    05  LS5-CATEG-ID       PIC 9(10).                   00119401
+      *                                                                 00119501
+                    05  LS6-DEALER-ID      PIC 9(10).                   00119601
+                    05  LS6-ORDER-ID       PIC 9(10).                   00119701
+                    05  LS6-PROD-ID        PIC 9(10).                   00119801
+                    05  LS6-PROD-NAME      PIC X(40).                   00119901
+                    05  LS6-QUANT          PIC 9(10).                   00120001
+                    05  LS6-PRICE          PIC 9(10).                   00121001
+                    05  LS6-DATE           PIC X(10).                   00122001
+                    05  LS6-CATEG-NAME     PIC X(40).                   00123001
+                    05  LS6-CATEG-ID       PIC 9(10).                   00124001
+      *                                                                 00125001
+      *                                                                 00126001
+                    05  LS7-DEALER-ID      PIC 9(10).                   00127001
+                    05  LS7-ORDER-ID       PIC 9(10).                   00128001
+                    05  LS7-PROD-ID        PIC 9(10).                   00129001
+                    05  LS7-PROD-NAME      PIC X(40).                   00129101
+                    05  LS7-QUANT          PIC 9(10).                   00129201
+                    05  LS7-PRICE          PIC 9(10).                   00129301
+                    05  LS7-DATE           PIC X(10).                   00129401
+                    05  LS7-CATEG-NAME     PIC X(40).                   00129501
+                    05  LS7-CATEG-ID       PIC 9(10).                   00129601
+      *                                                                 00129701
+                    05  LS8-DEALER-ID      PIC 9(10).                   00129801
+                    05  LS8-ORDER-ID       PIC 9(10).                   00129901
+                    05  LS8-PROD-ID        PIC 9(10).                   00130001
+                    05  LS8-PROD-NAME      PIC X(40).                   00131001
+                    05  LS8-QUANT          PIC 9(10).                   00132001
+                    05  LS8-PRICE          PIC 9(10).                   00133001
+                    05  LS8-DATE           PIC X(10).                   00134001
+                    05  LS8-CATEG-NAME     PIC X(40).                   00135001
+                    05  LS8-CATEG-ID       PIC 9(10).                   00136001
+      *                                                                 00137001
+                05  L1S-MSG            PIC X(100).                      00140001

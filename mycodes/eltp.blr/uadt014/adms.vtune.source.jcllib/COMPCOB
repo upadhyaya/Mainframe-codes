@@ -1,0 +1,13 @@
+//UADT016C JOB NOTIFY=&SYSUID,REGION=0M,CLASS=C,LINES=50000             00010064
+//*  COBOL                                                              00020000
+//*                                                                     00040000
+//PROCLIB JCLLIB ORDER='ADMS.VTUNE.SOURCE.JCLLIB'                       00050044
+//*                                                                     00060000
+//STEP1 EXEC PROC=COB2COB,                                              00070000
+//           INLIB='ADMS.VTUNE.SOURCE.COBOL',                           00080044
+//           COPYLIB='ADMS.VTUNE.SOURCE.COPYLIB',                       00110044
+//           LOADLIB='ADMS.VTUNE.SOURCE.LOADLIB',                       00111044
+//           MEM=EX64RP2                                                00120073
+//LKED.SYSIN DD *                                                       00130000
+   NAME EX64RP2(R)                                                      00150073
+//*                                                                     00160000

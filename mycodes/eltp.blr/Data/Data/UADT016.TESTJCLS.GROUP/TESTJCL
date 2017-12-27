@@ -1,0 +1,12 @@
+//UADT016C JOB 'C COMPILE',NOTIFY=&SYSUID,REGION=0M                     00010000
+//STEP1 EXEC PGM=IEFBR14                                                00020001
+//SYSPRINT DD SYSOUT=*                                                  00030001
+//SYSOUT   DD SYSOUT=*                                                  00031001
+//STEP2 EXEC PGM=IEFBR14                                                00050001
+//SYSPRINT DD SYSOUT=*                                                  00060001
+//SYSOUT   DD SYSOUT=*                                                  00070001
+//                                                                      00070101
+//STEP3 EXEC PGM=IEFBR14                                                00071001
+//SYSPRINT DD SYSOUT=*                                                  00072001
+//SYSOUT   DD SYSOUT=*                                                  00073001
+//                                                                      00080001

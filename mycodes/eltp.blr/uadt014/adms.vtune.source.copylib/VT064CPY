@@ -1,0 +1,97 @@
+       01 SMF64-RTY.                                                    00001023
+                   10 SMF64RTY PIC X(01).                               00002023
+       01 SMF64-RECORD-FORMAT.                                          00010000
+            06 SMF64HDR.                                                00011000
+                   10 SMF64FLG PIC X(01).                               00020000
+                   10 SMF64RTY1 PIC X(01).                              00030023
+                   10 SMF64TME PIC S9(8) BINARY.                        00040000
+                   10 SMF64DTE PIC S9(7) PACKED-DECIMAL.                00050000
+                   10 SMF64SID PIC X(04).                               00060000
+                   10 SMF64JBN PIC X(08).                               00070000
+                   10 SMF64RST PIC S9(08) BINARY.                       00090000
+                   10 SMF64RSD PIC S9(07) PACKED-DECIMAL.               00100000
+                   10 SMF64UIF PIC X(08).                               00110000
+                   10 SMF64RIN PIC X(01).                               00120004
+                   10 SMF64DTY PIC X(01).                               00130000
+                   10 SMF64CNM PIC X(44).                               00140000
+                   10 SMF64DNM PIC X(44).                               00150000
+                   10 SMF64NTR PIC S9(04) BINARY.                       00160002
+                   10 SMF64CHR PIC X(04).                               00170011
+      *            10 SMF64CHC PIC X(04).                               00171000
+                   10 SMF64ESL PIC S9(04) BINARY.                       00190010
+       01 EXTENT-INFORMATION-SECTION.                                   00200000
+                   10 SMF64FCC PIC S9(08) BINARY.                       00210005
+                   10 SMF64TCC PIC S9(08) BINARY.                       00220005
+                   10 SMF64VSN PIC X(06).                               00230000
+                   10 SMF64CUU PIC S9(04) BINARY.                       00240005
+                   10 SMF64IND PIC X(02).                               00250000
+                   10 SMF64UTY PIC S9(08) BINARY.                       00260005
+                   10 FILLER   PIC X(04).                               00270000
+       01 STATISTICS-SECTION-SLN.                                       00270121
+                   10 SMF64SLN PIC S9(08) BINARY.                       00270221
+       01 STATISTICS-SECTION .                                          00280000
+                   10 SLNDUMMY  PIC S9(08) BINARY.                      00290022
+                   10 SMF64NIL PIC S9(08) BINARY.                       00300000
+                   10 SMF64NEX PIC S9(08) BINARY.                       00310000
+                   10 SMF64NLR PIC S9(08) BINARY.                       00320000
+                   10 SMF64NDE PIC S9(08) BINARY.                       00330000
+                   10 SMF64NIN PIC S9(08) BINARY.                       00340000
+                   10 SMF64NUP PIC S9(08) BINARY.                       00350000
+                   10 SMF64NRE PIC S9(08) BINARY.                       00360000
+                   10 SMF64NFS PIC S9(08) BINARY.                       00370000
+                   10 SMF64NCS PIC S9(08) BINARY.                       00380000
+                   10 SMF64NAS PIC S9(08) BINARY.                       00390000
+                   10 SMF64NEP PIC S9(08) BINARY.                       00400000
+                   10 STATISTICS-OPENCLOSE-SECTION BINARY.              00401000
+                      15 SMF64DIL PIC S9(08).                           00410000
+                      15 SMF64DEX PIC S9(08).                           00420000
+                      15 SMF64DLR PIC S9(08).                           00430000
+                      15 SMF64DDE PIC S9(08).                           00440000
+                      15 SMF64DIN PIC S9(08).                           00450000
+                      15 SMF64DUP PIC S9(08).                           00460000
+                      15 SMF64DRE PIC S9(08).                           00470000
+                      15 SMF64DFS PIC S9(08).                           00480000
+                      15 SMF64DCS PIC S9(08).                           00490000
+                      15 SMF64DAS PIC S9(08).                           00500000
+                      15 SMF64DEP PIC S9(08).                           00510000
+                   10 DATASET-CHARACTERISTIC-SECTION.                   00520000
+                      15 SMF64DBS PIC S9(08) BINARY.                    00530000
+                      15 SMF64DCI PIC S9(08) BINARY.                    00540000
+                      15 SMF64DLS PIC S9(08) BINARY.                    00550000
+                      15 SMF64DKL PIC S9(04) BINARY.                    00560000
+                      15 SMF64DDN PIC X(08).                            00570000
+                      15 SMF64STR PIC X(01).                            00580016
+                      15 SMF64BNO PIC X(01).                            00590018
+                      15 SMF64BSP PIC S9(08) BINARY.                    00600000
+                      15 SMF64BFD PIC S9(04) BINARY.                    00610000
+                      15 SMF64BFI PIC S9(04) BINARY.                    00620000
+                      15 SMF64CLN PIC X(44).                            00630000
+                      15 SMF64PLH PIC S9(04) BINARY.                    00640000
+                      15 SMF64MAC.                                      00650000
+                         20 SMF64MC1 PIC X(01).                         00660001
+                         20 SMF64MC2 PIC X(01).                         00670001
+                         20 SMF64MC3 PIC X(01).                         00680001
+                         20 SMF64MC4 PIC X(01).                         00681001
+                      15 SMF64SMB PIC X(01).                            00700001
+                      15 SMF64RSC PIC X(01).                            00710001
+                   10 HIPERBATCH-IO-STATS-SECTION BINARY.               00730000
+                      15 SMF64SIO PIC S9(08).                           00740000
+                      15 SMF64HIT PIC S9(08).                           00750000
+                      15 SMF64WTS PIC S9(08).                           00760000
+                      15 SMF64MIS PIC S9(08).                           00770000
+                      15 SMF64IOS PIC S9(08).                           00780000
+                   10 COMPRESSED-DATA-STATS-SECTION.                    00790000
+                      15 SMF64SDS PIC S9(16) BINARY.                    00800000
+                      15 SMF64CDS PIC S9(16) BINARY.                    00810000
+                      15 SMF64CSS PIC S9(16) BINARY.                    00820000
+                      15 SMF64CCS PIC S9(16) BINARY.                    00830000
+                      15 SMF64DTK PIC X(36).                            00840000
+                      15 SMF64TRK PIC S9(08) BINARY.                    00850000
+                   10 CF-CACHE-STATS-SECTION.                           00860000
+                      15 SMF64BMH PIC S9(08) BINARY.                    00870000
+                      15 SMF64CFH PIC S9(08) BINARY.                    00880000
+                      15 SMF64RIO PIC S9(08) BINARY.                    00890000
+                      15 SMF64TIM PIC S9(08) BINARY.                    00900000
+                      15 SMF64DT  PIC S9(07) PACKED-DECIMAL.            00910000
+                      15 SMF64FG1 PIC X(01).                            00920000
+                      15 FILLER   PIC X(03).                            00930000

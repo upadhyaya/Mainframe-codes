@@ -1,0 +1,53 @@
+       01  CCDMAPI.
+           02  FILLER PIC X(12).
+           02  CCNOL    COMP  PIC  S9(4).
+           02  CCNOF    PICTURE X.
+           02  FILLER REDEFINES CCNOF.
+             03 CCNOA    PICTURE X.
+           02  CCNOI  PIC 9(16).
+           02  CSNOL    COMP  PIC  S9(4).
+           02  CSNOF    PICTURE X.
+           02  FILLER REDEFINES CSNOF.
+             03 CSNOA    PICTURE X.
+           02  CSNOI  PIC 9(3).
+           02  CCTYPL    COMP  PIC  S9(4).
+           02  CCTYPF    PICTURE X.
+           02  FILLER REDEFINES CCTYPF.
+             03 CCTYPA    PICTURE X.
+           02  CCTYPI  PIC X(25).
+           02  AMNTRL    COMP  PIC  S9(4).
+           02  AMNTRF    PICTURE X.
+           02  FILLER REDEFINES AMNTRF.
+             03 AMNTRA    PICTURE X.
+           02  AMNTRI  PIC 9(6).
+           02  AMNTPL    COMP  PIC  S9(4).
+           02  AMNTPF    PICTURE X.
+           02  FILLER REDEFINES AMNTPF.
+             03 AMNTPA    PICTURE X.
+           02  AMNTPI  PIC 9(2).
+           02  EXDTL    COMP  PIC  S9(4).
+           02  EXDTF    PICTURE X.
+           02  FILLER REDEFINES EXDTF.
+             03 EXDTA    PICTURE X.
+           02  EXDTI  PIC 9(10).
+           02  MSGL    COMP  PIC  S9(4).
+           02  MSGF    PICTURE X.
+           02  FILLER REDEFINES MSGF.
+             03 MSGA    PICTURE X.
+           02  MSGI  PIC X(50).
+       01  CCDMAPO REDEFINES CCDMAPI.
+           02  FILLER PIC X(12).
+           02  FILLER PICTURE X(3).
+           02  CCNOO PIC 9(16).
+           02  FILLER PICTURE X(3).
+           02  CSNOO PIC 9(3).
+           02  FILLER PICTURE X(3).
+           02  CCTYPO PIC X(25).
+           02  FILLER PICTURE X(3).
+           02  AMNTRO PIC 9(6).
+           02  FILLER PICTURE X(3).
+           02  AMNTPO PIC 9(2).
+           02  FILLER PICTURE X(3).
+           02  EXDTO PIC 9(10).
+           02  FILLER PICTURE X(3).
+           02  MSGO PIC X(50).

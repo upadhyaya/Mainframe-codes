@@ -1,0 +1,11 @@
+//UADT016S JOB 'SORT UTILITY',NOTIFY=&SYSUID,REGION=0M                  00010000
+//STEP1 EXEC PGM=SORT                                                   00020000
+//SORTLIB DD DSN=SYS1.SORTLIB,DISP=SHR                                  00030000
+//SYSOUT DD SYSOUT=*                                                    00040000
+//SORTIN DD DSN=UADT016.SORT.INPUT,DISP=SHR                             00050000
+//SORTOUT DD DSN=UADT016.SORT.OUTPUT,DISP=(NEW,CATLG),                  00060010
+//           UNIT=SYSDA,SPACE=(TRK,(2,2))                               00070000
+//SORTWK01 DD UNIT=SYSDA,SPACE=(TRK,(4,2))                              00080000
+//SYSIN DD *                                                            00090000
+  SORT FIELDS=(1,7,ZD,D)                                                00092009
+/*                                                                      00110002

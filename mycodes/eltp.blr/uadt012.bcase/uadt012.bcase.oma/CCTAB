@@ -1,0 +1,32 @@
+      ******************************************************************
+      * DCLGEN TABLE(ADMT.CC_DTL)                                      *
+      *        LIBRARY(ADMS.BASE.COPYLIB(CCTAB))                       *
+      *        LANGUAGE(COBOL)                                         *
+      *        QUOTE                                                   *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE ADMT.CC_DTL TABLE
+           ( CR_CARD_NO                     DECIMAL(16, 0) NOT NULL,
+             SL_NO                          SMALLINT NOT NULL,
+             CARD_SEC_NO                    SMALLINT NOT NULL,
+             EXPRY_DT                       DATE NOT NULL,
+             CR_CARD_TYPE                   CHAR(25) NOT NULL,
+             CR_AMT                         DECIMAL(8, 2) NOT NULL,
+             CR_LMT                         DECIMAL(8, 2) NOT NULL,
+             LAST_UPDT_TS                   TIMESTAMP NOT NULL
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ADMT.CC_DTL                        *
+      ******************************************************************
+       01  DCLCC-DTL.
+           10 CR-CARD-NO           PIC S9(16)V USAGE COMP-3.
+           10 SL-NO                PIC S9(4) USAGE COMP.
+           10 CARD-SEC-NO          PIC S9(4) USAGE COMP.
+           10 EXPRY-DT             PIC X(10).
+           10 CR-CARD-TYPE         PIC X(25).
+           10 CR-AMT               PIC S9(6)V9(2) USAGE COMP-3.
+           10 CR-LMT               PIC S9(6)V9(2) USAGE COMP-3.
+           10 LAST-UPDT-TS         PIC X(26).
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 8       *
+      ******************************************************************

@@ -1,0 +1,17 @@
+//UADT016A JOB 'SATYAM',CLASS=C,MSGCLASS=X,NOTIFY=&SYSUID               00010058
+//*  TYPRUN=SCAN                                                        00011011
+//*  COBOL + DB2                                                        00020004
+//PROC  JCLLIB ORDER='UADT016.TESTPGM.SOURCE'                           00021060
+//COMPPROC EXEC COBDB2P,MEM=DBPARM,       <==> MEM NAME (PGM/DBRM/LOA   00030057
+//     INLIB='UADT016.TESTPGM.SOURCE',                                  00031060
+//     DCLLIB='ELTP.BLR.TEAM4.COPYLIB'                                  00032061
+//*                                                                     00040003
+//BINDPLAN.SYSTSIN DD *                                                 00050003
+     DSN SYSTEM(DB2A)                                                   00060005
+     BIND PACKAGE(ADMTCOL1) MEM(DBPARM)  -                              00070057
+     LIBRARY ('ELTP.BLR.TEAM3.DBRMLIB')     -                           00080059
+     OWNER(GADMT) QUALIFIER(ADMT)      -                                00081029
+     RELEASE(COMMIT) ISOLATION(CS)     -                                00090029
+     VALIDATE(BIND)                    -                                00100029
+     ACTION(REPLACE)                                                    00110046
+/*                                                                      00130003

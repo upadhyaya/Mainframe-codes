@@ -1,0 +1,16 @@
+           05 LS-CC-NO      PIC 9(16).                                  00010000
+           05 LS-CS-NO      PIC 9(3).                                   00030000
+           05 LS-EX-DT.                                                 00040000
+               07   LS-D-YY     PIC 9999.                               00041012
+               07   FILLER      PIC X.                                  00060000
+               07   LS-D-MM     PIC 99.                                 00061012
+               07   FILLER      PIC X.                                  00080000
+               07   LS-D-DD     PIC 99.                                 00090012
+           05 LS-CC-TYPE    PIC X(25).                                  00100000
+           05 LS-AMOUNTR    PIC 9(6).                                   00110003
+           05 LS-AMOUNTP    PIC 9(2).                                   00111004
+           05 LS-CC-LTR     PIC 9(6).                                   00120004
+           05 LS-CC-LTP     PIC 9(2).                                   00121003
+           05 LS-MSG        PIC X(50).                                  00122011
+           05 LS-TRANSID    PIC X(4).                                   00140000
+           05 LS-KEY        PIC X(5).                                   00150001

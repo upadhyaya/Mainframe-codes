@@ -1,0 +1,29 @@
+000600 01 MONTHDAYTABLE.                                                00060000
+000700    02 TABLEVALUES           PIC X(24)                            00070000
+000800             VALUE "312831303130313130313031".                    00080000
+000900    02 FILLER REDEFINES TABLEVALUES.                              00090000
+001000       03 DAYSINMONTH                                             00100000
+001100             OCCURS 12 TIMES PIC 99.                              00110010
+001200 01 CURRUPTDATE              PIC 9(8) VALUE 0.                    00120009
+001300*                                                                 00130000
+001400 01 LEAPQUOT                 PIC 9(4) VALUE 0.                    00140009
+001500 01 LEAPREMAIN               PIC 9(4) VALUE 0.                    00150009
+001600*                                                                 00160000
+001700 01 FILLER                   PIC 9 VALUE ZERO.                    00170000
+001800    88 LEAPYEAR              VALUE 1.                             00180000
+001900*                                                                 00190000
+002100 01 INPUTDATELA.                                                  00210000
+002200    02 DAYLA                 PIC 99 VALUE 0.                      00220009
+002300    02 MONTHLA               PIC 99 VALUE 0.                      00230009
+002400       88 MONTHINVALID       VALUE 13 THRU 99.                    00240000
+002500       88 MONTHISFEBRUARY    VALUE 2.                             00250000
+002600    02 YEARLA                PIC 9(4) VALUE 0.                    00260009
+002700*                                                                 00270000
+002800 01 VALIDATIONRESULTLB       PIC 9 VALUE 0.                       00280009
+002900    88 DATEISVALID           VALUE 0.                             00290000
+003000    88 DATENOTNUMERIC        VALUE 1.                             00300000
+003100    88 YEARCONTAINSZEROS     VALUE 2.                             00310000
+003200    88 MONTHCONTAINSZEROS    VALUE 3.                             00320000
+003300    88 DAYCONTAINSZEROS      VALUE 4.                             00330000
+003400    88 MONTHGREATERTHAN12    VALUE 5.                             00340000
+003500    88 DAYTOOGREATFORMONTH   VALUE 6.                             00350000

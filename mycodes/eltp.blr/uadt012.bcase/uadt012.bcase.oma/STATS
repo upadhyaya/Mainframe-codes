@@ -1,0 +1,30 @@
+      ******************************************************************
+      * DCLGEN TABLE(ADMT.T_ST_STATUS)                                 *
+      *        LIBRARY(UADT012.BCASE.OMA(STATS))                       *
+      *        LANGUAGE(COBOL)                                         *
+      *        QUOTE                                                   *
+      * ... IS THE DCLGEN COMMAND THAT MADE THE FOLLOWING STATEMENTS   *
+      ******************************************************************
+           EXEC SQL DECLARE ADMT.T_ST_STATUS TABLE
+           ( ST_ORD_ID                      DECIMAL(10, 0) NOT NULL,
+             ST_DLR_ID                      DECIMAL(10, 0) NOT NULL,
+             ST_PROD_ID                     DECIMAL(10, 0) NOT NULL,
+             ST_PROD_QNT                    DECIMAL(5, 0) NOT NULL,
+             ST_STATUS_ID                   CHAR(1) NOT NULL,
+             ST_FEEDBACK                    CHAR(200),
+             ST_CUST_ID                     DECIMAL(10, 0)
+           ) END-EXEC.
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE ADMT.T_ST_STATUS                   *
+      ******************************************************************
+       01  DCLT-ST-STATUS.
+           10 ST-ORD-ID            PIC S9(10)V USAGE COMP-3.
+           10 ST-DLR-ID            PIC S9(10)V USAGE COMP-3.
+           10 ST-PROD-ID           PIC S9(10)V USAGE COMP-3.
+           10 ST-PROD-QNT          PIC S9(5)V USAGE COMP-3.
+           10 ST-STATUS-ID         PIC X(1).
+           10 ST-FEEDBACK          PIC X(200).
+           10 ST-CUST-ID           PIC S9(10)V USAGE COMP-3.
+      ******************************************************************
+      * THE NUMBER OF COLUMNS DESCRIBED BY THIS DECLARATION IS 7       *
+      ******************************************************************

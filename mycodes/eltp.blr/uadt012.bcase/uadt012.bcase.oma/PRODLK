@@ -1,0 +1,19 @@
+          05 LK-CAT-ID        PIC X(05).                                00010013
+          05 LK-PROD-NAME     PIC X(40).                                00020019
+          05 LK-MSG           PIC X(65).                                00030013
+          05 LK-OPT           PIC X(4).                                 00070113
+          05 LK-FLAG          PIC X(4).                                 00070213
+          05 LK-CNT           PIC 9(05).                                00070313
+          05 LK-COUNT         PIC 9(05).                                00070413
+        03    LK-OUTPUT-REC-ARRAY   OCCURS 15 TIMES INDEXED BY K.       00072015
+          05 OUT-PROD-ID         PIC 9(10).                             00090001
+          05 OUT-PROD-NAME       PIC X(40).                             00110010
+          05 OUT-PROD-SUP-ID     PIC X(05).                             00130001
+          05 OUT-PROD-CAT-ID     PIC X(05).                             00150001
+          05 OUT-PROD-CAT-NAME   PIC X(40).                             00170010
+          05 OUT-PROD-UNIT-PRICE PIC X(12).                             00190009
+          05 OUT-PROD-UNIT-STOCK PIC 9(05).                             00210001
+          05 OUT-PROD-UNIT-ORDER PIC 9(05).                             00230001
+          05 OUT-PROD-ADD-DATE   PIC X(10).                             00250001
+          05 OUT-PROD-TIMESTAMP  PIC X(26).                             00260001
+          05 OUT-PROD-DESCRIPTION PIC X(26).                            00270024

@@ -1,0 +1,285 @@
+000200 IDENTIFICATION DIVISION.                                         00020000
+000300 PROGRAM-ID. CIWSSECH.                                            00030005
+000400***************************************************************** 00040000
+000500* *                                                               00050000
+000600* This program:- *                                                00060000
+000700* 1. Checks for RECEIVE-REQUEST function, else returns *          00070000
+000800* 2. Obtains data from DFHHEADER container *                      00080000
+000900* 2. Uses the MYPARSER program to extract the CA-USER-ID *        00090000
+001000* and the CA-PASSWORD *                                           00100000
+001100* fields from the XML message contained within the Body *         00110000
+001200* 2. Verifies the user ID/password combination *                  00120000
+001300* If it is succesful, then it places the CA-USER-ID into *        00130000
+001400* the DFHWS-USERID container. *                                   00140000
+001500* If it fails, it returns a SOAP fault message in DFHRESPONSE*    00150000
+001600***************************************************************** 00160000
+001700                                                                  00170000
+001800 AUTHOR. CI11M1.                                                  00180000
+001900 DATE-COMPILED.                                                   00190000
+002000 ENVIRONMENT DIVISION.                                            00200000
+002100 CONFIGURATION SECTION.                                           00210000
+002200 SPECIAL-NAMES.                                                   00220000
+002300 DATA DIVISION.                                                   00230000
+002400 WORKING-STORAGE SECTION.                                         00240000
+002500 01 WS-START.                                                     00250000
+002600     03 FILLER PIC X(44)                                          00270000
+002700        VALUE '*** CIWSSECH WORKING STORAGE STARTS HERE ***'.     00280000
+002800     03 WS-RESP PIC S9(8) COMP-5 SYNC.                            00290000
+002900     03 WS-RESP2 PIC S9(8) COMP-5 SYNC.                           00300000
+003000     03 WS-HEAD-PTR USAGE IS POINTER.                             00310000
+003100     03 WS-HEAD-LEN PIC S9(8) COMP-4.                             00320000
+003200     03 WS-URI-PTR USAGE IS POINTER.                              00330000
+003300     03 WS-URI-LEN PIC S9(8) COMP-4.                              00340000
+003400     03 WS-FUNC-LEN PIC S9(8) COMP-4 VALUE 16.                    00350000
+003500     03 WS-GETMAIN-PTR USAGE IS POINTER.                          00360000
+003600     03 WS-GETMAIN-LEN PIC S9(8) COMP-4.                          00370000
+003700     03 WS-FAULT-STRING PIC X(40) value spaces.                   00380000
+003800     03 WS-FAULT-CODE PIC S9(8) COMP-4.                           00390000
+003900     03 WS-SOAP-LEVEL PIC S9(8) COMP-4.                           00400000
+004000        88 WS-SOAP-11 VALUE 1.                                    00410000
+004100        88 WS-SOAP-12 VALUE 2.                                    00420000
+004200        88 WS-NOT-SOAP VALUE 10.                                  00430000
+004300     03 WS-FUNC-AREA PIC X(16).                                   00440000
+004400     03 WS-NOT-AUTH PIC X(40)                                     00450000
+004500        VALUE 'Not authorized to place order.'.                   00460000
+004600     03 WS-AUTH-FAILED PIC X(40)                                  00470000
+004700        VALUE 'Authorization failed for order request.'.          00480002
+004800                                                                  00490000
+004900 01 MYPARSER-COMLEN PIC S9(4) COMP-4.                             00500000
+005000 01 CA-PARSER-RSP.                                                00510000
+005100     03 CA-USER-ID PIC X(8).                                      00520000
+005200     03 CA-PASSWORD PIC X(8).                                     00530000
+005300                                                                  00540000
+005400 LINKAGE SECTION.                                                 00550000
+005500 01 WS-HEAD-AREA.                                                 00560000
+005600     02 FILLER PIC X OCCURS 1024 DEPENDING ON WS-HEAD-LEN.        00570000
+005700                                                                  00580000
+005800 01 WS-URI-AREA.                                                  00590000
+005900     02 FILLER PIC X OCCURS 256 DEPENDING ON WS-URI-LEN.          00600000
+006000                                                                  00610000
+006100 01 WS-GETMAIN-AREA.                                              00620000
+006200     02 FILLER PIC X OCCURS 1024 DEPENDING ON WS-GETMAIN-LEN.     00630000
+006300                                                                  00640000
+006400******************************************************************00650000
+006500* Main line code begins *                                         00660000
+006600******************************************************************00670000
+006700 PROCEDURE DIVISION.                                              00680000
+006800 MAIN-PROCESSING SECTION.                                         00690000
+           DISPLAY 'NAVEED TESTING'.                                    00691005
+006900                                                                  00700000
+007000***********************************                               00710000
+007100* Receive the SOAP Body namespace                                 00720000
+007200***********************************                               00730000
+007300     PERFORM GET-DFHFUNCTION.                                     00740000
+007400                                                                  00750000
+007500***********************************                               00770000
+007600* Receive the SOAP Body namespace                                 00780000
+007700***********************************                               00790000
+007800     PERFORM GET-DFHWS-URI.                                       00800000
+007900     IF WS-URI-AREA(1:WS-URI-LEN)                                 00810000
+008000*       NOT = '/exampleApp/placeOrder'                            00820000
+008000        NOT = '/ordmng/Cardappln1'                                00821012
+008100        EXEC CICS RETURN END-EXEC                                 00830000
+008200     END-IF.                                                      00840000
+008300                                                                  00850000
+008400***********************************                               00860000
+008500* Receive the SOAP Body namespace                                 00870000
+008600***********************************                               00880000
+008700     PERFORM GET-SOAP-HEADER.                                     00890000
+008800                                                                  00900000
+008900************************************************************      00910000
+009000* The SOAP body XML data can now be parsed by MYPARSER            00920000
+009100* LINK to the XML parser, it will return the CA-USER-ID           00930000
+009200* and CA-PASSWORD                                                 00940000
+009300* or 'EXCEPTION'                                                  00950000
+009400* or 'NOT FOUND'                                                  00960000
+009500* or 'BAD COMMA'                                                  00970000
+009600************************************************************      00980000
+           DISPLAY 'BEFORE MYPARSER LINK'                               00981006
+009700     EXEC CICS LINK PROGRAM('MYPARSER')                           00990000
+009800          COMMAREA(WS-HEAD-AREA)                                  01000000
+009900          LENGTH(MYPARSER-COMLEN)                                 01010000
+010000     END-EXEC.                                                    01020000
+           DISPLAY 'WS-HEAD-AREA= '  WS-HEAD-AREA.                      01021001
+010100     IF WS-HEAD-AREA(1:9) = 'EXCEPTION' or                        01030000
+010200               'NOT FOUND' or                                     01040000
+010300               'BAD COMMA'                                        01050000
+010400******************************************************            01060000
+010500* Error found during the XML PARSE program execution              01070000
+010600******************************************************            01080000
+010700          MOVE WS-AUTH-FAILED TO WS-FAULT-STRING                  01090000
+010800          PERFORM FAULT-MESSAGE                                   01100000
+010900     ELSE                                                         01110000
+011000          MOVE WS-HEAD-AREA to CA-PARSER-RSP                      01120000
+011100************************************                              01130000
+011200* OK, data found, so do the VERIFY                                01140000
+011300************************************                              01150000
+            DISPLAY 'BEFORE VERIFY'                                     01151008
+011400          EXEC CICS VERIFY                                        01160000
+011500             PASSWORD(CA-PASSWORD)                                01170000
+011600             USERID(CA-USER-ID)                                   01180000
+011700             RESP(WS-RESP)                                        01190000
+011800          END-EXEC                                                01200000
+            DISPLAY 'AFTER VERIFY'                                      01201008
+011900***************                                                   01210000
+012000* Succesful ?                                                     01220000
+012100***************                                                   01230000
+012200         IF WS-RESP = DFHRESP(NORMAL)                             01240000
+012300             PERFORM SET-USER-ID                                  01250000
+012400         ELSE                                                     01251000
+012500            MOVE WS-NOT-AUTH TO WS-FAULT-STRING                   01252000
+012600            PERFORM FAULT-MESSAGE                                 01253000
+012700         END-IF                                                   01254000
+012800     END-IF.                                                      01255000
+012900****************************                                      01256000
+013000* and is the end, bye bye                                         01257000
+013100****************************                                      01258000
+013000      DISPLAY 'AND IS THE END, BYE BYE'                           01258109
+013200     EXEC CICS RETURN END-EXEC.                                   01259000
+013300                                                                  01259100
+013400 MAIN-PROCESSING-END. EXIT.                                       01259200
+013500                                                                  01259300
+013600****************************************************              01259400
+013700* **************************************** *                      01259500
+013800* SUBROUTINES FOLLOW *                                            01259600
+013900* **************************************** *                      01259700
+014000****************************************************              01259800
+014100                                                                  01259900
+014200***************************************************************** 01260000
+014300* Retrieve the function type ftom DFHFUNCTION container           01261000
+014400***************************************************************** 01262000
+014500 GET-DFHFUNCTION.                                                 01263000
+014600     EXEC CICS                                                    01264000
+014700           GET CONTAINER('DFHFUNCTION')                           01265000
+014800           INTO(WS-FUNC-AREA)                                     01266000
+014900           FLENGTH(WS-FUNC-LEN)                                   01267000
+015000           RESP(WS-RESP)                                          01268000
+015100     END-EXEC.                                                    01269000
+015200                                                                  01269100
+015300*************************************************                 01269200
+015400* Check for correct length. Create SOAP fault if                  01269300
+015500* not correct. If for incoming request then we                    01269400
+015600* do the work, else we exit immediately.                          01269500
+015700*************************************************                 01269600
+015800     IF WS-FUNC-LEN NOT = 16                                      01269700
+015900           MOVE WS-AUTH-FAILED TO WS-FAULT-STRING                 01269800
+016100     ELSE                                                         01269900
+016200           IF WS-FUNC-AREA NOT = 'RECEIVE-REQUEST '               01270000
+016300             EXEC CICS RETURN END-EXEC                            01271000
+016400           END-IF                                                 01272000
+016500     END-IF.                                                      01273000
+016600                                                                  01274000
+016700***************************************************************** 01275000
+016800* Retrieve the URI from the DFHWS-URI container                   01276000
+016900***************************************************************** 01277000
+017000 GET-DFHWS-URI.                                                   01278000
+017100     EXEC CICS                                                    01279000
+017200        GET CONTAINER('DFHWS-URI')                                01279100
+017300        SET(WS-URI-PTR)                                           01279200
+017400        FLENGTH(WS-URI-LEN)                                       01279300
+017500        RESP(WS-RESP)                                             01279400
+017600     END-EXEC.                                                    01279500
+017700                                                                  01279600
+017800******************************************                        01279700
+017900* Copy the input container to our storage                         01279800
+018000******************************************                        01279900
+018100     IF WS-URI-LEN > 0                                            01280000
+018200        SET ADDRESS OF WS-URI-AREA TO WS-URI-PTR                  01281000
+018300        MOVE WS-URI-LEN TO WS-GETMAIN-LEN                         01282000
+018400                                                                  01283000
+018500        EXEC CICS GETMAIN                                         01284000
+018600           SET(WS-GETMAIN-PTR)                                    01285000
+018700           FLENGTH(WS-GETMAIN-LEN)                                01286000
+018800        END-EXEC                                                  01287000
+018900                                                                  01288000
+019000        SET ADDRESS OF WS-GETMAIN-AREA TO WS-GETMAIN-PTR          01289000
+019100        MOVE WS-URI-AREA TO WS-GETMAIN-AREA                       01289100
+019200        SET WS-URI-PTR TO WS-GETMAIN-PTR                          01289200
+019300        SET ADDRESS OF WS-URI-AREA TO WS-URI-PTR                  01289300
+019400     ELSE                                                         01289400
+019500        MOVE WS-AUTH-FAILED TO WS-FAULT-STRING                    01289500
+019600        PERFORM FAULT-MESSAGE                                     01289600
+019700        EXEC CICS RETURN END-EXEC                                 01289700
+019800     END-IF.                                                      01289800
+019900                                                                  01289900
+020000**************************************                            01290000
+020100* Retrieve the <wsse:Security> header                             01291000
+020200**************************************                            01292000
+020300 GET-SOAP-HEADER.                                                 01293000
+020400     EXEC CICS                                                    01294000
+020500        GET CONTAINER('DFHHEADER')                                01295000
+020600        SET(WS-HEAD-PTR)                                          01296000
+020700        FLENGTH(WS-HEAD-LEN)                                      01297000
+020800        RESP(WS-RESP)                                             01298000
+020900     END-EXEC.                                                    01299000
+021000                                                                  01299100
+           DISPLAY 'SOAP-HEADER'.                                       01299203
+021100******************************************                        01299300
+021200* Copy the input container to our storage                         01299400
+021300******************************************                        01299500
+021400     IF WS-HEAD-LEN > 0                                           01299600
+021500        SET ADDRESS OF WS-HEAD-AREA TO WS-HEAD-PTR                01299700
+021600        MOVE WS-HEAD-LEN TO WS-GETMAIN-LEN MYPARSER-COMLEN        01299800
+021700                                                                  01299900
+021800        EXEC CICS GETMAIN                                         01300000
+021900           SET(WS-GETMAIN-PTR)                                    01300100
+022000           FLENGTH(WS-GETMAIN-LEN)                                01301000
+022100        END-EXEC                                                  01302000
+022200                                                                  01303000
+022300        SET ADDRESS OF WS-GETMAIN-AREA TO WS-GETMAIN-PTR          01304000
+022400        MOVE WS-HEAD-AREA TO WS-GETMAIN-AREA                      01305000
+022500        SET WS-HEAD-PTR TO WS-GETMAIN-PTR                         01306000
+022600        SET ADDRESS OF WS-HEAD-AREA TO WS-HEAD-PTR                01307000
+022700     ELSE                                                         01308000
+              DISPLAY 'IAM HERE'                                        01308103
+022800        MOVE WS-AUTH-FAILED TO WS-FAULT-STRING                    01309000
+022900        PERFORM FAULT-MESSAGE                                     01309100
+023000        EXEC CICS RETURN END-EXEC                                 01309200
+              DISPLAY 'IAM GONE'                                        01309303
+023100     END-IF.                                                      01309400
+023200                                                                  01309500
+023300***************************************************************** 01309600
+023400* The user ID has been verified. We will now set the contents of  01309700
+023500* DFHWS-USERID container with this value.This will cause the      01309800
+023600* business logic (back-end program/s) to be executed with this    01309900
+023700* user ID, using it's access rights.                              01310000
+023800***************************************************************** 01310100
+023900 SET-USER-ID.                                                     01311000
+024000      EXEC CICS                                                   01312000
+024100         PUT CONTAINER('DFHWS-USERID')                            01313000
+024200         FROM(CA-USER-ID)                                         01314000
+024300         FLENGTH(length of CA-USER-ID)                            01315000
+024400         DATATYPE(DFHVALUE(CHAR))                                 01316000
+024500         RESP(WS-RESP)                                            01317000
+024600      END-EXEC.                                                   01318000
+024700                                                                  01319000
+024800***************************************************************** 01319100
+024900* We detected that the ca_request_id field specifies an invalid   01319200
+025000* request. This is a CLIENT error.                                01319300
+025100***************************************************************** 01319400
+025200 FAULT-MESSAGE SECTION.                                           01319500
+025300************************                                          01319600
+025400* Generate a SOAP Fault                                           01319700
+025500************************                                          01319800
+025600     EXEC CICS                                                    01319900
+025700        GET CONTAINER('DFHWS-SOAPLEVEL')                          01320000
+025800        INTO(WS-SOAP-LEVEL)                                       01321000
+025900        FLENGTH(WS-HEAD-LEN)                                      01322000
+026000        RESP(WS-RESP)                                             01323000
+026100     END-EXEC.                                                    01324000
+026200                                                                  01325000
+026300************************************                              01326000
+026400* MOVE CORRECT VERSION OF FAULTCODE                               01327000
+026500************************************                              01328000
+026600     IF WS-SOAP-11 MOVE DFHVALUE(CLIENT) TO WS-FAULT-CODE         01329000
+026700     ELSE                                                         01329100
+026800        MOVE DFHVALUE(SENDER) TO WS-FAULT-CODE                    01329200
+026900     END-IF                                                       01329300
+027000                                                                  01329400
+027100     EXEC CICS SOAPFAULT CREATE                                   01329500
+027200        FAULTSTRING(WS-FAULT-STRING)                              01329600
+027300        FAULTSTRLEN(LENGTH OF WS-FAULT-STRING)                    01329700
+027400        FAULTCODE(WS-FAULT-CODE)                                  01329800
+027500     END-EXEC.                                                    01329900
+027600 FAULT-MESSAGE-END. EXIT.                                         01330000
+                                                                        01340000

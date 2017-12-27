@@ -1,0 +1,16 @@
+//UADT012A JOB 'SATYAM',CLASS=C,NOTIFY=&SYSUID,REGION=0M                00010099
+//*                                                                     00011007
+//*  COBOL + DB2                                                        00020004
+//PROC JCLLIB ORDER='UADT012.BCASE.OMA'                                 00021099
+//COMPPROC EXEC COBDB2P,MEM=OMINPGM2,       <==> MEM NAME (PGM/DBRM/LOA 00030099
+//    INLIB='UADT012.BCASE.OMA'                                         00031099
+//*                                                                     00040003
+//BINDPLAN.SYSTSIN DD *                                                 00050003
+     DSN SYSTEM(DB2A)                                                   00060005
+     BIND PACKAGE(ADMTCOL1) MEM(OMINPGM2) -                             00070099
+     LIBRARY ('UADT012.BLR.DBRMLIB')    -                               00080099
+     OWNER(GADMT) QUALIFIER(ADMT)    -                                  00081006
+     RELEASE(COMMIT) ISOLATION(CS)   -                                  00090003
+     VALIDATE(BIND)                  -                                  00100099
+     ACTION(REPLACE)                                                    00110099
+/*                                                                      00130003

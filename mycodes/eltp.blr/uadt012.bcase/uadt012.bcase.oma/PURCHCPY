@@ -1,0 +1,16 @@
+000010       05 LS-OPT       PIC X(4).                                  00001000
+000020*                                                                 00002000
+000030       05 LS-CUST-ID   PIC 9(10).                                 00003000
+000040       05 LS-ORD-ID    PIC 9(10).                                 00004000
+000050*                                                                 00005000
+000100       05 PURCHASELIST-ARRAY OCCURS 8 TIMES INDEXED BY K.         00010004
+000110          06 LS-CUSTID    PIC 9(10).                              00011004
+000120          06 LS-CUST-NAME PIC X(40).                              00012004
+000130          06 LS-ORDID     PIC 9(10).                              00013004
+000140          06 LS-PROD-ID   PIC 9(10).                              00014004
+000150          06 LS-PROD-NAME PIC X(40).                              00015004
+000160          06 LS-QNTY      PIC 9(5).                               00016004
+000170          06 LS-ORD-DATE  PIC X(10).                              00017004
+000180          06 LS-STATUS    PIC X(1).                               00018007
+000190*                                                                 00019008
+000500       05 LS-MSG          PIC X(80).                              00050004

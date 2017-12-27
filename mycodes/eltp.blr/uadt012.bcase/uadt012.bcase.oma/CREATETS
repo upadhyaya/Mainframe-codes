@@ -1,0 +1,14 @@
+SET CURRENT SQLID='ADMSGP';                                             00001008
+CREATE TABLESPACE ADMSTS1F                                              00010000
+       IN ADMSDB2                                                       00020008
+       USING STOGROUP ADMSSTG                                           00030000
+             PRIQTY 72000                                               00040000
+             SECQTY 72000                                               00050000
+       FREEPAGE 20                                                      00060000
+       PCTFREE 10                                                       00070000
+       DEFINE YES                                                       00090000
+       SEGSIZE 64                                                       00100000
+       LOCKSIZE ANY                                                     00110000
+       LOCKMAX SYSTEM                                                   00120000
+       COMPRESS YES                                                     00121000
+       MAXROWS 255;                                                     00130000

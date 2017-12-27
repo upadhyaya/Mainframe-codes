@@ -1,0 +1,797 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. CWORMNTW.                                            00020099
+000400 AUTHOR. TEAMSOA.                                                 00040099
+000410 DATE-WRITTEN. 15/04/07.                                          00041099
+000420 DATE-COMPILED. 20/04/07.                                         00042099
+000421*                                                                 00042199
+000430*MODULE       : ORDER MODULE.                                     00043065
+000500*TITLE        : NA                                                00050004
+000700*MAPS USED    : MORDER1 MAP.                                      00070099
+000701*                                                                 00070199
+000702*FUNCTIONALITY: THIS PROGRAM PERFORMS INSERTION OF ALL THE FIELDS 00070204
+000703*                INTO THE DATABASE AND RETRIEVES THE SAME USING   00070304
+000704*                SELECT AND PERFORMS UPDATION AND DELETION ALSO,  00070499
+000705*                FUNCTIONAL KEYS LIKE PF9 AND PF10 ARE USED TO    00070599
+000706*                TRANSFER THE LINK TO LISTING PROGRAM TO FETCH    00070699
+000707*                THE INFORMATION ACCORDINGLY.                     00070799
+000708*                                                                 00070899
+000709*LOGIC        : EMBEDDED SQL'S HAVE BEEN USED FOR FETCHING RECORDS00070999
+000710*                FROM THE DATABASE, INSERTING RECORDS INTO THE    00071099
+000711*                DATABASE AND DELETION OF RECORDS FROM THE        00071199
+000712*                DATABASE.                                        00071299
+000713*                                                                 00071399
+000714*PROGRAM FUNCTION KEYS USED: PF1,PF2,PF3,PF4,PF5,PF6,PF9,PF10,PF1200071499
+000715* MESSAGES     : 1. 'PARTIAL OR INVALID CUSTID - PRESS PF9 TO     00071599
+000716*                    FETCH FROM THE LIST'                         00071699
+000717*                2. 'NEW ORDER, CAN PERFORM INSERTION ONLY'       00071799
+000718*                3. 'NO DATA IS ENTERED - PLEASE ENTER THE DATA'  00071899
+000719******************************************************************00071907
+000720 DATA DIVISION.                                                   00072003
+000721 WORKING-STORAGE SECTION.                                         00072104
+000722      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00072299
+000723      EXEC SQL INCLUDE PROD   END-EXEC.                           00072399
+000724      EXEC SQL INCLUDE ORDR   END-EXEC.                           00072499
+000725      EXEC SQL INCLUDE EMPLOY END-EXEC.                           00072599
+000726      EXEC SQL INCLUDE CUSTM  END-EXEC.                           00072699
+000727 COPY DFHAID.                                                     00072799
+000728 COPY DFHBMSCA.                                                   00072899
+000729*COPY MORDER1.                                                    00072999
+000730 COPY VALIDDT.                                                    00073099
+000731*                                                                 00073199
+000732 01 WS-COMMAREA PIC 9.                                            00073299
+000734 01 WK-DATE.                                                      00073499
+000735    05 WK-D-DD PIC 99.                                            00073599
+000736    05 FILLER  PIC X.                                             00073699
+000737    05 WK-D-MM PIC 99.                                            00073799
+000738    05 FILLER  PIC X.                                             00073899
+000739    05 WK-D-YY PIC 99.                                            00073999
+000740 01 WK-TIME.                                                      00074091
+000900    05 WK-T-HH PIC 99.                                            00090016
+000910    05 FILLER  PIC X.                                             00091016
+000920    05 WK-T-MM PIC 99.                                            00092016
+000930    05 FILLER  PIC X.                                             00093016
+000940    05 WK-T-SS PIC 99.                                            00094016
+000950 01 DT PIC S9(15) COMP-3.                                         00095016
+000951*                                                                 00095185
+000969 01 WS-TOTCT PIC 9(16)V99 VALUE 0.                                00096999
+000970*                                                                 00097099
+000972 01 WS-SCR-DATE.                                                  00097299
+000973    05 WS-MONTH PIC X(2).                                         00097399
+000974    05 SLASH1   PIC X(1) VALUE '/'.                               00097499
+000975    05 WS-DATE  PIC X(2).                                         00097599
+000976    05 SLASH2   PIC X(1) VALUE '/'.                               00097699
+000977    05 WS-YEAR  PIC X(4).                                         00097799
+000981*                                                                 00098199
+000982 01 WS-SLASH1   PIC X(1) VALUE '/'.                               00098299
+000983 01 WS-SLASH2   PIC X(1) VALUE '/'.                               00098399
+000984*                                                                 00098499
+000985 01 WS-QUOT     PIC 9(4)     VALUE 0.                             00098599
+000986 01 WS-REM      PIC 9(4)     VALUE 0.                             00098699
+000987 01 WS-UNPRC    PIC 9(10)V99 VALUE 0.                             00098799
+000988*                                                                 00098899
+000989 01 WS-TXT1  PIC X(80) VALUE 'SESSION COMPLETED'.                 00098999
+000990 01 WS-TXT2  PIC X(80) VALUE 'DIRECT ENTRY TO A005 IS RESTRICTED'.00099099
+000991*                                                                 00099161
+000993 01 CHOICE1             PIC S9(4) COMP VALUE 1.                   00099399
+000994 01 RE                  PIC S9(4) COMP.                           00099499
+000995*                                                                 00099599
+000996 01 WS-STATUS-FIELDS.                                             00099661
+000997    05 STATUS-OF-RECEIVE PIC X   VALUE SPACE.                     00099761
+000998       88 GOOD-RECEIVE           VALUE 'G'.                       00099861
+000999       88 MAPFAIL-ON-RECEIVE     VALUE 'F'.                       00099961
+001000*                                                                 00100099
+001001 01 WS-REDEFINES-FIELDS.                                          00100199
+001002    05 TEMP-VAR1 PIC 9(12).                                       00100299
+001003    05 WS-CARCOST REDEFINES TEMP-VAR1 PIC 9(10)V99.               00100399
+001004    05 TEMP-VAR2  PIC 9(16)V99.                                   00100499
+001005    05 WS-TOTCOST REDEFINES TEMP-VAR2  PIC 9(18).                 00100599
+001006    05 TEMP-VAR3  PIC 9(10)V99.                                   00100699
+001007    05 WS-UNITPR  REDEFINES TEMP-VAR3  PIC 9(12).                 00100799
+001008*                                                                 00100899
+001027 01 WS-TRANSFER-AREA.                                             00102799
+001028   05 WS-CSID     PIC 9(10).                                      00102899
+001029   05 WS-UNITPRC  PIC 9(10)V99.                                   00102999
+001030*                                                                 00103099
+001031 LINKAGE SECTION.                                                 00103199
+001032 01 DFHCOMMAREA.                                                  00103299
+001033   COPY ORINCPY.                                                  00103399
+001036******************************************************************00103699
+001037 PROCEDURE DIVISION USING DFHCOMMAREA.                            00103799
+001038******************************************************************00103899
+001039 COPY VALDATE.                                                    00103999
+001040 1000-MAINLINE-PARA.                                              00104099
+001044     IF EIBCALEN = 0                                              00104499
+001045          EXEC CICS SEND TEXT                                     00104599
+001046                    NOEDIT                                        00104699
+001047                    FROM(WS-TXT2)                                 00104799
+001048                    LENGTH(80)                                    00104899
+001049                    ERASE                                         00104999
+001050          END-EXEC                                                00105099
+001051*                                                                 00105199
+001052          EXEC CICS RETURN                                        00105299
+001053          END-EXEC                                                00105399
+001073     ELSE                                                         00107399
+001074           MOVE 0 TO LS-CURSOR-POS                                00107499
+001075           PERFORM 2000-PROCESSING-PARA                           00107599
+001076*                                                                 00107699
+001077     END-IF.                                                      00107799
+001078*                                                                 00107899
+001079     EXEC CICS RETURN                                             00107999
+001090     END-EXEC.                                                    00109099
+001111***************************************************************** 00111199
+001112 2000-PROCESSING-PARA.                                            00111299
+001117        EVALUATE TRUE                                             00111799
+001118           WHEN LS-OPT = 'INSERT'                                 00111899
+001119               PERFORM 3000-INSERTION-PARA THRU 3000-EXIT         00111999
+001120           WHEN LS-OPT = 'SELECT'                                 00112099
+001121               PERFORM 4000-SELECTION-PARA THRU 4000-EXIT         00112199
+001122           WHEN LS-OPT = 'UPDATE'                                 00112299
+001123               PERFORM 5000-UPDATION-PARA THRU 5000-EXIT          00112399
+001124           WHEN LS-OPT = 'DELETE'                                 00112499
+001125               PERFORM 6200-DELETION-PARA THRU 6200-EXIT          00112599
+001140           WHEN OTHER                                             00114099
+001141               PERFORM 9000-ERROR-SESSION-PARA THRU 9000-EXIT     00114199
+001142        END-EVALUATE.                                             00114299
+001152*                                                                 00115299
+001153 2000-EXIT.                                                       00115399
+001154     EXIT.                                                        00115499
+001172******************************************************************00117299
+001173 3000-INSERTION-PARA.                                             00117399
+001174     IF LENGTH OF LS-ORDID = 0                                    00117499
+001176        MOVE 'ORDER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG      00117699
+001177        MOVE 1 TO LS-CURSOR-POS                                   00117799
+001178        MOVE ZEROS  TO LS-UNIPC                                   00117899
+001179        MOVE ZEROS  TO LS-TOTCST                                  00117999
+001180        EXEC CICS RETURN END-EXEC                                 00118099
+001181*                                                                 00118199
+001182     ELSE IF LS-ORDID IS NOT NUMERIC                              00118299
+001183        MOVE 'ORDER ID SHOULD BE NUMERIC - PLZ ENTER IT'          00118399
+001184             TO LS-MSG                                            00118499
+001185        MOVE 1 TO LS-CURSOR-POS                                   00118599
+001186        MOVE ZEROS  TO LS-UNIPC                                   00118699
+001187        MOVE ZEROS  TO LS-TOTCST                                  00118799
+001188        EXEC CICS RETURN END-EXEC                                 00118899
+001189          END-IF                                                  00118999
+001190     END-IF.                                                      00119099
+001191*                                                                 00119199
+001194     MOVE LS-ORDID TO ORD-ID.                                     00119499
+001195     EXEC SQL                                                     00119599
+001196         SELECT ORD_ID                                            00119699
+001197         INTO :ORD-ID                                             00119799
+001198         FROM ADMT.T_OR_ORDER                                     00119899
+001199         WHERE ORD_ID = :ORD-ID                                   00119999
+001200     END-EXEC.                                                    00120099
+001201*                                                                 00120199
+001202         EVALUATE SQLCODE                                         00120299
+001203            WHEN +100                                             00120399
+001204               PERFORM 9100-VALIDATION-PARA THRU 9100-EXIT        00120499
+001205               PERFORM 3100-VALIDATE-CUSTID-PARA THRU 3100-EXIT   00120599
+001206               PERFORM 3300-VALIDATE-EMPID-PARA THRU 3300-EXIT    00120699
+001207               PERFORM 3200-VALIDATE-PRODID-PARA THRU 3200-EXIT   00120799
+001212*                                                                 00121299
+001213               MOVE LS-CUSTID TO ORD-CUST-ID                      00121399
+001214               MOVE LS-EMPID  TO ORD-EMP-ID                       00121499
+001215               MOVE LS-PRDID  TO ORD-PROD-ID                      00121599
+001216               MOVE LS-QUANTY TO ORD-QUANT                        00121699
+001217               MOVE LS-ORDDT  TO ORD-DATE                         00121799
+001218               MOVE LS-REQDT  TO ORD-REQ-DT                       00121899
+001219               MOVE LS-SHPDT  TO ORD-SHIP-DT                      00121999
+001220               MOVE LS-CARCST TO TEMP-VAR1                        00122099
+001221               MOVE WS-CARCOST TO ORD-CARR-COST                   00122199
+001222               MOVE TEMP-VAR3 TO WS-UNPRC                         00122299
+001223***************--COMPUTATION OF TOTAL COST--**********************00122399
+001224       COMPUTE WS-TOTCT = (ORD-QUANT * WS-UNPRC) + ORD-CARR-COST  00122499
+001225******************************************************************00122599
+001226               MOVE WS-TOTCT TO ORD-TOTAL-COST                    00122699
+001227               MOVE WS-TOTCT TO TEMP-VAR2                         00122799
+001228               MOVE WS-TOTCOST TO LS-TOTCST                       00122899
+001229               EXEC SQL INSERT INTO                               00122999
+001230                   ADMT.T_OR_ORDER VALUES(:ORD-ID,                00123099
+001231                                   :ORD-CUST-ID,                  00123199
+001232                                   :ORD-EMP-ID,                   00123299
+001233                                   :ORD-PROD-ID,                  00123399
+001234                                   :ORD-QUANT,                    00123499
+001235                                   :ORD-DATE,                     00123599
+001236                                   :ORD-REQ-DT,                   00123699
+001237                                   :ORD-SHIP-DT,                  00123799
+001238                                   :ORD-CARR-COST,                00123899
+001239                                   :ORD-TOTAL-COST)               00123999
+001240               END-EXEC                                           00124099
+001241*                                                                 00124199
+001242                   EVALUATE SQLCODE                               00124299
+001243                      WHEN 0                                      00124399
+001244                         MOVE 'SUCCESSFUL INSERTION - PRESS PF12 T00124499
+001245-                             'O CLEAR THE SCREEN' TO LS-MSG      00124599
+001246                         MOVE 1 TO LS-CURSOR-POS                  00124699
+001247                         EXEC CICS RETURN END-EXEC                00124799
+001248                      WHEN OTHER                                  00124899
+001249                         MOVE 'INSERTION UNSUCCESSFUL' TO LS-MSG  00124999
+001250                         MOVE 1 TO LS-CURSOR-POS                  00125099
+001251                         EXEC CICS RETURN END-EXEC                00125199
+001252                   END-EVALUATE                                   00125299
+001253*                                                                 00125399
+001254            WHEN 0                                                00125499
+001255                MOVE 'ORDER ALREADY EXISTS' TO LS-MSG             00125599
+001256                MOVE ZEROS  TO LS-UNIPC                           00125699
+001257                MOVE ZEROS  TO LS-TOTCST                          00125799
+001258                MOVE 1 TO LS-CURSOR-POS                           00125899
+001259                EXEC CICS RETURN END-EXEC                         00125999
+001260         END-EVALUATE.                                            00126099
+001261*                                                                 00126199
+001262 3000-EXIT.                                                       00126299
+001263     EXIT.                                                        00126399
+001264***************************************************************   00126499
+001265 3100-VALIDATE-CUSTID-PARA.                                       00126599
+001266     MOVE LS-CUSTID TO CUST-ID.                                   00126699
+001267        EXEC SQL                                                  00126799
+001268            SELECT CUST_ID                                        00126899
+001269            INTO :CUST-ID                                         00126999
+001270            FROM ADMT.T_CU_CUSTOMER                               00127099
+001271            WHERE CUST_ID = :CUST-ID                              00127199
+001272        END-EXEC.                                                 00127299
+001273*                                                                 00127399
+001274            EVALUATE SQLCODE                                      00127499
+001275               WHEN 0                                             00127599
+001276                  MOVE LS-CUSTID TO ORD-CUST-ID                   00127699
+001277               WHEN +100                                          00127799
+001278                  MOVE 'PARTIAL OR INVALID CUSTID - PRESS PF9 TO  00127899
+001279-                      'FETCH FROM THE LIST' TO LS-MSG            00127999
+001280                         MOVE 2 TO LS-CURSOR-POS                  00128099
+001281                         EXEC CICS RETURN END-EXEC                00128199
+001288                      WHEN OTHER                                  00128899
+001289                          MOVE 'PRESS ONLY PF9 TO FETCH CUSTID FRO00128999
+001290-                              'M THE LIST' TO LS-MSG             00129099
+001291                         MOVE 2 TO LS-CURSOR-POS                  00129199
+001293                         EXEC CICS RETURN END-EXEC                00129399
+001294                  END-EVALUATE.                                   00129499
+001297*                                                                 00129799
+001298 3100-EXIT.                                                       00129899
+001299     EXIT.                                                        00129999
+001300******************************************************************00130099
+001301 3200-VALIDATE-PRODID-PARA.                                       00130199
+001302     MOVE LS-PRDID TO PROD-ID.                                    00130299
+001303        EXEC SQL                                                  00130399
+001304            SELECT PROD_ID,PROD_UNIT_PRICE                        00130499
+001305            INTO :PROD-ID,:PROD-UNIT-PRICE                        00130599
+001306            FROM ADMT.T_PR_PRODUCT                                00130699
+001307            WHERE PROD_ID = :PROD-ID                              00130799
+001308        END-EXEC                                                  00130899
+001309*                                                                 00130999
+001310            EVALUATE SQLCODE                                      00131099
+001311               WHEN 0                                             00131199
+001312                  MOVE LS-PRDID TO ORD-PROD-ID                    00131299
+001313                  MOVE PROD-UNIT-PRICE TO TEMP-VAR3               00131399
+001314                  MOVE WS-UNITPR TO LS-UNIPC                      00131499
+001315               WHEN +100                                          00131599
+001316                  MOVE 'PARTIAL OR INVALID PRODID - PRESS PF10 TO 00131699
+001317-                      'FETCH FROM THE LIST' TO LS-MSG            00131799
+001318                         MOVE 4 TO LS-CURSOR-POS                  00131899
+001319                  EXEC CICS RETURN END-EXEC                       00131999
+001320               WHEN OTHER                                         00132099
+001321                    MOVE 'PRESS ONLY PF10 TO FETCH PRODID FROM THE00132199
+001330-                       'LIST' TO LS-MSG                          00133099
+001340                   MOVE 4 TO LS-CURSOR-POS                        00134099
+001341                  EXEC CICS RETURN END-EXEC                       00134199
+001345            END-EVALUATE.                                         00134599
+001346                                                                  00134699
+001347 3200-EXIT.                                                       00134799
+001348     EXIT.                                                        00134899
+001349******************************************************************00134999
+001384 3300-VALIDATE-EMPID-PARA.                                        00138499
+001385     MOVE LS-EMPID TO EMP-ID.                                     00138599
+001386        EXEC SQL                                                  00138699
+001387            SELECT EMP_ID                                         00138799
+001388            INTO :EMP-ID                                          00138899
+001389            FROM ADMT.T_EM_EMPLOYEE                               00138999
+001390            WHERE EMP_ID = :EMP-ID                                00139099
+001391        END-EXEC.                                                 00139199
+001392*                                                                 00139299
+001393     EVALUATE SQLCODE                                             00139399
+001394        WHEN 0                                                    00139499
+001395            MOVE LS-EMPID TO ORD-EMP-ID                           00139599
+001396        WHEN +100                                                 00139699
+001397            MOVE 'INVALID EMPLOYEE ID - PLEASE ENTER THE VALID ID'00139799
+001398                 TO LS-MSG                                        00139899
+001399            MOVE 3 TO LS-CURSOR-POS                               00139999
+001401            EXEC CICS RETURN END-EXEC                             00140199
+001403     END-EVALUATE.                                                00140399
+001404*                                                                 00140499
+001405 3300-EXIT.                                                       00140599
+001406     EXIT.                                                        00140699
+001407******************************************************************00140799
+001443 4000-SELECTION-PARA.                                             00144399
+001444     IF LENGTH OF LS-ORDID = 0                                    00144499
+001446        MOVE 'ORDER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG      00144699
+001447        MOVE 1 TO LS-CURSOR-POS                                   00144799
+001448        EXEC CICS RETURN END-EXEC                                 00144899
+001449*                                                                 00144999
+001450     ELSE IF LS-ORDID IS NOT NUMERIC                              00145099
+001451        MOVE 'ORDER ID SHOULD BE NUMERIC - PLZ ENTER IT' TO LS-MSG00145199
+001453        MOVE 1 TO LS-CURSOR-POS                                   00145399
+001455        EXEC CICS RETURN END-EXEC                                 00145599
+001456*                                                                 00145699
+001457          ELSE                                                    00145799
+001458             MOVE LS-ORDID TO ORD-ID                              00145899
+001459             EXEC SQL                                             00145999
+001460               SELECT ORD_ID,ORD_CUST_ID,ORD_EMP_ID,              00146099
+001461                      ORD_PROD_ID,PROD_UNIT_PRICE,                00146199
+001462                      ORD_QUANT,ORD_DATE,ORD_REQ_DT,              00146299
+001463                      ORD_SHIP_DT,ORD_CARR_COST,ORD_TOTAL_COST    00146399
+001464                INTO :ORD-ID,:ORD-CUST-ID,                        00146499
+001465                     :ORD-EMP-ID,                                 00146599
+001466                     :ORD-PROD-ID,                                00146699
+001467                     :PROD-UNIT-PRICE,                            00146799
+001468                     :ORD-QUANT,                                  00146899
+001469                     :ORD-DATE,                                   00146999
+001470                     :ORD-REQ-DT,                                 00147099
+001471                     :ORD-SHIP-DT,                                00147199
+001472                     :ORD-CARR-COST,                              00147299
+001473                     :ORD-TOTAL-COST                              00147399
+001474                FROM ADMT.T_OR_ORDER O, ADMT.T_PR_PRODUCT P       00147499
+001475                WHERE O.ORD_PROD_ID = P.PROD_ID                   00147599
+001476                       AND   ORD_ID = :ORD-ID                     00147699
+001477             END-EXEC                                             00147799
+001478*                                                                 00147899
+001479                EVALUATE SQLCODE                                  00147999
+001480                     WHEN 0                                       00148099
+001481                         MOVE ORD-ID           TO LS-ORDID        00148199
+001482                         MOVE ORD-CUST-ID      TO LS-CUSTID       00148299
+001483                         MOVE ORD-EMP-ID       TO LS-EMPID        00148399
+001484                         MOVE ORD-PROD-ID      TO LS-PRDID        00148499
+001486                         MOVE PROD-UNIT-PRICE  TO TEMP-VAR3       00148699
+001487                         MOVE WS-UNITPR        TO LS-UNIPC        00148799
+001488                         MOVE ORD-QUANT        TO LS-QUANTY       00148899
+001489*                                                                 00148999
+001490                         MOVE ORD-DATE(1:4)    TO WS-YEAR         00149099
+001491                         MOVE ORD-DATE(6:2)    TO WS-MONTH        00149199
+001492                         MOVE ORD-DATE(9:2)    TO WS-DATE         00149299
+001493                         MOVE WS-SCR-DATE      TO LS-ORDDT        00149399
+001494*                                                                 00149499
+001495                         MOVE ORD-REQ-DT(1:4)  TO WS-YEAR         00149599
+001496                         MOVE ORD-REQ-DT(6:2)  TO WS-MONTH        00149699
+001497                         MOVE ORD-REQ-DT(9:2)  TO WS-DATE         00149799
+001498                         MOVE WS-SCR-DATE      TO LS-REQDT        00149899
+001499*                                                                 00149999
+001500                         MOVE ORD-SHIP-DT(1:4) TO WS-YEAR         00150099
+001501                         MOVE ORD-SHIP-DT(6:2) TO WS-MONTH        00150199
+001502                         MOVE ORD-SHIP-DT(9:2) TO WS-DATE         00150299
+001503                         MOVE WS-SCR-DATE      TO LS-SHPDT        00150399
+001504*                                                                 00150499
+001505                         MOVE ORD-CARR-COST    TO WS-CARCOST      00150599
+001506                         MOVE TEMP-VAR1        TO LS-CARCST       00150699
+001507                         MOVE ORD-TOTAL-COST   TO TEMP-VAR2       00150799
+001508                         MOVE WS-TOTCOST       TO LS-TOTCST       00150899
+001513*                                                                 00151399
+001514                         MOVE 'RECORDS SUCCESSFULLY RETRIEVED - PR00151499
+001515-                             'ESS PF12 TO CLEAR SCREEN' TO LS-MSG00151599
+001516                         MOVE 1 TO LS-CURSOR-POS                  00151699
+001517                         EXEC CICS RETURN END-EXEC                00151799
+001518*                                                                 00151899
+001519                     WHEN OTHER                                   00151999
+001521                         MOVE ORD-ID TO LS-ORDID                  00152199
+001522                         MOVE ZEROS  TO LS-UNIPC                  00152299
+001523                         MOVE ZEROS  TO LS-TOTCST                 00152399
+001524                         MOVE 'NEW ORDER, CAN PERFORM INSERTION ON00152499
+001525-                             'LY' TO LS-MSG                      00152599
+001526                         MOVE 1 TO LS-CURSOR-POS                  00152699
+001527                         EXEC CICS RETURN END-EXEC                00152799
+001528                END-EVALUATE                                      00152899
+001529*                                                                 00152999
+001530          END-IF                                                  00153099
+001531*                                                                 00153199
+001532     END-IF.                                                      00153299
+001533*                                                                 00153399
+001534 4000-EXIT.                                                       00153499
+001535     EXIT.                                                        00153599
+001536******************************************************************00153699
+001537 5000-UPDATION-PARA.                                              00153799
+001538     IF LENGTH OF LS-ORDID = 0                                    00153899
+001539        MOVE 'ORDER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG      00153999
+001540        MOVE 1 TO LS-CURSOR-POS                                   00154099
+001541        EXEC CICS RETURN END-EXEC                                 00154199
+001542     ELSE IF LS-ORDID IS NOT NUMERIC                              00154299
+001543        MOVE 'ORDER ID SHOULD BE NUMERIC - PLZ ENTER IT' TO LS-MSG00154399
+001544        MOVE 1 TO LS-CURSOR-POS                                   00154499
+001545        EXEC CICS RETURN END-EXEC                                 00154599
+001546          END-IF                                                  00154699
+001547     END-IF.                                                      00154799
+001548*                                                                 00154899
+001551     MOVE LS-ORDID TO ORD-ID.                                     00155199
+001552     EXEC SQL                                                     00155299
+001553         SELECT ORD_ID                                            00155399
+001554         INTO :ORD-ID                                             00155499
+001555         FROM ADMT.T_OR_ORDER                                     00155599
+001556         WHERE ORD_ID = :ORD-ID                                   00155699
+001557     END-EXEC.                                                    00155799
+001558*                                                                 00155899
+001559         EVALUATE SQLCODE                                         00155999
+001560            WHEN 0                                                00156099
+001561               PERFORM 9100-VALIDATION-PARA THRU 9100-EXIT        00156199
+001562               PERFORM 3100-VALIDATE-CUSTID-PARA THRU 3100-EXIT   00156299
+001563               PERFORM 3300-VALIDATE-EMPID-PARA THRU 3300-EXIT    00156399
+001564               PERFORM 3200-VALIDATE-PRODID-PARA THRU 3200-EXIT   00156499
+001568*                                                                 00156899
+001569               MOVE LS-ORDID  TO ORD-ID                           00156999
+001570               MOVE LS-CUSTID TO ORD-CUST-ID                      00157099
+001571               MOVE LS-EMPID  TO ORD-EMP-ID                       00157199
+001572               MOVE LS-PRDID  TO ORD-PROD-ID                      00157299
+001573               MOVE LS-QUANTY TO ORD-QUANT                        00157399
+001574               MOVE LS-ORDDT  TO ORD-DATE                         00157499
+001575               MOVE LS-REQDT  TO ORD-REQ-DT                       00157599
+001576               MOVE LS-SHPDT  TO ORD-SHIP-DT                      00157699
+001577               MOVE LS-CARCST TO TEMP-VAR1                        00157799
+001578               MOVE WS-CARCOST TO ORD-CARR-COST                   00157899
+001579               MOVE TEMP-VAR3 TO WS-UNPRC                         00157999
+001580***************--COMPUTATION OF TOTAL COST--**********************00158099
+001581        COMPUTE WS-TOTCT = (ORD-QUANT * WS-UNPRC) + ORD-CARR-COST 00158199
+001582******************************************************************00158299
+001583               MOVE WS-TOTCT TO ORD-TOTAL-COST                    00158399
+001584               MOVE WS-TOTCT TO TEMP-VAR2                         00158499
+001585               MOVE WS-TOTCOST TO LS-TOTCST                       00158599
+001586               EXEC SQL                                           00158699
+001587                   UPDATE ADMT.T_OR_ORDER                         00158799
+001588                   SET ORD_ID         = :ORD-ID,                  00158899
+001589                       ORD_CUST_ID    = :ORD-CUST-ID,             00158999
+001590                       ORD_EMP_ID     = :ORD-EMP-ID,              00159099
+001591                       ORD_PROD_ID    = :ORD-PROD-ID,             00159199
+001592                       ORD_QUANT      = :ORD-QUANT,               00159299
+001593                       ORD_DATE       = :ORD-DATE,                00159399
+001594                       ORD_REQ_DT     = :ORD-REQ-DT,              00159499
+001595                       ORD_SHIP_DT    = :ORD-SHIP-DT,             00159599
+001596                       ORD_CARR_COST  = :ORD-CARR-COST,           00159699
+001597                       ORD_TOTAL_COST = :ORD-TOTAL-COST           00159799
+001598                         WHERE ORD_ID = :ORD-ID                   00159899
+001599               END-EXEC                                           00159999
+001600*                                                                 00160099
+001601                  EVALUATE SQLCODE                                00160199
+001602                     WHEN 0                                       00160299
+001603                         MOVE 'SUCCESSFULLY UPDATED - PRESS PF12 T00160399
+001604-                             'O CLEAR THE SCREEN' TO LS-MSG      00160499
+001605                         MOVE 1 TO LS-CURSOR-POS                  00160599
+001606                         EXEC CICS RETURN END-EXEC                00160699
+001607                     WHEN OTHER                                   00160799
+001608                         MOVE 'UPDATION UNSUCCESSFUL' TO LS-MSG   00160899
+001609                         MOVE 1 TO LS-CURSOR-POS                  00160999
+001610                         EXEC CICS RETURN END-EXEC                00161099
+001611                  END-EVALUATE                                    00161199
+001612*                                                                 00161299
+001613            WHEN OTHER                                            00161399
+001614*              MOVE LOW-VALUES TO ORDMAPO                         00161499
+001615               MOVE ORD-ID TO LS-ORDID                            00161599
+001616               MOVE ZEROS  TO LS-UNIPC                            00161699
+001617               MOVE ZEROS  TO LS-TOTCST                           00161799
+001618               MOVE 'NEW ORDER, CAN PERFORM INSERTION ONLY'       00161899
+001619                    TO LS-MSG                                     00161999
+001620                         MOVE 1 TO LS-CURSOR-POS                  00162099
+001621                         EXEC CICS RETURN END-EXEC                00162199
+001622     END-EVALUATE.                                                00162299
+001623*                                                                 00162399
+001624 5000-EXIT.                                                       00162499
+001630     EXIT.                                                        00163099
+001697******************************************************************00169799
+001698 6200-DELETION-PARA.                                              00169899
+001699             MOVE LS-ORDID TO ORD-ID.                             00169999
+001700     EXEC SQL                                                     00170099
+001701         DELETE FROM ADMT.T_OR_ORDER                              00170199
+001702         WHERE ORD_ID = :ORD-ID                                   00170299
+001703     END-EXEC.                                                    00170399
+001704*                                                                 00170499
+001705        EVALUATE SQLCODE                                          00170599
+001706             WHEN 0                                               00170699
+001707                 MOVE 'SUCCESSFULLY DELETED' TO LS-MSG            00170799
+001708                         MOVE 1 TO LS-CURSOR-POS                  00170899
+001709                         EXEC CICS RETURN END-EXEC                00170999
+001710             WHEN OTHER                                           00171099
+001711                 MOVE 'DELETION NOT SUCCESSFUL' TO LS-MSG         00171199
+001712                         MOVE 1 TO LS-CURSOR-POS                  00171299
+001714                         EXEC CICS RETURN END-EXEC                00171499
+001715              END-EVALUATE.                                       00171599
+001716*                                                                 00171696
+001717 6200-EXIT.                                                       00171799
+001718     EXIT.                                                        00171896
+001810******************************************************************00181099
+001811 9000-ERROR-SESSION-PARA.                                         00181199
+001812     MOVE 'INVALID KEY PRESSED - PLZ TRY AGAIN' TO LS-MSG.        00181299
+001813     MOVE 1 TO LS-CURSOR-POS                                      00181399
+001814     EXEC CICS RETURN END-EXEC.                                   00181499
+001815*                                                                 00181599
+001816 9000-EXIT.                                                       00181699
+001817     EXIT.                                                        00181799
+001818******************************************************************00181899
+001819 9100-VALIDATION-PARA.                                            00181999
+001820     IF LS-ORDID = ZEROS                                          00182099
+001821          MOVE 'ORDER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG    00182199
+001822          MOVE 1 TO LS-CURSOR-POS                                 00182299
+001823          EXEC CICS RETURN END-EXEC                               00182399
+001824     END-IF.                                                      00182499
+001825*                                                                 00182599
+001826     IF LS-ORDID IS NOT NUMERIC                                   00182699
+001827          MOVE 'ORDER ID SHOULD BE NUMERIC - PLZ ENTER IT'        00182799
+001828          TO LS-MSG                                               00182899
+001829          MOVE 1 TO LS-CURSOR-POS                                 00182999
+001830          EXEC CICS RETURN END-EXEC                               00183099
+001831     END-IF.                                                      00183199
+001832*                                                                 00183299
+001834     IF LS-CUSTID = ZEROS                                         00183499
+001835          MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG 00183599
+001836          MOVE 2 TO LS-CURSOR-POS                                 00183699
+001841          EXEC CICS RETURN END-EXEC                               00184199
+001842     END-IF.                                                      00184299
+001843*                                                                 00184399
+001844     IF LS-CUSTID IS NOT NUMERIC                                  00184499
+001845          MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'     00184599
+001846               TO LS-MSG                                          00184699
+001847          MOVE 2 TO LS-CURSOR-POS                                 00184799
+001848          EXEC CICS RETURN END-EXEC                               00184899
+001850     END-IF.                                                      00185099
+001860*                                                                 00186099
+002410     IF LS-EMPID = ZEROS                                          00241099
+002500          MOVE 'EMPLOYEE ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG 00250099
+002600          MOVE 3 TO LS-CURSOR-POS                                 00260099
+002701          EXEC CICS RETURN END-EXEC                               00270199
+002702     END-IF                                                       00270299
+002703*                                                                 00270399
+002710     IF LS-EMPID IS NOT NUMERIC                                   00271099
+002720          MOVE 'EMPLOYEE ID SHOULD BE NUMERIC - PLZ ENTER IT'     00272099
+002730               TO LS-MSG                                          00273099
+002740          MOVE 3 TO LS-CURSOR-POS                                 00274099
+002751          EXEC CICS RETURN END-EXEC                               00275199
+002754     END-IF.                                                      00275499
+002755*                                                                 00275599
+002757     IF LS-PRDID = ZEROS                                          00275799
+002758          MOVE 'PRODUCT ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  00275899
+002759          MOVE 4 TO LS-CURSOR-POS                                 00275999
+002760          EXEC CICS RETURN END-EXEC                               00276099
+002761     END-IF.                                                      00276199
+002762*                                                                 00276299
+002763     IF LS-PRDID IS NOT NUMERIC                                   00276399
+002764          MOVE 'PRODUCT ID SHOULD BE NUMERIC - PLZ ENTER IT'      00276499
+002765               TO LS-MSG                                          00276599
+002766          MOVE 4 TO LS-CURSOR-POS                                 00276699
+002767          EXEC CICS RETURN END-EXEC                               00276799
+002769     END-IF.                                                      00276999
+002770*                                                                 00277099
+002796     IF LS-QUANTY = ZEROS                                         00279699
+002797          MOVE 'QUANTITY NOT ENTERED - PLZ ENTER IT' TO LS-MSG    00279799
+002798          MOVE 5 TO LS-CURSOR-POS                                 00279899
+002800          EXEC CICS RETURN END-EXEC                               00280099
+002801     END-IF.                                                      00280199
+002802*                                                                 00280299
+002803     IF LS-QUANTY IS NOT NUMERIC                                  00280399
+002804          MOVE 'QUANTITY SHOULD BE NUMERIC - PLZ ENTER IT'        00280499
+002805               TO LS-MSG                                          00280599
+002806          MOVE 5 TO LS-CURSOR-POS                                 00280699
+002807          EXEC CICS RETURN END-EXEC                               00280799
+002809     END-IF.                                                      00280999
+002810*                                                                 00281099
+002820     IF LS-ORDDT = SPACES                                         00282099
+002900          MOVE 'ORDER DATE NOT ENTERED - PLZ ENTER IT' TO LS-MSG  00290099
+003000          MOVE 6 TO LS-CURSOR-POS                                 00300099
+003101                         EXEC CICS RETURN END-EXEC                00310199
+003102     ELSE                                                         00310299
+003103          MOVE LS-ORDDT      TO INPUTDATELA                       00310399
+003104          MOVE LS-ORDDT(1:2) TO MONTHLA                           00310499
+003105          MOVE LS-ORDDT(3:1) TO WS-SLASH1                         00310599
+003106          MOVE LS-ORDDT(4:2) TO DAYLA                             00310699
+003107          MOVE LS-ORDDT(6:1) TO WS-SLASH2                         00310799
+003108          MOVE LS-ORDDT(7:4) TO YEARLA                            00310899
+003109          DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM      00310999
+003110*                                                                 00311099
+003111          IF MONTHLA = 02 AND WS-SLASH1 = '/' AND DAYLA = 29      00311199
+003112             AND WS-SLASH2 = '/' AND WS-REM NOT = 0               00311299
+003114             MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENTE00311499
+003115-                 'R CORRECT FORMAT' TO LS-MSG                    00311599
+003116             MOVE 6 TO LS-CURSOR-POS                              00311699
+003117             EXEC CICS RETURN END-EXEC                            00311799
+003118          ELSE                                                    00311899
+003119             PERFORM 9400-BEGIN-PARA THRU 9400-EXIT               00311999
+003120*                                                                 00312099
+003121             EVALUATE TRUE                                        00312199
+003122               WHEN DATENOTNUMERIC                                00312299
+003124                 MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT IN00312499
+003125-                     ' MM/DD/YYYY FORMAT' TO LS-MSG              00312599
+003126                 MOVE 6 TO LS-CURSOR-POS                          00312699
+003127                 EXEC CICS RETURN END-EXEC                        00312799
+003128               WHEN MONTHCONTAINSZEROS                            00312899
+003130                 MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'00313099
+003131                      TO LS-MSG                                   00313199
+003132                 MOVE 6 TO LS-CURSOR-POS                          00313299
+003133                 EXEC CICS RETURN END-EXEC                        00313399
+003134               WHEN MONTHGREATERTHAN12                            00313499
+003135                 MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'00313599
+003136                         TO LS-MSG                                00313699
+003137                 MOVE 6 TO LS-CURSOR-POS                          00313799
+003139                         EXEC CICS RETURN END-EXEC                00313999
+003140               WHEN DAYCONTAINSZEROS                              00314099
+003141                 MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT' 00314199
+003142                      TO LS-MSG                                   00314299
+003143                 MOVE 6 TO LS-CURSOR-POS                          00314399
+003145                         EXEC CICS RETURN END-EXEC                00314599
+003146               WHEN DAYTOOGREATFORMONTH                           00314699
+003147                 MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ 00314799
+003148-                     'ENTER CORRECT FORMAT' TO LS-MSG            00314899
+003149                 MOVE 6 TO LS-CURSOR-POS                          00314999
+003151                         EXEC CICS RETURN END-EXEC                00315199
+003152               WHEN YEARCONTAINSZEROS                             00315299
+003153                 MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT' 00315399
+003154                      TO LS-MSG                                   00315499
+003155                 MOVE 6 TO LS-CURSOR-POS                          00315599
+003157                         EXEC CICS RETURN END-EXEC                00315799
+003158           END-EVALUATE                                           00315899
+003159*                                                                 00315999
+003160           EVALUATE TRUE                                          00316099
+003161               WHEN WS-SLASH1 NOT = '/'                           00316199
+003162                 MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A 00316299
+003163-                     'SEPERATOR'  TO LS-MSG                      00316399
+003164                 MOVE 6 TO LS-CURSOR-POS                          00316499
+003166                         EXEC CICS RETURN END-EXEC                00316699
+003167               WHEN WS-SLASH2 NOT = '/'                           00316799
+003168                 MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A 00316899
+003169-                     'SEPERATOR'  TO LS-MSG                      00316999
+003170                 MOVE 6 TO LS-CURSOR-POS                          00317099
+003172                         EXEC CICS RETURN END-EXEC                00317299
+003173           END-EVALUATE                                           00317399
+003174*                                                                 00317499
+003175          END-IF                                                  00317599
+003176*                                                                 00317699
+003177     END-IF.                                                      00317799
+003180*                                                                 00318099
+003190     IF LS-REQDT = SPACES                                         00319099
+003300         MOVE 'REQUIRED DATE NOT ENTERED - PLZ ENTER IT' TO LS-MSG00330099
+003400                 MOVE 7 TO LS-CURSOR-POS                          00340099
+003501                         EXEC CICS RETURN END-EXEC                00350199
+003510     ELSE                                                         00351099
+003520          MOVE LS-REQDT      TO INPUTDATELA                       00352099
+003530          MOVE LS-REQDT(1:2) TO MONTHLA                           00353099
+003540          MOVE LS-REQDT(3:1) TO WS-SLASH1                         00354099
+003550          MOVE LS-REQDT(4:2) TO DAYLA                             00355099
+003560          MOVE LS-REQDT(6:1) TO WS-SLASH2                         00356099
+003570          MOVE LS-REQDT(7:4) TO YEARLA                            00357099
+003580          DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM      00358099
+003590*                                                                 00359099
+003591          IF MONTHLA = 02 AND WS-SLASH1 = '/' AND DAYLA = 29      00359199
+003592             AND WS-SLASH2 = '/' AND WS-REM NOT = 0               00359299
+003593             MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENTE00359399
+003594-                 'R CORRECT FORMAT' TO LS-MSG                    00359499
+003595                 MOVE 7 TO LS-CURSOR-POS                          00359599
+003597                         EXEC CICS RETURN END-EXEC                00359799
+003598          ELSE                                                    00359899
+003599             PERFORM 9400-BEGIN-PARA THRU 9400-EXIT               00359999
+003600*                                                                 00360099
+003601             EVALUATE TRUE                                        00360199
+003602               WHEN DATENOTNUMERIC                                00360299
+003603                 MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT IN00360399
+003604-                     ' MM/DD/YYYY FORMAT' TO LS-MSG              00360499
+003605                 MOVE 7 TO LS-CURSOR-POS                          00360599
+003607                         EXEC CICS RETURN END-EXEC                00360799
+003608               WHEN MONTHCONTAINSZEROS                            00360899
+003609                 MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'00360999
+003610                      TO LS-MSG                                   00361099
+003611                 MOVE 7 TO LS-CURSOR-POS                          00361199
+003613                         EXEC CICS RETURN END-EXEC                00361399
+003614               WHEN MONTHGREATERTHAN12                            00361499
+003615                 MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'00361599
+003616                         TO LS-MSG                                00361699
+003617                 MOVE 7 TO LS-CURSOR-POS                          00361799
+003619                         EXEC CICS RETURN END-EXEC                00361999
+003620               WHEN DAYCONTAINSZEROS                              00362099
+003621                 MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT' 00362199
+003622                      TO LS-MSG                                   00362299
+003623                 MOVE 7 TO LS-CURSOR-POS                          00362399
+003625                         EXEC CICS RETURN END-EXEC                00362599
+003626               WHEN DAYTOOGREATFORMONTH                           00362699
+003627                 MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ 00362799
+003628-                     'ENTER CORRECT FORMAT' TO LS-MSG            00362899
+003629                 MOVE 7 TO LS-CURSOR-POS                          00362999
+003631                         EXEC CICS RETURN END-EXEC                00363199
+003632               WHEN YEARCONTAINSZEROS                             00363299
+003633                 MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT' 00363399
+003634                      TO LS-MSG                                   00363499
+003635                 MOVE 7 TO LS-CURSOR-POS                          00363599
+003637                         EXEC CICS RETURN END-EXEC                00363799
+003638           END-EVALUATE                                           00363899
+003639*                                                                 00363999
+003640           EVALUATE TRUE                                          00364099
+003641               WHEN WS-SLASH1 NOT = '/'                           00364199
+003642                 MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A 00364299
+003643-                     'SEPERATOR'  TO LS-MSG                      00364399
+003644                 MOVE 7 TO LS-CURSOR-POS                          00364499
+003646                         EXEC CICS RETURN END-EXEC                00364699
+003647               WHEN WS-SLASH2 NOT = '/'                           00364799
+003648                 MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A 00364899
+003649-                     'SEPERATOR'  TO LS-MSG                      00364999
+003650                 MOVE 7 TO LS-CURSOR-POS                          00365099
+003652                         EXEC CICS RETURN END-EXEC                00365299
+003653           END-EVALUATE                                           00365399
+003654*                                                                 00365499
+003655          END-IF                                                  00365599
+003656*                                                                 00365699
+003660     END-IF.                                                      00366099
+003700*                                                                 00370099
+003800     IF LS-SHPDT = SPACES                                         00380099
+004500         MOVE 'SHIPMENT DATE NOT ENTERED - PLZ ENTER IT' TO LS-MSG00450099
+004600                 MOVE 8 TO LS-CURSOR-POS                          00460099
+004701                         EXEC CICS RETURN END-EXEC                00470199
+004702     ELSE                                                         00470299
+004703          MOVE LS-SHPDT      TO INPUTDATELA                       00470399
+004704          MOVE LS-SHPDT(1:2) TO MONTHLA                           00470499
+004705          MOVE LS-SHPDT(3:1) TO WS-SLASH1                         00470599
+004706          MOVE LS-SHPDT(4:2) TO DAYLA                             00470699
+004707          MOVE LS-SHPDT(6:1) TO WS-SLASH2                         00470799
+004708          MOVE LS-SHPDT(7:4) TO YEARLA                            00470899
+004709          DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM      00470999
+004710*                                                                 00471099
+004711          IF MONTHLA = 02 AND WS-SLASH1 = '/' AND DAYLA = 29      00471199
+004712             AND WS-SLASH2 = '/' AND WS-REM NOT = 0               00471299
+004713             MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ ENTE00471399
+004714-                 'R CORRECT FORMAT' TO LS-MSG                    00471499
+004715                 MOVE 8 TO LS-CURSOR-POS                          00471599
+004717                         EXEC CICS RETURN END-EXEC                00471799
+004718          ELSE                                                    00471899
+004719             PERFORM 9400-BEGIN-PARA THRU 9400-EXIT               00471999
+004720*                                                                 00472099
+004721             EVALUATE TRUE                                        00472199
+004722               WHEN DATENOTNUMERIC                                00472299
+004723                 MOVE 'DATE FORMAT IS INVALID - PLEASE ENTER IT IN00472399
+004724-                     ' MM/DD/YYYY FORMAT' TO LS-MSG              00472499
+004725                 MOVE 8 TO LS-CURSOR-POS                          00472599
+004727                         EXEC CICS RETURN END-EXEC                00472799
+004728               WHEN MONTHCONTAINSZEROS                            00472899
+004729                 MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'00472999
+004730                      TO LS-MSG                                   00473099
+004731                 MOVE 8 TO LS-CURSOR-POS                          00473199
+004733                         EXEC CICS RETURN END-EXEC                00473399
+004734               WHEN MONTHGREATERTHAN12                            00473499
+004735                 MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'00473599
+004736                      TO LS-MSG                                   00473699
+004737                 MOVE 8 TO LS-CURSOR-POS                          00473799
+004739                         EXEC CICS RETURN END-EXEC                00473999
+004740               WHEN DAYCONTAINSZEROS                              00474099
+004741                 MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT' 00474199
+004742                      TO LS-MSG                                   00474299
+004743                 MOVE 8 TO LS-CURSOR-POS                          00474399
+004745                         EXEC CICS RETURN END-EXEC                00474599
+004746               WHEN DAYTOOGREATFORMONTH                           00474699
+004747                 MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ 00474799
+004748-                     'ENTER CORRECT FORMAT' TO LS-MSG            00474899
+004749                 MOVE 8 TO LS-CURSOR-POS                          00474999
+004751                         EXEC CICS RETURN END-EXEC                00475199
+004752               WHEN YEARCONTAINSZEROS                             00475299
+004753                 MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT' 00475399
+004754                      TO LS-MSG                                   00475499
+004755                 MOVE 8 TO LS-CURSOR-POS                          00475599
+004757                         EXEC CICS RETURN END-EXEC                00475799
+004758           END-EVALUATE                                           00475899
+004759*                                                                 00475999
+004760           EVALUATE TRUE                                          00476099
+004761               WHEN WS-SLASH1 NOT = '/'                           00476199
+004762                 MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A 00476299
+004763-                     'SEPERATOR'  TO LS-MSG                      00476399
+004764                 MOVE 8 TO LS-CURSOR-POS                          00476499
+004766                         EXEC CICS RETURN END-EXEC                00476699
+004767               WHEN WS-SLASH2 NOT = '/'                           00476799
+004768                 MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A 00476899
+004769-                     'SEPERATOR'  TO LS-MSG                      00476999
+004770                 MOVE 8 TO LS-CURSOR-POS                          00477099
+004772                         EXEC CICS RETURN END-EXEC                00477299
+004773           END-EVALUATE                                           00477399
+004774*                                                                 00477499
+004775          END-IF                                                  00477599
+004776*                                                                 00477699
+004777     END-IF.                                                      00477799
+004780*                                                                 00478099
+004800     IF LS-CARCST = ZEROS                                         00480099
+004900          MOVE 'CARRIER COST NOT ENTERED - PLZ ENTER IT' TO LS-MSG00490099
+005000          MOVE 9 TO LS-CURSOR-POS                                 00500099
+005101          EXEC CICS RETURN END-EXEC                               00510199
+005102     END-IF.                                                      00510299
+005103*                                                                 00510399
+005110     IF LS-CARCST IS NOT NUMERIC                                  00511099
+005120          MOVE 'CARRIER COST SHOULD BE NUMERIC - PLZ ENTER CORRECT00512099
+005130-              'LY' TO LS-MSG                                     00513099
+005140          MOVE 9 TO LS-CURSOR-POS                                 00514099
+005151          EXEC CICS RETURN END-EXEC                               00515199
+005180     END-IF.                                                      00518099
+007100*                                                                 00710099
+007200 9100-EXIT.                                                       00720099
+007300     EXIT.                                                        00730099

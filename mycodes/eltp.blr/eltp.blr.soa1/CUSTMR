@@ -1,0 +1,664 @@
+000100 IDENTIFICATION DIVISION.                                         00010000
+000200 PROGRAM-ID. CUSTMR.                                              00020066
+000400 AUTHOR. SOA TEAM.                                                00040000
+000410 DATE-WRITTEN. 26/09/08.                                          00041000
+000420 DATE-COMPILED. 26/09/08.                                         00042000
+000717******************************************************************00071700
+000718 DATA DIVISION.                                                   00071800
+000719 WORKING-STORAGE SECTION.                                         00071900
+000720 COPY VCOUNTRY.                                                   00072044
+000726      EXEC SQL INCLUDE CUSTM1  END-EXEC.                          00072646
+000727      EXEC SQL INCLUDE LOGIN1  END-EXEC.                          00072766
+000729      EXEC SQL INCLUDE SQLCA  END-EXEC.                           00072913
+001007*                                                                 00100700
+001016 01 WK-DATE.                                                      00101612
+001017    05 WK-D-DD PIC 99.                                            00101712
+001018    05 FILLER  PIC X.                                             00101812
+001019    05 WK-D-MM PIC 99.                                            00101912
+001020    05 FILLER  PIC X.                                             00102012
+001021    05 WK-D-YY PIC 99.                                            00102112
+001022 01 WK-TIME.                                                      00102212
+001023    05 WK-T-HH PIC 99.                                            00102312
+001024    05 FILLER  PIC X.                                             00102412
+001025    05 WK-T-MM PIC 99.                                            00102512
+001026    05 FILLER  PIC X.                                             00102612
+001027    05 WK-T-SS PIC 99.                                            00102712
+001028 01 DT PIC S9(15) COMP-3.                                         00102812
+001029*                                                                 00102912
+001030 01 WS-SCR-DATE.                                                  00103012
+001031    05 WS-YEAR  PIC 9(4).                                         00103112
+001033    05 SLASH1   PIC X(1) VALUE '-'.                               00103312
+001034    05 WS-DATE  PIC 9(2).                                         00103423
+001035    05 SLASH2   PIC X(1) VALUE '-'.                               00103512
+001036    05 WS-MONTH PIC 9(2).                                         00103623
+001038*                                                                 00103812
+001039 01 WS-CONCATE.                                                   00103965
+001040    05 WS-CST   PIC X(2) VALUE 'CU'.                              00104068
+001041    05 WS-ID    PIC 9(05).                                        00104173
+001045*                                                                 00104565
+001046 01 WS-PASSWRD.                                                   00104666
+001047    05 WS-FIRPWD1 PIC X(07).                                      00104774
+001048    05 WS-FIRPWD2 PIC X(02).                                      00104866
+001049*                                                                 00104966
+001050 01 WS-YEAR1  PIC 9(4) VALUE 0.                                   00105066
+001051*                                                                 00105166
+001052 01 I       PIC 9(3) VALUE 0.                                     00105266
+001053 01 WS-FLAG PIC X    VALUE 'N'.                                   00105366
+001055 01 WS-MSG1   PIC X(44) VALUE SPACES.                             00105570
+001060*                                                                 00106065
+001083 01 WS-COMMAREA  PIC X(9).                                        00108327
+001084*                                                                 00108427
+001100 LINKAGE SECTION.                                                 00110027
+001101 01 DFHCOMMAREA.                                                  00110127
+001110      COPY CUSCPY1.                                               00111066
+001149******************************************************************00114900
+001150 PROCEDURE DIVISION USING DFHCOMMAREA.                            00115000
+001151******************************************************************00115100
+001152*        MOVE SPACES TO LS-OPT, LS-CONFIRM, LS-ORD-DATE,          00115232
+001153*                       LS-REQ-DATE, LS-SHP-DATE, LS-TOKEN,       00115332
+001154*                       LS-SCM, LS-UNIT-PRC, LS-CARR-COST,        00115432
+001155*                       LS-TOT-COST.                              00115532
+001156*        MOVE 0      TO LS-ORD-ID, LS-CUST-ID, LS-EMP-ID,         00115632
+001157*                       LS-PROD-ID, LS-QUANTITY.                  00115732
+001158*        MOVE 'END PGM' TO LS-MSG.                                00115832
+001159*        EXEC CICS RETURN                                         00115932
+001160*        END-EXEC.                                                00116032
+001161 1000-MAINLINE-PARA.                                              00116100
+001162     DISPLAY 'START 1000'.                                        00116229
+001163     IF EIBCALEN = 0                                              00116300
+001164        PERFORM 2100-CLEAR-PARA THRU 2100-EXIT                    00116444
+001179        MOVE 'PLEASE ENTER VALID DATA' TO LS-MSG                  00117944
+001180        EXEC CICS RETURN                                          00118044
+001181        END-EXEC                                                  00118144
+001182     ELSE                                                         00118244
+001183        DISPLAY 'IN ELSE 1000'                                    00118344
+001184        PERFORM 2000-PROCESSING-PARA                              00118444
+001185*                                                                 00118500
+001190        EXEC CICS RETURN                                          00119044
+001301        END-EXEC                                                  00130144
+001302     END-IF.                                                      00130200
+001303******************************************************************00130300
+001340 2000-PROCESSING-PARA.                                            00134000
+001341      DISPLAY 'START 2000'.                                       00134128
+001345      EVALUATE TRUE                                               00134500
+001346         WHEN LS-OPT = 'INSERT'                                   00134644
+001356             PERFORM 3000-INSERT-PARA THRU 3000-EXIT              00135644
+001358             EXEC CICS RETURN END-EXEC                            00135804
+001359         WHEN LS-OPT = 'SELECT'                                   00135951
+001360             PERFORM 4000-SELECT-PARA THRU 4000-EXIT              00136051
+001361             EXEC CICS RETURN END-EXEC                            00136153
+001362         WHEN LS-OPT = 'UPDATE'                                   00136254
+001363             PERFORM 5000-UPDATE-PARA THRU 5000-EXIT              00136354
+001364             EXEC CICS RETURN END-EXEC                            00136454
+001365         WHEN LS-OPT = 'DELETE'                                   00136562
+001366             PERFORM 6000-DELETE-PARA THRU 6000-EXIT              00136662
+001367             EXEC CICS RETURN END-EXEC                            00136762
+001371*                    EXEC CICS READQ TS                           00137144
+001372*                         QUEUE('Q-NAME')                         00137244
+001373*                         INTO(ORDERQ)                            00137344
+001374*                         ITEM(CHOICE1)                           00137444
+001375*                    END-EXEC                                     00137544
+001426         WHEN OTHER                                               00142644
+001427            PERFORM 2100-CLEAR-PARA THRU 2100-EXIT                00142744
+001446            EXEC CICS RETURN END-EXEC                             00144644
+001447      END-EVALUATE.                                               00144744
+001448*                                                                 00144844
+001449 2000-EXIT.                                                       00144944
+001450     EXIT.                                                        00145044
+001451******************************************************************00145144
+001452 2100-CLEAR-PARA.                                                 00145244
+001453      MOVE SPACES TO LS-MSG,                                      00145344
+001454                     LS-OPT,                                      00145444
+001455                     LS-CUSNAME,                                  00145544
+001456                     LS-ADDLN1,                                   00145644
+001457                     LS-ADDLN2,                                   00145744
+001458                     LS-CITY,                                     00145844
+001459                     LS-STATE,                                    00145944
+001460                     LS-PCODE,                                    00146044
+001461                     LS-CTRY                                      00146144
+001462                     LS-PHONE,                                    00146244
+001463                     LS-FAX,                                      00146344
+001464                     LS-EMAIL,                                    00146465
+001465                     LS-CRDATE.                                   00146566
+001466      MOVE 0      TO LS-CUSTID.                                   00146665
+001467*                                                                 00146765
+001468 2100-EXIT.                                                       00146865
+001469     EXIT.                                                        00146965
+001470************************************************************      00147065
+001471 3000-INSERT-PARA.                                                00147165
+001472     DISPLAY 'START 3000'.                                        00147265
+001473     PERFORM 3100-FETCH-CUS-ID-PARA THRU 3100-EXIT.               00147372
+001475     PERFORM 3200-VALIDATION-PARA THRU 3200-EXIT.                 00147565
+001476     PERFORM 3300-VALDATE-PARA THRU 3300-EXIT.                    00147665
+001477     PERFORM 3400-VALID-COUNTRY-PARA THRU 3400-EXIT               00147765
+001478             VARYING I FROM 1 BY 1 UNTIL I > 120                  00147865
+001479             OR WS-FLAG = 'Y'.                                    00147965
+001480     IF WS-FLAG = 'Y'                                             00148065
+001481       MOVE LS-CUSTID TO CUST-ID                                  00148165
+001482       MOVE LS-CUSNAME TO CUST-NAME                               00148265
+001483       MOVE LS-ADDLN1 TO CUST-ADR-LN-1                            00148365
+001484       MOVE LS-ADDLN2 TO CUST-ADR-LN-2                            00148465
+001485       MOVE LS-CITY   TO CUST-CITY                                00148565
+001486       MOVE LS-STATE  TO CUST-STATE                               00148665
+001487       MOVE LS-PCODE  TO CUST-POST-CD                             00148765
+001488       MOVE LS-CTRY   TO CUST-COUNTRT                             00148865
+001489       MOVE LS-PHONE  TO CUST-PHONE                               00148965
+001490       MOVE LS-FAX    TO CUST-FAX                                 00149065
+001491       MOVE LS-EMAIL  TO CUST-EMAIL-ID                            00149165
+001492       MOVE LS-CRDATE TO CUST-CR-DATE                             00149265
+001494       EXEC SQL INSERT INTO                                       00149465
+001495          ADMT.T_CU_CUSTOMER VALUES(:CUST-ID,                     00149565
+001496              :CUST-NAME,:CUST-ADR-LN-1,                          00149665
+001497              :CUST-ADR-LN-2,:CUST-CITY,                          00149765
+001498              :CUST-STATE,:CUST-POST-CD,                          00149865
+001499              :CUST-COUNTRT,:CUST-PHONE,                          00149965
+001500             :CUST-FAX,:CUST-EMAIL-ID,:CUST-CR-DATE)              00150065
+001501       END-EXEC                                                   00150165
+001502       EVALUATE SQLCODE                                           00150265
+001503          WHEN 0                                                  00150365
+001504             PERFORM 3010-CONCATE-PARA THRU 3010-EXIT             00150465
+001505             EXEC SQL INSERT INTO                                 00150565
+001506                ADMT.LOGIN_DTLS VALUES(:USER-ID,                  00150666
+001507                    :USER-PWD,:ACCESS-TOKEN)                      00150765
+001512             END-EXEC                                             00151265
+001513             MOVE 'THANK YOU FOR USING THE SYSTEM - USER ID IS '  00151370
+001514                          TO WS-MSG1                              00151470
+001515                 STRING WS-MSG1   DELIMITED BY SIZE               00151570
+001516                        USER-ID   DELIMITED BY SPACE              00151670
+001517                                  INTO LS-MSG                     00151770
+001518             EXEC CICS RETURN END-EXEC                            00151865
+001519          WHEN OTHER                                              00151965
+001520           MOVE 'REGISTRATION FAILED - PLEASE TRY AGAIN' TO LS-MSG00152072
+001521            EXEC CICS RETURN END-EXEC                             00152165
+001522       END-EVALUATE                                               00152244
+001523*                                                                 00152344
+001524     ELSE                                                         00152444
+001525       MOVE 0 TO I                                                00152544
+001526       MOVE SPACES TO LS-CTRY                                     00152644
+001527       MOVE 'INVALID COUNTRY,PLEASE CHOOSE THE VALID COUNTRY'     00152744
+001528             TO LS-MSG                                            00152844
+001529       EXEC CICS RETURN END-EXEC                                  00152944
+001530     END-IF.                                                      00153044
+001531*                                                                 00153144
+001532 3000-EXIT.                                                       00153244
+001533     EXIT.                                                        00153344
+001534***************************************************************** 00153444
+001535 3010-CONCATE-PARA.                                               00153565
+001536     MOVE CUST-ID TO WS-ID.                                       00153672
+001537     MOVE WS-CONCATE TO USER-ID.                                  00153766
+001538*    MOVE WS-CONCATE TO WS-FIRPWD1.                               00153876
+001539*    MOVE CUST-COUNTRT(1:2) TO WS-FIRPWD2.                        00153976
+001540     MOVE 'SATYAM' TO USER-PWD.                                   00154077
+001541     MOVE 'CSTMR' TO ACCESS-TOKEN.                                00154166
+001542*                                                                 00154265
+001543 3010-EXIT.                                                       00154365
+001544     EXIT.                                                        00154465
+001550******************************************************************00155065
+001584*3100-FETCH-CUS-ID-PARA.                                          00158453
+001585*                                                                 00158544
+001592*    DISPLAY 'START 3100-PARA'.                                   00159253
+001593*    MOVE 5451 TO CUST-ID.                                        00159353
+001594*    EXEC SQL                                                     00159453
+001600*        SELECT CUST_ID                                           00160053
+001700*        INTO :CUST-ID                                            00170053
+001710*        FROM ADMT.T_CU_CUSTOMER                                  00171053
+001720*        WHERE CUST_ID = :CUST-ID                                 00172053
+001730*    END-EXEC.                                                    00173053
+001740*                                                                 00174004
+001741*    DISPLAY 'SQLCODE', SQLCODE.                                  00174153
+001771*    EVALUATE SQLCODE                                             00177153
+001772*       WHEN 0                                                    00177253
+001773*           ADD 1 TO CUST-ID                                      00177353
+001774*           MOVE 'N' TO WS-CSFLAG                                 00177453
+001775*       WHEN +100                                                 00177553
+001776*           MOVE 'Y' TO WS-CSFLAG                                 00177653
+001777*           MOVE CUST-ID TO LS-CUSTID                             00177753
+001778*    END-EVALUATE.                                                00177853
+001779*                                                                 00177944
+001814*3100-EXIT.                                                       00181453
+001815*    EXIT.                                                        00181553
+001816***************************************************************** 00181636
+001817*3100-FETCH-CUS-ID-PARA.                                          00181772
+001818*                                                                 00181855
+001820*    COMPUTE RAND-INT = 1000000000 * FUNCTION RANDOM.             00182072
+001822*    MOVE RAND-INT TO CUST-ID.                                    00182272
+001830*    EXEC SQL                                                     00183072
+001831*         SELECT CUST_ID                                          00183172
+001832*         INTO :CUST-ID                                           00183272
+001833*         FROM ADMT.T_CU_CUSTOMER                                 00183372
+001834*         WHERE CUST_ID = :CUST-ID                                00183472
+001835*    END-EXEC.                                                    00183572
+001836*                                                                 00183672
+001838*    EVALUATE SQLCODE                                             00183872
+001839*       WHEN 0                                                    00183972
+001840*           ADD 1 TO RAND-INT                                     00184072
+001841*           MOVE 'N' TO WS-CSFLAG                                 00184172
+001843*       WHEN +100                                                 00184372
+001844*           MOVE 'Y' TO WS-CSFLAG                                 00184472
+001846*           MOVE CUST-ID TO LS-CUSTID                             00184672
+001847*    END-EVALUATE.                                                00184772
+001848*                                                                 00184851
+001849*3100-EXIT.                                                       00184972
+001850*    EXIT.                                                        00185072
+001851***************************************************************** 00185151
+001852 3100-FETCH-CUS-ID-PARA.                                          00185272
+001853*                                                                 00185372
+001854      EXEC SQL                                                    00185472
+001855          SELECT CUST_ID                                          00185572
+001856          INTO :CUST-ID                                           00185672
+001857          FROM ADMT.T_CU_CUSTOMER                                 00185772
+001858          ORDER BY CUST_ID DESC FETCH FIRST 1 ROWS ONLY           00185872
+001859      END-EXEC.                                                   00185972
+001862                                                                  00186272
+001863      MOVE CUST-ID TO LS-CUSTID.                                  00186372
+001864      COMPUTE LS-CUSTID = LS-CUSTID + 1.                          00186472
+001872                                                                  00187272
+001873 3100-EXIT.                                                       00187372
+001874     EXIT.                                                        00187472
+001875***************************************************************** 00187572
+001876 3200-VALIDATION-PARA.                                            00187672
+001877*                                                                 00187772
+001880     DISPLAY 'START 3200'.                                        00188072
+001900     IF LS-CUSNAME = 0 OR LS-CUSNAME = SPACES                     00190044
+001910          MOVE 'ENTER A VALID NAME' TO LS-MSG                     00191072
+001912          EXEC CICS RETURN END-EXEC                               00191244
+001913     ELSE IF LS-CUSNAME IS NOT ALPHABETIC                         00191344
+001914          MOVE 'ENTER A VALID NAME'                               00191472
+001915               TO LS-MSG                                          00191544
+001916          EXEC CICS RETURN END-EXEC                               00191644
+001918          END-IF                                                  00191844
+001919     END-IF.                                                      00191944
+002000*                                                                 00200044
+002100     IF LS-ADDLN1 = 0 OR LS-ADDLN1 = SPACES                       00210044
+002200          MOVE 'ENTER A VALID ADDRESS' TO LS-MSG                  00220072
+002300          EXEC CICS RETURN END-EXEC                               00230044
+002410     END-IF.                                                      00241044
+002420*                                                                 00242044
+002421     IF LS-ADDLN2 = 0 OR LS-ADDLN2 = SPACES                       00242144
+002422          MOVE 'ENTER A VALID ADDRESS' TO LS-MSG                  00242272
+002423          EXEC CICS RETURN END-EXEC                               00242344
+002424     END-IF.                                                      00242444
+002425*                                                                 00242544
+002426     IF LS-CITY = 0 OR LS-CITY = SPACES                           00242644
+002427          MOVE 'ENTER A VALID CITY' TO LS-MSG                     00242772
+002428          EXEC CICS RETURN END-EXEC                               00242844
+002429     ELSE IF LS-CITY IS NOT ALPHABETIC                            00242944
+002430          MOVE 'ENTER A VALID CITY'                               00243072
+002431               TO LS-MSG                                          00243144
+002432          EXEC CICS RETURN END-EXEC                               00243244
+002433          END-IF                                                  00243344
+002434     END-IF.                                                      00243444
+002435*                                                                 00243544
+002436     IF LS-STATE = 0 OR LS-STATE = SPACES                         00243644
+002437          MOVE 'ENTER A VALID STATE' TO LS-MSG                    00243772
+002438          EXEC CICS RETURN END-EXEC                               00243844
+002439     ELSE IF LS-STATE IS NOT ALPHABETIC                           00243944
+002440          MOVE 'ENTER A VALID STATE'                              00244072
+002441               TO LS-MSG                                          00244144
+002442          EXEC CICS RETURN END-EXEC                               00244244
+002443          END-IF                                                  00244344
+002444     END-IF.                                                      00244444
+002445*                                                                 00244544
+002446     IF LS-PCODE = 0 OR LS-PCODE = SPACES                         00244644
+002447         MOVE 'ENTER A VALID PIN-CODE' TO LS-MSG                  00244772
+002448         EXEC CICS RETURN END-EXEC                                00244844
+002449     ELSE IF LS-PCODE IS ALPHABETIC                               00244944
+002450         MOVE 'ENTER A VALID PIN-CODE'                            00245072
+002451              TO LS-MSG                                           00245144
+002452         EXEC CICS RETURN END-EXEC                                00245244
+002453          END-IF                                                  00245344
+002454     END-IF.                                                      00245444
+002455*                                                                 00245544
+002456     IF LS-CTRY = 0 OR LS-CTRY = SPACES                           00245644
+002457          MOVE 'ENTER A VALID COUNTRY' TO LS-MSG                  00245772
+002458          EXEC CICS RETURN END-EXEC                               00245844
+002459     END-IF.                                                      00245944
+002460*                                                                 00246044
+002461     IF LS-PHONE = 0 OR LS-PHONE = SPACES                         00246155
+002462         MOVE 'ENTER A VALID PHONE NUMBER' TO LS-MSG              00246272
+002463         EXEC CICS RETURN END-EXEC                                00246344
+002464     ELSE IF LS-PHONE IS ALPHABETIC                               00246455
+002465         MOVE 'ENTER A VALID PHONE NUMBER'                        00246572
+002466              TO LS-MSG                                           00246644
+002467         EXEC CICS RETURN END-EXEC                                00246744
+002468          END-IF                                                  00246844
+002469     END-IF.                                                      00246944
+002470*                                                                 00247044
+002481     IF LS-FAX = 0 OR LS-FAX = SPACES                             00248144
+002482         MOVE 'ENTER A VALID FAX NUMBER' TO LS-MSG                00248272
+002483         EXEC CICS RETURN END-EXEC                                00248344
+002484     ELSE IF LS-FAX IS ALPHABETIC                                 00248444
+002485         MOVE 'ENTER A VALID FAX NUMBER'                          00248572
+002486              TO LS-MSG                                           00248644
+002487         EXEC CICS RETURN END-EXEC                                00248744
+002488          END-IF                                                  00248844
+002489     END-IF.                                                      00248944
+002490*                                                                 00249044
+002491     IF LS-EMAIL = 0 OR LS-EMAIL = SPACES                         00249161
+002492         MOVE 'ENTER A VALID EMAIL-ID' TO LS-MSG                  00249272
+002493         EXEC CICS RETURN END-EXEC                                00249355
+002499     END-IF.                                                      00249955
+002500*                                                                 00250055
+002505*                                                                 00250565
+002506*    IF LS-CRDATE = 0 OR LS-CRDATE = SPACES                       00250655
+002507*         MOVE 'CREATION DATE NOT ENTERED - PLZ ENTER IT'         00250755
+002508*               TO LS-MSG                                         00250855
+002509*         EXEC CICS RETURN END-EXEC                               00250955
+002510*    ELSE                                                         00251055
+002511*         MOVE LS-CRDATE   TO INPUTDATELA                         00251155
+002512*         MOVE LS-CRDATE(1:2) TO MONTHLA                          00251255
+002513*         MOVE LS-CRDATE(3:1) TO WS-SLASH1                        00251355
+002520*         MOVE LS-CRDATE(4:2) TO DAYLA                            00252055
+002600*         MOVE LS-CRDATE(6:1) TO WS-SLASH2                        00260044
+002700*         MOVE LS-CRDATE(7:4) TO YEARLA                           00270044
+002800*                                                                 00280044
+002900*         PERFORM 9400-BEGIN-PARA THRU 9400-EXIT                  00290044
+003000*                                                                 00300044
+003100*         EVALUATE TRUE                                           00310044
+003110*           WHEN DATENOTNUMERIC                                   00311044
+003120*             MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'    00312044
+003130*                  TO LS-MSG                                      00313051
+003150*             EXEC CICS RETURN END-EXEC                           00315044
+003151*           WHEN MONTHCONTAINSZEROS                               00315144
+003152*             MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00315244
+003153*                  TO LS-MSG                                      00315351
+003155*             EXEC CICS RETURN END-EXEC                           00315544
+003156*           WHEN MONTHGREATERTHAN12                               00315644
+003160*             MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'   00316044
+003170*                   TO LS-MSG                                     00317051
+003190*              EXEC CICS RETURN END-EXEC                          00319044
+003191*            WHEN DAYCONTAINSZEROS                                00319144
+003192*              MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'   00319244
+003193*                   TO LS-MSG                                     00319351
+003195*              EXEC CICS RETURN END-EXEC                          00319544
+003196*            WHEN DAYTOOGREATFORMONTH                             00319644
+003197*              MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ EN00319744
+003198*                   'TER CORRECT FORMAT' TO LS-MSG                00319851
+003200*              EXEC CICS RETURN END-EXEC                          00320044
+003201*            WHEN YEARCONTAINSZEROS                               00320144
+003202*              MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'   00320244
+003203*                     TO LS-MSG                                   00320351
+003205*              EXEC CICS RETURN END-EXEC                          00320544
+003206*         END-EVALUATE                                            00320644
+003207*                                                                 00320718
+003208*         IF LS-CRDATE(1:2) IS NOT NUMERIC                        00320844
+003209*            MOVE 'MONTH ENTERED IS INVALID - PLEASE ENTER IT'    00320944
+003210*                TO LS-MSG                                        00321051
+003212*            EXEC CICS RETURN END-EXEC                            00321244
+003213*         END-IF                                                  00321344
+003214*                                                                 00321444
+003215*         IF LS-CRDATE(4:2) IS NOT NUMERIC                        00321544
+003216*            MOVE 'DATE ENTERED IS INVALID - PLEASE ENTER IT'     00321644
+003217*                TO LS-MSG                                        00321751
+003219*            EXEC CICS RETURN END-EXEC                            00321944
+003220*         END-IF                                                  00322044
+003221*                                                                 00322144
+003222*         IF LS-CRDATE(7:4)IS NOT NUMERIC                         00322244
+003223*            MOVE 'YEAR ENTERED IS INVALID - PLEASE ENTER IT'     00322344
+003224*                TO LS-MSG                                        00322451
+003226*            EXEC CICS RETURN END-EXEC                            00322644
+003227*         ELSE                                                    00322744
+003228*            DIVIDE YEARLA BY 4 GIVING WS-QUOT REMAINDER WS-REM   00322844
+003229*                                                                 00322944
+003230*            IF MONTHLA = 02 AND WS-SLASH1 = '/' AND DAYLA = 29   00323044
+003231*               AND WS-SLASH2 = '/' AND WS-REM NOT = 0            00323144
+003232*               MOVE 'DATE FOR PARTICULAR MONTH IS INVALID - PLZ E00323244
+003233*                  'NTER CORRECT FORMAT' TO LS-MSG                00323351
+003235*               EXEC CICS RETURN END-EXEC                         00323544
+003236*            END-IF                                               00323644
+003240*                                                                 00324018
+003250*         END-IF                                                  00325044
+032400*                                                                 03240044
+032500*         EVALUATE TRUE                                           03250044
+032510*             WHEN WS-SLASH1 NOT = '/'                            03251044
+032520*               MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A S03252044
+032530*                    'EPERATOR'  TO LS-MSG                        03253051
+032550*               EXEC CICS RETURN END-EXEC                         03255044
+032560*                                                                 03256044
+032570*             WHEN WS-SLASH2 NOT = '/'                            03257044
+032580*               MOVE 'DATE SEPERATOR IS INVALID, USE ONLY / AS A S03258044
+032590*                    'EPERATOR'  TO LS-MSG                        03259051
+032592*               EXEC CICS RETURN END-EXEC                         03259244
+032593*         END-EVALUATE                                            03259344
+032594*                                                                 03259448
+032595 3200-EXIT.                                                       03259549
+032596     EXIT.                                                        03259648
+032597******************************************************************03259744
+032666 3300-VALDATE-PARA.                                               03266644
+032667     DISPLAY 'START 3300'.                                        03266744
+032668     EXEC CICS ASKTIME ABSTIME(DT) END-EXEC.                      03266818
+032669     EXEC CICS FORMATTIME                                         03266918
+032670         ABSTIME(DT)                                              03267018
+032671         MMDDYY(WK-DATE)                                          03267118
+032672         DATESEP                                                  03267218
+032673         TIME(WK-TIME)                                            03267318
+032674         TIMESEP                                                  03267418
+032675     END-EXEC.                                                    03267518
+032676*                                                                 03267618
+032677     MOVE WK-D-YY TO WS-YEAR1.                                    03267718
+032678     ADD 2000 TO WS-YEAR1.                                        03267818
+032679     MOVE WS-YEAR1 TO WS-YEAR.                                    03267918
+032680     MOVE WK-D-MM TO WS-MONTH.                                    03268018
+032681     MOVE WK-D-DD TO WS-DATE.                                     03268118
+032682     MOVE WS-SCR-DATE TO LS-CRDATE.                               03268248
+032685*                                                                 03268518
+032686     DISPLAY 'END   3300'.                                        03268644
+032687*                                                                 03268744
+032688 3300-EXIT.                                                       03268844
+032689     EXIT.                                                        03268918
+032690**********************************************************        03269049
+032691 3400-VALID-COUNTRY-PARA.                                         03269149
+032700     IF LS-CTRY = WS-COUNTRY-NAME(I)                              03270049
+032800        MOVE 'Y' TO WS-FLAG                                       03280049
+032900     ELSE                                                         03290049
+033000        MOVE 'N' TO WS-FLAG                                       03300049
+033100     END-IF.                                                      03310049
+033200*                                                                 03320049
+033300 3400-EXIT.                                                       03330049
+033400     EXIT.                                                        03340049
+033410***************************************************************** 03341051
+033500 4000-SELECT-PARA.                                                03350051
+033600     IF LS-CUSTID = 0                                             03360051
+033700        MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG   03370051
+033900        EXEC CICS RETURN END-EXEC                                 03390051
+034000*                                                                 03400051
+034100     ELSE IF LS-CUSTID IS NOT NUMERIC                             03410051
+034200        MOVE 'CUSTOMER ID SHOULD BE NUMERIC - PLZ ENTER IT'       03420051
+034300             TO LS-MSG                                            03430051
+034400        EXEC CICS RETURN END-EXEC                                 03440051
+034600*                                                                 03460051
+034700          ELSE                                                    03470051
+034800            MOVE LS-CUSTID TO CUST-ID                             03480051
+034900            EXEC SQL                                              03490051
+035000               SELECT CUST_ID,CUST_NAME,CUST_ADR_LN_1,            03500051
+035100                     CUST_ADR_LN_2,CUST_CITY,CUST_STATE,          03510051
+035200                     CUST_POST_CD,CUST_COUNTRT,CUST_PHONE,        03520056
+035210                     CUST_FAX,CUST_EMAIL_ID,CUST_CR_DATE          03521056
+035300               INTO :CUST-ID,:CUST-NAME,                          03530051
+035400                    :CUST-ADR-LN-1,                               03540051
+035500                    :CUST-ADR-LN-2,                               03550051
+035600                    :CUST-CITY,                                   03560051
+035700                    :CUST-STATE,                                  03570051
+035800                    :CUST-POST-CD,                                03580051
+035900                    :CUST-COUNTRT,                                03590051
+036000                    :CUST-PHONE,                                  03600051
+036100                    :CUST-FAX,                                    03610051
+036110                    :CUST-EMAIL-ID,                               03611051
+036120                    :CUST-CR-DATE                                 03612051
+036200               FROM ADMT.T_CU_CUSTOMER                            03620051
+036300               WHERE CUST_ID = :CUST-ID                           03630051
+036400            END-EXEC                                              03640051
+036500*                                                                 03650051
+036600            EVALUATE SQLCODE                                      03660051
+036700               WHEN 0                                             03670051
+036800                   MOVE CUST-ID       TO LS-CUSTID                03680051
+036810                   MOVE CUST-NAME     TO LS-CUSNAME               03681051
+036900                   MOVE CUST-ADR-LN-1 TO LS-ADDLN1                03690051
+037000                   MOVE CUST-ADR-LN-2 TO LS-ADDLN2                03700051
+037100                   MOVE CUST-CITY     TO LS-CITY                  03710051
+037200                   MOVE CUST-STATE    TO LS-STATE                 03720051
+037300                   MOVE CUST-POST-CD  TO LS-PCODE                 03730051
+037400                   MOVE CUST-COUNTRT  TO LS-CTRY                  03740051
+037500                   MOVE CUST-PHONE    TO LS-PHONE                 03750051
+037600                   MOVE CUST-FAX      TO LS-FAX                   03760051
+037610                   MOVE CUST-EMAIL-ID TO LS-EMAIL                 03761051
+037630                   MOVE CUST-CR-DATE  TO LS-CRDATE                03763051
+037700*                                                                 03770051
+037800                   MOVE 'PROFILE DETAILS RETRIEVED SUCCESSFULLY'  03780075
+037900                         TO LS-MSG                                03790051
+038100                   EXEC CICS RETURN END-EXEC                      03810051
+038200               WHEN OTHER                                         03820051
+038300                   PERFORM 2100-CLEAR-PARA THRU 2100-EXIT         03830051
+038400                   MOVE CUST-ID TO LS-CUSTID                      03840051
+038500                   MOVE 'CUSTOMER DOES NOT EXIST' TO LS-MSG       03850051
+038600                   EXEC CICS RETURN END-EXEC                      03860051
+038900            END-EVALUATE                                          03890051
+039000*                                                                 03900051
+039100          END-IF                                                  03910051
+039200*                                                                 03920051
+039300     END-IF.                                                      03930051
+039400*                                                                 03940051
+039500 4000-EXIT.                                                       03950051
+039600     EXIT.                                                        03960051
+039700******************************************************************03970054
+039800 5000-UPDATE-PARA.                                                03980054
+039810     IF LS-CUSTID = 0 OR LS-CUSTID = SPACES                       03981055
+039820         MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  03982055
+039830         EXEC CICS RETURN END-EXEC                                03983055
+039840     ELSE IF LS-CUSTID IS NOT NUMERIC                             03984055
+039850         MOVE 'CUSTOMER ID SHOULD BE NUMERIC' TO LS-MSG           03985055
+039870         EXEC CICS RETURN END-EXEC                                03987055
+039880          END-IF                                                  03988055
+039890     END-IF.                                                      03989055
+039891*                                                                 03989155
+039900     MOVE LS-CUSTID TO CUST-ID.                                   03990054
+039910*                                                                 03991054
+040000     EXEC SQL                                                     04000059
+040010         SELECT CUST_ID,CUST_CR_DATE                              04001063
+040011         INTO :CUST-ID,:CUST-CR-DATE                              04001164
+040020         FROM ADMT.T_CU_CUSTOMER                                  04002054
+040040         WHERE CUST_ID = :CUST-ID                                 04004054
+040050     END-EXEC.                                                    04005054
+040060*                                                                 04006054
+040070     EVALUATE SQLCODE                                             04007054
+040080        WHEN 0                                                    04008054
+040100          PERFORM 3200-VALIDATION-PARA THRU 3200-EXIT             04010054
+040200          MOVE CUST-CR-DATE TO LS-CRDATE                          04020063
+040300          PERFORM 3400-VALID-COUNTRY-PARA THRU 3400-EXIT          04030054
+040400              VARYING I FROM 1 BY 1 UNTIL I > 120 OR WS-FLAG = 'Y'04040054
+040600          IF WS-FLAG = 'Y'                                        04060054
+040700             MOVE LS-CUSTID TO CUST-ID                            04070054
+040800             MOVE LS-CUSNAME TO CUST-NAME                         04080054
+040900             MOVE LS-ADDLN1 TO CUST-ADR-LN-1                      04090054
+041000             MOVE LS-ADDLN2 TO CUST-ADR-LN-2                      04100054
+041100             MOVE LS-CITY   TO CUST-CITY                          04110054
+041200             MOVE LS-STATE  TO CUST-STATE                         04120054
+041300             MOVE LS-PCODE  TO CUST-POST-CD                       04130054
+041400             MOVE LS-CTRY   TO CUST-COUNTRT                       04140054
+041500             MOVE LS-PHONE  TO CUST-PHONE                         04150054
+041600             MOVE LS-FAX    TO CUST-FAX                           04160054
+041700             MOVE LS-EMAIL  TO CUST-EMAIL-ID                      04170054
+041800             MOVE LS-CRDATE TO CUST-CR-DATE                       04180054
+041900             EXEC SQL                                             04190055
+042000                  UPDATE ADMT.T_CU_CUSTOMER                       04200055
+042100                  SET CUST_ID       = :CUST-ID,                   04210055
+042200                      CUST_NAME     = :CUST-NAME,                 04220055
+042300                      CUST_ADR_LN_1 = :CUST-ADR-LN-1,             04230055
+042400                      CUST_ADR_LN_2 = :CUST-ADR-LN-2,             04240055
+042500                      CUST_CITY     = :CUST-CITY,                 04250055
+042600                      CUST_STATE    = :CUST-STATE,                04260055
+042610                      CUST_POST_CD  = :CUST-POST-CD,              04261055
+042620                      CUST_COUNTRT  = :CUST-COUNTRT,              04262055
+042630                      CUST_PHONE    = :CUST-PHONE,                04263055
+042640                      CUST_FAX      = :CUST-FAX,                  04264056
+042641                      CUST_EMAIL_ID = :CUST-EMAIL-ID,             04264156
+042642                      CUST_CR_DATE  = :CUST-CR-DATE               04264256
+042650                  WHERE CUST_ID     = :CUST-ID                    04265055
+042660             END-EXEC                                             04266055
+042700             EVALUATE SQLCODE                                     04270054
+042800               WHEN 0                                             04280054
+042900                  MOVE 'PROFILE DETAILS UPDATED SUCCESSFULLY'     04290075
+042910                        TO LS-MSG                                 04291071
+043000                  EXEC CICS RETURN END-EXEC                       04300054
+043100               WHEN OTHER                                         04310054
+043200                  MOVE 'UPDATION FAILED - PLEASE TRY AGAIN'       04320072
+043210                        TO LS-MSG                                 04321072
+043300                  EXEC CICS RETURN END-EXEC                       04330054
+043400             END-EVALUATE                                         04340054
+043500*                                                                 04350054
+043600          ELSE                                                    04360054
+043700            MOVE 0 TO I                                           04370054
+043800            MOVE SPACES TO LS-CTRY                                04380054
+043900            MOVE 'INVALID COUNTRY,PLEASE CHOOSE THE VALID COUNTRY'04390054
+044000                  TO LS-MSG                                       04400054
+044100            EXEC CICS RETURN END-EXEC                             04410054
+044200          END-IF                                                  04420054
+044210*                                                                 04421054
+044220        WHEN 100                                                  04422054
+044221           MOVE CUST-ID TO LS-CUSTID                              04422154
+044222           MOVE 'CUSTOMER DOES NOT EXIST' TO LS-MSG               04422271
+044223           EXEC CICS RETURN END-EXEC                              04422354
+044230     END-EVALUATE.                                                04423058
+044300*                                                                 04430054
+044400 5000-EXIT.                                                       04440055
+044500     EXIT.                                                        04450054
+044510****************************************************************  04451062
+044600 6000-DELETE-PARA.                                                04460062
+044700     IF LS-CUSTID = 0 OR LS-CUSTID = SPACES                       04470062
+044800         MOVE 'CUSTOMER ID NOT ENTERED - PLZ ENTER IT' TO LS-MSG  04480062
+044900         EXEC CICS RETURN END-EXEC                                04490062
+045000     ELSE IF LS-CUSTID IS NOT NUMERIC                             04500062
+045100         MOVE 'CUSTOMER ID SHOULD BE NUMERIC' TO LS-MSG           04510062
+045200         EXEC CICS RETURN END-EXEC                                04520062
+045300          END-IF                                                  04530062
+045400     END-IF.                                                      04540062
+045500*                                                                 04550062
+045600     MOVE LS-CUSTID TO CUST-ID.                                   04560062
+045700*                                                                 04570062
+045800     EXEC SQL                                                     04580062
+045900         SELECT CUST_ID                                           04590062
+046000         INTO :CUST-ID                                            04600062
+046100         FROM ADMT.T_CU_CUSTOMER                                  04610062
+046200         WHERE CUST_ID = :CUST-ID                                 04620062
+046300     END-EXEC.                                                    04630062
+046400*                                                                 04640062
+046500     EVALUATE SQLCODE                                             04650062
+046600        WHEN 0                                                    04660062
+046700           EXEC SQL DELETE FROM ADMT.T_CU_CUSTOMER                04670062
+046800           WHERE CUST_ID = :CUST-ID                               04680062
+046900           END-EXEC                                               04690062
+047000           EVALUATE SQLCODE                                       04700062
+047100              WHEN 0                                              04710062
+047110                 MOVE LS-CUSTID TO WS-ID                          04711067
+047120                 MOVE WS-CONCATE TO USER-ID                       04712067
+047130                 EXEC SQL                                         04713067
+047140                     DELETE FROM ADMT.LOGIN_DTLS                  04714067
+047150                     WHERE USER_ID = :USER-ID                     04715067
+047160                 END-EXEC                                         04716067
+047170                 EVALUATE SQLCODE                                 04717067
+047180                      WHEN 0                                      04718067
+047200                       MOVE 'CUSTOMER PROFILE CLOSED SUCCESSFULLY'04720075
+047210                                 TO LS-MSG                        04721075
+047300                        EXEC CICS RETURN                          04730067
+047400                        END-EXEC                                  04740067
+047401                      WHEN OTHER                                  04740167
+047402                       MOVE 'CUSTOMER PROFILE CLOSED SUCCESSFULLY'04740275
+047403                                 TO LS-MSG                        04740375
+047406                        EXEC CICS RETURN                          04740671
+047407                        END-EXEC                                  04740771
+047410                 END-EVALUATE                                     04741067
+047500              WHEN OTHER                                          04750062
+047600                  MOVE 'DELETION FAILED - PLEASE TRY AGAIN'       04760072
+047610                                 TO LS-MSG                        04761072
+047700                  EXEC CICS RETURN                                04770062
+047800                  END-EXEC                                        04780062
+047900           END-EVALUATE                                           04790062
+048000*                                                                 04800062
+048100        WHEN 100                                                  04810062
+048110           MOVE 'CUSTOMER DOES NOT EXIST' TO LS-MSG               04811071
+048120           EXEC CICS RETURN                                       04812062
+048130           END-EXEC                                               04813062
+048200     END-EVALUATE.                                                04820062
+048300*                                                                 04830062
+048400 6000-EXIT.                                                       04840062
+048500     EXIT.                                                        04850062

@@ -1,0 +1,155 @@
+          05 LKT-MSG1         PIC X(65).                                00030023
+          05 LKT-OPT1         PIC X(4).                                 00070123
+          05 LKT-FLAG1        PIC X(4).                                 00070223
+          05 LKT-CNT1         PIC 9(05).                                00070323
+          05 LKT-COUNT1       PIC 9(05).                                00070423
+      *                                                                 00072023
+          05 OUT-PROD-ID1         PIC 9(10).                            00090023
+          05 OUT-PROD-NAME1       PIC X(40).                            00110023
+          05 OUT-PROD-CAT-ID1     PIC X(05).                            00150023
+          05 OUT-PROD-CAT-NAME1   PIC X(40).                            00170023
+          05 OUT-PROD-UNIT-PRICE1 PIC X(12).                            00190023
+          05 OUT-PROD-UNIT-STOCK1 PIC 9(05).                            00210023
+          05 OUT-PROD-UNIT-ORDER1 PIC 9(05).                            00230023
+          05 OUT-PROD-ADD-DATE1   PIC X(10).                            00250023
+          05 OUT-PROD-TIMESTAMP1  PIC X(26).                            00260023
+      *                                                                 00270023
+          05 OUT-PROD-ID2         PIC 9(10).                            00280023
+          05 OUT-PROD-NAME2       PIC X(40).                            00290023
+          05 OUT-PROD-CAT-ID2     PIC X(05).                            00300023
+          05 OUT-PROD-CAT-NAME2   PIC X(40).                            00310023
+          05 OUT-PROD-UNIT-PRICE2 PIC X(12).                            00320023
+          05 OUT-PROD-UNIT-STOCK2 PIC 9(05).                            00330023
+          05 OUT-PROD-UNIT-ORDER2 PIC 9(05).                            00340023
+          05 OUT-PROD-ADD-DATE2   PIC X(10).                            00350023
+          05 OUT-PROD-TIMESTAMP2  PIC X(26).                            00360023
+      *                                                                 00370023
+          05 OUT-PROD-ID3         PIC 9(10).                            00380023
+          05 OUT-PROD-NAME3       PIC X(40).                            00390023
+          05 OUT-PROD-CAT-ID3     PIC X(05).                            00400023
+          05 OUT-PROD-CAT-NAME3   PIC X(40).                            00410023
+          05 OUT-PROD-UNIT-PRICE3 PIC X(12).                            00420023
+          05 OUT-PROD-UNIT-STOCK3 PIC 9(05).                            00430023
+          05 OUT-PROD-UNIT-ORDER3 PIC 9(05).                            00440023
+          05 OUT-PROD-ADD-DATE3   PIC X(10).                            00450023
+          05 OUT-PROD-TIMESTAMP3  PIC X(26).                            00460023
+      *                                                                 00470023
+          05 OUT-PROD-ID4         PIC 9(10).                            00480023
+          05 OUT-PROD-NAME4       PIC X(40).                            00490023
+          05 OUT-PROD-CAT-ID4     PIC X(05).                            00500023
+          05 OUT-PROD-CAT-NAME4   PIC X(40).                            00510023
+          05 OUT-PROD-UNIT-PRICE4 PIC X(12).                            00520023
+          05 OUT-PROD-UNIT-STOCK4 PIC 9(05).                            00530023
+          05 OUT-PROD-UNIT-ORDER4 PIC 9(05).                            00540023
+          05 OUT-PROD-ADD-DATE4   PIC X(10).                            00550023
+          05 OUT-PROD-TIMESTAMP4  PIC X(26).                            00560023
+      *                                                                 00570023
+          05 OUT-PROD-ID5         PIC 9(10).                            00580023
+          05 OUT-PROD-NAME5       PIC X(40).                            00590023
+          05 OUT-PROD-CAT-ID5     PIC X(05).                            00600023
+          05 OUT-PROD-CAT-NAME5   PIC X(40).                            00610023
+          05 OUT-PROD-UNIT-PRICE5 PIC X(12).                            00620023
+          05 OUT-PROD-UNIT-STOCK5 PIC 9(05).                            00630023
+          05 OUT-PROD-UNIT-ORDER5 PIC 9(05).                            00640023
+          05 OUT-PROD-ADD-DATE5   PIC X(10).                            00650023
+          05 OUT-PROD-TIMESTAMP5  PIC X(26).                            00660023
+      *                                                                 00670023
+          05 OUT-PROD-ID6         PIC 9(10).                            00680023
+          05 OUT-PROD-NAME6       PIC X(40).                            00690023
+          05 OUT-PROD-CAT-ID6     PIC X(05).                            00700023
+          05 OUT-PROD-CAT-NAME6   PIC X(40).                            00710023
+          05 OUT-PROD-UNIT-PRICE6 PIC X(12).                            00720023
+          05 OUT-PROD-UNIT-STOCK6 PIC 9(05).                            00730023
+          05 OUT-PROD-UNIT-ORDER6 PIC 9(05).                            00740023
+          05 OUT-PROD-ADD-DATE6   PIC X(10).                            00750023
+          05 OUT-PROD-TIMESTAMP6  PIC X(26).                            00760023
+      *                                                                 00770023
+          05 OUT-PROD-ID7         PIC 9(10).                            00780023
+          05 OUT-PROD-NAME7       PIC X(40).                            00790023
+          05 OUT-PROD-CAT-ID7     PIC X(05).                            00800023
+          05 OUT-PROD-CAT-NAME7   PIC X(40).                            00810023
+          05 OUT-PROD-UNIT-PRICE7 PIC X(12).                            00820023
+          05 OUT-PROD-UNIT-STOCK7 PIC 9(05).                            00830023
+          05 OUT-PROD-UNIT-ORDER7 PIC 9(05).                            00840023
+          05 OUT-PROD-ADD-DATE7   PIC X(10).                            00850023
+          05 OUT-PROD-TIMESTAMP7  PIC X(26).                            00860023
+      *                                                                 00870023
+          05 OUT-PROD-ID8         PIC 9(10).                            00880023
+          05 OUT-PROD-NAME8       PIC X(40).                            00890023
+          05 OUT-PROD-CAT-ID8     PIC X(05).                            00900023
+          05 OUT-PROD-CAT-NAME8   PIC X(40).                            00910023
+          05 OUT-PROD-UNIT-PRICE8 PIC X(12).                            00920023
+          05 OUT-PROD-UNIT-STOCK8 PIC 9(05).                            00930023
+          05 OUT-PROD-UNIT-ORDER8 PIC 9(05).                            00940023
+          05 OUT-PROD-ADD-DATE8   PIC X(10).                            00950023
+          05 OUT-PROD-TIMESTAMP8  PIC X(26).                            00960023
+      *                                                                 00970023
+          05 OUT-PROD-ID9         PIC 9(10).                            00980023
+          05 OUT-PROD-NAME9       PIC X(40).                            00990023
+          05 OUT-PROD-CAT-ID9     PIC X(05).                            01000023
+          05 OUT-PROD-CAT-NAME9   PIC X(40).                            01010023
+          05 OUT-PROD-UNIT-PRICE9 PIC X(12).                            01020023
+          05 OUT-PROD-UNIT-STOCK9 PIC 9(05).                            01030023
+          05 OUT-PROD-UNIT-ORDER9 PIC 9(05).                            01040023
+          05 OUT-PROD-ADD-DATE9   PIC X(10).                            01050023
+          05 OUT-PROD-TIMESTAMP9  PIC X(26).                            01060023
+      *                                                                 01070023
+          05 OUT-PROD-ID10         PIC 9(10).                           01080023
+          05 OUT-PROD-NAME10       PIC X(40).                           01090023
+          05 OUT-PROD-CAT-ID10     PIC X(05).                           01100023
+          05 OUT-PROD-CAT-NAME10   PIC X(40).                           01110023
+          05 OUT-PROD-UNIT-PRICE10 PIC X(12).                           01120023
+          05 OUT-PROD-UNIT-STOCK10 PIC 9(05).                           01130023
+          05 OUT-PROD-UNIT-ORDER10 PIC 9(05).                           01140023
+          05 OUT-PROD-ADD-DATE10   PIC X(10).                           01150023
+          05 OUT-PROD-TIMESTAMP10  PIC X(26).                           01160023
+      *                                                                 01170023
+          05 OUT-PROD-ID11         PIC 9(10).                           01180023
+          05 OUT-PROD-NAME11       PIC X(40).                           01190023
+          05 OUT-PROD-CAT-ID11     PIC X(05).                           01200023
+          05 OUT-PROD-CAT-NAME11   PIC X(40).                           01210023
+          05 OUT-PROD-UNIT-PRICE11 PIC X(12).                           01220023
+          05 OUT-PROD-UNIT-STOCK11 PIC 9(05).                           01230023
+          05 OUT-PROD-UNIT-ORDER11 PIC 9(05).                           01240023
+          05 OUT-PROD-ADD-DATE11   PIC X(10).                           01250023
+          05 OUT-PROD-TIMESTAMP11  PIC X(26).                           01260023
+      *                                                                 01270023
+          05 OUT-PROD-ID12         PIC 9(10).                           01280023
+          05 OUT-PROD-NAME12       PIC X(40).                           01290023
+          05 OUT-PROD-CAT-ID12     PIC X(05).                           01300023
+          05 OUT-PROD-CAT-NAME12   PIC X(40).                           01310023
+          05 OUT-PROD-UNIT-PRICE12 PIC X(12).                           01320023
+          05 OUT-PROD-UNIT-STOCK12 PIC 9(05).                           01330023
+          05 OUT-PROD-UNIT-ORDER12 PIC 9(05).                           01340023
+          05 OUT-PROD-ADD-DATE12   PIC X(10).                           01350023
+          05 OUT-PROD-TIMESTAMP12  PIC X(26).                           01360023
+      *                                                                 01370023
+          05 OUT-PROD-ID13         PIC 9(10).                           01380023
+          05 OUT-PROD-NAME13       PIC X(40).                           01390023
+          05 OUT-PROD-CAT-ID13     PIC X(05).                           01400023
+          05 OUT-PROD-CAT-NAME13   PIC X(40).                           01410023
+          05 OUT-PROD-UNIT-PRICE13 PIC X(12).                           01420023
+          05 OUT-PROD-UNIT-STOCK13 PIC 9(05).                           01430023
+          05 OUT-PROD-UNIT-ORDER13 PIC 9(05).                           01440023
+          05 OUT-PROD-ADD-DATE13   PIC X(10).                           01450023
+          05 OUT-PROD-TIMESTAMP13  PIC X(26).                           01460023
+      *                                                                 01470023
+          05 OUT-PROD-ID14         PIC 9(10).                           01480023
+          05 OUT-PROD-NAME14       PIC X(40).                           01490023
+          05 OUT-PROD-CAT-ID14     PIC X(05).                           01500023
+          05 OUT-PROD-CAT-NAME14   PIC X(40).                           01510023
+          05 OUT-PROD-UNIT-PRICE14 PIC X(12).                           01520023
+          05 OUT-PROD-UNIT-STOCK14 PIC 9(05).                           01530023
+          05 OUT-PROD-UNIT-ORDER14 PIC 9(05).                           01540023
+          05 OUT-PROD-ADD-DATE14   PIC X(10).                           01550023
+          05 OUT-PROD-TIMESTAMP14  PIC X(26).                           01560023
+      *                                                                 01570023
+          05 OUT-PROD-ID15         PIC 9(10).                           01580023
+          05 OUT-PROD-NAME15       PIC X(40).                           01590023
+          05 OUT-PROD-CAT-ID15     PIC X(05).                           01600023
+          05 OUT-PROD-CAT-NAME15   PIC X(40).                           01610023
+          05 OUT-PROD-UNIT-PRICE15 PIC X(12).                           01620023
+          05 OUT-PROD-UNIT-STOCK15 PIC 9(05).                           01630023
+          05 OUT-PROD-UNIT-ORDER15 PIC 9(05).                           01640023
+          05 OUT-PROD-ADD-DATE15   PIC X(10).                           01650023
+          05 OUT-PROD-TIMESTAMP15  PIC X(26).                           01660023

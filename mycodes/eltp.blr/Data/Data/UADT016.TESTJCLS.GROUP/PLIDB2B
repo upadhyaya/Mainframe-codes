@@ -1,0 +1,80 @@
+//PLIDB2B  PROC SPC=10,MEM=TEMPNAME,INLIB=,                             00010001
+//         MEM=,LOADLIB=,DBRMLIB=,COPYLIB=                              00020000
+//*****************************************************************     00030000
+//*            PRECOMPILE THE IBM PLI PROGRAM                           00040000
+//***************************************************************       00050000
+//PC       EXEC PGM=DSNHPC,PARM='HOST(PLI),SOURCE,TWOPASS',REGION=4096K 00060000
+//DBRMLIB  DD DSN=&DBRMLIB(&MEM),DISP=SHR                               00070000
+//STEPLIB  DD DISP=SHR,DSN=SYS1.DSN810.SDSNEXIT                         00080000
+//         DD DISP=SHR,DSN=DSN810.SDSNLOAD                              00090000
+//SYSIN    DD DSN=&INLIB(&MEM),DISP=SHR                                 00100000
+//SYSCIN   DD DSN=&&DSNHOUT,DISP=(MOD,PASS),UNIT=SYSDA,                 00110000
+//       SPACE=(TRK,(&SPC,&SPC))                                        00120000
+//SYSLIB   DD DSN=&COPYLIB,DISP=SHR  <==> DB2 DCL                       00130000
+//SYSPRINT DD SYSOUT=*                                                  00140000
+//SYSTERM  DD SYSOUT=*                                                  00150000
+//SYSUDUMP DD SYSOUT=*                                                  00160000
+//SYSUT1   DD SPACE=(TRK,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00170000
+//SYSUT2   DD SPACE=(TRK,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00180000
+//SYSUT3   DD SPACE=(TRK,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00190000
+//SYSUT4   DD SPACE=(TRK,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00200000
+//***************************************************************       00210000
+//*   COMPILE THE IBM PLI PROGRAM IF THE PRECOMPILE                     00220000
+//*   RETURN CODE IS 4 OR LESS.                                         00230000
+//***************************************************************       00240000
+//PLI      EXEC PGM=IBMZPLI,REGION=0M,                                  00250000
+//             PARM='COMPILE,INCLUDE,LIST,SOURCE',                      00260000
+//             COND=(4,LT,PC)                                           00270000
+//STEPLIB  DD DSN=IBMZ.SIBMZCMP,DISP=SHR                                00280000
+//SYSPRINT DD SYSOUT=*                                                  00290000
+//SYSTERM  DD SYSOUT=*                                                  00300000
+//SYSLIN   DD DSN=&&LOADSET,DISP=(MOD,PASS),UNIT=SYSDA,                 00310000
+//            SPACE=(TRK,(&SPC,&SPC))                                   00320000
+//SYSIN    DD DSN=&&DSNHOUT,DISP=(OLD,DELETE)                           00330000
+//SYSUT1   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00340000
+//SYSUT2   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00350000
+//SYSUT3   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00360000
+//SYSUT4   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00370000
+//SYSUT5   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00380000
+//SYSUT6   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00390000
+//SYSUT7   DD SPACE=(800,(&SPC,&SPC),,,ROUND),UNIT=SYSDA                00400000
+//***************************************************************       00410000
+//*    PRELINK STEP.                                                    00420000
+//***************************************************************       00430000
+//*         LINKEDIT IF THE PRECOMPILE AND COMPILE                      00440000
+//*        RETURN CODES ARE 4 OR LESS.                                  00450000
+//***************************************************************       00460000
+//LKED     EXEC PGM=IEWL,                                               00470000
+//        PARM='LIST,XREF,LET,MAP,RENT,RMODE=ANY,AMODE=31',             00480000
+//        COND=((4,LT,PC),(4,LT,PLI))                                   00490000
+//SYSLIB   DD DSN=CEE.SCEELKED,DISP=SHR                                 00500000
+//         DD DISP=SHR,DSN=DSN810.SDSNLOAD                              00510000
+//         DD DISP=SHR,DSN=CICSTS31.CICS.SDFHLOAD                       00520000
+//         DD DISP=SHR,DSN=ISP.SISPLOAD                                 00530000
+//SYSLIN   DD DSN=&&LOADSET,DISP=(OLD,DELETE)                           00540000
+//         DD DDNAME=SYSIN                                              00550000
+//**************************************************************        00560000
+//*                                                                     00570000
+//*     SYSMOD <== LOADLIB                                              00580000
+//*     MEM    <== MEM NAME                                             00590000
+//*     NOTE: PROGRAM NAME = DBRM NAME = LOAD MODULE                    00600000
+//*     DBRM IS CREATED BY DB2 PRECOMPILER WITH SAME                    00610000
+//*     NAME AS PROGRAM NAME (HERE MEM NAME)                            00620000
+//**************************************************************        00630000
+//SYSLMOD  DD DSN=&LOADLIB(&MEM),DISP=SHR   <==> LOAD LI                00640000
+//SYSPRINT DD SYSOUT=*                                                  00650000
+//SYSUT1   DD SPACE=(1024,(50,50)),UNIT=SYSDA                           00660000
+//**************************************************************        00670000
+//**************************************************************        00680000
+//*      BIND PLAN FOR PL1                                     *        00690000
+//**************************************************************        00700000
+//BINDPLAN EXEC PGM=IKJEFT01,DYNAMNBR=20,                               00710000
+//      COND=((4,LT,PC),(4,LT,PLI),(4,LT,LKED))                         00720000
+//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR                              00730000
+//         DD DSN=SYS1.DSN810.SDSNEXIT,DISP=SHR                         00740000
+//         DD DSN=DSN810.RUNLIB.LOAD,DISP=SHR                           00750000
+//DBRMLIB  DD DSN=&DBRMLIB,DISP=SHR                                     00760000
+//SYSTSPRT DD SYSOUT=A                                                  00770000
+//SYSPRINT DD SYSOUT=A                                                  00780000
+//SYSUDUMP DD SYSOUT=A                                                  00790000
+//SYSTSIN  DD DUMMY                                                     00800000

@@ -1,0 +1,11 @@
+//UADT014D JOB NOTIFY=&SYSUID
+//**********************************************************************
+//* DB2 ADMIN GENERATED JOB - RUN REPAIR UTILITY (TABLESPACES)
+//* STEP REPAIR: RUN REPAIR
+//**********************************************************************
+//REPAIR EXEC DSNUPROC,SYSTEM=DB2A,
+//             LIB='DSN810.SDSNLOAD',
+//             UID='UADT014'
+//DSNUPROC.SYSIN  DD  *
+REPAIR SET TABLESPACE RADHIK.PROJECT NOCOPYPEND
+/*

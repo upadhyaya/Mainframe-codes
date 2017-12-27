@@ -1,0 +1,10 @@
+000010       05 LS-OPT       PIC X(4).                                  00001000
+000011       05 LS-STS-ID    PIC X(4).                                  00001110
+000020*                                                                 00002000
+000100       05 PENDINGLIST-ARRAY OCCURS 8 TIMES INDEXED BY K.          00010009
+000110          06 LS-ORD-ID    PIC 9(10).                              00011008
+000120          06 LS-DLR-ID    PIC 9(10).                              00012009
+000130          06 LS-PROD-ID   PIC 9(10).                              00013009
+000140          06 LS-PROD-QNT  PIC 9(5).                               00014009
+000150          06 LS-STATUS    PIC X.                                  00015010
+000500       05 LS-MSG          PIC X(80).                              00050004

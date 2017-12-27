@@ -1,0 +1,91 @@
+//********************************************************************* 00100000
+//*                                                                   * 00200000
+//* @BANNER_START                           01                        * 00216600
+//* Licensed Materials - Property of IBM                              * 00233200
+//*                                                                   * 00249800
+//* 5655-M15              DFHMAPS                                     * 00266400
+//*                                                                   * 00283000
+//* (C) Copyright IBM Corp. 19XX                                      * 00299600
+//*                                                                   * 00316200
+//* CICS                                                              * 00332800
+//* (Element of CICS Transaction Server                               * 00349400
+//* for z/OS, Version 3 Release 1)                                    * 00366000
+//* @BANNER_END                                                       * 00382600
+//*                                                                   * 00400000
+//* STATUS = X.X.X                                                    * 00500000
+//*                                                                   * 00600000
+//* CHANGE ACTIVITY :                                                 * 00700000
+//*                                                                   * 00800000
+//*   $MOD(DFHMAPS),COMP(SYSGEN),PROD(CICS    ):                      * 00900000
+//*                                                                   * 01000000
+//*  PN= REASON REL YYMMDD HDXXIII : REMARKS                          * 01200000
+//* $L0= Base   XXX XX     HD????  : Base                             * 01400000
+//*                                                                   * 01600000
+//********************************************************************* 01800000
+//DFHMAPS PROC INDEX='CICSTS31.CICS', FOR SDFHMAC                       02000000
+//             MAPLIB='ADMS.BASE.SDFHLOAD', TARGET FOR MAP              04000000
+//             DSCTLIB='ADMS.BASE.SDFHMAC', TARGET FOR DSECT            06000000
+//             MAPNAME=,                     NAME OF MAPSET - REQUIRED  08000000
+//             A=,                           A=A FOR ALIGNED MAP        10000000
+//             AMODE=31,                     24/31                      10100000
+//             RMODE=ANY,                    24/ANY                     10300000
+//             ASMBLR=ASMA90,                ASSEMBLER PROGRAM NAME     10600000
+//             REG=2048K,                    REGION FOR ASSEMBLY        10900000
+//             OUTC=A                        PRINT SYSOUT CLASS         16000001
+//*            WORK=SYSDA                    WORK FILE UNIT             18000001
+//*                                                                     18100000
+//* This procedure creates a physical map (load module) and a           18200000
+//* symbolic map (copybook) from a BMS mapset source definition.        18300000
+//* It consists of four steps, as follows.                              18400000
+//*                                                                     18500000
+//* COPY - this step copies the mapset definition (which must be        18600000
+//*        provided by the user via a SYSUT1 DD statement) to a         18700000
+//*        temporary dataset.                                           18800000
+//*                                                                     18900000
+//* ASMMAP - this step assembles the mapset to produce an object        19000000
+//*        which constitutes the physical mapset.                       19100000
+//*                                                                     19200000
+//* LINKMAP - this step executes the binder to create a load module     19300000
+//*        from the object created by the ASMMAP step. By default       19400000
+//*        options AMODE(31) and RMODE(ANY) are specified.              19500000
+//*                                                                     19600000
+//* ASMDSECT - this step produces a copybook (symbolic map) from        19700000
+//*        supplied mapset source definition.                           19800000
+//*                                                                     19900000
+//COPY     EXEC PGM=IEBGENER                                            20000000
+//SYSPRINT DD SYSOUT=&OUTC                                              22000000
+//SYSUT2   DD DSN=&&TEMPM,DISP=(,PASS),                                 24000001
+//            DCB=(RECFM=FB,LRECL=80,BLKSIZE=400),                      26000000
+//            SPACE=(400,(50,50))                                       28000000
+//SYSIN    DD DUMMY                                                     30000000
+//* SYSUT1 DD * NEEDED FOR THE MAP SOURCE                               32000000
+//ASMMAP   EXEC PGM=&ASMBLR,REGION=&REG,                                34000000
+//* NOLOAD CHANGED TO NOOBJECT                                 @BA91512 35000000
+//  PARM='SYSPARM(&A.MAP),DECK,NOOBJECT'                                36000000
+//SYSPRINT DD SYSOUT=&OUTC                                              38000000
+//SYSLIB   DD DSN=&INDEX..SDFHMAC,DISP=SHR                              40000000
+//         DD DSN=SYS1.MACLIB,DISP=SHR                                  42000000
+//SYSUT1   DD SPACE=(TRK,(5,5))                                         44000005
+//SYSUT2   DD SPACE=(TRK,(5,5))                                         46000005
+//SYSUT3   DD SPACE=(TRK,(5,5))                                         48000005
+//SYSPUNCH DD DSN=&&MAP,DISP=(,PASS),                                   50000001
+//            DCB=(RECFM=FB,LRECL=80,BLKSIZE=400),                      52000000
+//            SPACE=(400,(50,50))                                       54000000
+//SYSIN    DD DSN=&&TEMPM,DISP=(OLD,PASS)                               56000000
+//LINKMAP  EXEC PGM=IEWL,PARM=('LIST,LET,XREF,RMODE(&RMODE)',           58000000
+//            'AMODE(&AMODE)')                                          59000000
+//SYSPRINT DD SYSOUT=&OUTC                                              60000000
+//SYSLMOD  DD DSN=&MAPLIB(&MAPNAME),DISP=SHR                            62000000
+//SYSUT1   DD SPACE=(1024,(20,20))                                      64000001
+//SYSLIN   DD DSN=&&MAP,DISP=(OLD,DELETE)                               67000000
+//* NOLOAD CHANGED TO NOOBJECT                                 @BA91512 68000000
+//ASMDSECT EXEC PGM=&ASMBLR,REGION=&REG,                                70000000
+//  PARM='SYSPARM(&A.DSECT),DECK,NOOBJECT'                              73000000
+//SYSPRINT DD SYSOUT=&OUTC                                              76000000
+//SYSLIB   DD DSN=&INDEX..SDFHMAC,DISP=SHR                              79000000
+//         DD DSN=SYS1.MACLIB,DISP=SHR                                  82000000
+//SYSUT1   DD SPACE=(TRK,(5,5))                                         85000005
+//SYSUT2   DD SPACE=(TRK,(5,5))                                         88000005
+//SYSUT3   DD SPACE=(TRK,(5,5))                                         91000005
+//SYSPUNCH DD DSN=&DSCTLIB(&MAPNAME),DISP=SHR                           94000002
+//SYSIN    DD DSN=&&TEMPM,DISP=(OLD,DELETE)                             97000000

@@ -1,0 +1,54 @@
+//UADT016D JOB (ACCOUNTING INFO),'DB2 UTILITY',                         00010000
+//*       RESTART=STEPNAME, <== FOR RESTART REMOVE * AND ENTER STEP NAME00020000
+//         REGION=XXXXK,NOTIFY=UADT016,                                 00030000
+//         MSGCLASS=X,                                                  00040000
+//         CLASS=9                                                      00050000
+//*                                                                     00060000
+//*                                                                     00070000
+//**********************************************************************00080000
+//*                                                                     00090000
+//* DB2 ADMIN GENERATED JOB - RUN LOAD UTILITY (TABLES)                 00100000
+//*                                                                     00110000
+//***********************************************************ADB2UTLX***00120000
+//*                                                                     00130000
+//**********************************************************************00140000
+//* STEP LOAD: LOAD TABLE(S) FROM DSNDB06.SYSCOPY                       00150000
+//**********************************************************************00160000
+//LOAD EXEC DSNUPROC,SYSTEM=DB2A,                                       00170000
+//             LIB='DSN810.SDSNLOAD',                                   00180000
+//             UID=''                                                   00190000
+//DSNUPROC.SYSREC DD DISP=SHR,                                          00200000
+//             DSN=UADT016.DB2A.UNLD.DSNDB06.SYSCOPY                    00210000
+//DSNUPROC.SYSUT1 DD DSN=UADT016.TEST.SYSUT1,                           00220000
+//             DISP=(MOD,DELETE,CATLG),                                 00230000
+//             SPACE=(TRK,(10,5),RLSE),                                 00240000
+//             UNIT=SYSDA                                               00250000
+//DSNUPROC.SORTOUT DD DSN=UADT016.TEST.SORTOU,                          00260000
+//             DISP=(MOD,DELETE,CATLG),                                 00270000
+//             SPACE=(TRK,(10,5),RLSE),                                 00280000
+//             UNIT=SYSDA                                               00290000
+//DSNUPROC.SORTWK01 DD DSN=UADT016.TEST.SORTWK01,                       00300000
+//             DISP=(MOD,DELETE,CATLG),                                 00310000
+//             SPACE=(TRK,(10,5),RLSE),                                 00320000
+//             UNIT=SYSDA                                               00330000
+//DSNUPROC.SORTWK02 DD DSN=UADT016.TEST.SORTWK02,                       00340000
+//             DISP=(MOD,DELETE,CATLG),                                 00350000
+//             SPACE=(TRK,(10,5),RLSE),                                 00360000
+//             UNIT=SYSDA                                               00370000
+//DSNUPROC.SORTWK03 DD DSN=UADT016.TEST.SORTWK03,                       00380000
+//             DISP=(MOD,DELETE,CATLG),                                 00390000
+//             SPACE=(TRK,(10,5),RLSE),                                 00400000
+//             UNIT=SYSDA                                               00410000
+//DSNUPROC.SORTWK04 DD DSN=UADT016.TEST.SORTWK04,                       00420000
+//             DISP=(MOD,DELETE,CATLG),                                 00430000
+//             SPACE=(TRK,(10,5),RLSE),                                 00440000
+//             UNIT=SYSDA                                               00450000
+//DSNUPROC.SYSMAP DD DSN=UADT016.TEST.SYSMAP,                           00460000
+//             DISP=(MOD,DELETE,CATLG),                                 00470000
+//             SPACE=(TRK,(10,5),RLSE),                                 00480000
+//             UNIT=SYSDA                                               00490000
+//DSNUPROC.SYSIN DD *                                                   00500000
+//    DD DSN=UADT016.DB2A.CNTL.DSNDB06.SYSCOPY,                         00510000
+//             DISP=SHR                                                 00520000
+//  DD DATA,DLM='$$'                                                    00530000
+$$                                                                      00540000

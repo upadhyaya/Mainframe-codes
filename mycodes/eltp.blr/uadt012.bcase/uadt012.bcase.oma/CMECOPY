@@ -1,0 +1,2 @@
+            05 LS-ID OCCURS 3 TIMES.                                    00001001
+              06 LS-ID1 PIC 9(10).                                      00010002

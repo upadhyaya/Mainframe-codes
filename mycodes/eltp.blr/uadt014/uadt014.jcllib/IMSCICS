@@ -1,0 +1,12 @@
+//UADT014F JOB NOTIFY=&SYSUID,REGION=0M                                 00010099
+//* COBOL + IMSDB + CICS                                                00020099
+//PROCLIB JCLLIB ORDER='ADMS.BLR.CICSIMS.JCLLIB'                        00050099
+//*                                                                     00060041
+//STEP1 EXEC PROC=IMSCICSC,                                             00070099
+//           SRCLIB='ADMS.BLR.CICSIMS.COBS',   <= INPUT PGM PATH        00080099
+//           COPYLIB='ADMS.BLR.CICSIMS.COPYLIB',      <= INCLUDE/DCL LIB00090099
+//           RPLLIB='ADMS.CICSA1.LOAD',        <= CICS LOAD LIB         00110042
+//           MEM=ORDCIIMS                                               00120099
+//LKED.SYSIN  DD  *                                                     00145099
+  NAME ORDCIIMS(R)                                                      00148099
+//*                                                                     00149099

@@ -1,0 +1,18 @@
+//UADT014D JOB NOTIFY=&SYSUID                                           JOB03468
+//*
+//**********************************************************************
+//*
+//* DB2 ADMIN GENERATED JOB - RUN RUNSTATS UTILITY (INDEXES)
+//*
+//***********************************************************ADB2UXR****
+//*
+//**********************************************************************
+//* STEP RUNSTATS: RUNSTATS ON INDEXES
+//**********************************************************************
+//RUNSTATS EXEC DSNUPROC,SYSTEM=DB2A,
+//             LIB='DSN810.SDSNLOAD',
+//             UID=''
+//DSNUPROC.SYSIN  DD  *
+RUNSTATS INDEX(
+"ADMT"."I_OR_002P")
+/*

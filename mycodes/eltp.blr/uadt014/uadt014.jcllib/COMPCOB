@@ -1,0 +1,13 @@
+//UADT014K JOB NOTIFY=&SYSUID,REGION=0M                                 00010023
+//*  TO COMPILE A COBOL PROGRAM                                         00020024
+//*                                                                     00040000
+//PROCLIB JCLLIB ORDER='UADT014.PROCLIB'                                00050024
+//*                                                                     00060000
+//STEP1 EXEC PROC=COB2COB,                                              00070021
+//           INLIB='UADT014.BLR.COBOL',          <= INPUT PGM PATH      00080034
+//*        COPYLIB='UADT014.SMF110.REPORTS',          <= INPUT PGM PATH 00090034
+//           LOADLIB='UADT014.BASE.LOADLIB',          <= CICS LOAD LIB  00110013
+//           MEM=TEST9                           <= NAME OF IP & DBRM   00120034
+//LKED.SYSIN DD *                                                       00130000
+   NAME TEST9(R)                          <= NAME OF LOAD MODULE        00150034
+//*                                                                     00150119

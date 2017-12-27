@@ -1,0 +1,77 @@
+//*                                                                     00001009
+//* THIS IS A PROCEDURE TO COMPILE THE ASSEMBLER-IMS-CICS PROGRAM       00010009
+//*     This procedure generates an assembler module.                   00012009
+//*                                                                     00013009
+//*      This procedure contains 4 steps                                00014009
+//*      1.   Exec the assembler translator (TRN STEP)                  00015009
+//*           (using the supplied suffix 1$)                            00016009
+//*      2.   Exec the assembler (ASM STEP)                             00017009
+//*      3.   Reblock SDFHMAC(DFHEILIA) for use by the linkedit step    00018009
+//*           (COPYLINK STEP)                                           00019009
+//*      4.   Linkedit the output to dataset &PROGLIB(LKED STEP)        00019109
+//*                                                                     00020009
+//ASMCICS1 PROC SUFFIX=1$,           Suffix for translator module       00200002
+//       ASMBLR=ASMA90,              Assembler module name              02000000
+//       INDEX='CICSTS31.CICS', Qualifier(s) for CICS libraries         02800000
+//       INLIB='UADT014.BLR.ASM',                                       02810000
+//       MEM=,                                                          02840000
+//       PROGLIB='ADMS.CICSA1.LOAD',                                    03600000
+//       DSCTLIB='ADMS.BASE.COPYLIB',                                   04500000
+//       OUTC=A,                     Class for print output             05400000
+//       REG=2M,                     Region size for all steps          06300000
+//       LNKPARM='LIST,XREF',        Link edit parameters               07200000
+//       WORK=SYSDA                  Unit for work datasets             08100000
+//TRN    EXEC PGM=DFHEAP&SUFFIX,                                        35000000
+//            REGION=&REG,                                              36000003
+//            PARM=XOPTS(CICS,DLI)                                      36010005
+//STEPLIB  DD DSN=&INDEX..SDFHLOAD,DISP=SHR                             37000000
+//SYSPRINT DD SYSOUT=&OUTC                                              38000000
+//SYSPUNCH DD DSN=&&SYSCIN,                                             39000000
+//            DISP=(,PASS),UNIT=&WORK,                                  40000000
+//            DCB=BLKSIZE=400,                                          41000000
+//            SPACE=(400,(400,100))                                     42000000
+//SYSIN DD DSN=&INLIB(&MEM),DISP=SHR                                    42010000
+//*                                                                     42020000
+//*                                                                     43000000
+//ASM    EXEC PGM=&ASMBLR,                                              44000000
+//            REGION=&REG,                                              45000000
+//            PARM='DECK,NOOBJECT,LIST'                                 46000000
+//SYSLIB   DD DSN=&DSCTLIB,DISP=SHR                                     46500000
+//         DD DSN=&INDEX..SDFHMAC,DISP=SHR                              47010006
+//         DD DSN=&INDEX..SDFHSAMP,DISP=SHR                             47500000
+//         DD DSN=SYS1.MACLIB,DISP=SHR                                  48000000
+//SYSUT1   DD UNIT=&WORK,SPACE=(1700,(400,400))                         49000000
+//SYSUT2   DD UNIT=&WORK,SPACE=(1700,(400,400))                         50000000
+//SYSUT3   DD UNIT=&WORK,SPACE=(1700,(400,400))                         51000000
+//SYSPUNCH DD DSN=&&LOADSET,                                            52000000
+//            UNIT=&WORK,DISP=(,PASS),                                  54000000
+//            SPACE=(400,(100,100))                                     56000000
+//SYSPRINT DD SYSOUT=&OUTC                                              58000000
+//SYSIN    DD DSN=&&SYSCIN,DISP=(OLD,DELETE)                            60000000
+//*                                                                     62000000
+//COPYLINK EXEC PGM=IEBGENER,COND=(7,LT,ASM)                            64000000
+//SYSUT1   DD DSN=&INDEX..SDFHMAC(DFHEILIA),DISP=SHR                    66000000
+//SYSUT2   DD DSN=&&COPYLINK,DISP=(NEW,PASS),                           68000000
+//            DCB=(LRECL=80,BLKSIZE=400,RECFM=FB),                      70000000
+//            UNIT=&WORK,SPACE=(400,(20,20))                            72000000
+//SYSPRINT DD SYSOUT=&OUTC                                              74000000
+//SYSIN    DD DUMMY                                                     76000000
+//*                                                                     78000000
+//LKED   EXEC PGM=IEWL,REGION=&REG,                                     80000000
+//            PARM='&LNKPARM',COND=(7,LT,ASM)                           82000000
+//SYSLIB   DD DSN=&INDEX..SDFHLOAD,DISP=SHR                             84000000
+//         DD DSN=ADMS.CICSA1.LOAD,DISP=SHR                             84001008
+//SYSPRINT DD SYSOUT=*                                                  84010000
+//SYSLMOD  DD DSNAME=&PROGLIB(&MEM),DISP=SHR                            86000000
+//SYSUT1   DD UNIT=&WORK,DCB=BLKSIZE=1024,                              88000000
+//            SPACE=(1024,(200,20))                                     90000000
+//SYSPRINT DD SYSOUT=&OUTC                                              92000000
+//SYSLIN   DD DSN=&&LOADSET,DISP=(OLD,DELETE)                           94000000
+//         DD DSN=&&COPYLINK,DISP=(OLD,DELETE)                          96000000
+//         DD DDNAME=SYSIN                                              98000000
+//*                                                                     98010000
+//*<= LKED.SYSIN SHOULD OVERLOAD DSNCLI & PGMNAME                       98020000
+//SYSIN    DD DUMMY                                                     98030000
+//*                                                                     98040000
+//  PEND                    <= END OF ASMCICS PROC                      98050000
+//*                                                                     98060000

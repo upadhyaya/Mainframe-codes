@@ -1,0 +1,35 @@
+//UADT014J JOB NOTIFY=&SYSUID,REGION=0M                                 00010009
+/*JOBPARM  LINES=999999                                                 00011032
+//* COBOL + DB2 + CICS                                                  00020003
+//*  ASSUMED THAT IPPGM = DBRM = LOAD MODULE NAME ARE SAME              00030002
+//*                                                                     00040002
+//PROCLIB JCLLIB ORDER='UADT014.PROCLIB'                                00050009
+//*                                                                     00060002
+//STEP1 EXEC PROC=DB2CICSC,                                             00070002
+//           INLIB='ELTP.BLR.UADT014.SOA',        <= INPUT PGM PATH     00080021
+//           SRCLIB='ELTP.BLR.UADT014.SOA',     <= INCLUDE/DCL LIB      00090021
+//           COPYLIB='UADT014.SOA.COPYLIB',       <= INCLUDE COPYLIB    00091022
+//           DBRMLIB='UADT014.SOA.DBRMLIB',     <= DBRM SOURCE PATH     00100030
+//           RPLLIB='ADMS.CICSA1.LOAD',         <= CICS LOAD LIB        00110017
+//           MEM=NEWAPPR                        <= NAME OF IP & DBRM    00120053
+//LKED.SYSIN DD *                                                       00130022
+   NAME NEWAPPR(R)                         <= NAME OF LOAD MODULE       00150053
+//*                                                                     00160002
+//PACKBND EXEC PGM=IKJEFT01,REGION=4096K,                               00170002
+//         DYNAMNBR=75                                                  00180002
+//STEPLIB  DD DSN=DSN810.SDSNLOAD,DISP=SHR                              00190002
+//         DD DSN=SYS1.DSN810.SDSNEXIT,DISP=SHR                         00200002
+//         DD DSN=DSN810.RUNLIB.LOAD,DISP=SHR                           00210002
+//DBRMLIB  DD DSN=UADT014.SOA.DBRMLIB,DISP=SHR      <= DBRM LIBRARY     00220030
+//SYSTSPRT DD SYSOUT=*                                                  00230002
+//SYSPRINT DD SYSOUT=*                                                  00240002
+//SYSUDUMP DD SYSOUT=*                                                  00250002
+//SYSTSIN  DD *                                                         00260002
+  DSN SYSTEM(DB2A)                                                      00270005
+  BIND PACKAGE(ADMTCOL1) MEM(NEWAPPR) -                                 00280053
+  LIBRARY('UADT014.SOA.DBRMLIB') -                                      00290030
+  OWNER(GADMT) QUALIFIER(ADMT) -                                        00291006
+  ACTION(REPLACE) CURRENTDATA(NO) DEGREE(1) ENCODING(EBCDIC) -          00300002
+  EXPLAIN(NO) FLAG(I) ISOLATION(CS) NOREOPT(VARS) -                     00310002
+  RELEASE(DEALLOCATE) SQLERROR(NOPACKAGE) VALIDATE(BIND)                00320002
+/*                                                                      00330002

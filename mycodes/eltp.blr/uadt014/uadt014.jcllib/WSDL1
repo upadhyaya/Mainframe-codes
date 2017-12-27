@@ -1,0 +1,22 @@
+//UADT014W JOB (999,POK),'CICS LS2WS TOOL',MSGCLASS=A,                  JOB03553
+//    CLASS=A,NOTIFY=&SYSUID,TIME=1440,REGION=0M
+//*
+// JCLLIB ORDER='ADMS.SOA.OMSRC'
+//*
+// SET QT=''''
+//LS2WS EXEC DFHLS2WS,
+//    JAVADIR='',
+//    USSDIR='cicsts31',
+//    PATHPREF=''
+//INPUT.SYSUT1 DD *
+PDSLIB=//ELTP.BLR.UADT014.SOA
+PGMNAME=NEWAPPR
+LANG=COBOL
+PGMINT=COMMAREA
+LOGFILE=/adms/custwrld/wsdir/newappr.log
+WSBIND=/adms/custwrld/wsdir/newappr.wsbind
+WSDL=/adms/custwrld/wsdir/newappr.wsdl
+URI=insurance/newappr
+REQMEM=NEWPCPY1
+RESPMEM=NEWPCPY1
+*/

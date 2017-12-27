@@ -1,0 +1,40 @@
+      ******************************************************************00001003
+      * WORKING STORAGE VARIABLES FOR DATE AND TIME FORMATTING.         00001103
+      ******************************************************************00002003
+       01 WS-JULIAN.                                                    00010000
+          10 WS-JULIAN-PREFIX   PIC X(01).                              00020000
+          10 WS-JULIAN-YEAR     PIC X(02).                              00030000
+          10 WS-JULIAN-DAY      PIC X(03).                              00040000
+       01 WS-JULIAN-N REDEFINES WS-JULIAN PIC 9(6).                     00050000
+       01 WS-GREGORIAN.                                                 00060000
+          10 WS-GRE-DD          PIC X(02).                              00070000
+          10 FILLER             PIC X(01) VALUE '/'.                    00080000
+          10 WS-GRE-MM          PIC X(02).                              00090000
+          10 FILLER             PIC X(01) VALUE '/'.                    00100000
+          10 WS-GRE-YYYY        PIC X(04).                              00110000
+       01  WS-JJ.                                                       00120000
+          10 WS-JJ-PREFIX          PIC 9(2).                            00130000
+          10 WS-JJ-YY              PIC 9(2).                            00140000
+          10 WS-JJ-DDD             PIC 9(3).                            00150000
+       01 WS-JJ-N REDEFINES WS-JJ PIC 9(7).                             00160000
+       01 WS-DD  PIC 9(8).                                              00170000
+       01 WS-GG.                                                        00180000
+              10 WS-GG-YYYY        PIC X(04).                           00190000
+              10 WS-GG-MM          PIC X(02).                           00200000
+              10 WS-GG-DD          PIC X(02).                           00210000
+       01 WS-GG-N REDEFINES WS-GG PIC 9(8).                             00220000
+      *                                                                 00230000
+       01 WS-TIME-DISPLAY.                                              00240000
+          10 WS-TIME-HH            PIC X(02).                           00250000
+          10 WS-TIME-HH-N REDEFINES WS-TIME-HH PIC 9(02).               00260000
+          10 FILLER                PIC X(01) VALUE ':'.                 00270000
+          10 WS-TIME-MM            PIC X(02).                           00280000
+          10 WS-TIME-MM-N REDEFINES WS-TIME-MM PIC 9(02).               00290000
+          10 FILLER                PIC X(01) VALUE ':'.                 00300000
+          10 WS-TIME-SS            PIC X(02).                           00310000
+          10 WS-TIME-SS-N REDEFINES WS-TIME-SS PIC 9(2).99.             00320000
+      *                                                                 00330000
+       01 SMF30TIME-1    PIC 9(12).                                     00331002
+       01 WS-TODAY       PIC 9(8).                                      00332004
+       01 WS-TIMET       PIC 9(6).                                      00333004
+      *                                                                 00340001

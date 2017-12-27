@@ -1,0 +1,22 @@
+//UADT014R JOB NOTIFY=&SYSUID,REGION=0M                                 00010000
+//*                                                                     00020000
+//STEP1    EXEC PGM=TEST3                                               00030000
+//STEPLIB  DD DSN=UADT014.BASE.LOADLIB,DISP=SHR                         00040000
+//SYSPRINT DD SYSOUT=*                                                  00070000
+//SYSTSPRT DD SYSOUT=*                                                  00080000
+//SYSUDUMP DD SYSOUT=*                                                  00090000
+//SYSOUT   DD SYSOUT=*                                                  00100000
+//SYSIN    DD *                                                         00101000
+INPUT VIA SYSIN-JCL                                                     00102000
+/*                                                                      00103000
+//******************************************************************    00110000
+//******************************************************************    00110100
+//*STEP1    EXEC PGM=TEST2,PARM='NUTTY'                                 00111000
+//*STEPLIB  DD DSN=UADT014.BASE.LOADLIB,DISP=SHR                        00120000
+//*1       DD DSN='UADT014.XML.INPUT3',DISP=SHR                         00130000
+//*2       DD DSN='UADT014.XML.OUTPUT1',DISP=SHR                        00140000
+//*3       DD DSN='UADT014.XML.OUTPUT2',DISP=SHR                        00150000
+//*SYSPRINT DD SYSOUT=*                                                 00160000
+//*SYSTSPRT DD SYSOUT=*                                                 00170000
+//*SYSUDUMP DD SYSOUT=*                                                 00180000
+//*SYSOUT   DD SYSOUT=*                                                 00190000

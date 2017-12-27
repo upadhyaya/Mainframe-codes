@@ -1,0 +1,109 @@
+       01  ORDMAPI.
+           02  FILLER PIC X(12).
+           02  DATE1L    COMP  PIC  S9(4).
+           02  DATE1F    PICTURE X.
+           02  FILLER REDEFINES DATE1F.
+             03 DATE1A    PICTURE X.
+           02  DATE1I  PIC X(10).
+           02  TIME1L    COMP  PIC  S9(4).
+           02  TIME1F    PICTURE X.
+           02  FILLER REDEFINES TIME1F.
+             03 TIME1A    PICTURE X.
+           02  TIME1I  PIC X(10).
+           02  ORDID1L    COMP  PIC  S9(4).
+           02  ORDID1F    PICTURE X.
+           02  FILLER REDEFINES ORDID1F.
+             03 ORDID1A    PICTURE X.
+           02  ORDID1I  PIC 9(05).
+           02  CUSTID1L    COMP  PIC  S9(4).
+           02  CUSTID1F    PICTURE X.
+           02  FILLER REDEFINES CUSTID1F.
+             03 CUSTID1A    PICTURE X.
+           02  CUSTID1I  PIC 9(05).
+           02  EMPID1L    COMP  PIC  S9(4).
+           02  EMPID1F    PICTURE X.
+           02  FILLER REDEFINES EMPID1F.
+             03 EMPID1A    PICTURE X.
+           02  EMPID1I  PIC 9(05).
+           02  PRDID1L    COMP  PIC  S9(4).
+           02  PRDID1F    PICTURE X.
+           02  FILLER REDEFINES PRDID1F.
+             03 PRDID1A    PICTURE X.
+           02  PRDID1I  PIC 9(05).
+           02  UNIPRCL    COMP  PIC  S9(4).
+           02  UNIPRCF    PICTURE X.
+           02  FILLER REDEFINES UNIPRCF.
+             03 UNIPRCA    PICTURE X.
+           02  UNIPRCI  PIC X(12).
+           02  QNTY1L    COMP  PIC  S9(4).
+           02  QNTY1F    PICTURE X.
+           02  FILLER REDEFINES QNTY1F.
+             03 QNTY1A    PICTURE X.
+           02  QNTY1I  PIC 9(05).
+           02  ORDDATL    COMP  PIC  S9(4).
+           02  ORDDATF    PICTURE X.
+           02  FILLER REDEFINES ORDDATF.
+             03 ORDDATA    PICTURE X.
+           02  ORDDATI  PIC X(10).
+           02  REQDATL    COMP  PIC  S9(4).
+           02  REQDATF    PICTURE X.
+           02  FILLER REDEFINES REQDATF.
+             03 REQDATA    PICTURE X.
+           02  REQDATI  PIC X(10).
+           02  SHPDATL    COMP  PIC  S9(4).
+           02  SHPDATF    PICTURE X.
+           02  FILLER REDEFINES SHPDATF.
+             03 SHPDATA    PICTURE X.
+           02  SHPDATI  PIC X(10).
+           02  CARCSTL    COMP  PIC  S9(4).
+           02  CARCSTF    PICTURE X.
+           02  FILLER REDEFINES CARCSTF.
+             03 CARCSTA    PICTURE X.
+           02  CARCSTI  PIC 9(10)V99.
+           02  TOTCSTL    COMP  PIC  S9(4).
+           02  TOTCSTF    PICTURE X.
+           02  FILLER REDEFINES TOTCSTF.
+             03 TOTCSTA    PICTURE X.
+           02  TOTCSTI  PIC X(18).
+           02  OPTL    COMP  PIC  S9(4).
+           02  OPTF    PICTURE X.
+           02  FILLER REDEFINES OPTF.
+             03 OPTA    PICTURE X.
+           02  OPTI  PIC X(1).
+           02  MSG1L    COMP  PIC  S9(4).
+           02  MSG1F    PICTURE X.
+           02  FILLER REDEFINES MSG1F.
+             03 MSG1A    PICTURE X.
+           02  MSG1I  PIC X(70).
+       01  ORDMAPO REDEFINES ORDMAPI.
+           02  FILLER PIC X(12).
+           02  FILLER PICTURE X(3).
+           02  DATE1O PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  TIME1O PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  ORDID1O PIC 9(05).
+           02  FILLER PICTURE X(3).
+           02  CUSTID1O PIC 9(05).
+           02  FILLER PICTURE X(3).
+           02  EMPID1O PIC 9(05).
+           02  FILLER PICTURE X(3).
+           02  PRDID1O PIC 9(05).
+           02  FILLER PICTURE X(3).
+           02  UNIPRCO PIC 9(10)V99.
+           02  FILLER PICTURE X(3).
+           02  QNTY1O PIC 9(05).
+           02  FILLER PICTURE X(3).
+           02  ORDDATO PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  REQDATO PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  SHPDATO PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  CARCSTO PIC 9(10)V99.
+           02  FILLER PICTURE X(3).
+           02  TOTCSTO PIC 9(16)V99.
+           02  FILLER PICTURE X(3).
+           02  OPTO PIC X(1).
+           02  FILLER PICTURE X(3).
+           02  MSG1O PIC X(70).

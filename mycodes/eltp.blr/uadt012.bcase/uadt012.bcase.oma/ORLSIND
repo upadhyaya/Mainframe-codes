@@ -1,0 +1,32 @@
+              05 LS-PGMNAME     PIC X(8).                               00001000
+              05 LS-OPT         PIC X(4).                               00002000
+              05 LS-FLAG        PIC X(4).                               00003000
+              05 LS-CNT         PIC 9.                                  00004000
+              05 LS-ORD-ID      PIC 9(10).                              00005000
+              05 LS1-ORD-ID      PIC 9(10).                             00006000
+              05 LS-CUST-ID     PIC 9(10).                              00007000
+              05 LS-ORDER-DATE.                                         00008000
+                 07 LS-OD-DD    PIC 99.                                 00009000
+                 07 FILLER     PIC X.                                   00009100
+                 07 LS-OD-MM    PIC 99.                                 00009200
+                 07 FILLER     PIC X.                                   00009300
+                 07 LS-OD-YY    PIC 9999.                               00009400
+              05 LS-PROD-ID     PIC 9(10).                              00009500
+              05 LS-EMP-ID      PIC 9(10).                              00009600
+              05 LS-CURPOS      PIC 9.                                  00009700
+      *                                                                 00009900
+       02    ORDLISTGRP.                                                00010004
+        03    ORDLIST-ARRAY OCCURS 8 TIMES INDEXED BY K.                00010106
+             05 LS-ORDERID     PIC 9(10).                               00011000
+             05 LS-CUSTID      PIC 9(10).                               00020000
+             05 LS-PRODID      PIC 9(10).                               00030000
+             05 LS-EMPID       PIC 9(10).                               00040000
+             05 LS-QNTY        PIC 9(5).                                00050000
+             05 LS-TOTALCOST   PIC X(18).                               00060000
+             05 LS-ORDERDT.                                             00070000
+                07 LS-D-DD     PIC 99.                                  00080000
+                07 FILLER      PIC X.                                   00090000
+                07 LS-D-MM     PIC 99.                                  00100000
+                07 FILLER      PIC X.                                   00110000
+                07 LS-D-YY     PIC 9999.                                00120000
+       02 LS-MSG         PIC X(70).                                     00130005
